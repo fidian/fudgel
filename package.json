@@ -1,0 +1,50 @@
+{
+    "name": "fudgel",
+    "version": "0.1.0",
+    "description": "Minimalist web component library to take the pain out of automatic updates.",
+    "keywords": [
+        "lightweight",
+        "web-component",
+        "slim.js",
+        "angular"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/fidian/fudgel.git"
+    },
+    "homepage": "https://fudgel.js.org/",
+    "author": "Tyler Akins <fidian@rumkin.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/fidian/fudgel/issues"
+    },
+    "scripts": {
+        "clean": "rm -rf dist",
+        "docs": "docs/update-scripts",
+        "build": "npm run clean && npm run build:compile && npm run bundle:esm && npm run bundle:esm:min && npm run bundle:umd && npm run bundle:umd:min && npm run bundle:stats && npm run build:docs",
+        "build:compile": "tsc",
+        "build:docs": "cp dist/index.umd.min.js docs/",
+        "bundle:esm": "rollup dist/index.js --file dist/index.mjs --format esm",
+        "bundle:esm:min": "terser --ecma 6 --compress --mangle --module -o dist/index.min.mjs -- dist/index.mjs && gzip -9 -c dist/index.min.mjs > dist/index.min.mjs.gz",
+        "bundle:stats": "cd dist && ls -l index*mjs* index*umd*",
+        "bundle:umd": "rollup dist/index.js --file dist/index.umd.js --format umd --name Fudgel",
+        "bundle:umd:min": "terser --ecma 6 --compress --mangle -o dist/index.umd.min.js -- dist/index.umd.js && gzip -9 -c dist/index.umd.min.js > dist/index.umd.min.js.gz",
+        "test": "npm run test:component",
+        "test:component": "cypress run --component",
+        "test:interactive": "cypress open --component"
+    },
+    "main": "dist/index.js",
+    "module": "dist/index.min.mjs",
+    "unpkg": "dist/index.umd.min.js",
+    "types": "dist/index.d.ts",
+    "devDependencies": {
+        "cypress": "^13.3.3",
+        "cypress-ct-custom-elements": "file:../cypress-ct-custom-elements",
+        "rollup": "^4.1.4",
+        "terser": "^5.22.0",
+        "typescript": "^5.2.2"
+    },
+    "dependencies": {
+        "vite": "^5.0.2"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "lib": ["dom", "es2019"],
+        "moduleResolution": "nodenext",
+        "target": "es6",
+        "types": ["cypress", "node"]
+    },
+    "include": ["**/*.ts"]
+}
