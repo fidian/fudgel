@@ -38,11 +38,11 @@
     "unpkg": "dist/index.umd.min.js",
     "types": "dist/index.d.ts",
     "devDependencies": {
-        "cypress": "^13.3.3",
-        "cypress-ct-custom-elements": "file:../cypress-ct-custom-elements",
-        "rollup": "^4.1.4",
-        "terser": "^5.22.0",
-        "typescript": "^5.2.2"
+        "cypress": "^13.6.0",
+        "cypress-ct-custom-elements": "^1.0.0",
+        "rollup": "^4.5.1",
+        "terser": "^5.24.0",
+        "typescript": "^5.3.2"
     },
     "dependencies": {
         "vite": "^5.0.2"
