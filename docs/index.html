@@ -70,7 +70,7 @@
                 properties, and fully supports TypeScript. All of this is done
                 while allowing you, the developer, to maintain control; add
                 additional directives, hook into the component's lifecycle, and
-                perhaps choose to employ a shadow DOM.
+                even handle content projection through slotted templates.
             </p>
             <p>What do you get by using Fudgel?</p>
             <ul>
@@ -87,10 +87,9 @@
                 <li>
                     Event handlers, tying events to your controller's methods
                 </li>
-                <li>Support for styles and style generators</li>
+                <li>Support for styles within the shadow DOM</li>
                 <li>Iterate over objects, arrays, maps, and other iterables</li>
                 <li>Conditionally remove elements</li>
-                <li>Optional shadow DOM to contain styles</li>
                 <li>Child element references</li>
                 <li>
                     No build system needed; you can just use vanilla JavaScript
@@ -98,7 +97,7 @@
                 <li>Full TypeScript support and also published as a module</li>
                 <li>When used with a build system, fully tree-shakeable</li>
                 <li>
-                    Darn small, coming in at just over 3k minified and gzipped
+                    Darn small, coming in at about 3k minified and gzipped
                 </li>
                 <li>
                     Breadth-first initialization of child elements, meaning
@@ -177,11 +176,6 @@
                 <li>
                     <a href="https://angular.io/">Angular</a> has similar
                     lifestyle hooks and structural directives.
-                </li>
-                <li>
-                    <a href="https://github.com/WebReflection/heresy">Heresy</a>
-                    allows a function for styles, providing an option to avoid
-                    shadow DOMS and still constrain styling.
                 </li>
                 <li>
                     <a href="https://mithril.js.org/">Mithril</a> supplied the
@@ -315,7 +309,7 @@
                     The name of the custom element, which must contain a hyphen
                 </li>
                 <li>
-                    An object containing static properties to define for the new
+                    An object containing configuration to define for the new
                     element
                 </li>
                 <li>An optional class to instantiate as the controller</li>
@@ -334,58 +328,35 @@
             </code-sample>
             <p>
                 The custom element name needs to contain a hyphen because it is
-                part of the custom element spec. The static properties will be
-                added to the new <code>HTMLElement</code> that is being created
-                (more on this later). Lastly, the class to use as the controller
-                is optional. If your component simply applies styling or can
-                complete its objective using only a template, then passing a
-                class isn't required.
+                part of the custom element spec. The configuration will supply
+                necessary information for the new custom component. Lastly, the
+                class to use as the controller is optional. If your component
+                simply applies styling or can complete its objective using only
+                a template, then passing a class isn't required.
             </p>
             <p>
-                The object containing static values can specify the following
+                The object containing configuration can specify the following
                 pieces of information.
             </p>
             <ul>
                 <li>
-                    <code>shadow</code> - A boolean indicating if you want to
-                    use a shadow root or not. When using styles that have the
-                    <code>:host</code> selector or if you use CSS styles that
-                    you don't want to leak out of your custom element, then set
-                    <code>shadow</code> to <code>true</code>. If this element
-                    must not use a shadow DOM, set this to <code>false</code>.
-                    If your code runs fine either way, don't set this value. The
-                    default is <code>false</code>, though as web components get
-                    more popular, the default could change.
+                    <code>style</code> - [optional, string] CSS styles for your
+                    custom element. Because we use a shadow DOM, this will
+                    insert a new <code>&lt;style&gt;</code> element that will
+                    affect your component and its children.
                 </li>
                 <li>
-                    <code>style</code> - CSS styles for your custom element. If
-                    using a shadow DOM, this inserts a new
-                    <code>&lt;style&gt;</code> element within the shadow DOM,
-                    otherwise a single <code>&lt;style&gt;</code> is added to
-                    the global styles and this value is erased from statics. The
-                    value can either be a string or a function that accepts the
-                    custom element name as its only parameter and produces a
-                    string.
-                </li>
-                <li>
-                    <code>template</code> - The HTML template that this element
-                    will use for content. When there is no content, it is up to
-                    the controller to add the necessary DOM elements and
-                    bindings.
+                    <code>template</code> - [required, string] The HTML template
+                    that this element will use for content. When there is no
+                    content, it is up to the controller to add the necessary DOM
+                    elements and bindings.
                 </li>
             </ul>
             <code-sample type="js" copy-clipboard-button>
                 <!-- prettier-ignore -->
                 <template>
-                    // Style as a string
                     controller('new-element', {
                         style: `new-element { display: block }`,
-                        template: `<p>This is my new element</p>`
-                    });
-
-                    // Style as a function for better minification
-                    controller('new-element', {
-                        style: (name) =&gt; `${name} { display: block }`,
                         template: `<p>This is my new element</p>`
                     });
                 </template>
@@ -404,7 +375,7 @@
                     @Controller('say-hello', {
                         template: `<p>Hello, {{this.audience}}</p>`
                     })
-                    class {
+                    export class SayHelloComponent {
                         audience = 'world';
                     }
                 </template>
@@ -501,16 +472,11 @@
             <h2>Styles</h2>
             <p>
                 What's the web without CSS? Fudgel supports automatically adding
-                styles for your element using two different mechanisms. When
-                using a shadow DOM, CSS styles are added within each custom
-                element's shadow root when it is created. Otherwise, without a
-                shadow DOM, the styles are added once to the page's global
-                styles.
-            </p>
-            <p>
-                This next example shows a button that does not use a shadow DOM.
-                The styles will be added globally. Unfortunately, this means
-                that all buttons will be styled the same.
+                a style tag for your new element. These are created within the
+                shadow root and are thus scoped to your element and its
+                children. Styles are a string containing plain CSS. In the below
+                example, all buttons within the element will be styled but none
+                outside of the element will have those styles applied.
             </p>
             <code-sample type="js" copy-clipboard-button>
                 <!-- prettier-ignore -->
@@ -530,69 +496,6 @@
                     });
                 </template>
             </code-sample>
-            <p>
-                As shown above, styles can be a string containing plain CSS.
-                Alternately, the style property can have a function that return
-                a CSS string. Functions are available so you can namespace the
-                styles under your element easily, plus it also helps with
-                minification of the styles. The above component's problem of
-                accidentally styling all buttons is mitigated when using a
-                function.
-            </p>
-            <code-sample type="js" copy-clipboard-button>
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from 'fudgel';
-
-                    component('styled-click-me-button', {
-                        style: (elementName) =&gt; `
-                            ${elementName} button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                            }
-                        `,
-                        template: `<button>Click me</button>`
-                    });
-                </template>
-            </code-sample>
-            <h2>Shadow DOM</h2>
-            <p>
-                Another way to scope your styles is to use a shadow root, which
-                means all styles can be contained within an element and its
-                descendants. Let's revisit the button component and enable a
-                shadow DOM. This means all buttons within the element will be
-                styled but anything outside the element will not.
-            </p>
-            <code-sample type="js" copy-clipboard-button>
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from 'fudgel';
-
-                    component('styled-click-me-button', {
-                        shadow: true,
-                        style: `
-                            button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                            }
-                        `,
-                        template: `<button>Click me</button>`
-                    });
-                </template>
-            </code-sample>
-            <p>
-                The only real change is the extra line,
-                <code>shadow: true,</code> which enables the shadow DOM.
-            </p>
-            <p>
-                This is not enabled by default because utilizing a shadow DOM
-                could cause as many problems as it solves, especially around
-                events. However, the default could change in a future release.
-            </p>
             <h2>Built-In Directives</h2>
             <p>
                 Directives appear as attributes in your HTML within the template
@@ -821,7 +724,7 @@
             <h2>Utility Functions</h2>
             <p>
                 Dispatching events from your controller can be tricky,
-                especially if you use a shadow DOM. Also, for minification, you
+                especially due to the shadow DOM. Also, for minification, you
                 will probably want to leverage shared code to send events.
             </p>
             <code-sample type="js" copy-clipboard-button>

@@ -1,7 +1,7 @@
 import { Constructor } from './constructor';
 import { Controller } from './controller';
 import { CustomElement } from './custom-element';
-import { CustomElementStaticsMetadata } from './custom-element-statics';
+import { CustomElementConfig } from './custom-element-config';
 import { HookCallback } from './hooks';
 import { TrackingObject } from './setter';
 
@@ -21,11 +21,11 @@ const makeMap = <K extends WeakKey, V>() => {
 };
 
 export const metadataAttrPatched = makeMap<Controller, TrackingObject>();
-export const metadataComponentController = makeMap<Object, Constructor>();
-export const metadataComponentStatics = makeMap<
+export const metadataComponentConfig = makeMap<
     Object,
-    CustomElementStaticsMetadata
+    CustomElementConfig
 >();
+export const metadataComponentController = makeMap<Object, Constructor>();
 export const metadataControllerContent = makeMap<
     Controller,
     DocumentFragment

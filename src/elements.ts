@@ -18,5 +18,3 @@ export const createStyle = (content: string) => {
 }
 
 export const createTemplate = () => createElement('template');
-
-export const attachToBody = (node: Node) => doc.body.appendChild(node);

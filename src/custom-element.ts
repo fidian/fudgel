@@ -3,8 +3,8 @@ import { findPrototypeHooks } from './prototype-hooks';
 import { hooksOff, hooksRun } from './hooks';
 import { linkNodes } from './link-nodes';
 import {
+    metadataComponentConfig,
     metadataComponentController,
-    metadataComponentStatics,
     metadataControllerContent,
     metadataControllerElement,
     metadataControllerRoot,
@@ -35,7 +35,7 @@ export class CustomElement extends HTMLElement {
         metadataElementController(this, controller);
         metadataControllerElement(controller, this);
         findPrototypeHooks(controller);
-        const statics = metadataComponentStatics(constructor)!;
+        const config = metadataComponentConfig(constructor)!;
         let root: Node = this;
 
         // Capture content projection
@@ -44,13 +44,11 @@ export class CustomElement extends HTMLElement {
         metadataControllerContent(controller, contentProjection);
 
         // Engage a shadow root
-        if (statics.shadow) {
-            root = this.attachShadow({ mode: 'open' });
-        }
+        root = this.attachShadow({ mode: 'open' });
 
         // Add styling within the element
-        if (statics.style) {
-            root.appendChild(createStyle(statics.style));
+        if (config.style) {
+            root.appendChild(createStyle(config.style));
         }
 
         // Initialize before adding child nodes
@@ -59,7 +57,7 @@ export class CustomElement extends HTMLElement {
         hooksRun('init', controller);
 
         // Create initial child elements from the template.
-        const templateText = statics.template;
+        const templateText = config.template;
         const processQueue: [Node, Node][] = [];
 
         if (templateText) {
