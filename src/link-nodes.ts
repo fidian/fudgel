@@ -18,7 +18,6 @@ export const linkNodes = (
     while (processQueue.length) {
         let [parentNode, childNode] = processQueue.shift()!;
 
-        // I think I need to move the appending of the node to within the link
         linkStructuralDirective(controller, parentNode, childNode as HTMLElement) ||
             linkTextNode(controller, parentNode, childNode as Text) ||
             linkElementNode(

@@ -26,10 +26,6 @@ export const metadataComponentConfig = makeMap<
     CustomElementConfig
 >();
 export const metadataComponentController = makeMap<Object, Constructor>();
-export const metadataControllerContent = makeMap<
-    Controller,
-    DocumentFragment
->();
 export const metadataControllerElement = makeMap<Controller, CustomElement>();
 export const metadataControllerHooks = makeMap<
     Controller,

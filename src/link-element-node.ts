@@ -1,7 +1,6 @@
 import { addBindings } from './bindings';
 import { directives, GENERAL_DIRECTIVE_INDEX } from './directive/index';
 import { getScope } from './scope';
-import { isCustomElement } from './util';
 import { parseText } from './parse';
 
 export function linkElementNode(
@@ -16,14 +15,9 @@ export function linkElementNode(
         return false;
     }
 
-    const isCustom = isCustomElement(node);
-
-    if (!isCustom) {
-        // Only process children when not dealing with custom elements.
-        for (const childNode of [...node.childNodes]) {
-            childNode.remove();
-            processQueue.push([node, childNode]);
-        }
+    for (const childNode of [...node.childNodes]) {
+        childNode.remove();
+        processQueue.push([node, childNode]);
     }
 
     if (useAppend) {

@@ -5,7 +5,6 @@ import { linkNodes } from './link-nodes';
 import {
     metadataComponentConfig,
     metadataComponentController,
-    metadataControllerContent,
     metadataControllerElement,
     metadataControllerRoot,
     metadataElementController,
@@ -36,15 +35,18 @@ export class CustomElement extends HTMLElement {
         metadataControllerElement(controller, this);
         findPrototypeHooks(controller);
         const config = metadataComponentConfig(constructor)!;
-        let root: Node = this;
 
-        // Capture content projection
+        // Process content that will be used for content projection
         const contentProjection = new DocumentFragment();
-        contentProjection.append(...this.childNodes);
-        metadataControllerContent(controller, contentProjection);
+        const processQueueContentProjection: [Node, Node][] = [];
 
-        // Engage a shadow root
-        root = this.attachShadow({ mode: 'open' });
+        for (const childNode of this.childNodes) {
+            processQueueContentProjection.push([contentProjection, childNode]);
+        }
+
+        linkNodes(processQueueContentProjection, controller);
+        this.append(contentProjection);
+        const root = this.shadowRoot || this.attachShadow({ mode: 'open' });
 
         // Add styling within the element
         if (config.style) {
@@ -82,6 +84,7 @@ export class CustomElement extends HTMLElement {
         // Everything else should be able to be garbage collected.
         metadataControllerElement.d(controller);
         this.innerHTML = '';
+        this.shadowRoot!.innerHTML = '';
         controller.onDestroy && controller.onDestroy();
     }
 }

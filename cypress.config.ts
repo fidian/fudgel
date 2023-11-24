@@ -4,8 +4,9 @@ export default defineConfig({
     component: {
         devServer: {
             bundler: 'vite',
-            framework: 'cypress-ct-custom-elements',
-            includeShadowDom: true,
+            // In order for TypeScript to not complain, we lie here.
+            framework: 'cypress-ct-custom-elements' as 'vue',
         },
+        includeShadowDom: true,
     },
 });

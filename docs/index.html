@@ -70,7 +70,7 @@
                 properties, and fully supports TypeScript. All of this is done
                 while allowing you, the developer, to maintain control; add
                 additional directives, hook into the component's lifecycle, and
-                even handle content projection through slotted templates.
+                even handle content projection using slots.
             </p>
             <p>What do you get by using Fudgel?</p>
             <ul>
@@ -96,15 +96,10 @@
                 </li>
                 <li>Full TypeScript support and also published as a module</li>
                 <li>When used with a build system, fully tree-shakeable</li>
-                <li>
-                    Darn small, coming in at about 3k minified and gzipped
-                </li>
-                <li>
-                    Breadth-first initialization of child elements, meaning
-                    parents initialize before children
-                </li>
+                <li>Darn small, coming in at about 3k minified and gzipped</li>
+                <li>Parent elements will initialize before children</li>
             </ul>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from 'fudgel';
@@ -152,10 +147,22 @@
                 to be delivered. This is extraordinaly small when compared to
                 some of the more popular frameworks like Angular or React.
             </p>
+            <h2>Browser Support</h2>
+            <p>
+                Over 97% of today's web browser traffic would work with this
+                library. This includes Chrome (computer and Android), Edge,
+                Safari (computer and iOS), Firefox, and others. There's no
+                support for Internet Explorer. See the detailed browser feature
+                list and supported browsers at
+                <a
+                    href="https://caniuse.com/?feats=mdn-html_elements_slot,template,mdn-api_customelementregistry,template-literals,es6,mdn-javascript_builtins_object_defineproperty,customevent,mdn-api_shadowroot,mdn-api_document_createelement,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_create,mdn-javascript_builtins_object_getownpropertydescriptor,mdn-javascript_builtins_object_getprototypeof"
+                    >CanIUse.com</a
+                >.
+            </p>
             <h2>Goals and Prior Work</h2>
             <p>
-                Fudgel was designed to make a JavaScript and HTML programmer
-                feel comfortable. It does the heavy lifting by automatic
+                Fudgel was designed to make a JavaScript and HTML developer feel
+                comfortable quickly. It does the heavy lifting by automatic
                 bindings and updates while the developer focuses entirely on the
                 interactions. The focus is to create self-contained web
                 components using <code>window.customElement</code>, suitable for
@@ -186,6 +193,10 @@
                     <a href="https://alpinejs.dev/">Alpine.js</a> has event
                     handlers using <code>@</code> prefixes.
                 </li>
+                <li>
+                    <a href="https://vuejs.org/">Vue.js</a> is big into using
+                    slots for content projection.
+                </li>
             </ul>
 
             <h2>Getting Started</h2>
@@ -197,7 +208,7 @@
             <ul>
                 <li>
                     IIFE / global, available as <code>window.Fudgel</code>:
-                    <code-sample type="html" copy-clipboard-button>
+                    <code-sample type="html">
                         <!-- prettier-ignore -->
                         <template>
                             <script src="https://unpkg.com/fudgel"></script>
@@ -207,13 +218,13 @@
                 <li>
                     Module in browser either as a standalone tag or perhaps
                     loaded through an import:
-                    <code-sample type="html" copy-clipboard-button>
+                    <code-sample type="html">
                         <!-- prettier-ignore -->
                         <template>
                             <script src="https://unpkg.com/fudgel?module"></script>
                         </template>
                     </code-sample>
-                    <code-sample type="html" copy-clipboard-button>
+                    <code-sample type="html">
                         <!-- prettier-ignore -->
                         <template>
                             <script type="module">
@@ -225,19 +236,19 @@
                 </li>
                 <li>
                     Locally as a package or module using your favorite tools:
-                    <code-sample type="shell" copy-clipboard-button>
+                    <code-sample type="shell">
                         <!-- prettier-ignore -->
                         <template>
                             npm install fudgel
                         </template>
                     </code-sample>
-                    <code-sample type="shell" copy-clipboard-button>
+                    <code-sample type="shell">
                         <!-- prettier-ignore -->
                         <template>
                             yarn add fudgel
                         </template>
                     </code-sample>
-                    <code-sample type="shell" copy-clipboard-button>
+                    <code-sample type="shell">
                         <!-- prettier-ignore -->
                         <template>
                             bower install fudgel
@@ -251,7 +262,7 @@
                 write your first controller. Select the chunk of code that best
                 fits your needs.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     // Vanilla JavaScript using window.Fudgel
@@ -262,7 +273,7 @@
                     });
                 </template>
             </code-sample>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     // Module
@@ -275,7 +286,7 @@
                     });
                 </template>
             </code-sample>
-            <code-sample type="ts" copy-clipboard-button>
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     // TypeScript with decorators
@@ -314,7 +325,7 @@
                 </li>
                 <li>An optional class to instantiate as the controller</li>
             </ul>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { controller } from 'fudgel';
@@ -349,10 +360,12 @@
                     <code>template</code> - [required, string] The HTML template
                     that this element will use for content. When there is no
                     content, it is up to the controller to add the necessary DOM
-                    elements and bindings.
+                    elements and bindings. This template will be processed in
+                    the element's scope, even when passing content to child
+                    custom elements.
                 </li>
             </ul>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     controller('new-element', {
@@ -367,7 +380,7 @@
                 two parameters; the element name and the object of static
                 values.
             </p>
-            <code-sample type="ts" copy-clipboard-button>
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { @Controller } from 'fudgel';
@@ -395,7 +408,7 @@
                 controller class's property is updated, the HTMLElement's
                 attribute is also automatically updated.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <heading-label
@@ -410,7 +423,7 @@
                 Properties can hold any type of value, including objects and
                 dates.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     const element = document.getElementById("test");
@@ -422,7 +435,7 @@
                 and have the controller's property change automatically, there
                 are some helper functions you can use.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { attr, component, prop } from 'fudgel';
@@ -443,7 +456,7 @@
             <p>
                 In TypeScript, this same result can happen through decorators.
             </p>
-            <code-sample type="ts" copy-clipboard-button>
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { Attr, Component, Prop } from 'fudgel';
@@ -478,7 +491,7 @@
                 example, all buttons within the element will be styled but none
                 outside of the element will have those styles applied.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from 'fudgel';
@@ -514,7 +527,7 @@
                 instance and the content within the braces will be updated
                 whenever the referenced variable changes.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <div class="class1 class2 {{this.extraClasses}}">
@@ -530,7 +543,7 @@
                 property name with a dot and changing the name to kebab-case
                 (hyphenated).
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <!-- Effectively the same as
@@ -541,11 +554,11 @@
             </code-sample>
             <p>
                 Event handlers are bound with a prefixed attribute. If your
-                event handling code returns false, the event will be canceled
-                and propagation will be stopped. The event is available as
-                <code>$event</code> in this code snippet.
+                event handling code returns false, the event's default action
+                will be canceled and propagation will be stopped. The event is
+                available as <code>$event</code> in this code snippet.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <button @click="this.dispatchClick($event); return false">
@@ -559,7 +572,7 @@
                 <code>#ref</code> attribute, and the value of the attribute is
                 the name you want assigned in your controller.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { controller } from 'fudgel';
@@ -582,7 +595,7 @@
                 will automatically be updated if using a property on your
                 controller.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <p>Showing
@@ -595,7 +608,7 @@
                 Repeating a chunk of HTML a number of times is very easy. You
                 can use a fixed number or execute code to find the number.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <p>5 stars: <span *repeat="5">*</span></p>
@@ -609,7 +622,7 @@
                 assigned to <code>$scope.key</code> and
                 <code>$scope.value</code>.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <ul>
@@ -623,7 +636,7 @@
                 scopes inherit from each other, exactly how you think they
                 should.
             </p>
-            <code-sample type="html" copy-clipboard-button>
+            <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <div *for="username, user of this.userObjectKeyedByUsername">
@@ -678,7 +691,7 @@
                 Finally, you can match an exact directive, as in
                 <code>#ref</code>.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { addDirective } from 'fudgel';
@@ -702,32 +715,56 @@
                 directives, a comment is added just before the element that you
                 can use as an anchor point for adding or removing elements.
             </p>
-            <h2>Content Projection</h2>
+            <h2>Content Projection using Slots</h2>
             <p>
-                The original content, as Nodes, is stored in one of the internal
-                metadata maps. You can access this content and leverage it.
+                Imagine you have a utility function to create a styled button.
+                You'd like the ability to specify the HTML that is displayed on
+                the button, but passing that in via an attribute or property is
+                problematic, especially when you want to have an image on the
+                button. You can use slotted content to achieve the same result.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, metadataControllerContent } from 'fudgel';
+                    import { component } from 'fudgel';
 
-                    component('modal-sample', {
-                        template: `<div #ref="target"></div>`
-                    }, class {
-                        onInit() {
-                            this.target.append(metadataControllerContent(this));
-                        }
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                            }
+                        `,
+                        template: `<button><slot></slot></button>`
+                    });
+
+                    component('save-button', {
+                        template: `<custom-button><img src="save.png"> Save</custom-button>`
                     });
                 </template>
             </code-sample>
+            <p>
+                You can also project multiple pieces of content using named
+                slots. Read more about
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
+                    ><code>slot</code> elements</a
+                >
+                and
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
+                    ><code>slot</code> attributes</a
+                >.
+            </p>
             <h2>Utility Functions</h2>
             <p>
-                Dispatching events from your controller can be tricky,
-                especially due to the shadow DOM. Also, for minification, you
-                will probably want to leverage shared code to send events.
+                Dispatching events from your controller can be tricky with the
+                shadow DOM. DOM. Also, for minification, you will probably want
+                to leverage shared code to send events.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { component, emit } from 'fudgel';
@@ -738,7 +775,7 @@
                         `
                     }, class {
                         clicked() {
-                            emit('button-sample-event-click', {
+                            emit(this, 'button-sample-event', {
                                 extraData: 'can go in here',
                                 youCanUse: 'whatever you like',
                                 when: new Date()
@@ -757,7 +794,7 @@
                 you can just call <code>emit(this)</code> without specifying the
                 property that changed.
             </p>
-            <code-sample type="js" copy-clipboard-button>
+            <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { component, emit } from 'fudgel';

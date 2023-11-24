@@ -1,7 +1,7 @@
 import { component } from '../../src/';
 
 component('custom-element', {
-    template: 'Success'
+    template: 'Success',
 });
 
 describe('basic initialization', () => {
@@ -10,6 +10,6 @@ describe('basic initialization', () => {
     });
 
     it('loads the page and works with a simple template', () => {
-        cy.get('custom-element').should('have.text', 'Success');
+        cy.get('custom-element').shadow().should('have.text', 'Success');
     });
 });

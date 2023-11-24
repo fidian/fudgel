@@ -154,7 +154,7 @@ Fudgel.component('code-sample', {
         const code = document.createElement('code');
 
         if (this.type) {
-            code.classList.add(this.type);
+            code.classList.add(`language-${this.type}`);
         }
 
         this.codeStr = this.cleanIndentation(template.innerHTML);

@@ -1,5 +1,3 @@
-export const isCustomElement = (node: Node) => node.nodeName.indexOf('-') >= 0;
-
 export const stringify = (x: any) => JSON.stringify(x);
 
 export const memoize = <T extends (...args: any[]) => any>(fn: T) => {

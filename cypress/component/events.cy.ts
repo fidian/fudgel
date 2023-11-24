@@ -7,7 +7,7 @@ const trigger = (obj: Controller, event: string) => {
     const message = `${className} ${event}`;
     events.push(message);
     console.log(message);
-}
+};
 
 class LogEvents {
     constructor() {
@@ -68,6 +68,7 @@ describe('event order', () => {
 
     it('is in the correct order', () => {
         cy.get('test-child')
+            .shadow()
             .should('have.text', 'ready')
             .then(() => {
                 console.groupCollapsed('Events after test ran');

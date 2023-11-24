@@ -19,7 +19,7 @@ describe('prop and ref', () => {
     });
 
     it('assigns a property and handles a reference', () => {
-        cy.get('test-child').should('have.text', 'some value');
+        cy.get('test-child').shadow().should('have.text', 'some value');
         cy.get('#childName').should('have.text', 'TEST-CHILD');
     });
 });
