@@ -10,7 +10,7 @@ import { patchSetter } from './setter';
 import { prototypeHook } from './prototype-hooks';
 
 // Decorator to mark a property with one-way binding
-export function Prop() {
+export const Prop = () => {
     return function (proto: Object, propertyName: string) {
         prototypeHook(proto, (controller: Controller) => {
             hookOn(controller, metadataControllerElement(controller)!, 'init', (thisRef: Controller) =>

@@ -9,7 +9,7 @@ import { patchSetter } from './setter';
 import { prototypeHook } from './prototype-hooks';
 
 // Decorator to mark a property with two-way binding
-export function Attr() {
+export const Attr = () => {
     return function (proto: Object, propertyName: string) {
         prototypeHook(proto, (controller: Controller) => {
             hookOn(

@@ -13,7 +13,7 @@ import {
 } from './metadata';
 
 // Decorator to wire a class as a custom component
-export function Component(tag: string, config: CustomElementConfig) {
+export const Component = (tag: string, config: CustomElementConfig) => {
     return (target: Constructor) => {
         component(tag, config, target);
     };
