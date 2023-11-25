@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Minimalist web component library to take the pain out of automatic updates.",
     "keywords": [
         "lightweight",
