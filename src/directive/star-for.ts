@@ -16,7 +16,9 @@ export const starForDirective: StructuralDirective = (
 ) => {
     let keyName = 'key';
     let valueName = 'value';
-    const matches = attrValue.match(/^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(\S+)\s*$/);
+    const matches = attrValue.match(
+        /^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(\S+)\s*$/
+    );
 
     if (matches) {
         keyName = matches[1] || keyName;
@@ -33,23 +35,37 @@ export const starForDirective: StructuralDirective = (
         activeNodes = new Map();
         const processQueue: [Node, Node][] = [];
         let lastNode: HTMLElement | Comment = anchor;
+        const entries = () =>
+            iterable.entries ? iterable.entries() : Object.entries(iterable);
+        const removedNodes = new Map(oldNodes);
 
-        for (const [key, value] of iterable.entries ? iterable.entries() : Object.entries(iterable)) {
+        for (const [key] of entries()) {
+            removedNodes.delete(key);
+        }
+
+        for (const removeNode of removedNodes.values()) {
+            removeNode.remove();
+        }
+
+        for (const [key, value] of entries()) {
             let copy = oldNodes.get(key);
             oldNodes.delete(key);
 
-            if (!copy) {
+            if (copy !== lastNode.nextSibling) {
+                if (copy) {
+                    copy.remove();
+                }
+
                 copy = node.cloneNode(true) as HTMLElement;
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[keyName] = key;
                 (scope as any)[valueName] = value;
                 linkElementNode(thisRef, lastNode, false, copy, processQueue);
             } else {
-                const scope = getScope(copy);
+                const scope = childScope(anchorScope, copy);
                 (scope as any)[valueName] = value;
             }
 
-            lastNode.after(copy);
             lastNode = copy;
             activeNodes.set(key, lastNode);
         }

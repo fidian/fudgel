@@ -5,7 +5,11 @@
 import { Controller } from './controller';
 import { CustomElement } from './custom-element';
 import { hookOn } from './hooks';
-import { metadataControllerElement, metadataElementController, metadataPropPatched } from './metadata';
+import {
+    metadataControllerElement,
+    metadataElementController,
+    metadataPropPatched,
+} from './metadata';
 import { patchSetter } from './setter';
 import { prototypeHook } from './prototype-hooks';
 
@@ -13,26 +17,24 @@ import { prototypeHook } from './prototype-hooks';
 export const Prop = () => {
     return function (proto: Object, propertyName: string) {
         prototypeHook(proto, (controller: Controller) => {
-            hookOn(controller, metadataControllerElement(controller)!, 'init', (thisRef: Controller) =>
-                prop(thisRef, propertyName)
+            hookOn(
+                controller,
+                metadataControllerElement.get(controller)!,
+                'init',
+                (thisRef: Controller) => prop(thisRef, propertyName)
             );
         });
     };
-}
+};
 
 export const prop = (controller: Controller, propName: string) => {
-    const element = metadataControllerElement(controller);
+    const element = metadataControllerElement.get(controller);
 
     if (element) {
         const update = (thisRef: CustomElement, newValue: any) => {
             metadataElementController(thisRef)![propName] = newValue;
         };
-        patchSetter(
-            metadataPropPatched,
-            element,
-            propName,
-            update
-        );
+        patchSetter(metadataPropPatched, element, propName, update);
         update(element, (element as any)[propName]);
     }
 };

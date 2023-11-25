@@ -14,17 +14,17 @@ export const Attr = () => {
         prototypeHook(proto, (controller: Controller) => {
             hookOn(
                 controller,
-                metadataControllerElement(controller)!,
+                metadataControllerElement.get(controller)!,
                 'init',
                 (thisRef: Object) => attr(thisRef, propertyName)
             );
         });
     };
-}
+};
 
 export const attr = (controller: Controller, propName: string) => {
     const attrName = camelToDash(propName);
-    const element = metadataControllerElement(controller)!;
+    const element = metadataControllerElement.get(controller)!;
 
     // When attribute changes, update internal property.
     if (element) {
@@ -42,7 +42,7 @@ export const attr = (controller: Controller, propName: string) => {
 
     // When internal property changes, update attribute.
     const update = (thisRef: Controller, newValue: any) => {
-        const element = metadataControllerElement(thisRef);
+        const element = metadataControllerElement.get(thisRef);
 
         if (element) {
             if (isEmptyValue(newValue)) {

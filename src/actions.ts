@@ -8,7 +8,7 @@ export const emit = (
     detail?: any,
     customEventInit: CustomEventInit = {}
 ) => {
-    const e = metadataControllerElement(controller);
+    const e = metadataControllerElement.get(controller);
 
     if (e) {
         e.dispatchEvent(
@@ -20,6 +20,12 @@ export const emit = (
                 ...customEventInit,
             })
         );
+    }
+};
+
+export const redraw = () => {
+    for (const controller of metadataControllerElement.keys()) {
+        hooksRun('set:', controller);
     }
 };
 

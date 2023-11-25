@@ -32,7 +32,7 @@ export class CustomElement extends HTMLElement {
 
         // Need basic information so prototype hooks can set up hooks correctly
         metadataElementController(this, controller);
-        metadataControllerElement(controller, this);
+        metadataControllerElement.set(controller, this);
         findPrototypeHooks(controller);
         const config = metadataComponentConfig(constructor)!;
 
@@ -80,9 +80,9 @@ export class CustomElement extends HTMLElement {
         const controller = metadataElementController(this)!;
         hooksOff(this);
 
-        // Probably need to eliminate the hard reference to the element.
+        // Need to eliminate the hard reference to the element.
         // Everything else should be able to be garbage collected.
-        metadataControllerElement.d(controller);
+        metadataControllerElement.delete(controller);
         this.innerHTML = '';
         this.shadowRoot!.innerHTML = '';
         controller.onDestroy && controller.onDestroy();

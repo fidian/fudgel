@@ -52,16 +52,14 @@ export const parseText = memoize((text: string, allowRawValue = false) => {
 });
 
 const identifierRegexp =
-    /(this)\.((?:\$|_|\p{L}|\p{Nl})(?:\$|_|\p{L}|\p{Nl}|\u200C|\u200D|\p{Mn}|\p{Mc}|\p{Nd})*)/u;
+    /this\.((?:\$|_|\p{L}|\p{Nl})(?:\$|_|\p{L}|\p{Nl}|\u200C|\u200D|\p{Mn}|\p{Mc}|\p{Nd})*)/u;
 
 export const findBindings = memoize((text: string) => {
     const binds = new Set<string>();
     const matches = text.split(identifierRegexp);
 
-    for (let i = 1; i < matches.length; i += 3) {
-        if (matches[i] === 'this') {
-            binds.add(matches[i + 1]);
-        }
+    for (let i = 1; i < matches.length; i += 2) {
+        binds.add(matches[i]);
     }
 
     return binds;
