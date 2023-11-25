@@ -818,6 +818,39 @@
                     });
                 </template>
             </code-sample>
+            <p>
+                If your change is deeper or affects other components, then
+                `update()` will not be what you want. Instead, `redraw()` will
+                trigger updates in all Fudgel components.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, redraw } from 'fudgel';
+
+                    component('user-list', {
+                        template: `
+                            <ul>
+                                <li *for="users">{{$scope.value.name}}</li>
+                            </ul>
+                            <button *click="return this.updateName()">
+                                Update Name
+                            </button>
+                        `
+                    }, class {
+                        users = [
+                            { name: "Test User" }
+                        ];
+
+                        updateName() {
+                            this.users[0].name = "Updated Username";
+                            // Because this is deeply nested, trigger
+                            // a redraw.
+                            redraw();
+                        }
+                    });
+                </template>
+            </code-sample>
             <h2>Best Practices</h2>
             <p>
                 Do not register your custom element in your exported module.
