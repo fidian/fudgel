@@ -117,7 +117,7 @@
                         name = "Developer"
 
                         onInit() {
-                            setTimeout(() => this.name = 'Super Developer', 5000);
+                            setTimeout(() =&gt; this.name = 'Super Developer', 5000);
                         }
                     });
                 </template>
@@ -703,15 +703,15 @@
 
                     // Specific attribute
                     addDirective('#name',
-                        (controller, node, attrValue, attrName) => { ... });
+                        (controller, node, attrValue, attrName) =&gt; { ... });
 
                     // An attribute prefix
                     addDirective('?',
-                        (controller, node, attrValue, attrName) => { ... });
+                        (controller, node, attrValue, attrName) =&gt; { ... });
 
                     // A structural directive, which starts with *
                     addDirective('*extra',
-                        (controller, anchor, node, attrValue) => { ... });
+                        (controller, anchor, node, attrValue) =&gt; { ... });
                 </template>
             </code-sample>
             <p>

@@ -158,11 +158,18 @@ Fudgel.component('code-sample', {
             code.classList.add(`language-${this.type}`);
         }
 
-        this.codeStr = this.cleanIndentation(template.innerHTML);
+        this.codeStr = this.cleanIndentation(this.cleanEscapes(template.innerHTML));
         const textNode = document.createTextNode(this.codeStr);
         code.appendChild(textNode);
         this.pre.appendChild(code);
         window.hljs.highlightElement(code);
+    }
+
+    cleanEscapes(str) {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = str;
+
+        return textarea.value;
     }
 
     cleanIndentation(str) {
@@ -170,7 +177,6 @@ Fudgel.component('code-sample', {
 
         return str.replace(new RegExp(pattern, 'g'), '\n');
     }
-
 
     copyToClipboard(event) {
         const textarea = document.createElement('textarea');
