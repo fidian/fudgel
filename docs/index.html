@@ -720,13 +720,17 @@
                 directives, a comment is added just before the element that you
                 can use as an anchor point for adding or removing elements.
             </p>
-            <h2>Content Projection using Slots</h2>
+            <h2>Content Projection</h2>
             <p>
                 Imagine you have a utility function to create a styled button.
                 You'd like the ability to specify the HTML that is displayed on
                 the button, but passing that in via an attribute or property is
                 problematic, especially when you want to have an image on the
-                button. You can use slotted content to achieve the same result.
+                button. There are two ways you have access to outside content in order to "project" it into your element.
+            </p>
+            <h3>Using Slots</h3>
+            <p>
+                You can use slotted content to achieve the same result, which leverages built-in browser features.
             </p>
             <code-sample type="js">
                 <!-- prettier-ignore -->
@@ -763,6 +767,40 @@
                     ><code>slot</code> attributes</a
                 >.
             </p>
+            <h3>Manually Slots</h3>
+            <p>
+                Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, metadataControllerElement } from 'fudgel';
+
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                            }
+                        `,
+                        template: `<button #ref="button"></button>`
+                    }, class {
+                        onViewInit() {
+                            const element = metadataControllerElement.get(this);
+
+                            for (const childNode of element.childNodes) {
+                                this.button.append(childNode.cloneNode(true));
+                            }
+                        }
+                    });
+
+                    component('save-button', {
+                        template: `<custom-button><img src="save.png"> Save</custom-button>`
+                    });
+                </template>
+            </code-sample>
             <h2>Utility Functions</h2>
             <p>
                 Dispatching events from your controller can be tricky with the
