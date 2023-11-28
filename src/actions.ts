@@ -23,12 +23,12 @@ export const emit = (
     }
 };
 
-export const redraw = () => {
-    for (const controller of metadataControllerElement.keys()) {
-        hooksRun('set:', controller);
+export const update = (controller?: Object, propertyName?: string) => {
+    if (controller) {
+        hooksRun(`set:${propertyName || ''}`, controller);
+    } else {
+        for (const registeredController of metadataControllerElement.keys()) {
+            hooksRun('set:', registeredController);
+        }
     }
-};
-
-export const update = (controller: Object, propertyName?: string) => {
-    hooksRun(`set:${propertyName || ''}`, controller);
 };

@@ -790,9 +790,7 @@
             <p>
                 When you update internal data within an object, the change
                 detection will not pick it up. You can flag specific properties
-                as needing to be redrawn. If there are several things updated,
-                you can just call <code>emit(this)</code> without specifying the
-                property that changed.
+                as needing to be redrawn, as this example shows.
             </p>
             <code-sample type="js">
                 <!-- prettier-ignore -->
@@ -819,38 +817,13 @@
                 </template>
             </code-sample>
             <p>
-                If your change is deeper or affects other components, then
-                `update()` will not be what you want. Instead, `redraw()` will
-                trigger updates in all Fudgel components.
+                <code>update()</code> takes two optional parameters and behaves differently depending on what you pass into the function.
             </p>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, redraw } from 'fudgel';
-
-                    component('user-list', {
-                        template: `
-                            <ul>
-                                <li *for="users">{{$scope.value.name}}</li>
-                            </ul>
-                            <button *click="return this.updateName()">
-                                Update Name
-                            </button>
-                        `
-                    }, class {
-                        users = [
-                            { name: "Test User" }
-                        ];
-
-                        updateName() {
-                            this.users[0].name = "Updated Username";
-                            // Because this is deeply nested, trigger
-                            // a redraw.
-                            redraw();
-                        }
-                    });
-                </template>
-            </code-sample>
+            <ul>
+                <li><code>update(controller, 'property')</code> - Updates all bindings for a single property on a controller. This is the fastest call to make.</li>
+                <li><code>update(controller)</code> - Reruns all bindings that are attached to the controller. This affects all properties and every dynamic piece of HTML that is controlled by your controller.</li>
+                <li><code>update()</code> - The slowest of all ways to trigger an update, this form will update all bindings for all Fudgel components everywhere.</li>
+            </ul>
             <h2>Best Practices</h2>
             <p>
                 Do not register your custom element in your exported module.
