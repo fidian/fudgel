@@ -4,6 +4,7 @@
 // https://github.com/kcmr/code-sample
 
 const Fudgel = window.Fudgel;
+const metadataControllerElement = Fudgel.metadataControllerElement;
 
 Fudgel.component('code-sample', {
     shadow: true,
@@ -143,8 +144,8 @@ Fudgel.component('code-sample', {
     }
 
     onViewInit() {
-        const content = Fudgel.metadataControllerContent(this);
-        const template = content.querySelector('template');
+        const elem = metadataControllerElement.get(this);
+        const template = elem.querySelector('template');
 
         if (!template) {
             console.error('<code-sample>:', 'Content must be provided inside a <template> tag');
