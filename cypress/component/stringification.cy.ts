@@ -24,7 +24,7 @@ class CustomElement {
     zero = 0;
 
     onInit() {
-        const desired = metadataControllerElement(this)!.attributes.getNamedItem('property').value;
+        const desired = metadataControllerElement.get(this)!.attributes.getNamedItem('property').value;
         this.output = this[desired];
     }
 }

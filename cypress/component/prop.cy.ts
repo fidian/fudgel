@@ -1,4 +1,4 @@
-import { Component, component, Prop, redraw, update } from '../../src/';
+import { Component, component, Prop, update } from '../../src/';
 
 @Component('show-prop', {
     template: '{{this.prop}}',
@@ -41,7 +41,7 @@ component(
     'test-scope',
     {
         template:
-            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click="this.updateList(); return false">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="redraw" @click="this.redraw()">redraw</button>',
+            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click="this.updateList(); return false">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="updateAll" @click="this.updateAll()">updateAll</button>',
     },
     class {
         list = [];
@@ -51,8 +51,8 @@ component(
             setTimeout(() => (this.list = [{ name: 'after-update' }]));
         }
 
-        redraw() {
-            redraw();
+        updateAll() {
+            update();
         }
 
         updateList() {
@@ -95,8 +95,8 @@ describe('prop', () => {
             .shadow()
             .should('have.text', 'Item: after-updateItem: second-item');
 
-        // Redraw everything
-        cy.get('#redraw').click();
+        // Update everything in all components
+        cy.get('#updateAll').click();
         cy.get('test-scope-item')
             .shadow()
             .should('have.text', 'Item: updatedNameItem: second-item');
