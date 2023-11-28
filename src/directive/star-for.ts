@@ -30,7 +30,7 @@ export const starForDirective: StructuralDirective = (
     const anchorScope = getScope(anchor);
     let activeNodes = new Map<any, HTMLElement>();
     const update = (thisRef: Controller) => {
-        const iterable = getValue.call(thisRef, anchorScope);
+        const iterable = getValue.call(thisRef, anchorScope) || [];
         let oldNodes = activeNodes;
         activeNodes = new Map();
         const processQueue: [Node, Node][] = [];

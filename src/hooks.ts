@@ -23,9 +23,14 @@ export const hooksRun = (name: string, controller: Controller, ...args: any[]) =
     const hooks = metadataControllerHooks(controller)
 
     if (hooks) {
-        // Make a copy of the array in case some hooks remove themselves.
-        for (const hook of [...(hooks[name] || [])]) {
-            hook(controller, ...args);
+        for (const hook of (hooks[name] || [])) {
+            // A hook can be removed during execution of hooks, and the
+            // `hooks[name]` array will be recreated. In this situation, we
+            // want to make sure the removed hooks are not called even if they
+            // were in the original list.
+            if (hooks[name].includes(hook)) {
+                hook(controller, ...args);
+            }
         }
     }
 };

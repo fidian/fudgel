@@ -41,7 +41,7 @@ component(
     'test-scope',
     {
         template:
-            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click="this.updateList()">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="redraw" @click="this.redraw()">redraw</button>',
+            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click="this.updateList(); return false">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="redraw" @click="this.redraw()">redraw</button>',
     },
     class {
         list = [];
@@ -76,7 +76,7 @@ describe('prop', () => {
         cy.mount('<test-async></test-async>');
         cy.get('show-prop').shadow().should('have.text', 'after-update');
     });
-    it.only('shows items from a list', () => {
+    it('shows items from a list', () => {
         cy.mount('<test-scope></test-scope>');
         cy.get('test-scope-item')
             .shadow()

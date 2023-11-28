@@ -35,6 +35,16 @@ component('test-element-object', {
     }
 });
 
+component('test-change-to-undefined', {
+    template: '<ul *if="this.list"><li *for="this.list">{{$scope.value}}</li></ul><button @click="this.removeList(); return false"></button>'
+}, class {
+    list = ['abc', 123, false, null, true];
+
+    removeList() {
+        this.list = undefined;
+    }
+});
+
 describe('for', () => {
     it('shows a list of things from a map', () => {
         cy.mount('<test-element-map></test-element-map>');
@@ -53,5 +63,9 @@ describe('for', () => {
         cy.get('#thing_x1').should('have.text', 'x1 = y1');
         cy.get('#thing_x2').should('have.text', 'x2 = y2');
         cy.get('#thing_x3').should('have.text', 'x3 = y3');
+    });
+    it('removes update hooks when a list is emptied', () => {
+        cy.mount('<test-change-to-undefined></test-change-to-undefined>');
+        cy.get('button').click();
     });
 });
