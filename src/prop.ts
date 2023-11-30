@@ -8,33 +8,40 @@ import { hookOn } from './hooks';
 import {
     metadataControllerElement,
     metadataElementController,
-    metadataPropPatched,
+    metadataElementPatched,
 } from './metadata';
 import { patchSetter } from './setter';
 import { prototypeHook } from './prototype-hooks';
 
 // Decorator to mark a property with one-way binding
-export const Prop = () => {
-    return function (proto: Object, propertyName: string) {
-        prototypeHook(proto, (controller: Controller) => {
-            hookOn(
-                controller,
-                metadataControllerElement.get(controller)!,
-                'init',
-                (thisRef: Controller) => prop(thisRef, propertyName)
-            );
-        });
-    };
-};
+export const Prop = () => addPropHook;
 
-export const prop = (controller: Controller, propName: string) => {
-    const element = metadataControllerElement.get(controller);
+export const prop = (controller: Controller, propertyName: string) =>
+    addPropHook(controller.constructor.prototype, propertyName);
 
-    if (element) {
-        const update = (thisRef: CustomElement, newValue: any) => {
-            metadataElementController(thisRef)![propName] = newValue;
-        };
-        patchSetter(metadataPropPatched, element, propName, update);
-        update(element, (element as any)[propName]);
-    }
+const addPropHook = (proto: Object, propertyName: string) => {
+    prototypeHook(proto, (controllerOuter: Controller) => {
+        hookOn(
+            controllerOuter,
+            metadataControllerElement.get(controllerOuter)!,
+            'init',
+            (controllerInner: Controller) => {
+                const element = metadataControllerElement.get(controllerInner);
+
+                if (element) {
+                    const update = (thisRef: CustomElement, newValue: any) => {
+                        metadataElementController(thisRef)![propertyName] =
+                            newValue;
+                    };
+                    patchSetter(
+                        metadataElementPatched,
+                        element,
+                        propertyName,
+                        update
+                    );
+                    update(element, (element as any)[propertyName]);
+                }
+            }
+        );
+    });
 };

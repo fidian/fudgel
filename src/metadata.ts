@@ -18,7 +18,6 @@ const makeMap = <K extends WeakKey, V>() => {
     return fn as MetadataMap<K, V>;
 };
 
-export const metadataAttrPatched = makeMap<Controller, TrackingObject>();
 export const metadataComponentConfig = makeMap<Object, CustomElementConfig>();
 export const metadataComponentController = makeMap<Object, Constructor>();
 export const metadataControllerElement = new Map<Controller, CustomElement>();
@@ -29,7 +28,7 @@ export const metadataControllerHooks = makeMap<
 export const metadataControllerPatched = makeMap<Controller, TrackingObject>();
 export const metadataControllerRoot = makeMap<Controller, Node>();
 export const metadataElementController = makeMap<HTMLElement, Controller>();
+export const metadataElementPatched = makeMap<CustomElement, TrackingObject>();
 export const metadataHookRemove = makeMap<Node, (() => void)[]>();
-export const metadataPropPatched = makeMap<CustomElement, TrackingObject>();
 export const metadataPrototypeHooks = makeMap<Object, HookCallback[]>();
 export const metadataScope = makeMap<Node, Object>();
