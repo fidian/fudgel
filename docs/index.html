@@ -103,7 +103,7 @@
                 <li>Darn small, coming in at about 3k minified and gzipped</li>
                 <li>Parent elements will initialize before children</li>
             </ul>
-            <code-sample type="js">
+            <code-sample type="ts" live="true">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from 'fudgel';
@@ -124,7 +124,8 @@
             <p>
                 In the above example, a new custom element is defined. Whenever
                 you use the new HTML element
-                <!-- NOTE: these are not standard hyphens -->
+                <!-- NOTE: these are not standard hyphens so word wrapping does
+                    not happen -->
                 <code>&lt;my‑custom‑element&gt;</code>, it will automatically
                 insert "Hello Developer, welcome to Fudgel!" as text. Because of
                 the timeout set up in <code>onInit</code> (a lifecycle method),
@@ -266,7 +267,7 @@
                 write your first controller. Select the chunk of code that best
                 fits your needs.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     // Vanilla JavaScript using window.Fudgel
@@ -277,7 +278,7 @@
                     });
                 </template>
             </code-sample>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     // Module
@@ -329,7 +330,7 @@
                 </li>
                 <li>An optional class to instantiate as the controller</li>
             </ul>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { controller } from 'fudgel';
@@ -369,7 +370,7 @@
                     custom elements.
                 </li>
             </ul>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     controller('new-element', {
@@ -427,7 +428,7 @@
                 Properties can hold any type of value, including objects and
                 dates.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     const element = document.getElementById("test");
@@ -439,7 +440,7 @@
                 and have the controller's property change automatically, there
                 are some helper functions you can use.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { attr, component, prop } from 'fudgel';
@@ -495,7 +496,7 @@
                 example, all buttons within the element will be styled but none
                 outside of the element will have those styles applied.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from 'fudgel';
@@ -576,7 +577,7 @@
                 <code>#ref</code> attribute, and the value of the attribute is
                 the name you want assigned in your controller.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { controller } from 'fudgel';
@@ -695,7 +696,7 @@
                 Finally, you can match an exact directive, as in
                 <code>#ref</code>.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { addDirective } from 'fudgel';
@@ -731,7 +732,7 @@
             <p>
                 You can use slotted content to achieve the same result, which leverages built-in browser features.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from 'fudgel';
@@ -770,7 +771,7 @@
             <p>
                 Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { component, metadataControllerElement } from 'fudgel';
@@ -806,7 +807,7 @@
                 shadow DOM. DOM. Also, for minification, you will probably want
                 to leverage shared code to send events.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { component, emit } from 'fudgel';
@@ -834,7 +835,7 @@
                 detection will not pick it up. You can flag specific properties
                 as needing to be redrawn, as this example shows.
             </p>
-            <code-sample type="js">
+            <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
                     import { component, emit } from 'fudgel';
@@ -889,8 +890,7 @@
     <script src="acss-live.min.js"></script>
     <!-- Syntax highlighting for code-sample custom element. -->
     <script src="highlight.min.js"></script>
-    <!-- Minified Fudgel -->
-    <script src="index.umd.min.js"></script>
     <!-- Custom elements -->
-    <script src="code-sample.js"></script>
+    <script src="code-sample.js" type="module"></script>
+    <script src="live-playground.js" type="module"></script>
 </html>

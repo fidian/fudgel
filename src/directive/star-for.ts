@@ -1,17 +1,17 @@
 import { addBindings } from '../bindings';
 import { childScope, getScope } from '../scope';
 import { Controller } from '../controller';
+import { createDocumentFragment } from '../elements';
 import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
 import { hooksOff } from '../hooks';
-import { linkElementNode } from '../link-element-node';
 import { linkNodes } from '../link-nodes';
 import { StructuralDirective } from './index';
 
 export const starForDirective: StructuralDirective = (
     controller: Controller,
     anchor: Comment,
-    node: HTMLElement,
+    source: HTMLElement,
     attrValue: string
 ) => {
     let keyName = 'key';
@@ -33,7 +33,6 @@ export const starForDirective: StructuralDirective = (
         const iterable = getValue.call(thisRef, anchorScope) || [];
         let oldNodes = activeNodes;
         activeNodes = new Map();
-        const processQueue: [Node, Node][] = [];
         let lastNode: HTMLElement | Comment = anchor;
         const entries = () =>
             iterable.entries ? iterable.entries() : Object.entries(iterable);
@@ -44,7 +43,9 @@ export const starForDirective: StructuralDirective = (
         }
 
         for (const removeNode of removedNodes.values()) {
+            hooksOff(removeNode);
             removeNode.remove();
+            oldNodes.delete(removeNode);
         }
 
         for (const [key, value] of entries()) {
@@ -53,14 +54,18 @@ export const starForDirective: StructuralDirective = (
 
             if (copy !== lastNode.nextSibling) {
                 if (copy) {
+                    hooksOff(copy);
                     copy.remove();
                 }
 
-                copy = node.cloneNode(true) as HTMLElement;
+                copy = source.cloneNode(true) as HTMLElement;
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[keyName] = key;
                 (scope as any)[valueName] = value;
-                linkElementNode(thisRef, lastNode, false, copy, processQueue);
+                const fragment = createDocumentFragment();
+                fragment.append(copy);
+                linkNodes(fragment, thisRef);
+                lastNode.after(copy);
             } else {
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[valueName] = value;
@@ -69,8 +74,6 @@ export const starForDirective: StructuralDirective = (
             lastNode = copy;
             activeNodes.set(key, lastNode);
         }
-
-        linkNodes(processQueue, thisRef);
 
         for (const old of oldNodes.values()) {
             hooksOff(old);

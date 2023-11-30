@@ -3,6 +3,7 @@ import { Controller } from '../controller';
 import { GeneralDirective } from './index';
 import { getScope } from '../scope';
 import { parseText } from '../parse';
+import { setAttribute } from '../util';
 
 export const attributeDirective: GeneralDirective = (
     controller: Controller,
@@ -10,23 +11,12 @@ export const attributeDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const result = parseText(attrValue, true);
+    const result = parseText(attrValue);
 
     if (result) {
         const update = (thisRef: Controller) => {
             const value = result.fn.call(thisRef, getScope(node));
-
-            if (
-                typeof value === 'boolean' ||
-                value === undefined ||
-                value === null
-            ) {
-                value
-                    ? node.setAttribute(attrName, '')
-                    : node.removeAttribute(attrName);
-            } else {
-                node.setAttribute(attrName, `${value}`);
-            }
+            setAttribute(node, attrName, value);
         };
         addBindings(controller, node, update, result.binds);
         update(controller);

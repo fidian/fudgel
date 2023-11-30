@@ -1,6 +1,6 @@
 import { addBindings } from '../bindings';
 import { Controller } from '../controller';
-import { createValueFunction, dashToCamel, removeAttribute } from '../util';
+import { createValueFunction, dashToCamel, setAttribute } from '../util';
 import { GeneralDirective } from './index';
 import { findBindings } from '../parse';
 import { getScope } from '../scope';
@@ -20,5 +20,5 @@ export const propertyDirective: GeneralDirective = (
     };
     addBindings(controller, node, update, findBindings(attrValue));
     update(controller);
-    removeAttribute(node, attrName);
+    setAttribute(node, attrName);
 };

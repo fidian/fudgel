@@ -25,8 +25,8 @@ export const metadataControllerHooks = makeMap<
     Controller,
     { [key: string]: HookCallback[] }
 >();
-export const metadataControllerPatched = makeMap<Controller, TrackingObject>();
-export const metadataControllerRoot = makeMap<Controller, Node>();
+export const metadataControllerPatchedAttr = makeMap<Controller, TrackingObject>();
+export const metadataControllerPatchedBinding = makeMap<Controller, TrackingObject>();
 export const metadataElementController = makeMap<HTMLElement, Controller>();
 export const metadataElementPatched = makeMap<CustomElement, TrackingObject>();
 export const metadataHookRemove = makeMap<Node, (() => void)[]>();

@@ -1,5 +1,5 @@
 import { Controller } from '../controller';
-import { dashToCamel, removeAttribute } from '../util';
+import { dashToCamel, setAttribute } from '../util';
 import { GeneralDirective } from './index';
 
 export const hashRefDirective: GeneralDirective = (
@@ -9,5 +9,5 @@ export const hashRefDirective: GeneralDirective = (
     attrName: string
 ) => {
     controller[dashToCamel(attrValue)] = node;
-    removeAttribute(node, attrName);
+    setAttribute(node, attrName);
 };

@@ -1,4 +1,4 @@
-import { component } from '../../src/';
+import { component } from '../../src/fudgel';
 
 component('test-element', {
     template:

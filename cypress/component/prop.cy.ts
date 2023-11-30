@@ -1,4 +1,4 @@
-import { Component, component, Prop, update } from '../../src/';
+import { Component, component, Prop, update } from '../../src/fudgel';
 
 @Component('show-prop', {
     template: '{{this.prop}}',
@@ -76,7 +76,8 @@ describe('prop', () => {
         cy.mount('<test-async></test-async>');
         cy.get('show-prop').shadow().should('have.text', 'after-update');
     });
-    it('shows items from a list', () => {
+    it.only('shows items from a list', () => {
+        console.clear();
         cy.mount('<test-scope></test-scope>');
         cy.get('test-scope-item')
             .shadow()

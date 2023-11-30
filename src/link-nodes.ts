@@ -1,3 +1,4 @@
+import { doc } from './elements';
 import { linkElementNode } from './link-element-node';
 import { linkStructuralDirective } from './link-structural-directive';
 import { linkTextNode } from './link-text-node';
@@ -11,21 +12,24 @@ import { linkTextNode } from './link-text-node';
  * parent or insert after the previous sibling.
  */
 export const linkNodes = (
-    processQueue: [Node, Node][],
+    root: Node,
     controller: Object
 ) => {
-    // Breadth-first processing across elements.
-    while (processQueue.length) {
-        let [parentNode, childNode] = processQueue.shift()!;
+    // NodeFilter.SHOW_ELEMENT = 0x1
+    // NodeFilter.SHOW_TEXT = 0x4
+    // NodeFilter.SHOW_COMMENT = 0x80 - necessary for structural directives
+    const treeWalker = doc.createTreeWalker(root, 0x1 + 0x4 + 0x80);
 
-        linkStructuralDirective(controller, parentNode, childNode as HTMLElement) ||
-            linkTextNode(controller, parentNode, childNode as Text) ||
+    // true is a special flag where a controller advanced the pointer but there
+    // is no next node.
+    let currentNode;
+
+    while (currentNode = treeWalker.nextNode()) {
+        linkStructuralDirective(controller, treeWalker, currentNode as HTMLElement) ||
+            linkTextNode(controller, currentNode as Text) ||
             linkElementNode(
                 controller,
-                parentNode as HTMLElement,
-                true,
-                childNode as HTMLElement,
-                processQueue
-            ) || (parentNode.appendChild(childNode));
+                currentNode as HTMLElement
+            );
     }
 };

@@ -1,4 +1,4 @@
-import { component } from '../../src/';
+import { component } from '../../src/fudgel';
 
 component('parent-element', {
     template: '<child-element>{{this.name}}<span slot="moo">Moo</span></child-element>',

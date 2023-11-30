@@ -1,4 +1,4 @@
-import { Component, metadataControllerElement } from '../../src/';
+import { Component, metadataControllerElement } from '../../src/fudgel';
 
 const date = new Date();
 

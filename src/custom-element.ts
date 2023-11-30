@@ -6,7 +6,6 @@ import {
     metadataComponentConfig,
     metadataComponentController,
     metadataControllerElement,
-    metadataControllerRoot,
     metadataElementController,
     metadataScope,
 } from './metadata';
@@ -35,17 +34,6 @@ export class CustomElement extends HTMLElement {
         metadataControllerElement.set(controller, this);
         findPrototypeHooks(controller);
         const config = metadataComponentConfig(constructor)!;
-
-        // Process content that will be used for content projection
-        const contentProjection = new DocumentFragment();
-        const processQueueContentProjection: [Node, Node][] = [];
-
-        for (const childNode of this.childNodes) {
-            processQueueContentProjection.push([contentProjection, childNode]);
-        }
-
-        linkNodes(processQueueContentProjection, controller);
-        this.append(contentProjection);
         const root = this.shadowRoot || this.attachShadow({ mode: 'open' });
 
         // Add styling within the element
@@ -54,25 +42,15 @@ export class CustomElement extends HTMLElement {
         }
 
         // Initialize before adding child nodes
-        metadataControllerRoot(controller, root);
         controller.onInit && controller.onInit();
         hooksRun('init', controller);
 
         // Create initial child elements from the template.
         const templateText = config.template;
-        const processQueue: [Node, Node][] = [];
-
-        if (templateText) {
-            const template = createTemplate();
-            template.innerHTML = templateText;
-
-            for (const childNode of template.content.childNodes) {
-                processQueue.push([root, childNode]);
-            }
-        }
-
-        // Add child nodes
-        linkNodes(processQueue, controller);
+        const template = createTemplate();
+        template.innerHTML = templateText;
+        linkNodes(template.content, controller);
+        root.append(template.content);
         controller.onViewInit && controller.onViewInit();
     }
 

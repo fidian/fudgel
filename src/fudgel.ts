@@ -26,6 +26,6 @@ export * from './constructor';
 export * from './controller';
 export * from './custom-element';
 export { addDirective };
-export { metadataControllerElement, metadataControllerRoot } from './metadata';
+export { metadataControllerElement } from './metadata';
 export * from './parse';
 export * from './prop';

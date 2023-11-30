@@ -1,4 +1,4 @@
-import { component, Controller } from '../../src/';
+import { component, Controller } from '../../src/fudgel';
 import { prototypeHook } from '../../src/prototype-hooks';
 
 const events = [];

@@ -12,9 +12,12 @@ export const memoize = <T extends (...args: any[]) => any>(fn: T) => {
     };
 };
 
-export const createFunction = memoize((args: string, code: string) => new Function(args, code));
+export const createFunction = memoize(
+    (args: string, code: string) => new Function(args, code)
+);
 
-export const createValueFunction = (code: string) => createFunction('$scope', `return ${code}`);
+export const createValueFunction = (code: string) =>
+    createFunction('$scope', `return ${code}`);
 
 export const dashToCamel = (dashed: string) => {
     return dashed.replace(/-\p{Ll}/gu, match => match[1].toUpperCase());
@@ -25,12 +28,22 @@ export const camelToDash = (dashed: string) => {
 };
 
 export const toString = <T>(value: T) =>
-    isEmptyValue(value) ? '' : `${value}`;
+    value === null || value === undefined ? '' : `${value}`;
 
-export const isEmptyValue = <T>(value: T) =>
-    value === null || value === undefined;
+export const setAttribute = (
+    node: HTMLElement,
+    name: string,
+    value?: string | boolean | null
+) => {
+    if (value === true) {
+        value = '';
+    }
 
-export const removeAttribute = (node: HTMLElement, name: string) =>
-    node.attributes.removeNamedItem(name);
+    if (typeof value !== 'string') {
+        node.removeAttribute(name);
+    } else {
+        node.setAttribute(name, `${value}`);
+    }
+};
 
 export const getPrototypeOf = (x: Object) => Object.getPrototypeOf(x);

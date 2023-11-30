@@ -1,5 +1,5 @@
 import { Controller } from '../controller';
-import { createFunction, dashToCamel, removeAttribute } from '../util';
+import { createFunction, dashToCamel, setAttribute } from '../util';
 import { GeneralDirective } from './index';
 import { getScope } from '../scope';
 
@@ -39,5 +39,5 @@ export const eventDirective: GeneralDirective = (
     // https://github.com/MithrilJS/mithril.js/issues/2681
     const fn = createFunction('s,e', `!1===(($scope,$event)=>{${attrValue}})(s,e)&&(e.preventDefault(),e.stopPropagation())`);
     node.addEventListener(eventName, event => fn.call(controller, scope, event));
-    removeAttribute(node, attrName);
+    setAttribute(node, attrName);
 };

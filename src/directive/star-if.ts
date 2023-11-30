@@ -1,17 +1,17 @@
 import { addBindings } from '../bindings';
 import { Controller } from '../controller';
+import { createDocumentFragment } from '../elements';
 import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
 import { getScope } from '../scope';
 import { hooksOff } from '../hooks';
-import { linkElementNode } from '../link-element-node';
 import { linkNodes } from '../link-nodes';
 import { StructuralDirective } from './index';
 
 export const starIfDirective: StructuralDirective = (
     controller: Controller,
     anchor: Comment,
-    node: HTMLElement,
+    source: HTMLElement,
     attrValue: string
 ) => {
     const getValue = createValueFunction(attrValue);
@@ -21,10 +21,11 @@ export const starIfDirective: StructuralDirective = (
         if (getValue.call(thisRef, scope)) {
             if (!activeNode) {
                 // Add
-                const processQueue: [Node, Node][] = [];
-                activeNode = node.cloneNode(true) as HTMLElement;
-                linkElementNode(thisRef, anchor, false, activeNode, processQueue);
-                linkNodes(processQueue, thisRef);
+                activeNode = source.cloneNode(true) as HTMLElement;
+                const fragment = createDocumentFragment();
+                fragment.append(activeNode);
+                linkNodes(fragment, thisRef);
+                anchor.after(activeNode);
             }
         } else {
             if (activeNode) {

@@ -1,22 +1,10 @@
 import { createValueFunction, memoize, toString } from './util';
 
-export const parseText = memoize((text: string, allowRawValue = false) => {
+export const parseText = memoize((text: string) => {
     const chunks = text.split(/{{(.*?)}}/);
 
     if (chunks.length < 2) {
         return null;
-    }
-
-    if (
-        allowRawValue &&
-        chunks.length === 3 &&
-        chunks[0] === '' &&
-        chunks[2] === ''
-    ) {
-        return {
-            fn: createValueFunction(text),
-            binds: findBindings(chunks[1]),
-        };
     }
 
     const portions: any[] = [];

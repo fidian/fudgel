@@ -1,7 +1,7 @@
 /**
  * Shorthands for creating elements. Using these is better for minification.
  */
-const doc = document;
+export const doc = document;
 
 const createElement: Document['createElement'] = (name: string) =>
     doc.createElement(name);
@@ -18,3 +18,5 @@ export const createStyle = (content: string) => {
 }
 
 export const createTemplate = () => createElement('template');
+
+export const createDocumentFragment = () => doc.createDocumentFragment();

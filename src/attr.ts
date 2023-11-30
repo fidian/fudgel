@@ -1,11 +1,11 @@
 /**
  * Bind a controller class to a CustomElement's attribute. This is a 2-way binding.
  */
-import { camelToDash, isEmptyValue } from './util';
+import { camelToDash, setAttribute } from './util';
 import { Controller } from './controller';
 import { hookOn } from './hooks';
 import {
-    metadataControllerPatched,
+    metadataControllerPatchedAttr,
     metadataControllerElement,
 } from './metadata';
 import { patchSetter } from './setter';
@@ -56,15 +56,11 @@ const addAttrHook = (proto: Object, propertyName: string) =>
                     const element = metadataControllerElement.get(thisRef);
 
                     if (element) {
-                        if (isEmptyValue(newValue)) {
-                            element.removeAttribute(attrName);
-                        } else {
-                            element.setAttribute(attrName, `${newValue}`);
-                        }
+                        setAttribute(element, attrName, newValue);
                     }
                 };
                 patchSetter(
-                    metadataControllerPatched,
+                    metadataControllerPatchedAttr,
                     controllerRef,
                     propertyName,
                     update
