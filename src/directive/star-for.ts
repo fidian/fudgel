@@ -1,11 +1,10 @@
 import { addBindings } from '../bindings';
 import { childScope, getScope } from '../scope';
 import { Controller } from '../controller';
-import { createDocumentFragment } from '../elements';
 import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
 import { hooksOff } from '../hooks';
-import { linkNodes } from '../link-nodes';
+import { linkNodesWrapped } from '../link-nodes';
 import { StructuralDirective } from './index';
 
 export const starForDirective: StructuralDirective = (
@@ -62,9 +61,7 @@ export const starForDirective: StructuralDirective = (
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[keyName] = key;
                 (scope as any)[valueName] = value;
-                const fragment = createDocumentFragment();
-                fragment.append(copy);
-                linkNodes(fragment, thisRef);
+                linkNodesWrapped(copy, thisRef);
                 lastNode.after(copy);
             } else {
                 const scope = childScope(anchorScope, copy);

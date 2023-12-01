@@ -77,7 +77,6 @@ describe('prop', () => {
         cy.get('show-prop').shadow().should('have.text', 'after-update');
     });
     it.only('shows items from a list', () => {
-        console.clear();
         cy.mount('<test-scope></test-scope>');
         cy.get('test-scope-item')
             .shadow()

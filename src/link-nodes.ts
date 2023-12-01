@@ -1,3 +1,4 @@
+import { Controller } from './controller';
 import { doc } from './elements';
 import { linkElementNode } from './link-element-node';
 import { linkStructuralDirective } from './link-structural-directive';
@@ -25,6 +26,10 @@ export const linkNodes = (
     let currentNode;
 
     while (currentNode = treeWalker.nextNode()) {
+        if (currentNode.nodeName === 'TEMPLATE') {
+            linkNodes((currentNode as HTMLTemplateElement).content, controller);
+        }
+
         linkStructuralDirective(controller, treeWalker, currentNode as HTMLElement) ||
             linkTextNode(controller, currentNode as Text) ||
             linkElementNode(
@@ -33,3 +38,9 @@ export const linkNodes = (
             );
     }
 };
+
+export const linkNodesWrapped = (node: Node, controller: Controller) => {
+    const fragment = doc.createDocumentFragment();
+    fragment.append(node);
+    linkNodes(fragment, controller);
+}

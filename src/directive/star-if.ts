@@ -1,11 +1,10 @@
 import { addBindings } from '../bindings';
 import { Controller } from '../controller';
-import { createDocumentFragment } from '../elements';
 import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
 import { getScope } from '../scope';
 import { hooksOff } from '../hooks';
-import { linkNodes } from '../link-nodes';
+import { linkNodesWrapped } from '../link-nodes';
 import { StructuralDirective } from './index';
 
 export const starIfDirective: StructuralDirective = (
@@ -22,9 +21,7 @@ export const starIfDirective: StructuralDirective = (
             if (!activeNode) {
                 // Add
                 activeNode = source.cloneNode(true) as HTMLElement;
-                const fragment = createDocumentFragment();
-                fragment.append(activeNode);
-                linkNodes(fragment, thisRef);
+                linkNodesWrapped(activeNode, thisRef);
                 anchor.after(activeNode);
             }
         } else {

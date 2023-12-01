@@ -1,11 +1,10 @@
 import { addBindings } from '../bindings';
 import { childScope, getScope } from '../scope';
 import { Controller } from '../controller';
-import { createDocumentFragment } from '../elements';
 import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
 import { hooksOff } from '../hooks';
-import { linkNodes } from '../link-nodes';
+import { linkNodesWrapped } from '../link-nodes';
 import { StructuralDirective } from './index';
 
 export const starRepeatDirective: StructuralDirective = (
@@ -38,12 +37,10 @@ export const starRepeatDirective: StructuralDirective = (
         let lastNode = activeNodes[lastIndex - 1] || anchor;
 
         while (activeNodes.length < desired) {
-            const fragment = createDocumentFragment();
             let copy = source.cloneNode(true) as HTMLElement;
             const scope = childScope(anchorScope, copy);
             scope[scopeName] = lastIndex++;
-            fragment.append(copy);
-            linkNodes(fragment, thisRef);
+            linkNodesWrapped(copy, thisRef);
             activeNodes.push(copy);
             lastNode.after(copy);
             lastNode = copy;
