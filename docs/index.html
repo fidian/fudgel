@@ -103,10 +103,10 @@
                 <li>Darn small, coming in at about 3k minified and gzipped</li>
                 <li>Parent elements will initialize before children</li>
             </ul>
-            <code-sample type="ts" live="true">
+            <code-sample type="ts" live="true" html="<my-custom-element></my-custom-element>">
                 <!-- prettier-ignore -->
                 <template>
-                    import { component } from 'fudgel';
+                    import { component } from './fudgel.min.js';
 
                     component('my-custom-element', {
                         template: `
@@ -267,11 +267,13 @@
                 write your first controller. Select the chunk of code that best
                 fits your needs.
             </p>
-            <code-sample type="ts">
+            <code-sample type="ts" live="true" html="<my-custom-component></my-custom-component>">
                 <!-- prettier-ignore -->
                 <template>
-                    // Vanilla JavaScript using window.Fudgel
-                    window.Fudgel.component('my-custom-component', {
+                    // Module
+                    import { component } from './fudgel.min.js';
+
+                    component('my-custom-component', {
                         template: `Hello {{this.audience}}`
                     }, class {
                         audience = 'world';
@@ -281,10 +283,8 @@
             <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
-                    // Module
-                    import { component } from 'fudgel';
-
-                    component('my-custom-component', {
+                    // Vanilla JavaScript using window.Fudgel
+                    window.Fudgel.component('my-custom-component', {
                         template: `Hello {{this.audience}}`
                     }, class {
                         audience = 'world';
@@ -330,12 +330,12 @@
                 </li>
                 <li>An optional class to instantiate as the controller</li>
             </ul>
-            <code-sample type="ts">
+            <code-sample type="ts" live="true" html="<say-hello></say-hello>">
                 <!-- prettier-ignore -->
                 <template>
-                    import { controller } from 'fudgel';
+                    import { component } from './fudgel.min.js';
 
-                    controller('say-hello', {
+                    component('say-hello', {
                         template: `<p>Hello, {{this.audience}}!</p>`
                     }, class {
                         audience = 'world';
@@ -370,10 +370,12 @@
                     custom elements.
                 </li>
             </ul>
-            <code-sample type="ts">
+            <code-sample type="ts" live="true" html="<new-element></new-element>">
                 <!-- prettier-ignore -->
                 <template>
-                    controller('new-element', {
+                    import { component } from './fudgel.min.js';
+
+                    component('new-element', {
                         style: `new-element { display: block }`,
                         template: `<p>This is my new element</p>`
                     });
@@ -388,9 +390,9 @@
             <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
-                    import { @Controller } from 'fudgel';
+                    import { Component } from 'fudgel';
 
-                    @Controller('say-hello', {
+                    @Component('say-hello', {
                         template: `<p>Hello, {{this.audience}}</p>`
                     })
                     export class SayHelloComponent {
@@ -440,10 +442,10 @@
                 and have the controller's property change automatically, there
                 are some helper functions you can use.
             </p>
-            <code-sample type="ts">
+            <code-sample type="ts" live="true" html='<prop-and-attr my-attr="This came from HTML"></prop-and-attr>'>
                 <!-- prettier-ignore -->
                 <template>
-                    import { attr, component, prop } from 'fudgel';
+                    import { attr, component, prop } from './fudgel.min.js';
 
                     component('prop-and-attr', {
                         template: `
@@ -452,10 +454,17 @@
                         `
                     }, class {
                         constructor() {
+                            this.myAttr = 'Initial value is wiped by the attribute';
+                            this.myProp = 'This has not yet been assigned';
                             attr(this, 'myAttr');
                             prop(this, 'myProp');
                         }
                     });
+
+                    setTimeout(() =&gt; {
+                        document.querySelector('prop-and-attr').myProp =
+                            'This came from a property assignment';
+                    }, 1000);
                 </template>
             </code-sample>
             <p>
@@ -838,7 +847,7 @@
             <code-sample type="ts">
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, emit } from 'fudgel';
+                    import { component, emit } from './fudgel.min.js';
 
                     component('user-sample', {
                         template: `

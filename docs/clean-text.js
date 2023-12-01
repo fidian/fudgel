@@ -6,5 +6,13 @@ export const cleanText = (str) => {
 
     // Clean leading spaces using first line's indentation as our key.
     const pattern = str.match(/\s*\n[\t\s]*/);
-    return str.replace(new RegExp(pattern, 'g'), '\n');
+
+    if (pattern && pattern[0].match(/[^\n]/)) {
+        str = str.replace(new RegExp(pattern, 'g'), '\n');
+    }
+
+    // Remove blank lines at the beginning and end
+    str = str.trim();
+
+    return str;
 };

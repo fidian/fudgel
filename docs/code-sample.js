@@ -24,7 +24,7 @@ component(
             }
 
             .hljs {
-                padding: 0 20px;
+                padding: 20px 20px;
                 line-height: var(--code-sample-line-height, 1.3);
             }
 
@@ -150,14 +150,18 @@ component(
                     @click="return this.livePlayground()">Live Demo</button>
                 <pre #ref="pre"></pre>
             </div>
-            <live-playground *if="this.useLivePlayground"><template>{{this.codeStr}}</template></live-playground>
-            <live-playground><template>{{this.codeStr}}</template></live-playground>
+            <live-playground *if="this.useLivePlayground"><template><script type="module">
+            {{this.codeStr}}
+            </script>
+
+            {{this.html}}</template></live-playground>
         `,
     },
     class {
         constructor() {
             attr(this, 'type');
             attr(this, 'live');
+            attr(this, 'html');
             this.label = 'Copy';
         }
 
