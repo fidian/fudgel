@@ -28,7 +28,6 @@ const addAttrHook = (proto: Object, propertyName: string) =>
 
                 // When attribute changes, update internal property.
                 if (element) {
-                    console.log('attr', attrName, propertyName, element.getAttribute(attrName));
                     const attrToProp = (
                         thisRef: Controller,
                         oldValue: string | null,
