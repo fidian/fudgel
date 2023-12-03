@@ -5,7 +5,6 @@ import { camelToDash, setAttribute } from './util';
 import { Controller } from './controller';
 import { hookOn } from './hooks';
 import {
-    metadataControllerPatchedAttr,
     metadataControllerElement,
 } from './metadata';
 import { patchSetter } from './setter';
@@ -29,6 +28,7 @@ const addAttrHook = (proto: Object, propertyName: string) =>
 
                 // When attribute changes, update internal property.
                 if (element) {
+                    console.log('attr', attrName, propertyName, element.getAttribute(attrName));
                     const attrToProp = (
                         thisRef: Controller,
                         oldValue: string | null,
@@ -47,7 +47,7 @@ const addAttrHook = (proto: Object, propertyName: string) =>
                     attrToProp(
                         controllerRef,
                         null,
-                        element.getAttribute(propertyName)
+                        element.getAttribute(attrName)
                     );
                 }
 
@@ -60,12 +60,10 @@ const addAttrHook = (proto: Object, propertyName: string) =>
                     }
                 };
                 patchSetter(
-                    metadataControllerPatchedAttr,
                     controllerRef,
                     propertyName,
                     update
                 );
-                update(controllerRef, (controllerRef as any)[propertyName]);
             }
         );
     });

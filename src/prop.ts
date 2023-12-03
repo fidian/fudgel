@@ -8,7 +8,6 @@ import { hookOn } from './hooks';
 import {
     metadataControllerElement,
     metadataElementController,
-    metadataElementPatched,
 } from './metadata';
 import { patchSetter } from './setter';
 import { prototypeHook } from './prototype-hooks';
@@ -33,12 +32,7 @@ const addPropHook = (proto: Object, propertyName: string) => {
                         metadataElementController(thisRef)![propertyName] =
                             newValue;
                     };
-                    patchSetter(
-                        metadataElementPatched,
-                        element,
-                        propertyName,
-                        update
-                    );
+                    patchSetter(element, propertyName, update);
                     update(element, (element as any)[propertyName]);
                 }
             }

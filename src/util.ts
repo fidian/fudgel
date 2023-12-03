@@ -20,11 +20,11 @@ export const createValueFunction = (code: string) =>
     createFunction('$scope', `return ${code}`);
 
 export const dashToCamel = (dashed: string) => {
-    return dashed.replace(/-\p{Ll}/gu, match => match[1].toUpperCase());
+    return dashed.replace(/-(\p{Ll})/gu, match => match[1].toUpperCase());
 };
 
 export const camelToDash = (dashed: string) => {
-    return dashed.replace(/\p{Lu}/gu, match => `-${match[1]}`.toLowerCase());
+    return dashed.replace(/\p{Lu}/gu, match => `-${match[0]}`.toLowerCase());
 };
 
 export const toString = <T>(value: T) =>

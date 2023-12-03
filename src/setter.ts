@@ -1,21 +1,23 @@
-import { MetadataMap } from './metadata';
+import { metadataPatchedSetter } from './metadata';
 
-export type TrackingObject = {
-    [key: string]: number;
-};
+export type SetterCallback<T extends Object> = (thisRef: T, newValue: any, oldValue: any) => void;
+export interface TrackedSetters<T extends Object> {
+    [key: string]: SetterCallback<T>[];
+}
 
 export const patchSetter = <T extends Object>(
-    map: MetadataMap<T, TrackingObject>,
     obj: T,
     property: string,
-    callback: (thisRef: T, newValue: any, oldValue: any) => void
+    callback: SetterCallback<T>
 ) => {
-    const trackingObject = map(obj, {})!;
+    const trackingObject = metadataPatchedSetter(obj, {});
+    let callbacks = trackingObject[property] as SetterCallback<T>[];
 
-    if (!trackingObject[property]) {
-        trackingObject[property] = 1;
+    if (!callbacks) {
         let value: any = (obj as any)[property];
         const desc = Object.getOwnPropertyDescriptor(obj, property) || {};
+        callbacks = [];
+        (trackingObject as any)[property] = callbacks;
         Object.defineProperty(obj, property, {
             get: desc.get || (() => value),
             set: function (newValue: any) {
@@ -23,10 +25,15 @@ export const patchSetter = <T extends Object>(
 
                 if (newValue !== oldValue) {
                     desc.set ? desc.set(newValue) : (value = newValue);
-                    callback(this, newValue, oldValue);
+
+                    for (const cb of callbacks) {
+                        cb(this, newValue, oldValue);
+                    }
                 }
             },
         });
-    }
+    };
+
+    callbacks.push(callback);
 };
 

@@ -3,7 +3,7 @@ import { Controller } from './controller';
 import { CustomElement } from './custom-element';
 import { CustomElementConfig } from './custom-element-config';
 import { HookCallback } from './hooks';
-import { TrackingObject } from './setter';
+import { TrackedSetters } from './setter';
 
 export interface MetadataMap<K extends WeakKey, V> {
     (key: K): V | undefined;
@@ -25,10 +25,8 @@ export const metadataControllerHooks = makeMap<
     Controller,
     { [key: string]: HookCallback[] }
 >();
-export const metadataControllerPatchedAttr = makeMap<Controller, TrackingObject>();
-export const metadataControllerPatchedBinding = makeMap<Controller, TrackingObject>();
 export const metadataElementController = makeMap<HTMLElement, Controller>();
-export const metadataElementPatched = makeMap<CustomElement, TrackingObject>();
 export const metadataHookRemove = makeMap<Node, (() => void)[]>();
+export const metadataPatchedSetter = makeMap<Object, TrackedSetters<Object>>();
 export const metadataPrototypeHooks = makeMap<Object, HookCallback[]>();
 export const metadataScope = makeMap<Node, Object>();

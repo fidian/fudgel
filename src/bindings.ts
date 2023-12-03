@@ -1,6 +1,5 @@
 import { Controller } from './controller';
 import { hookOn, hooksRun } from './hooks';
-import { metadataControllerPatchedBinding } from './metadata';
 import { patchSetter } from './setter';
 
 export function addBindings(
@@ -13,11 +12,10 @@ export function addBindings(
 
     for (const binding of bindingList) {
         const hookName = `set:${binding}`;
-        patchSetter<Object>(
-            metadataControllerPatchedBinding,
+        patchSetter(
             controller,
             binding,
-            (thisRef, newValue, oldValue) => {
+            (thisRef: Controller, newValue, oldValue) => {
                 hooksRun(hookName, thisRef, newValue, oldValue);
                 (thisRef as any).onChange && (thisRef as any).onChange(binding, newValue, oldValue);
             }

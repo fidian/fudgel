@@ -103,7 +103,11 @@
                 <li>Darn small, coming in at about 3k minified and gzipped</li>
                 <li>Parent elements will initialize before children</li>
             </ul>
-            <code-sample type="ts" live="true" html="<my-custom-element></my-custom-element>">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<my-custom-element></my-custom-element>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';
@@ -267,7 +271,11 @@
                 write your first controller. Select the chunk of code that best
                 fits your needs.
             </p>
-            <code-sample type="ts" live="true" html="<my-custom-component></my-custom-component>">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<my-custom-component></my-custom-component>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     // Module
@@ -370,7 +378,11 @@
                     custom elements.
                 </li>
             </ul>
-            <code-sample type="ts" live="true" html="<new-element></new-element>">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<new-element></new-element>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';
@@ -442,7 +454,11 @@
                 and have the controller's property change automatically, there
                 are some helper functions you can use.
             </p>
-            <code-sample type="ts" live="true" html='<prop-and-attr my-attr="This came from HTML"></prop-and-attr>'>
+            <code-sample
+                type="ts"
+                live="true"
+                html='<prop-and-attr my-attr="This came from HTML"></prop-and-attr>'
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { attr, component, prop } from './fudgel.min.js';
@@ -586,14 +602,20 @@
                 <code>#ref</code> attribute, and the value of the attribute is
                 the name you want assigned in your controller.
             </p>
-            <code-sample type="ts">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<my-custom-element></my-custom-element>"
+            >
                 <!-- prettier-ignore -->
                 <template>
-                    import { controller } from 'fudgel';
+                    import { component } from './fudgel.min.js';
 
-                    controller('my-custom-element', {
+                    ('my-custom-element', {
                         template: `
-                            <div><span #ref="theSpan"></span></div>
+                            <div><span #ref="theSpan">
+                                Check the console
+                            </span></div>
                         `
                     }, class {
                         onViewInit() {
@@ -735,16 +757,24 @@
                 You'd like the ability to specify the HTML that is displayed on
                 the button, but passing that in via an attribute or property is
                 problematic, especially when you want to have an image on the
-                button. There are two ways you have access to outside content in order to "project" it into your element.
+                button. There are two ways you have access to outside content in
+                order to "project" it into your element.
             </p>
             <h3>Using Slots</h3>
             <p>
-                You can use slotted content to achieve the same result, which leverages built-in browser features.
+                You can use slotted content to achieve the same result, which
+                leverages built-in browser features. Imagine using
+                "&lt;custom-button&gt;&lt;b&gt;BOLD
+                SAVE&lt;/b&gt;&lt;/custom-button&gt;"
             </p>
-            <code-sample type="ts">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<custom-button><b>BOLD SAVE</b></custom-button>"
+            >
                 <!-- prettier-ignore -->
                 <template>
-                    import { component } from 'fudgel';
+                    import { component } from './fudgel.min.js';
 
                     component('custom-button', {
                         style: `
@@ -753,13 +783,10 @@
                                 border-width: 2x;
                                 border-color: blue;
                                 border-style: solid;
+                                padding: 4px;
                             }
                         `,
                         template: `<button><slot></slot></button>`
-                    });
-
-                    component('save-button', {
-                        template: `<custom-button><img src="save.png"> Save</custom-button>`
                     });
                 </template>
             </code-sample>
@@ -776,14 +803,20 @@
                     ><code>slot</code> attributes</a
                 >.
             </p>
-            <h3>Manually Slots</h3>
+            <h3>Manual Content Retrieval</h3>
             <p>
-                Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques.
+                Your controller can access the custom element and pull its
+                children using a query selector, walking the DOM, or other
+                techniques.
             </p>
-            <code-sample type="ts">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<custom-button><b>BOLD SAVE</b></custom-button>"
+            >
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, metadataControllerElement } from 'fudgel';
+                    import { component, metadataControllerElement } from './fudgel.min.js';
 
                     component('custom-button', {
                         style: `
@@ -804,10 +837,6 @@
                             }
                         }
                     });
-
-                    component('save-button', {
-                        template: `<custom-button><img src="save.png"> Save</custom-button>`
-                    });
                 </template>
             </code-sample>
             <h2>Utility Functions</h2>
@@ -816,14 +845,19 @@
                 shadow DOM. DOM. Also, for minification, you will probably want
                 to leverage shared code to send events.
             </p>
-            <code-sample type="ts">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<button-sample></button-sample>"
+            >
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, emit } from 'fudgel';
+                    import { component, emit } from './fudgel.min.js';
 
                     component('button-sample', {
                         template: `
                             <button @click="return this.clicked()">Click me</button>
+                            to send a custom event
                         `
                     }, class {
                         clicked() {
@@ -844,10 +878,14 @@
                 detection will not pick it up. You can flag specific properties
                 as needing to be redrawn, as this example shows.
             </p>
-            <code-sample type="ts">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<user-sample></user-sample>"
+            >
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, emit } from './fudgel.min.js';
+                    import { component, emit, update } from './fudgel.min.js';
 
                     component('user-sample', {
                         template: `
@@ -869,12 +907,26 @@
                 </template>
             </code-sample>
             <p>
-                <code>update()</code> takes two optional parameters and behaves differently depending on what you pass into the function.
+                <code>update()</code> takes two optional parameters and behaves
+                differently depending on what you pass into the function.
             </p>
             <ul>
-                <li><code>update(controller, 'property')</code> - Updates all bindings for a single property on a controller. This is the fastest call to make.</li>
-                <li><code>update(controller)</code> - Reruns all bindings that are attached to the controller. This affects all properties and every dynamic piece of HTML that is controlled by your controller.</li>
-                <li><code>update()</code> - The slowest of all ways to trigger an update, this form will update all bindings for all Fudgel components everywhere.</li>
+                <li>
+                    <code>update(controller, 'property')</code> - Updates all
+                    bindings for a single property on a controller. This is the
+                    fastest call to make.
+                </li>
+                <li>
+                    <code>update(controller)</code> - Reruns all bindings that
+                    are attached to the controller. This affects all properties
+                    and every dynamic piece of HTML that is controlled by your
+                    controller.
+                </li>
+                <li>
+                    <code>update()</code> - The slowest of all ways to trigger
+                    an update, this form will update all bindings for all Fudgel
+                    components everywhere.
+                </li>
             </ul>
             <h2>Best Practices</h2>
             <p>
