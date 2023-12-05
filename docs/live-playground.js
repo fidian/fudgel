@@ -62,7 +62,7 @@ component(
 
             this.code.value = cleanText(template.innerHTML);
             this.code.onchange = () => this.scheduleUpdate();
-            this.code.onkeypress = () => this.scheduleUpdate();
+            this.code.onkeyup = () => this.scheduleUpdate();
             this.update();
         }
 
