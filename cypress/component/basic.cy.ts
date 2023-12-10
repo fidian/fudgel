@@ -1,7 +1,7 @@
-import { component } from '../../src/fudgel';
+import { component, html } from '../../src/fudgel';
 
 component('custom-element', {
-    template: 'Success',
+    template: html`Success`,
 });
 
 describe('basic initialization', () => {

@@ -29,3 +29,4 @@ export { addDirective };
 export { metadataControllerElement } from './metadata';
 export * from './parse';
 export * from './prop';
+export * from './tag-functions';

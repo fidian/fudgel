@@ -685,39 +685,7 @@
                     </div>
                 </template>
             </code-sample>
-            <h2>Lifecycle Methods and Hooks</h2>
-            <p>
-                If your controller has any of these methods, they will be called
-                during specific moments during the lifecycle of your controller.
-            </p>
-            <p>
-                <code>onInit()</code> is called after the custom element is
-                connected to a DOM. It's a good place to set up your initial
-                properties. Child elements are not yet attached to the DOM,
-                templates are not parsed, and most other things are not yet set
-                up.
-            </p>
-            <p>
-                <code>onViewInit()</code>, if you have one, will be executed at
-                the very end after the custom element is connected to the DOM.
-                At this point, all children are in the DOM,
-                <code>#ref</code> directives are set up, and your element is
-                basically live.
-            </p>
-            <p>
-                <code>onChange(propertyName, oldValue, newValue)</code> will be
-                triggered whenever a monitored property is updated. Monitored
-                properties are the ones that are referenced in a template.
-                Differences are detected by using <code>===</code> (strict
-                equals), so changes to immutable objects trigger change
-                detection more easily.
-            </p>
-            <p>
-                <code>onDestroy()</code> is when the controller is being
-                detached from the custom element and the custom element is being
-                disconnected from the DOM.
-            </p>
-            <h2>Adding Custom Directives</h2>
+            <h3>Adding Custom Directives</h3>
             <p>
                 You are welcome to add your own directives. There are three
                 categories of directives when you add one. First, structural
@@ -750,6 +718,38 @@
                 manipulation in the DOM that is necessary. For structural
                 directives, a comment is added just before the element that you
                 can use as an anchor point for adding or removing elements.
+            </p>
+            <h2>Lifecycle Methods and Hooks</h2>
+            <p>
+                If your controller has any of these methods, they will be called
+                during specific moments during the lifecycle of your controller.
+            </p>
+            <p>
+                <code>onInit()</code> is called after the custom element is
+                connected to a DOM. It's a good place to set up your initial
+                properties. Child elements are not yet attached to the DOM,
+                templates are not parsed, and most other things are not yet set
+                up.
+            </p>
+            <p>
+                <code>onViewInit()</code>, if you have one, will be executed at
+                the very end after the custom element is connected to the DOM.
+                At this point, all children are in the DOM,
+                <code>#ref</code> directives are set up, and your element is
+                basically live.
+            </p>
+            <p>
+                <code>onChange(propertyName, oldValue, newValue)</code> will be
+                triggered whenever a monitored property is updated. Monitored
+                properties are the ones that are referenced in a template.
+                Differences are detected by using <code>===</code> (strict
+                equals), so changes to immutable objects trigger change
+                detection more easily.
+            </p>
+            <p>
+                <code>onDestroy()</code> is when the controller is being
+                detached from the custom element and the custom element is being
+                disconnected from the DOM.
             </p>
             <h2>Content Projection</h2>
             <p>
@@ -928,6 +928,26 @@
                     components everywhere.
                 </li>
             </ul>
+            <p>
+            There are some build tools that will allow minification of HTML and CSS when they are used within <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template literals</a>. Fudgel exports <code>html()</code> and <code>css()</code> as empty tag functions so your toolset will detect the appropriate type of template and allow minification.
+            </p>
+            <code-sample type="ts" live="true" html="<demo-component></demo-component>">
+                <template>
+                    import { component, css, html } from './fudgel.min.js';
+
+                    component('demo-component', {
+                        style: css`
+                            div {
+                                font-size: 3em;
+                                font-weight: bold;
+                            }
+                        `,
+                        template: html`
+                            <div>BIG WORDS</div>
+                        `
+                    });
+                </template>
+            </code-sample>
             <h2>Best Practices</h2>
             <p>
                 Do not register your custom element in your exported module.
