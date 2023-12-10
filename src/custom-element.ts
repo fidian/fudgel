@@ -67,6 +67,6 @@ export class CustomElement extends HTMLElement {
             this.shadowRoot.innerHTML = '';
         }
 
-        controller.onDestroy && controller.onDestroy();
+        controller && controller.onDestroy && controller.onDestroy();
     }
 }
