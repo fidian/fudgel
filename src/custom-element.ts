@@ -61,8 +61,8 @@ export class CustomElement extends HTMLElement {
         // Need to eliminate the hard reference to the element.
         // Everything else should be able to be garbage collected.
         metadataControllerElement.delete(controller);
-        this.innerHTML = '';
         this.shadowRoot!.innerHTML = '';
+        this.innerHTML = '';
         controller.onDestroy && controller.onDestroy();
     }
 }
