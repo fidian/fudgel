@@ -1,7 +1,7 @@
 import { addBindings } from '../bindings';
 import { Controller } from '../controller';
 import { createValueFunction, dashToCamel, setAttribute } from '../util';
-import { GeneralDirective } from './index';
+import { GeneralDirective } from './types';
 import { findBindings } from '../parse';
 import { getScope } from '../scope';
 

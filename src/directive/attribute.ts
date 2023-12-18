@@ -1,6 +1,6 @@
 import { addBindings } from '../bindings';
 import { Controller } from '../controller';
-import { GeneralDirective } from './index';
+import { GeneralDirective } from './types';
 import { getScope } from '../scope';
 import { parseText } from '../parse';
 import { setAttribute } from '../util';

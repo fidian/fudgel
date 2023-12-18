@@ -5,7 +5,7 @@ import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
 import { hooksOff } from '../hooks';
 import { linkNodesWrapped } from '../link-nodes';
-import { StructuralDirective } from './index';
+import { StructuralDirective } from './types';
 
 export const starForDirective: StructuralDirective = (
     controller: Controller,

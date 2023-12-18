@@ -1,6 +1,6 @@
 import { Controller } from '../controller';
 import { dashToCamel, setAttribute } from '../util';
-import { GeneralDirective } from './index';
+import { GeneralDirective } from './types';
 
 export const hashRefDirective: GeneralDirective = (
     controller: Controller,

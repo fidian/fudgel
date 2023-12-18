@@ -1,6 +1,6 @@
 import { Controller } from '../controller';
 import { createFunction, dashToCamel, setAttribute } from '../util';
-import { GeneralDirective } from './index';
+import { GeneralDirective } from './types';
 import { getScope } from '../scope';
 
 export const eventDirective: GeneralDirective = (

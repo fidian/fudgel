@@ -1,7 +1,7 @@
 import { createComment } from './elements';
 import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index';
 import { setAttribute, stringify } from './util';
-import { StructuralDirective } from './directive/index';
+import { StructuralDirective } from './directive/types';
 
 export const linkStructuralDirective = (
     controller: Object,

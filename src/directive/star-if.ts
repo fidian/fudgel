@@ -5,7 +5,7 @@ import { findBindings } from '../parse';
 import { getScope } from '../scope';
 import { hooksOff } from '../hooks';
 import { linkNodesWrapped } from '../link-nodes';
-import { StructuralDirective } from './index';
+import { StructuralDirective } from './types';
 
 export const starIfDirective: StructuralDirective = (
     controller: Controller,
