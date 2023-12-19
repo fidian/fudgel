@@ -2,6 +2,7 @@
  * Shorthands for creating elements. Using these is better for minification.
  */
 export const doc = document;
+export const win = window;
 
 const createElement: Document['createElement'] = (name: string) =>
     doc.createElement(name);

@@ -36,7 +36,7 @@ component('test-element-object', {
 });
 
 component('test-change-to-undefined', {
-    template: '<ul *if="this.list"><li *for="this.list">{{$scope.value}}</li></ul><button @click="this.removeList(); return false"></button>'
+    template: '<ul *if="this.list"><li *for="this.list">{{$scope.value}}</li></ul><button @click.stop.prevent="this.removeList()"></button>'
 }, class {
     list = ['abc', 123, false, null, true];
 

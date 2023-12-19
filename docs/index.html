@@ -99,6 +99,7 @@
                 <li>
                     No build system needed; you can just use vanilla JavaScript
                 </li>
+                <li>Fully tree-shakeable</li>
                 <li>Full TypeScript support and also published as a module</li>
                 <li>Darn small, coming in at about 3k minified and gzipped</li>
                 <li>Parent elements will initialize before children</li>
@@ -194,17 +195,12 @@
                     lifestyle hooks and structural directives.
                 </li>
                 <li>
-                    <a href="https://mithril.js.org/">Mithril</a> supplied the
-                    idea to cancel an event based on
-                    <code>return false</code> in the event handler.
-                </li>
-                <li>
                     <a href="https://alpinejs.dev/">Alpine.js</a> has event
-                    handlers using <code>@</code> prefixes.
+                    handlers using <code>@</code> prefixes and modifiers.
                 </li>
                 <li>
                     <a href="https://vuejs.org/">Vue.js</a> is big into using
-                    slots for content projection.
+                    slots for content projection, plus they also have event handlers with modifiers.
                 </li>
             </ul>
 
@@ -583,16 +579,36 @@
                 </template>
             </code-sample>
             <p>
-                Event handlers are bound with a prefixed attribute. If your
-                event handling code returns false, the event's default action
-                will be canceled and propagation will be stopped. The event is
-                available as <code>$event</code> in this code snippet.
+                Event handlers are bound with a prefixed attribute. The event is
+                available as <code>$event</code>.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
-                    <button @click="this.dispatchClick($event); return false">
+                    <button @click="this.dispatchClick($event)">
                         Click me!
+                    </button>
+                </template>
+            </code-sample>
+            <p>
+                Event handlers can also have modifiers, indicating what should be done with the event.
+            </p>
+            <ul>
+                <li><code>capture</code> - Dispatch the event to the registered listener before dispatching to any event targets beneath it in the DOM tree.</li>
+                <li><code>document</code> - Bind the event to the document.</li>
+                <li><code>once</code> - Invoke the listener at most once.</li>
+                <li><code>outside</code> - Bind the event to the document and only fire when there's a click outside of the targeted element.</li>
+                <li><code>passive</code> - Signifies that this event is passive and will not have <code>preventDefault</code> called on it.</p>
+                <li><code>prevent</code> - Calls <code>preventDefault<code> on the event.</li>
+                <li><code>self</code> - Only fires the event when the click is on the target element.</li>
+                <li><code>stop</code> - Calls <code>stopPropagation</code> on the event.</li>
+                <li><code>window</code> - Bind the event to the window.</li>
+            </ul>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <button @click.stop.prevent.once="this.dispatchClick($event)">
+                        Only fires once
                     </button>
                 </template>
             </code-sample>
@@ -856,7 +872,7 @@
 
                     component('button-sample', {
                         template: `
-                            <button @click="return this.clicked()">Click me</button>
+                            <button @click.stop.prevent="this.clicked()">Click me</button>
                             to send a custom event
                         `
                     }, class {
@@ -866,9 +882,6 @@
                                 youCanUse: 'whatever you like',
                                 when: new Date()
                             });
-                            // Automatically cancel the click event
-                            // and prevent propagation.
-                            return false;
                         }
                     });
                 </template>
@@ -932,6 +945,7 @@
             There are some build tools that will allow minification of HTML and CSS when they are used within <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template literals</a>. Fudgel exports <code>html()</code> and <code>css()</code> as empty tag functions so your toolset will detect the appropriate type of template and allow minification.
             </p>
             <code-sample type="ts" live="true" html="<demo-component></demo-component>">
+                <!-- prettier-ignore -->
                 <template>
                     import { component, css, html } from './fudgel.min.js';
 
@@ -945,6 +959,32 @@
                         template: html`
                             <div>BIG WORDS</div>
                         `
+                    });
+                </template>
+            </code-sample>
+            <p>Also included is a minimal dependency injection system, allowing you to inject services into your components. Why use dependency injection? Well, it makes testing much easier, plus you only need to indicate what you want as opposed to how you obtain it or its dependencies.</p>
+            <p>A requirement for this system is that you must not have side-effects in the constructors of the services being injected. If you can follow that rule, then this system will work for live sites, test systems, and even work after your code is minified.</p>
+            <code-sample type="ts" live="true" html="<demo-di></demo-di>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, di } from './fudgel.min.js';
+
+                    class LogService {
+                        writeToConsole(message) {
+                            console.log(message);
+                        }
+                    }
+
+                    component('demo-di', {
+                        template: `<button @click="this.sendLog()">
+                                Log to Console
+                            </button>`
+                    }, class {
+                        logger = di(LogService);
+
+                        sendLog() {
+                            this.logger.writeToConsole('Logging a message');
+                        }
                     });
                 </template>
             </code-sample>

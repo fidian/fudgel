@@ -1,5 +1,6 @@
 import { Controller } from '../controller';
 import { createFunction, dashToCamel, setAttribute } from '../util';
+import { doc, win } from '../elements';
 import { GeneralDirective } from './types';
 import { getScope } from '../scope';
 
@@ -9,35 +10,55 @@ export const eventDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const eventName = dashToCamel(attrName.slice(1));
+    const [eventName, ...modifiers] = dashToCamel(attrName.slice(1)).split('.');
     const scope = getScope(node);
+    const fn = createFunction('s,e', `(($scope,$event)=>{${attrValue}})(s,e)`);
+    const options: AddEventListenerOptions = {};
+    const modifierSet = new Set(modifiers);
+    let eventTarget: Node | Window | Document = node;
 
-    // Before minification:
-    //
-    // export const whatever = (scope: Object, event: Event) => {
-    //     if (
-    //         (($scope: Object, $event: Event) => {
-    //             console.log($scope, $event);
-    //             return false;
-    //         })(scope, event) === false
-    //     ) {
-    //         event.preventDefault();
-    //         event.stopPropagation();
-    //     }
-    // };
-    //
-    // After minification:
-    //
-    // X=(t,e)=>{var n,o;!1==(n=t,o=e,console.log(n,o),!1)&&(e.preventDefault(),e.stopPropagation())}
-    //
-    // This next line is based on the above minification.
-    //
-    // Returning false from an event handler will cancel the event, similar to
-    // jQuery, Mithril, and a bit of native event handlers. A fantastic
-    // discussion about the usefulness of `return false` at the end is
-    // available in a ticket for Mithril.
-    // https://github.com/MithrilJS/mithril.js/issues/2681
-    const fn = createFunction('s,e', `!1===(($scope,$event)=>{${attrValue}})(s,e)&&(e.preventDefault(),e.stopPropagation())`);
-    node.addEventListener(eventName, event => fn.call(controller, scope, event));
+    for (const item of [
+        'passive',
+        'capture',
+        'once',
+    ] as (keyof AddEventListenerOptions)[]) {
+        if (modifierSet.has(item)) {
+            (options[item] as any) = true;
+        }
+    }
+
+    if (modifierSet.has('window')) {
+        eventTarget = win;
+    }
+
+    if (modifierSet.has('document') || modifierSet.has('outside')) {
+        eventTarget = doc;
+    }
+
+    eventTarget.addEventListener(
+        eventName,
+        event => {
+            if (modifierSet.has('prevent')) {
+                event.preventDefault();
+            }
+
+            if (modifierSet.has('stop')) {
+                event.stopPropagation();
+            }
+
+            const target = event.target as Node;
+
+            if (modifierSet.has('self') && target !== node) {
+                return;
+            }
+
+            if (modifierSet.has('outside') && node.contains(target)) {
+                return;
+            }
+
+            fn.call(controller, scope, event);
+        },
+        options
+    );
     setAttribute(node, attrName);
 };

@@ -41,7 +41,7 @@ component(
     'test-scope',
     {
         template:
-            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click="this.updateList(); return false">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="updateAll" @click="this.updateAll()">updateAll</button>',
+            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click.stop.prevent="this.updateList()">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="updateAll" @click="this.updateAll()">updateAll</button>',
     },
     class {
         list = [];

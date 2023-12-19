@@ -4,6 +4,7 @@ export * from './component';
 export * from './constructor';
 export * from './controller';
 export * from './custom-element';
+export * from './di';
 export { addDirective } from './directive/index';
 export { metadataControllerElement } from './metadata';
 export * from './parse';

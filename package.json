@@ -30,15 +30,17 @@
         "clean": "rm -rf dist",
         "docs": "docs/update-scripts",
         "start": "light-server -s docs/ -p 8080",
-        "test": "npm run test:component",
+        "test": "npm run test:tree-shake && npm run test:component",
         "test:component": "cypress run --component",
-        "test:interactive": "cypress open --component"
+        "test:interactive": "cypress open --component",
+        "test:tree-shake": "agadoo dist/fudgel.mjs"
     },
     "main": "dist/fudgel.js",
     "module": "dist/fudgel.min.mjs",
     "unpkg": "dist/fudgel.umd.min.js",
     "types": "dist/fudgel.d.ts",
     "devDependencies": {
+        "agadoo": "^3.0.0",
         "cypress": "^13.6.0",
         "cypress-ct-custom-elements": "^1.0.0",
         "light-server": "^2.9.1",
