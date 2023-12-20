@@ -1,6 +1,6 @@
 import { createComment } from './elements';
 import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index';
-import { setAttribute, stringify } from './util';
+import { entries, setAttribute, stringify } from './util';
 import { StructuralDirective } from './directive/types';
 
 export const linkStructuralDirective = (
@@ -14,7 +14,7 @@ export const linkStructuralDirective = (
     if (currentNode.nodeType === 1 && attrs) {
         let directive: [string, StructuralDirective, string] | undefined;
 
-        for (const [k, v] of Object.entries(
+        for (const [k, v] of entries(
             directives[STRUCTURAL_DIRECTIVE_INDEX]
         )) {
             const attr = attrs.getNamedItem(k);

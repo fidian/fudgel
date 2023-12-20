@@ -1,3 +1,5 @@
+export const entries = (iterable: any) =>
+    iterable.entries ? iterable.entries() : Object.entries(iterable);
 export const stringify = (x: any) => JSON.stringify(x);
 
 export const memoize = <T extends (...args: any[]) => any>(fn: T) => {
@@ -30,6 +32,8 @@ export const camelToDash = (dashed: string) => {
 export const toString = <T>(value: T) =>
     value === null || value === undefined ? '' : `${value}`;
 
+export const isString = (x: any) => typeof x === 'string';
+
 export const setAttribute = (
     node: HTMLElement,
     name: string,
@@ -39,10 +43,10 @@ export const setAttribute = (
         value = '';
     }
 
-    if (typeof value !== 'string') {
-        node.removeAttribute(name);
+    if (typeof value === 'string') {
+        node.setAttribute(name, value);
     } else {
-        node.setAttribute(name, `${value}`);
+        node.removeAttribute(name);
     }
 };
 

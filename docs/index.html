@@ -36,23 +36,54 @@
                 padding-top: 0.2em;
             }
 
-            /* Hide body until ACSS-Live processes it */
             body {
-                display: none;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                font-size: 1.2em;
+                font: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+            }
+
+            .contentWrapper {
+                width: 100%;
+                max-width: 960px;
+            }
+
+            .flexCenter {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .logo {
+                max-width: 200px;
+            }
+
+            .titleBlock {
+                padding-left: 1em;
+            }
+
+            .title {
+                font-size: 3em;
+            }
+
+            .subtitle {
+                font-size: 1.8em;
+                padding-top: 0.5em;
             }
         </style>
     </head>
-    <body class="D(f) Fxd(c) Ai(c) Fz(1.2em) F(a)">
-        <div class="W(100%) Maw(960px)">
-            <div class="D(f) Jc(c) Ai(c)">
-                <img src="logo.png" alt="Fudgel Logo" class="Maw(200px)" />
-                <div class="Pstart(1em)">
-                    <div class="Fz(3em)">Fudgel</div>
-                    <div class="Fz(1.8em) Pt(0.5em)">
+    <body>
+        <div class="contentWrapper">
+            <div class="flexCenter">
+                <img src="logo.png" alt="Fudgel Logo" class="logo" />
+                <div class="titleBlock">
+                    <div class="title">Fudgel</div>
+                    <div class="subtitle">
                         A lightweight web component library that eliminates pain
                         and boilerplate.
                     </div>
-                    <div class="Fz(1.8em) Pt(0.5em)">Write less. Do more.</div>
+                    <div class="subtitle">Write less. Do more.</div>
                 </div>
             </div>
             <p>
@@ -99,9 +130,15 @@
                 <li>
                     No build system needed; you can just use vanilla JavaScript
                 </li>
-                <li>Fully tree-shakeable</li>
                 <li>Full TypeScript support and also published as a module</li>
-                <li>Darn small, coming in at about 3k minified and gzipped</li>
+                <li>
+                    Darn small, coming in at about 4k minified and gzipped for
+                    the Web Component classes and all available tools
+                </li>
+                <li>
+                    Fully tree-shakeable, reducing your bundle size when you
+                    don't use everything supplied
+                </li>
                 <li>Parent elements will initialize before children</li>
             </ul>
             <code-sample
@@ -153,7 +190,7 @@
                 to wire up custom elements in order to make web components. It
                 does this by providing many of the features you could see in
                 other frameworks, while keeping the bundle size small. Fudgel
-                adds about 3k (minified and compressed) to your assets that need
+                adds about 4k (minified and compressed) to your assets that need
                 to be delivered. This is extraordinaly small when compared to
                 some of the more popular frameworks like Angular or React.
             </p>
@@ -200,7 +237,8 @@
                 </li>
                 <li>
                     <a href="https://vuejs.org/">Vue.js</a> is big into using
-                    slots for content projection, plus they also have event handlers with modifiers.
+                    slots for content projection, plus they also have event
+                    handlers with modifiers.
                 </li>
             </ul>
 
@@ -591,17 +629,38 @@
                 </template>
             </code-sample>
             <p>
-                Event handlers can also have modifiers, indicating what should be done with the event.
+                Event handlers can also have modifiers, indicating what should
+                be done with the event.
             </p>
             <ul>
-                <li><code>capture</code> - Dispatch the event to the registered listener before dispatching to any event targets beneath it in the DOM tree.</li>
+                <li>
+                    <code>capture</code> - Dispatch the event to the registered
+                    listener before dispatching to any event targets beneath it
+                    in the DOM tree.
+                </li>
                 <li><code>document</code> - Bind the event to the document.</li>
                 <li><code>once</code> - Invoke the listener at most once.</li>
-                <li><code>outside</code> - Bind the event to the document and only fire when there's a click outside of the targeted element.</li>
-                <li><code>passive</code> - Signifies that this event is passive and will not have <code>preventDefault</code> called on it.</p>
-                <li><code>prevent</code> - Calls <code>preventDefault<code> on the event.</li>
-                <li><code>self</code> - Only fires the event when the click is on the target element.</li>
-                <li><code>stop</code> - Calls <code>stopPropagation</code> on the event.</li>
+                <li>
+                    <code>outside</code> - Bind the event to the document and
+                    only fire when there's a click outside of the targeted
+                    element.
+                </li>
+                <li>
+                    <code>passive</code> - Signifies that this event is passive
+                    and will not have <code>preventDefault</code> called on it.
+                </li>
+                <li>
+                    <code>prevent</code> - Calls <code>preventDefault</code> on
+                    the event.
+                </li>
+                <li>
+                    <code>self</code> - Only fires the event when the click is
+                    on the target element.
+                </li>
+                <li>
+                    <code>stop</code> - Calls <code>stopPropagation</code> on
+                    the event.
+                </li>
                 <li><code>window</code> - Bind the event to the window.</li>
             </ul>
             <code-sample type="html">
@@ -942,9 +1001,20 @@
                 </li>
             </ul>
             <p>
-            There are some build tools that will allow minification of HTML and CSS when they are used within <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template literals</a>. Fudgel exports <code>html()</code> and <code>css()</code> as empty tag functions so your toolset will detect the appropriate type of template and allow minification.
+                There are some build tools that will allow minification of HTML
+                and CSS when they are used within
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates"
+                    >tagged template literals</a
+                >. Fudgel exports <code>html()</code> and <code>css()</code> as
+                empty tag functions so your toolset will detect the appropriate
+                type of template and allow minification.
             </p>
-            <code-sample type="ts" live="true" html="<demo-component></demo-component>">
+            <code-sample
+                type="ts"
+                live="true"
+                html="<demo-component></demo-component>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component, css, html } from './fudgel.min.js';
@@ -962,8 +1032,19 @@
                     });
                 </template>
             </code-sample>
-            <p>Also included is a minimal dependency injection system, allowing you to inject services into your components. Why use dependency injection? Well, it makes testing much easier, plus you only need to indicate what you want as opposed to how you obtain it or its dependencies.</p>
-            <p>A requirement for this system is that you must not have side-effects in the constructors of the services being injected. If you can follow that rule, then this system will work for live sites, test systems, and even work after your code is minified.</p>
+            <p>
+                Also included is a minimal dependency injection system, allowing
+                you to inject services into your components. Why use dependency
+                injection? Well, it makes testing much easier, plus you only
+                need to indicate what you want as opposed to how you obtain it
+                or its dependencies.
+            </p>
+            <p>
+                A requirement for this system is that you must not have
+                side-effects in the constructors of the services being injected.
+                If you can follow that rule, then this system will work for live
+                sites, test systems, and even work after your code is minified.
+            </p>
             <code-sample type="ts" live="true" html="<demo-di></demo-di>">
                 <!-- prettier-ignore -->
                 <template>
@@ -988,6 +1069,97 @@
                     });
                 </template>
             </code-sample>
+            <p>
+                Most apps that run in the browser will eventually need to fetch
+                resources from the server or provide the server with
+                information. Fudgel has <code>request</code>, which is a wrapper
+                around <code>XMLHttpRequest</code> that will more easily allow
+                you to send and receive JSON via a promise. This function
+                accepts an options object with the following properties.
+            </p>
+            <ul>
+                <li>
+                    <code>body</code> - [Optional, any] The data to send to the
+                    server. If no serialize function is passed, this will
+                    automatically be converted using
+                    <code>JSON.stringify</code>.
+                </li>
+                <li>
+                    <code>deserialize</code> - [Optional, (data: any) => any]
+                    When receiving information from the server, convert the
+                    response. This can be used along with
+                    <code>responseType</code>, where the browser will decode the
+                    message first and then <code>deserialize</code> will process
+                    it again.
+                </li>
+                <li>
+                    <code>headers</code> - [Optional, Object or Map] Headers to
+                    add to the request. If not specified, "Content-Type" will be
+                    set to "application/json; charset=utf8" and "Accept" will be
+                    "application/json, text/*".
+                </li>
+                <li>
+                    <code>method</code> - [Optional, string] The request method.
+                    Typically this is "GET" or "POST", but any HTTP verb is
+                    allowed and automatically converted to uppercase. Defaults
+                    to "GET".
+                </li>
+                <li>
+                    <code>password</code> - [Optional, string] A password to
+                    send with the request.
+                </li>
+                <li>
+                    <code>responseType</code> - [Optional, string] Specify the
+                    type of data you want to receive. Passed directly to the
+                    <code>XMLHttpRequest</code> instance. Defaults to "json" if
+                    not set.
+                </li>
+                <li>
+                    <code>serialize</code> - [Optional, (data: any) => string]
+                    Function to convert the outgoing data into a string so it is
+                    suitable to be sent via the request. If not specified,
+                    defaults to <code>JSON.stringify</code>.
+                </li>
+                <li>
+                    <code>timeout</code> - [Optional, number] How many
+                    milliseconds to wait until the request times out. When a
+                    request times out, the promise is rejected with an error of
+                    "Timeout", whose <code>status</code> property is 0.
+                </li>
+                <li>
+                    <code>url</code> - [Required, string] The URL to act upon.
+                </li>
+                <li>
+                    <code>user</code> - [Optional, string] A username to send
+                    with the request.
+                </li>
+                <li>
+                    <code>withCredentials</code> - [Optional, boolean] When
+                    true, sets the same property on the
+                    <code>XMLHttpRequest</code> object.
+                </li>
+            </ul>
+            <code-sample type="ts" live="true" html="<demo-request></demo-request>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, request } from './fudgel.min.js';
+
+                    component('demo-request', {
+                        template: `{{this.message}}`
+                    }, class {
+                        message = '...loading...';
+
+                        onInit() {
+                            request({ url: 'data.json' })
+                                .then((response) =&gt; {
+                                    this.message = response.message;
+                                }, (err) =&gt; {
+                                    this.message = `Load Error: ${err}`;
+                                });
+                        }
+                    });
+                </template>
+            </code-sample>
             <h2>Best Practices</h2>
             <p>
                 Do not register your custom element in your exported module.
@@ -1007,8 +1179,6 @@
             </p>
         </div>
     </body>
-    <!-- Turn the class names into styles automatically. Eliminate CSS from your project. -->
-    <script src="acss-live.min.js"></script>
     <!-- Syntax highlighting for code-sample custom element. -->
     <script src="highlight.min.js"></script>
     <!-- Custom elements -->

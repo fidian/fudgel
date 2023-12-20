@@ -9,4 +9,5 @@ export { addDirective } from './directive/index';
 export { metadataControllerElement } from './metadata';
 export * from './parse';
 export * from './prop';
+export * from './request';
 export * from './tag-functions';

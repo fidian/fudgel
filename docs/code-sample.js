@@ -151,10 +151,10 @@ component(
                 <pre #ref="pre"></pre>
             </div>
             <live-playground *if="this.useLivePlayground"><template><script type="module">
-            {{this.codeStr}}
-            </script>
+{{this.codeStr}}
+</script>
 
-            {{this.html}}</template></live-playground>
+{{this.html}}</template></live-playground>
         `,
     },
     class {

@@ -1,7 +1,7 @@
 import { addBindings } from '../bindings';
 import { childScope, getScope } from '../scope';
 import { Controller } from '../controller';
-import { createValueFunction } from '../util';
+import { createValueFunction, entries } from '../util';
 import { findBindings } from '../parse';
 import { hooksOff } from '../hooks';
 import { linkNodesWrapped } from '../link-nodes';
@@ -33,11 +33,9 @@ export const starForDirective: StructuralDirective = (
         let oldNodes = activeNodes;
         activeNodes = new Map();
         let lastNode: HTMLElement | Comment = anchor;
-        const entries = () =>
-            iterable.entries ? iterable.entries() : Object.entries(iterable);
         const removedNodes = new Map(oldNodes);
 
-        for (const [key] of entries()) {
+        for (const [key] of entries(iterable)) {
             removedNodes.delete(key);
         }
 
@@ -47,7 +45,7 @@ export const starForDirective: StructuralDirective = (
             oldNodes.delete(removeNode);
         }
 
-        for (const [key, value] of entries()) {
+        for (const [key, value] of entries(iterable)) {
             let copy = oldNodes.get(key);
             oldNodes.delete(key);
 
