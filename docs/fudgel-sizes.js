@@ -28,7 +28,6 @@ component(
 
         onInit() {
             request({ url: 'fudgel-sizes.json' }).then(result => {
-                console.log(result);
                 this.data = result;
             });
         }
