@@ -43,7 +43,11 @@ for NAME in component di request; do
 done
 
 status "Update docs"
-cp dist/fudgel.min.mjs docs/fudgel.min.js
+if [[ -z "${UNMINIFIED-}" ]]; then
+    cp dist/fudgel.min.mjs docs/fudgel.min.js
+else
+    cp dist/fudgel.mjs docs/fudgel.min.js
+fi
 (
     echo '['
     echo "$(sizeAsJson "Whole framework (ESM)" fudgel.min.mjs),"

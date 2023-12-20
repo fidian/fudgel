@@ -36,12 +36,24 @@ component('test-element-object', {
 });
 
 component('test-change-to-undefined', {
-    template: '<ul *if="this.list"><li *for="this.list">{{$scope.value}}</li></ul><button @click.stop.prevent="this.removeList()"></button>'
+    template: '<ul *if="this.list"><li *for="this.list">{{$scope.value}}</li></ul><button @click.stop.prevent="this.removeList()">Remove list</button>'
 }, class {
     list = ['abc', 123, false, null, true];
 
     removeList() {
         this.list = undefined;
+    }
+});
+
+component('test-iterating-over-empty-list', {
+    template: '<div id="x"><div *for="item of this.list"><span>{{$scope.item}}</span></div></div>'
+}, class {
+    list = ['x'];
+
+    onInit() {
+        setTimeout(() => {
+            this.list = [];
+        });
     }
 });
 
@@ -67,5 +79,9 @@ describe('for', () => {
     it('removes update hooks when a list is emptied', () => {
         cy.mount('<test-change-to-undefined></test-change-to-undefined>');
         cy.get('button').click();
+    });
+    it('does not error when the list is empty or embedded in another object', () => {
+        cy.mount('<test-iterating-over-empty-list></test-iterating-over-empty-list>');
+        cy.get('#x').should('not.have.text', 'x');
     });
 });

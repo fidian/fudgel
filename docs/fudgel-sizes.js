@@ -15,9 +15,9 @@ component(
                 <table>
                     <tr><th></th><th>Minified</th><th>Gzipped</th></tr>
                     <tr *for="row of this.data">
-                        <th>{{$scope.row?.name}}</th>
-                        <td>{{$scope.row?.minified}}</td>
-                        <td>{{$scope.row?.gzipped}}</td>
+                        <th>{{$scope.row.name}}</th>
+                        <td>{{$scope.row.minified}}</td>
+                        <td>{{$scope.row.gzipped}}</td>
                     </tr>
                 </table>
             </div>

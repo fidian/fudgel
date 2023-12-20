@@ -1,7 +1,4 @@
-import { addBindings } from './bindings';
 import { directives, GENERAL_DIRECTIVE_INDEX } from './directive/index';
-import { getScope } from './scope';
-import { parseText } from './parse';
 
 export function linkElementNode(
     controller: Object,
@@ -22,16 +19,6 @@ export function linkElementNode(
                 directiveList[''];
 
             applyDirective && applyDirective(controller, currentNode, attr.nodeValue || '', attrName);
-        }
-
-        const result = parseText(currentNode.textContent || '');
-
-        if (result) {
-            const update = (thisRef: Object) => {
-                currentNode.nodeValue = result.fn.call(thisRef, getScope(currentNode));
-            };
-            addBindings(controller, currentNode, update, result.binds);
-            update(controller);
         }
     }
 
