@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -eEu -o pipefail
+
+status() {
+    echo "### $1"
+}
+
+sizeAsJson() {
+    local desc="$1" filename="$2"
+    local line
+    line="{ \"name\": \"$desc\", \"minified\": $(wc -c < dist/"$filename"), \"gzipped\": $(wc -c < dist/"$filename".gz) }"
+    echo "$line"
+}
+
+status "Clean"
+rm -rf dist/
+
+status "Compile"
+tsc
+
+status "Bundle module"
+rollup dist/fudgel.js --file dist/fudgel.mjs --format esm
+
+status "Minify module"
+terser --ecma 6 --compress --mangle --module -o dist/fudgel.min.mjs -- dist/fudgel.mjs
+gzip -9 -c dist/fudgel.min.mjs > dist/fudgel.min.mjs.gz
+
+status "Bundle UMD"
+rollup dist/fudgel.js --file dist/fudgel.umd.js --format umd --name Fudgel
+
+status "Minify UMD"
+terser --ecma 6 --compress --mangle -o dist/fudgel.umd.min.js -- dist/fudgel.umd.js
+gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
+
+for NAME in component di request; do
+    status "Extracting just $NAME"
+    rollup dist/only-$NAME.js --file dist/only-$NAME.mjs --format esm
+
+    status "Minify just $NAME"
+    terser --ecma 6 --compress --mangle -o dist/only-$NAME.min.mjs -- dist/only-$NAME.mjs
+    gzip -9 -c dist/only-$NAME.min.mjs > dist/only-$NAME.min.mjs.gz
+done
+
+status "Update docs"
+cp dist/fudgel.min.mjs docs/fudgel.min.js
+(
+    echo '['
+    echo "$(sizeAsJson "Whole framework (ESM)" fudgel.min.mjs),"
+    echo "$(sizeAsJson "Whole framework (UMD)" fudgel.umd.min.js),"
+    echo "$(sizeAsJson "Only component function" only-component.min.mjs),"
+    echo "$(sizeAsJson "Only di function" only-di.min.mjs),"
+    sizeAsJson "Only request function" only-request.min.mjs
+    echo ']'
+) > docs/fudgel-sizes.json
+cat docs/fudgel-sizes.json

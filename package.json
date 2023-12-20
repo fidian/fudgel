@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "description": "Minimalist web component library to take the pain out of automatic updates.",
     "keywords": [
         "lightweight",
@@ -19,21 +19,11 @@
         "url": "https://github.com/fidian/fudgel/issues"
     },
     "scripts": {
-        "build": "npm run clean && npm run build:compile && npm run bundle:esm && npm run bundle:esm:min && npm run bundle:umd && npm run bundle:umd:min && npm run bundle:stats && npm run build:docs",
-        "build:compile": "tsc",
-        "build:docs": "cp dist/fudgel.min.mjs docs/fudgel.min.js",
-        "bundle:esm": "rollup dist/fudgel.js --file dist/fudgel.mjs --format esm",
-        "bundle:esm:min": "terser --ecma 6 --compress --mangle --module -o dist/fudgel.min.mjs -- dist/fudgel.mjs && gzip -9 -c dist/fudgel.min.mjs > dist/fudgel.min.mjs.gz",
-        "bundle:stats": "cd dist && ls -l fudgel*mjs* fudgel*umd*",
-        "bundle:umd": "rollup dist/fudgel.js --file dist/fudgel.umd.js --format umd --name Fudgel",
-        "bundle:umd:min": "terser --ecma 6 --compress --mangle -o dist/fudgel.umd.min.js -- dist/fudgel.umd.js && gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz",
-        "clean": "rm -rf dist",
+        "build": "scripts/build",
         "docs": "docs/update-scripts",
         "start": "light-server -s docs/ -p 8080",
-        "test": "npm run test:tree-shake && npm run test:component",
-        "test:component": "cypress run --component",
-        "test:interactive": "cypress open --component",
-        "test:tree-shake": "agadoo dist/fudgel.mjs"
+        "test": "scripts/test",
+        "test:interactive": "cypress open --component"
     },
     "main": "dist/fudgel.js",
     "module": "dist/fudgel.min.mjs",
