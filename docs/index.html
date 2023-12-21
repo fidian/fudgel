@@ -52,6 +52,10 @@
                 padding-top: 0.5em;
             }
 
+            .flexAlign {
+                align-items: flex-start;
+            }
+
             @media (max-width: 768px) {
                 .logo {
                     max-width: 160px;
@@ -74,22 +78,26 @@
                 .titleBlock {
                     padding-left: 0;
                 }
+
+                .flexAlign {
+                    align-items: center;
+                }
             }
         </style>
     </head>
     <body>
         <page-wrapper>
-            <div class="flexCenter topContent">
+            <div class="flexAlign topContent">
                 <img src="logo.png" alt="Fudgel Logo" class="logo" />
                 <div class="titleBlock">
                     <div class="title">Fudgel</div>
-                    <div class="subtitle">
-                        A lightweight web component library that eliminates pain
-                        and boilerplate.
-                    </div>
                     <div class="subtitle">Write less. Do more.</div>
                 </div>
             </div>
+            <h3>
+                A lightweight web component library that eliminates pain and
+                boilerplate.
+            </h3>
             <p>
                 Learning new technologies, tooling, and techniques constantly is
                 an annoyance. Staying on the bleeding edge of technology can be

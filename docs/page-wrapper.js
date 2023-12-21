@@ -29,6 +29,7 @@ component(
             @media (max-width: 768px) {
                 .sidebar {
                     width: 20%;
+                    min-width: 135px;
                 }
             }
         `,
