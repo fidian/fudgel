@@ -13,6 +13,8 @@ component(
             .wrapper {
                 display: flex;
                 height: 300px;
+                width: 100%;
+                overflow: none;
             }
 
             @media (max-width: 768px) {
@@ -46,7 +48,7 @@ component(
             }
         `,
         template: html`
-            <div clas="wrapper">
+            <div class="wrapper">
                 <textarea
                     #ref="code"
                     class="full code"
