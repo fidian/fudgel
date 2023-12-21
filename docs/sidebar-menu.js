@@ -53,6 +53,10 @@ component(
                 label: 'Utilities',
                 url: 'utilities.html',
             },
+            {
+                label: 'GitHub',
+                url: 'https://github.com/fidian/fudgel'
+            }
         ];
     }
 );
