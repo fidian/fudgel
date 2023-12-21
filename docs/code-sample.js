@@ -3,13 +3,19 @@
 // featured on Fudgel's site.
 // https://github.com/kcmr/code-sample
 
-import { attr, component, metadataControllerElement } from './fudgel.min.js';
+import {
+    attr,
+    component,
+    css as css,
+    metadataControllerElement,
+} from './fudgel.min.js';
 import { cleanText } from './clean-text.js';
+import { hljs } from './highlight.js';
 
 component(
     'code-sample',
     {
-        style: /* css */ `
+        style: css`
             :host {
                 display: block;
             }
@@ -18,8 +24,17 @@ component(
                 margin: 0;
             }
 
-            pre, code {
-                font-family: var(--code-sample-font-family, Operator Mono, Inconsolata, Roboto Mono, monaco, consolas, monospace);
+            pre,
+            code {
+                font-family: var(
+                    --code-sample-font-family,
+                    Operator Mono,
+                    Inconsolata,
+                    Roboto Mono,
+                    monaco,
+                    consolas,
+                    monospace
+                );
                 font-size: var(--code-sample-font-size, 14px);
             }
 
@@ -137,7 +152,8 @@ component(
                 color: #e6c07b;
             }
         `,
-        template: /* html */ `
+        // Do not use "html" template tag here. Prettier will break the spacing.
+        template: `
             <div *if="!this.useLivePlayground" id="code-container">
                 <button
                     id="copy"
@@ -187,7 +203,7 @@ component(
             const textNode = document.createTextNode(this.codeStr);
             code.appendChild(textNode);
             this.pre.appendChild(code);
-            window.hljs.highlightElement(code);
+            hljs.highlightElement(code);
         }
 
         copyToClipboard() {

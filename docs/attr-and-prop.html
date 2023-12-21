@@ -1,0 +1,134 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Attr and Prop</h1>
+            <p>
+                There are two other helpers in the project that will link your
+                controller to values on the custom element. Attributes are the
+                string values added via the HTML. Properties are values set
+                through JavaScript on the <code>HTMLElement</code> instance.
+            </p>
+            <p>
+                To illustrate this difference, consider the following HTML. This
+                custom element will have the "heading" attribute set to
+                <code>"Table of Contents"</code>. Attributes are restricted to
+                just strings. A nice feature of attributes is that when the
+                controller class's property is updated, the HTMLElement's
+                attribute is also automatically updated.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <heading-label
+                        id="test"
+                        heading="Table of Contents"
+                    ></heading-label>
+                </template>
+            </code-sample>
+            <p>
+                There are no properties defined through HTML, but let's run a
+                bit of JavaScript to get the object and assign a value.
+                Properties can hold any type of value, including objects and
+                dates.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    const element = document.getElementById("test");
+                    element.someProp = [ "one", "two" ];
+                </template>
+            </code-sample>
+            <p>
+                In order to bind your custom element to an attribute or property
+                and have the controller's property change automatically, there
+                are some helper functions you can use.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html='<prop-and-attr my-attr="This came from HTML"></prop-and-attr>'
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { attr, component, prop } from './fudgel.min.js';
+
+                    component('prop-and-attr', {
+                        template: `
+                            <div><b>prop</b>: {{this.myProp}}</div>
+                            <div><b>attr</b>: {{this.myAttr}}</div>
+                        `
+                    }, class {
+                        constructor() {
+                            this.myAttr = 'Initial value is wiped by the attribute';
+                            this.myProp = 'This has not yet been assigned';
+                            attr(this, 'myAttr');
+                            prop(this, 'myProp');
+                        }
+                    });
+
+                    setTimeout(() =&gt; {
+                        document.querySelector('prop-and-attr').myProp =
+                            'This came from a property assignment';
+                    }, 1000);
+                </template>
+            </code-sample>
+            <p>
+                In TypeScript, this same result can happen through decorators.
+            </p>
+            <code-sample type="ts">
+                <!-- prettier-ignore -->
+                <template>
+                    import { Attr, Component, Prop } from 'fudgel';
+
+                    @Component('prop-and-attr', {
+                        template: `
+                            <div><b>prop</b>: {{this.myProp}}</div>
+                            <div><b>attr</b>: {{this.myAttr}}</div>
+                        `
+                    })
+                    class {
+                        @Attr() myAttr: string;
+                        @Prop() myProp: any;
+                    });
+                </template>
+            </code-sample>
+            <p>
+                With this set up, you are now able to respond to changes in the
+                properties and attributes of the <code>HTMLElement</code> when
+                any outside actor changes them, such as with jQuery's
+                <code>$element.attr()</code> or Angular's
+                <code>[propName]="value"</code> mechanisms. These are just two
+                examples and this functionality works with your favorite
+                frameworks equally well.
+            </p>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

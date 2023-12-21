@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Lifecycle Methods and Hooks</h1>
+            <p>
+                If your controller has any of these methods, they will be called
+                during specific moments during the lifecycle of your controller.
+            </p>
+            <p>
+                <code>onInit()</code> is called after the custom element is
+                connected to a DOM. It's a good place to set up your initial
+                properties. Child elements are not yet attached to the DOM,
+                templates are not parsed, and most other things are not yet set
+                up.
+            </p>
+            <p>
+                <code>onViewInit()</code>, if you have one, will be executed at
+                the very end after the custom element is connected to the DOM.
+                At this point, all children are in the DOM,
+                <code>#ref</code> directives are set up, and your element is
+                basically live.
+            </p>
+            <p>
+                <code>onChange(propertyName, oldValue, newValue)</code> will be
+                triggered whenever a monitored property is updated. Monitored
+                properties are the ones that are referenced in a template.
+                Differences are detected by using <code>===</code> (strict
+                equals), so changes to immutable objects trigger change
+                detection more easily.
+            </p>
+            <p>
+                <code>onDestroy()</code> is when the controller is being
+                detached from the custom element and the custom element is being
+                disconnected from the DOM.
+            </p>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

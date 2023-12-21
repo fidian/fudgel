@@ -1,23 +1,35 @@
-import { component, request } from './fudgel.min.js';
+import { component, css, html, request } from './fudgel.min.js';
 
 component(
     'fudgel-sizes',
     {
-        style: /* css */ `
+        style: css`
             .flexCenter {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
+
+            .topHeader {
+                border-bottom: 1px solid black;
+            }
+
+            td {
+                text-align: center;
+            }
         `,
-        template: /* html */ `
+        template: html`
             <div class="flexCenter">
                 <table>
-                    <tr><th></th><th>Minified</th><th>Gzipped</th></tr>
+                    <tr>
+                        <th class="topHeader"></th>
+                        <th class="topHeader">Minified</th>
+                        <th class="topHeader">Gzipped</th>
+                    </tr>
                     <tr *for="row of this.data">
                         <th>{{$scope.row.name}}</th>
-                        <td>{{$scope.row.minified}}</td>
-                        <td>{{$scope.row.gzipped}}</td>
+                        <td>{{$scope.row.minified.toLocaleString()}}</td>
+                        <td>{{$scope.row.gzipped.toLocaleString()}}</td>
                     </tr>
                 </table>
             </div>

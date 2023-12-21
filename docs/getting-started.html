@@ -1,0 +1,143 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Getting Started</h1>
+            <p>
+                Step 1: Install Fudgel or include it into your project. This can
+                take several forms, depending on your needs.
+            </p>
+
+            <ul>
+                <li>
+                    IIFE / global, available as <code>window.Fudgel</code>:
+                    <code-sample type="html">
+                        <!-- prettier-ignore -->
+                        <template>
+                            <script src="https://unpkg.com/fudgel"></script>
+                        </template>
+                    </code-sample>
+                </li>
+                <li>
+                    Module in browser either as a standalone tag or perhaps
+                    loaded through an import:
+                    <code-sample type="html">
+                        <!-- prettier-ignore -->
+                        <template>
+                            <script src="https://unpkg.com/fudgel?module"></script>
+                        </template>
+                    </code-sample>
+                    <code-sample type="html">
+                        <!-- prettier-ignore -->
+                        <template>
+                            <script type="module">
+                                import { ... } from 'https://unpkg.com/fudgel?module';
+                                // ... do stuff with imports here
+                            </script>
+                        </template>
+                    </code-sample>
+                </li>
+                <li>
+                    Locally as a package or module using your favorite tools:
+                    <code-sample type="shell">
+                        <!-- prettier-ignore -->
+                        <template>
+                            npm install fudgel
+                        </template>
+                    </code-sample>
+                    <code-sample type="shell">
+                        <!-- prettier-ignore -->
+                        <template>
+                            yarn add fudgel
+                        </template>
+                    </code-sample>
+                    <code-sample type="shell">
+                        <!-- prettier-ignore -->
+                        <template>
+                            bower install fudgel
+                        </template>
+                    </code-sample>
+                </li>
+            </ul>
+            <p>
+                Step 2: At this point you have access to the
+                <code>Fudgel</code> object or the module's exports. It's time to
+                write your first controller. Select the chunk of code that best
+                fits your needs.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<my-custom-component></my-custom-component>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    // Module
+                    import { component } from './fudgel.min.js';
+
+                    component('my-custom-component', {
+                        template: `Hello {{this.audience}}`
+                    }, class {
+                        audience = 'world';
+                    });
+                </template>
+            </code-sample>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    // Vanilla JavaScript using window.Fudgel
+                    window.Fudgel.component('my-custom-component', {
+                        template: `Hello {{this.audience}}`
+                    }, class {
+                        audience = 'world';
+                    });
+                </template>
+            </code-sample>
+            <code-sample type="ts">
+                <!-- prettier-ignore -->
+                <template>
+                    // TypeScript with decorators
+                    import { Component } from 'fudgel';
+
+                    @Component('my-custom-component', {
+                        template: `Hello {{this.audience}}`
+                    })
+                    export class MyCustomComponent {
+                        audience = 'world';
+                    }
+                </template>
+            </code-sample>
+            <p>
+                Step 3: You've made a custom element. For more fun, take a look
+                at the rest of the things Fudgel can do to save you time.
+            </p>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

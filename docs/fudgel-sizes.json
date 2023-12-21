@@ -1,7 +1,7 @@
 [
 { "name": "Whole framework (ESM)", "minified": 7718, "gzipped": 3589 },
 { "name": "Whole framework (UMD)", "minified": 7872, "gzipped": 3643 },
-{ "name": "Only component function", "minified": 7661, "gzipped": 2966 },
-{ "name": "Only di function", "minified": 283, "gzipped": 212 },
-{ "name": "Only request function", "minified": 1009, "gzipped": 605 }
+{ "name": "component()", "minified": 7661, "gzipped": 2966 },
+{ "name": "di()", "minified": 283, "gzipped": 212 },
+{ "name": "request()", "minified": 1009, "gzipped": 605 }
 ]

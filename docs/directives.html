@@ -1,0 +1,255 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Built-In Directives</h1>
+            <p>
+                Directives appear as attributes in your HTML within the template
+                for the element. Fudgel comes with several directives to handle
+                common use cases. Directives are split into structural
+                directives, which affect adding and removing DOM elements, and
+                general directives, which leaves the DOM structure intact.
+            </p>
+            <h2>General Directives</h2>
+            <p>
+                Text nodes and attributes may use a syntax similar to
+                <a href="https://mustache.github.io/">Mustache</a>, using double
+                braces. The content within will be evaluated as JavaScript and
+                the value that is returned will be inserted in place of the
+                braces. Below, <code>this</code> refers to the controller
+                instance and the content within the braces will be updated
+                whenever the referenced variable changes.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <div class="class1 class2 {{this.extraClasses}}">
+                        Hello, {{this.user.firstName}}!
+                    </div>
+                </template>
+            </code-sample>
+            <p>
+                If you need to pass more complicated data and if the custom
+                element supports it, you can assign properties directly to the
+                element. Again, if the referenced variables change, the property
+                will automatically be updated. This is done by prefixing the
+                property name with a dot and changing the name to kebab-case
+                (hyphenated).
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <!-- Effectively the same as
+                        otherElement.currentUser = this.user
+                    -->
+                    <other-element .current-user="this.user"></other-element>
+                </template>
+            </code-sample>
+            <p>
+                Event handlers are bound with a prefixed attribute. The event is
+                available as <code>$event</code>.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <button @click="this.dispatchClick($event)">
+                        Click me!
+                    </button>
+                </template>
+            </code-sample>
+            <p>
+                Event handlers can also have modifiers, indicating what should
+                be done with the event.
+            </p>
+            <ul>
+                <li>
+                    <code>capture</code> - Dispatch the event to the registered
+                    listener before dispatching to any event targets beneath it
+                    in the DOM tree.
+                </li>
+                <li><code>document</code> - Bind the event to the document.</li>
+                <li><code>once</code> - Invoke the listener at most once.</li>
+                <li>
+                    <code>outside</code> - Bind the event to the document and
+                    only fire when there's a click outside of the targeted
+                    element.
+                </li>
+                <li>
+                    <code>passive</code> - Signifies that this event is passive
+                    and will not have <code>preventDefault</code> called on it.
+                </li>
+                <li>
+                    <code>prevent</code> - Calls <code>preventDefault</code> on
+                    the event.
+                </li>
+                <li>
+                    <code>self</code> - Only fires the event when the click is
+                    on the target element.
+                </li>
+                <li>
+                    <code>stop</code> - Calls <code>stopPropagation</code> on
+                    the event.
+                </li>
+                <li><code>window</code> - Bind the event to the window.</li>
+            </ul>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <button @click.stop.prevent.once="this.dispatchClick($event)">
+                        Only fires once
+                    </button>
+                </template>
+            </code-sample>
+            <p>
+                Child elements can be referenced within your controller after
+                the lifecycle event <code>onViewInit</code>. This uses the
+                <code>#ref</code> attribute, and the value of the attribute is
+                the name you want assigned in your controller.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<my-custom-element></my-custom-element>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    ('my-custom-element', {
+                        template: `
+                            <div><span #ref="theSpan">
+                                Check the console
+                            </span></div>
+                        `
+                    }, class {
+                        onViewInit() {
+                            // Shows the span in the console
+                            console.log(this.theSpan);
+                        }
+                    });
+                </template>
+            </code-sample>
+            <h2>Structural Directives</h2>
+            <p>
+                Conditionally display an element with <code>*if</code>. This
+                will automatically be updated if using a property on your
+                controller.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <p>Showing
+                        <span *ngIf="this.username">{{this.username}}</span>
+                        <span *ngIf="!this.username">an unknown user</span>
+                    </p>
+                </template>
+            </code-sample>
+            <p>
+                Repeating a chunk of HTML a number of times is very easy. You
+                can use a fixed number or execute code to find the number.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <p>5 stars: <span *repeat="5">*</span></p>
+                    <p>Some stars: <span *repeat="this.starCount">*</span></p>
+                </template>
+            </code-sample>
+            <p>
+                Iterating across an object, array, set, map, or any other
+                iterable is also possible, plus this also updates when the
+                property on your controller is updated. The key and value are
+                assigned to <code>$scope.key</code> and
+                <code>$scope.value</code>.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <ul>
+                        <li *for="this.saleItemArray">{{$scope.value.itemPrice}}</li>
+                    </ul>
+                </template>
+            </code-sample>
+            <p>
+                You can rename <code>$scope.key</code> and
+                <code>$scope.value</code> to suit your needs. Also, nested
+                scopes inherit from each other, exactly how you think they
+                should.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <div *for="username, user of this.userObjectKeyedByUsername">
+                        <p>{{$scope.username}}:</p>
+                        <ul>
+                            <li *for="value of $scope.user.favoriteThings">
+                                {{$scope.user.firstName}} likes {{$scope.value}}
+                            </li>
+                        </ul>
+                    </div>
+                </template>
+            </code-sample>
+            <h2>Adding Custom Directives</h2>
+            <p>
+                You are welcome to add your own directives. There are three
+                categories of directives when you add one. First, structural
+                directives start with <code>*</code>. Next, you can use a
+                prefixed directive that matches all attributes that start with a
+                specific character, such as <code>.</code> for property changes.
+                Finally, you can match an exact directive, as in
+                <code>#ref</code>.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    import { addDirective } from 'fudgel';
+
+                    // Specific attribute
+                    addDirective('#name',
+                        (controller, node, attrValue, attrName) =&gt; { ... });
+
+                    // An attribute prefix
+                    addDirective('?',
+                        (controller, node, attrValue, attrName) =&gt; { ... });
+
+                    // A structural directive, which must start with *
+                    addDirective('*extra',
+                        (controller, anchor, node, attrValue) =&gt; { ... });
+                </template>
+            </code-sample>
+            <p>
+                Your custom directive function must perform whatever
+                manipulation in the DOM that is necessary. For structural
+                directives, a comment is added just before the element that you
+                can use as an anchor point for adding or removing elements.
+            </p>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

@@ -1,0 +1,157 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Component Creation</h1>
+            <p>
+                The <code>component()</code> function will create a new element
+                and register it with <code>window.customElements</code> as long
+                as the element was not yet defined. The newly defined custom
+                element will be assigned a constructor of
+                <code>FudgelElement</code>, not your class. This is done to
+                allow you to utilize any property in your class without fear of
+                overwriting something important to <code>HTMLElement</code>.
+            </p>
+            <p>The function call accepts three parameters:</p>
+            <ul>
+                <li>
+                    The name of the custom element, which must contain a hyphen
+                </li>
+                <li>
+                    An object containing configuration to define for the new
+                    element
+                </li>
+                <li>An optional class to instantiate as the controller</li>
+            </ul>
+            <code-sample type="js" live="true" html="<say-hello></say-hello>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('say-hello', {
+                        template: `<p>Hello, {{this.audience}}!</p>`
+                    }, class {
+                        audience = 'world';
+                    });
+                </template>
+            </code-sample>
+            <p>
+                The custom element name needs to contain a hyphen because it is
+                part of the custom element spec. The configuration will supply
+                necessary information for the new custom component. Lastly, the
+                class to use as the controller is optional. If your component
+                simply applies styling or can complete its objective using only
+                a template, then passing a class isn't required.
+            </p>
+            <p>
+                The object containing configuration can specify the following
+                pieces of information.
+            </p>
+            <ul>
+                <li>
+                    <code>style</code> - [optional, string] CSS styles for your
+                    custom element. Because we use a shadow DOM, this will
+                    insert a new <code>&lt;style&gt;</code> element that will
+                    affect your component and its children.
+                </li>
+                <li>
+                    <code>template</code> - [required, string] The HTML template
+                    that this element will use for content. When there is no
+                    content, it is up to the controller to add the necessary DOM
+                    elements and bindings. This template will be processed in
+                    the element's scope, even when passing content to child
+                    custom elements.
+                </li>
+            </ul>
+            <code-sample
+                type="js"
+                live="true"
+                html="<new-element></new-element>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('new-element', {
+                        style: `new-element { display: block }`,
+                        template: `<p>This is my new element</p>`
+                    });
+                </template>
+            </code-sample>
+            <p>
+                If you use TypeScript, you can also use the
+                <code>@Component()</code> decorator, which takes only the first
+                two parameters; the element name and the object of static
+                values.
+            </p>
+            <code-sample type="ts">
+                <!-- prettier-ignore -->
+                <template>
+                    import { Component } from 'fudgel';
+
+                    @Component('say-hello', {
+                        template: `<p>Hello, {{this.audience}}</p>`
+                    })
+                    export class SayHelloComponent {
+                        audience = 'world';
+                    }
+                </template>
+            </code-sample>
+
+            <h2>Styles</h2>
+            <p>
+                What's the web without CSS? Fudgel supports automatically adding
+                a style tag for your new element. These are created within the
+                shadow root and are thus scoped to your element and its
+                children. Styles are a string containing plain CSS. In the below
+                example, all buttons within the element will be styled but none
+                outside of the element will have those styles applied.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from 'fudgel';
+
+                    component('styled-click-me-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                            }
+                        `,
+                        template: `<button>Click me</button>`
+                    });
+                </template>
+            </code-sample>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

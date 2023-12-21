@@ -1,0 +1,122 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Content Projection</h1>
+            <p>
+                Imagine you have a utility function to create a styled button.
+                You'd like the ability to specify the HTML that is displayed on
+                the button, but passing that in via an attribute or property is
+                problematic, especially when you want to have an image on the
+                button. There are two ways you have access to outside content in
+                order to "project" it into your element.
+            </p>
+            <h2>Using Slots</h2>
+            <p>
+                You can use slotted content to achieve the same result, which
+                leverages built-in browser features. Imagine using
+                "&lt;custom-button&gt;&lt;b&gt;BOLD
+                SAVE&lt;/b&gt;&lt;/custom-button&gt;"
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<custom-button><b>BOLD SAVE</b></custom-button>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                                padding: 4px;
+                            }
+                        `,
+                        template: `<button><slot></slot></button>`
+                    });
+                </template>
+            </code-sample>
+            <p>
+                You can also project multiple pieces of content using named
+                slots. Read more about
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
+                    ><code>slot</code> elements</a
+                >
+                and
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
+                    ><code>slot</code> attributes</a
+                >.
+            </p>
+            <h2>Manual Content Retrieval</h2>
+            <p>
+                Your controller can access the custom element and pull its
+                children using a query selector, walking the DOM, or other
+                techniques.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<custom-button><b>BOLD SAVE</b></custom-button>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, metadataControllerElement } from './fudgel.min.js';
+
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                            }
+                        `,
+                        template: `<button #ref="button"></button>`
+                    }, class {
+                        onViewInit() {
+                            const element = metadataControllerElement.get(this);
+
+                            for (const childNode of element.childNodes) {
+                                this.button.append(childNode.cloneNode(true));
+                            }
+                        }
+                    });
+                </template>
+            </code-sample>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

@@ -1,16 +1,21 @@
-import { component, metadataControllerElement } from './fudgel.min.js';
+import {
+    component,
+    css,
+    html,
+    metadataControllerElement,
+} from './fudgel.min.js';
 import { cleanText } from './clean-text.js';
 
 component(
     'live-playground',
     {
-        style: `
+        style: css`
             .wrapper {
                 display: flex;
                 height: 300px;
             }
 
-            @media (max-width:768px) {
+            @media (max-width: 768px) {
                 .wrapper {
                     flex-direction: column;
                     height: 600px;
@@ -40,9 +45,13 @@ component(
                 height: 100%;
             }
         `,
-        template: `
-            <div class="wrapper">
-                <textarea #ref="code" class="full code" spellcheck="false"></textarea>
+        template: html`
+            <div clas="wrapper">
+                <textarea
+                    #ref="code"
+                    class="full code"
+                    spellcheck="false"
+                ></textarea>
                 <div #ref="demo" class="full demo"></div>
             </div>
         `,

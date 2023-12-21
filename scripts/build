@@ -52,9 +52,9 @@ fi
     echo '['
     echo "$(sizeAsJson "Whole framework (ESM)" fudgel.min.mjs),"
     echo "$(sizeAsJson "Whole framework (UMD)" fudgel.umd.min.js),"
-    echo "$(sizeAsJson "Only component function" only-component.min.mjs),"
-    echo "$(sizeAsJson "Only di function" only-di.min.mjs),"
-    sizeAsJson "Only request function" only-request.min.mjs
+    echo "$(sizeAsJson "component()" only-component.min.mjs),"
+    echo "$(sizeAsJson "di()" only-di.min.mjs),"
+    sizeAsJson "request()" only-request.min.mjs
     echo ']'
 ) > docs/fudgel-sizes.json
 cat docs/fudgel-sizes.json
