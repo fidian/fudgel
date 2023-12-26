@@ -6,6 +6,7 @@ export * from './controller';
 export * from './custom-element';
 export * from './di';
 export { addDirective } from './directive/index';
+export * from './emitter';
 export { metadataControllerElement } from './metadata';
 export * from './parse';
 export * from './prop';

@@ -238,6 +238,79 @@
                     });
                 </template>
             </code-sample>
+            <h2>
+                <code>Emitter</code> - Send data to other things outside of the
+                DOM
+            </h2>
+            <p>
+                Node.js has an EventEmitter and it's useful for communication
+                between services. The browser has an Event object that can be
+                emitted up the DOM tree, but nothing really geared for services.
+                Fudgel comes with a tiny event emitter you can use in your code.
+                The emitter that is created supports
+                <code>.on(name, callback)</code>,
+                <code>.off(name, callback)</code> and
+                <code>.emit(name, ...data)</code>. Also,
+                <code>.on(name, callback)</code> returns a function to remove
+                the callback (the same as using
+                <code>.off(name, callback)</code> with the correct parameters).
+            </p>
+            <code-sample type="js" live="true" html="<tick-counter></tick-counter>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, Emitter } from './fudgel.min.js';
+
+                    class MyService {
+                        #emitter = new Emitter();
+
+                        constructor() {
+                            setInterval(() =&gt; this.#emitter.emit('tick'), 1000);
+                        }
+
+                        onTick(callback) {
+                            return this.#emitter.on('tick', callback);
+                        }
+
+                        offTick(callback) {
+                            return this.#emitter.off('tick', callback);
+                        }
+                    };
+
+                    const myService = new MyService();
+
+                    component('tick-counter', {
+                        template: `
+                            <button
+                                *if="!this.tracking"
+                                @click="this.toggleTracking()"
+                            >Watch Ticks</button>
+                            <button
+                                *if="this.tracking"
+                                @click="this.toggleTracking()"
+                            >Stop Watching</button>
+                            <div>Tick count: {{this.tickCount}}</div>
+                        `
+                    }, class {
+                        tracking = false;
+                        tickCount = 0;
+                        tickTracker = () =&gt; this.tickCount += 1;
+
+                        onDestroy() {
+                            myService.offTick(this.tickTracker);
+                        }
+
+                        toggleTracking() {
+                            this.tracking = !this.tracking;
+
+                            if (this.tracking) {
+                                myService.onTick(this.tickTracker);
+                            } else {
+                                myService.offTick(this.tickTracker);
+                            }
+                        }
+                    });
+                </template>
+            </code-sample>
         </page-wrapper>
     </body>
     <script src="js.js" type="module"></script>
