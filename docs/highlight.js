@@ -1,10 +1,10 @@
-import hljs from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/highlight.min.js';
-import css from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/languages/css.min.js';
-import javascript from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/languages/javascript.min.js';
-import json from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/languages/json.min.js';
-import shell from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/languages/shell.min.js';
-import typescript from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/languages/typescript.min.js';
-import xml from 'https://unpkg.com/@highlightjs/cdn-assets@11.9.0/es/languages/xml.min.js';
+import hljs from './highlight/highlight.min.js';
+import css from './highlight/css.min.js';
+import javascript from './highlight/javascript.min.js';
+import json from './highlight/json.min.js';
+import shell from './highlight/shell.min.js';
+import typescript from './highlight/typescript.min.js';
+import xml from './highlight/xml.min.js';
 hljs.registerLanguage('css', css);
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('json', json);

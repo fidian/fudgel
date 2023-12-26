@@ -1,7 +1,6 @@
 [
-{ "name": "Whole framework (ESM)", "minified": 7718, "gzipped": 3589 },
-{ "name": "Whole framework (UMD)", "minified": 7872, "gzipped": 3643 },
+{ "name": "Whole framework (ESM)", "minified": 6866, "gzipped": 3172 },
+{ "name": "Whole framework (UMD)", "minified": 7033, "gzipped": 3230 },
 { "name": "component()", "minified": 7661, "gzipped": 2966 },
-{ "name": "di()", "minified": 283, "gzipped": 212 },
-{ "name": "request()", "minified": 1009, "gzipped": 605 }
+{ "name": "di()", "minified": 283, "gzipped": 212 }
 ]

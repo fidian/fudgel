@@ -1,4 +1,4 @@
-import { component, css, html, request } from './fudgel.min.js';
+import { component, css, html } from './fudgel.min.js';
 
 component(
     'fudgel-sizes',
@@ -39,9 +39,11 @@ component(
         data = [];
 
         onInit() {
-            request({ url: 'fudgel-sizes.json' }).then(result => {
-                this.data = result;
-            });
+            fetch('fudgel-sizes.json')
+                .then(response => response.json())
+                .then(data => {
+                    this.data = data;
+                });
         }
     }
 );

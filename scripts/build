@@ -33,7 +33,7 @@ status "Minify UMD"
 terser --ecma 6 --compress --mangle -o dist/fudgel.umd.min.js -- dist/fudgel.umd.js
 gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
 
-for NAME in component di request; do
+for NAME in component di; do
     status "Extracting just $NAME"
     rollup dist/only-$NAME.js --file dist/only-$NAME.mjs --format esm
 
@@ -53,8 +53,7 @@ fi
     echo "$(sizeAsJson "Whole framework (ESM)" fudgel.min.mjs),"
     echo "$(sizeAsJson "Whole framework (UMD)" fudgel.umd.min.js),"
     echo "$(sizeAsJson "component()" only-component.min.mjs),"
-    echo "$(sizeAsJson "di()" only-di.min.mjs),"
-    sizeAsJson "request()" only-request.min.mjs
+    sizeAsJson "di()" only-di.min.mjs
     echo ']'
 ) > docs/fudgel-sizes.json
 cat docs/fudgel-sizes.json

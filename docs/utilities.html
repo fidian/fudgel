@@ -1,11 +1,7 @@
 <html>
     <head>
         <title>Fudgel - Lightweight Web Component Library</title>
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Open+Sans&display=swap"
-        />
+        <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="./style.css" />
         <link
             rel="apple-touch-icon"
@@ -35,8 +31,8 @@
             <p>
                 Fudgel comes with a few helpful functions that you should
                 leverage to squeeze as much as you can out of this tiny library.
-                They will help you communicate with other web components, make
-                AJAX requests, and perform common activities.
+                They will help you communicate with other web components and
+                perform common activities.
             </p>
             <h2><code>emit</code> - Sending Data to Parents</h2>
             <p>
@@ -233,103 +229,6 @@
                                 window.NormalServiceMock
                             )
                         `);
-                    });
-                </template>
-            </code-sample>
-            <h2><code>request</code> - Promise-wrapped AJAX/XHR</h2>
-            <p>
-                Most apps that run in the browser will eventually need to fetch
-                resources from the server or provide the server with
-                information. Fudgel has <code>request</code>, which is a wrapper
-                around <code>XMLHttpRequest</code> that will more easily allow
-                you to send and receive data (primarily JSON, but you can change
-                it)N via a promise. This function accepts an options object with
-                the following properties.
-            </p>
-            <ul>
-                <li>
-                    <code>body</code> - [Optional, any] The data to send to the
-                    server. If no serialize function is passed, this will
-                    automatically be converted using
-                    <code>JSON.stringify</code>.
-                </li>
-                <li>
-                    <code>deserialize</code> - [Optional, (data: any) =&gt; any]
-                    When receiving information from the server, convert the
-                    response. This can be used along with
-                    <code>responseType</code>, where the browser will decode the
-                    message first and then <code>deserialize</code> will process
-                    it again.
-                </li>
-                <li>
-                    <code>headers</code> - [Optional, Object or Map] Headers to
-                    add to the request. If not specified, "Content-Type" will be
-                    set to "application/json; charset=utf8" and "Accept" will be
-                    "application/json, text/*".
-                </li>
-                <li>
-                    <code>method</code> - [Optional, string] The request method.
-                    Typically this is "GET" or "POST", but any HTTP verb is
-                    allowed and automatically converted to uppercase. Defaults
-                    to "GET".
-                </li>
-                <li>
-                    <code>password</code> - [Optional, string] A password to
-                    send with the request.
-                </li>
-                <li>
-                    <code>responseType</code> - [Optional, string] Specify the
-                    type of data you want to receive. Passed directly to the
-                    <code>XMLHttpRequest</code> instance. Defaults to "json" if
-                    not set.
-                </li>
-                <li>
-                    <code>serialize</code> - [Optional, (data: any) =&gt;
-                    string] Function to convert the outgoing data into a string
-                    so it is suitable to be sent via the request. If not
-                    specified, defaults to <code>JSON.stringify</code>.
-                </li>
-                <li>
-                    <code>timeout</code> - [Optional, number] How many
-                    milliseconds to wait until the request times out. When a
-                    request times out, the promise is rejected with an error of
-                    "Timeout", whose <code>status</code> property is 0.
-                </li>
-                <li>
-                    <code>url</code> - [Required, string] The URL to act upon.
-                </li>
-                <li>
-                    <code>user</code> - [Optional, string] A username to send
-                    with the request.
-                </li>
-                <li>
-                    <code>withCredentials</code> - [Optional, boolean] When
-                    true, sets the same property on the
-                    <code>XMLHttpRequest</code> object.
-                </li>
-            </ul>
-            <code-sample
-                type="js"
-                live="true"
-                html="<demo-request></demo-request>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, request } from './fudgel.min.js';
-
-                    component('demo-request', {
-                        template: `{{this.message}}`
-                    }, class {
-                        message = '...loading...';
-
-                        onInit() {
-                            request({ url: 'data.json' })
-                                .then((response) =&gt; {
-                                    this.message = response.message;
-                                }, (err) =&gt; {
-                                    this.message = `Load Error: ${err}`;
-                                });
-                        }
                     });
                 </template>
             </code-sample>
