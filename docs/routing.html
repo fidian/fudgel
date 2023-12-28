@@ -1,0 +1,423 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="stylesheet" href="fonts/fonts.css" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Routing</h1>
+            <p>
+                A declarative, minimalistic router is shipped with Fudgel. With
+                this, you can declare routes, have named parameters, match
+                routes on regular expressions, instantiate custom web
+                components, and track the browser's location through the
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/API/History_API"
+                    >History API</a
+                >. There's a section later in this document if you're interested
+                in using hashes instead.
+            </p>
+            <h2>Overly Complex Example</h2>
+            <p>
+                Let's show you how it works with a fairly elaborate bit of code.
+                Don't worry, each feature and option will be explained again
+                later.
+            </p>
+            <code-sample type="js" live="true" html="<main-page></main-page>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { attr, component, defineRouterComponent } from './fudgel.min.js';
+
+                    defineRouterComponent('app-router');
+
+                    component('main-page', {
+                        template: `
+                            <app-router>
+                                &lt;div path="^(/(index.html|routing.html)?)?$"
+                                    regex title="Page 1"&gt;
+                                    Page 1: This is the default route.
+                                    It's a bit more complicated because
+                                    it's showing how to use a regular
+                                    expression.
+                                    <a href="/page2/param">Go to page 2</a>
+                                &lt;/div&gt;
+                                &lt;div path="/page2/:thing"
+                                    component="page-two" title="Page2"&gt;
+                                    Shows the custom component instead of
+                                    these words.
+                                &lt;/div&gt;
+                                <div path="**" title="Unknown Page">
+                                    Unhandled route.
+                                    <a href="/">Continue to page 1</a>
+                                </div>
+                                <div path="**">
+                                    This won't ever be displayed. Only the
+                                    first matching route will be shown.
+                                </div>
+                            </app-router>
+                        `
+                    });
+
+                    component('page-two', {
+                        template: `
+                            Page 2: Go to
+                            <a href="/unknown">an unknown page</a>.<br />
+                            Going <a href="#" @click.stop.prevent="this.goBack()">back</a>
+                            does not work well in this playground, but it does
+                            work in a regular app.<br />
+                            The value from the route is "{{this.thing}}".
+                        `
+                    }, class {
+                        constructor() {
+                            attr(this, 'thing');
+                        }
+
+                        goBack() {
+                            history.go(-1);
+                        }
+                    });
+                </template>
+            </code-sample>
+            <p>
+                Try playing with the live demo and you can see that routing does
+                indeed work. There's also custom component instantiation,
+                passing route parameters as attributes, setting the document
+                title, automatically handling links, and more. There's a lot to
+                unpack, so each of the following sections will talk about
+                specific aspects.
+            </p>
+
+            <h2>Defining the Component</h2>
+            <p>
+                The router component is not declared automatically when you
+                import Fudgel. This is to allow for better tree shaking, so you
+                can pick and choose what you want to use from the library. This
+                technique of exporting a component definition function also
+                allows a developer to deal with custom component name collisions
+                or to swap in a different router more easily.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    import { defineRouterComponent } from './fudgel.min.js';
+
+                    defineRouterComponent('app-router');
+                </template>
+            </code-sample>
+            <p>
+                This creates a new custom element named
+                <code>&lt;app-router&gt;</code>. For the rest of the examples in
+                the documentation, we will use
+                <code>&lt;app-router&gt;</code> as the name of the router
+                element.
+            </p>
+
+            <h2>Creating Routes</h2>
+            <p>
+                Any child of the router element is considered routable. If it
+                has a path, then the path is matched against the URL. If there
+                is no path, then it defaults to "**", which matches all paths.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <app-router>
+                        <div path="/user/:userId">
+                            Show info for a specific user
+                        </div>
+                        <div path="/user">
+                            Show user list
+                        </div>
+                        <div path="/store">
+                            Show store list
+                        </div>
+                        <div path="/store/:storeId">
+                            Show single store
+                            (never used - see below)
+                        </div>
+                        <div>
+                            This matches everything.
+                            It's path is assumed to be "**"
+                        </div>
+                    </app-router>
+                </template>
+            </code-sample>
+            <p>
+                Only the first matching route will be shown, so make sure you
+                start from most specific to least specific. For example, the
+                route <code>/user/123</code> correctly maps to "Show info for a
+                specific user", but <code>/store/123</code> will scan through
+                the elements and stop on "Show store list" because it matches
+                the beginning of the URL first.
+            </p>
+            <p>Routes can have several attributes.</p>
+            <ul>
+                <li>
+                    <code>component</code> - When the path matches, create an
+                    element with this name. If the path has named parameters,
+                    assign them to the created element as attributes.
+                </li>
+                <li>
+                    <code>path</code> - The URL to match against. Can use named
+                    parameters, such as <code>:id</code> with a leading colon
+                    and the values are all assigned to the element as
+                    attributes. Can use wildcards; <code>*</code> matches a
+                    single path segment, <code>**</code> matches one or more
+                    path segments. Can use a regular expression when combined
+                    with <code>regexp</code> attribute.
+                </li>
+                <li>
+                    <code>regexp</code> - By including this attribute, the
+                    <code>path</code> attribute will be interpreted as a regular
+                    expression.
+                </li>
+                <li>
+                    <code>title</code> - When the route matches, change the
+                    document's title to match this attribute.
+                </li>
+            </ul>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <app-router>
+                        <div path="/user/*/detail" title="Forbidden">
+                            Disallow user detail, regardless of user.
+                            Shows a wildcard.
+                        </div>
+                        <div path="**/login" title="Login" component="app-login">
+                            Show login page when found anywhere in URL.
+                            Shows a double-star wildcard.
+                        </div>
+                        <div path="/user" title="User List">
+                            Show user list.
+                        </div>
+                        <div path="/store" title="Store List"
+                            component="store-list">
+                            Show custom store-liste element.
+                        </div>
+                        <div path="^/[aeiou]+$" title="Vowels" regexp>
+                            Paths can contain regular exprssions.
+                        </div>
+                    </app-router>
+                </template>
+            </code-sample>
+            <p>
+                Be careful about custom components. It is important that you use
+                the <code>component</code> attribute to initialize them.
+                Otherwise, your custom component will get instantiated and
+                copied, which probably won't work well. This could be overcome
+                by using templates and slots, but was not used in order to keep
+                the router minimalistic.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <app-router>
+                        <div path="/works" component="my-component">
+                            Replaces this div with the component.
+                        </div>
+                        <div path="/fail">
+                            <my-component>
+                                Instantiates the component and removes it from
+                                the DOM, afterwards adding clones to the DOM.
+                                Probably not what you want.
+                            </my-component>
+                        </div>
+                        <my-component path="/also-fail">
+                            Same problem as the one above.
+                        </my-component>
+                    </app-router>
+                </template>
+            </code-sample>
+            <p>
+                Named parameters are passed to elements as attributes. The named
+                parameters are expected to be written in camel case, such as
+                "/user/:userId" in the example below. This will get changed into
+                the attribute "user-id" because attributes are case-insensitive.
+                The Fudgel component <code>show-user</code> sets up the
+                attribute "this.userId" and that will reference the element's
+                attribute "user-id", and the template shows the current user ID.
+            </p>
+            <code-sample type="js" live="true" html="<main-page></main-page>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { attr, component, defineRouterComponent } from './fudgel.min.js';
+
+                    defineRouterComponent('app-router');
+
+                    component('main-page', {
+                        template: `
+                            <app-router>
+                                <div path="/user/:userId"
+                                    component="show-user"></div>
+                                <div>
+                                    Show user:<br />
+                                    <a href="/user/open-ai">OpenAI</a><br />
+                                    <a href="/user/chat-gpt">ChatGPT</a>
+                                </div>
+                            </app-router>
+                        `
+                    });
+
+                    component('show-user', {
+                        template: `
+                            UserId: {{this.userId}}<br />
+                            <a href="/">Back to index</a>
+                        `
+                    }, class {
+                        constructor() {
+                            attr(this, 'userId');
+                        }
+                    });
+                </template>
+            </code-sample>
+
+            <h2>Navigation</h2>
+            <p>
+                An event listener is added to <code>document.body</code> that
+                waits for all clicked links. When one is found, it will be
+                checked to see if it is within the current page. If so, the
+                event's default navigation is prevented and the history state is
+                updated with the new URL.
+            </p>
+            <p>
+                The History API is also patched in order to capture routing
+                events, so your application can use
+                <code>history.pushState(null, null, url)</code> in order to
+                navigate, along with other methods from the History API.
+            </p>
+            <p>
+                Finally, you can get a reference to the router element and call
+                it's <code>go(url)</code> method.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    document.querySelector('app-router').go('/page2');
+                </template>
+            </code-sample>
+
+            <h2>What About Using Hashes?</h2>
+            <p>
+                This router manipulates the History API for the following
+                reasons:
+            </p>
+            <ul>
+                <li>
+                    URLs look more "normal" to users. Seeing hashes in URLs
+                    makes people wonder because it's unusual.
+                </li>
+                <li>
+                    Links can operate normally and can operate in a single-page
+                    application. I can send a URL to a friend and it could still
+                    work.
+                </li>
+                <li>
+                    Better SEO. Search engines have a bit more difficulty
+                    traversing hash-based routes. Google used to suggest using
+                    the prefix "#!", but has now dropped it because of the
+                    History API
+                </li>
+            </ul>
+            <p>
+                <b>But what if I need to use hashes?</b> Yes, I was in the same
+                situation with a static file server and no way for me to serve
+                the same <code>index.html</code> for all of the routes in the
+                application. Fortunately, it might be possible to create a
+                custom 404 page. If you can, put this in your 404 page and it
+                will make the browser turn it into a 301 status code, which does
+                index well.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    &lt;!DOCTYPE html&gt;
+                    &lt;html&gt;&lt;head&gt;
+                    <meta charset="utf-8" />
+                    <script>sessionStorage.redirect = location.href;</script>
+                    <meta http-equiv="refresh" content="0;URL='/'" />
+                    &lt;/head&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;
+                </template>
+            </code-sample>
+            <p>
+                This will store the location in session storage and redirect you
+                immediately to the single page app. Inside your app, before any
+                other code, you will need to add this JavaScript to restore the
+                location.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    const redirect = sessionStorage.redirect;
+                    delete sessionStorage.redirect;
+
+                    if (redirect &amp;&amp; redirect !== location.href) {
+                        history.replaceState(null, null, redirect);
+                    }
+                </template>
+            </code-sample>
+            <p>
+                This technique is provided from
+                <a
+                    href="http://www.backalleycoder.com/2016/05/13/sghpa-the-single-page-app-hack-for-github-pages/"
+                    >S(GH)PA: The Single-Page App Hack for GitHub Pages</a
+                >
+                by Daniel Buchner.
+            </p>
+
+            <h2>Need More Functionality?</h2>
+            <p>
+                This is just a slimmed-down version of a few other fantastic web
+                component routers combined into one that is fairly minimal yet
+                provides enough for smaller projects. If you are looking for
+                something with a bit more pizzaz, check these out.
+            </p>
+
+            <ul>
+                <li>
+                    <a href="https://github.com/colscott/a-wc-router"
+                        >a-wc-router</a
+                    >
+                </li>
+                <li>
+                    <a href="https://github.com/erikringsmuth/app-router"
+                        >app-router</a
+                    >
+                </li>
+                <li>
+                    <a href="https://github.com/markcellus/router-component"
+                        >router-component</a
+                    >
+                </li>
+                <li>
+                    <a href="https://github.com/jasimea/router-sample"
+                        >router-sample</a
+                    >
+                </li>
+            </ul>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

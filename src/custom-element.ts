@@ -56,6 +56,7 @@ export class CustomElement extends HTMLElement {
 
     disconnectedCallback() {
         const controller = metadataElementController(this)!;
+        controller && controller.onDestroy && controller.onDestroy();
         hooksOff(this);
 
         // Need to eliminate the hard reference to the element.
@@ -66,7 +67,5 @@ export class CustomElement extends HTMLElement {
         if (this.shadowRoot) {
             this.shadowRoot.innerHTML = '';
         }
-
-        controller && controller.onDestroy && controller.onDestroy();
     }
 }

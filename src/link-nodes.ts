@@ -1,5 +1,5 @@
 import { Controller } from './controller';
-import { doc } from './elements';
+import { createFragment, doc } from './elements';
 import { linkElementNode } from './link-element-node';
 import { linkStructuralDirective } from './link-structural-directive';
 import { linkTextNode } from './link-text-node';
@@ -40,7 +40,7 @@ export const linkNodes = (
 };
 
 export const linkNodesWrapped = (node: Node, controller: Controller) => {
-    const fragment = doc.createDocumentFragment();
+    const fragment = createFragment();
     fragment.append(node);
     linkNodes(fragment, controller);
 }

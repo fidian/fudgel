@@ -9,7 +9,7 @@
         "experimentalDecorators": true,
         "inlineSources": true,
         "lib": ["dom", "dom.iterable", "esnext"],
-        "module": "es2015",
+        "module": "esNext",
         "moduleResolution": "node",
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
@@ -22,7 +22,7 @@
         "removeComments": true,
         "sourceMap": true,
         "strict": true,
-        "target": "es6"
+        "target": "esNext"
     },
     "include": ["src/**/*.ts"]
 }

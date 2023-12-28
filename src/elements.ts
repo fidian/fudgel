@@ -4,12 +4,14 @@
 export const doc = document;
 export const win = window;
 
-const createElement: Document['createElement'] = (name: string) =>
+export const createElement: Document['createElement'] = (name: string) =>
     doc.createElement(name);
 
 export const createTextNode = (content: string) => doc.createTextNode(content);
 
 export const createComment = (content: string) => doc.createComment(content);
+
+export const createFragment = () => doc.createDocumentFragment();
 
 export const createStyle = (content: string) => {
     const s = createElement('style');

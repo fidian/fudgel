@@ -34,6 +34,11 @@ export const toString = <T>(value: T) =>
 
 export const isString = (x: any) => typeof x === 'string';
 
+export const getAttribute = (
+    node: HTMLElement,
+    name: string
+) => node.getAttribute(name);
+
 export const setAttribute = (
     node: HTMLElement,
     name: string,

@@ -10,4 +10,5 @@ export * from './emitter';
 export { metadataControllerElement } from './metadata';
 export * from './parse';
 export * from './prop';
+export * from './router';
 export * from './tag-functions';

@@ -50,6 +50,10 @@ component(
                 url: 'content-projection.html',
             },
             {
+                label: 'Routing',
+                url: 'routing.html',
+            },
+            {
                 label: 'Utilities',
                 url: 'utilities.html',
             },

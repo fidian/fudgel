@@ -1,0 +1,1 @@
+export { defineRouterComponent } from './fudgel';

@@ -1,7 +1,7 @@
 /**
  * Bind a controller class to a CustomElement's attribute. This is a 2-way binding.
  */
-import { camelToDash, setAttribute } from './util';
+import { camelToDash, getAttribute, setAttribute } from './util';
 import { Controller } from './controller';
 import { hookOn } from './hooks';
 import {
@@ -46,7 +46,7 @@ const addAttrHook = (proto: Object, propertyName: string) =>
                     attrToProp(
                         controllerRef,
                         null,
-                        element.getAttribute(attrName)
+                        getAttribute(element, attrName)
                     );
                 }
 

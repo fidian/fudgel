@@ -280,14 +280,14 @@
 
                     component('tick-counter', {
                         template: `
-                            <button
+                            &lt;button
                                 *if="!this.tracking"
                                 @click="this.toggleTracking()"
-                            >Watch Ticks</button>
-                            <button
+                            &gt;Watch Ticks&lt;/button&gt;
+                            &lt;button
                                 *if="this.tracking"
                                 @click="this.toggleTracking()"
-                            >Stop Watching</button>
+                            &gt;Stop Watching&lt;/button&gt;
                             <div>Tick count: {{this.tickCount}}</div>
                         `
                     }, class {

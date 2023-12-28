@@ -1,7 +1,8 @@
 [
-{ "name": "Whole framework (ESM)", "minified": 7599, "gzipped": 3462 },
-{ "name": "Whole framework (UMD)", "minified": 7750, "gzipped": 3519 },
-{ "name": "component()", "minified": 7661, "gzipped": 2966 },
+{ "name": "Whole framework (ESM)", "minified": 8753, "gzipped": 3893 },
+{ "name": "Whole framework (UMD)", "minified": 8899, "gzipped": 3963 },
+{ "name": "component()", "minified": 7697, "gzipped": 2975 },
 { "name": "di()", "minified": 283, "gzipped": 212 },
-{ "name": "new Emitter()", "minified": 949, "gzipped": 473 }
+{ "name": "new Emitter()", "minified": 280, "gzipped": 216 },
+{ "name": "RouterComponent", "minified": 2059, "gzipped": 1039 }
 ]
