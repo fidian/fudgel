@@ -119,7 +119,7 @@ class RouterComponent extends HTMLElement {
                     .replace(/\*+/g, (match) =>
                         match.length > 1 ? '.*' : '[^/]*'
                     )
-                    .replace(/:[^:\/]+/g, (match) => `(?<${match.slice(1)}>[^/]*)`);
+                    .replace(/:[^:\/]+/g, (match) => `(?<${match.slice(1)}>[^/]+)`);
             }
 
             const regexp = new RegExp(`^${regexpStr}(/.*)?$`);
