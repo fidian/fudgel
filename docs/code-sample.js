@@ -166,11 +166,7 @@ component(
                     @click="return this.livePlayground()">Live Demo</button>
                 <pre #ref="pre"></pre>
             </div>
-            <live-playground *if="this.useLivePlayground"><template><script type="module">
-{{this.codeStr}}
-</script>
-
-{{this.html}}</template></live-playground>
+            <live-playground *if="this.useLivePlayground"><template>{{this.playgroundStr}}</template></live-playground>
         `,
     },
     class {
@@ -200,6 +196,12 @@ component(
             }
 
             this.codeStr = cleanText(template.innerHTML);
+            this.playgroundStr = this.codeStr;
+
+            if (this.type === 'js') {
+                this.playgroundStr = `<script type="module">\n${this.playgroundStr}\n</script>\n\n${this.html}`.trim();
+            }
+
             const textNode = document.createTextNode(this.codeStr);
             code.appendChild(textNode);
             this.pre.appendChild(code);
