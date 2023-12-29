@@ -11,6 +11,7 @@ defineRouterComponent('app-router');
         <div path="/page1" id="page1">
             View detail for <a id="testingId" href="/page1/testingId">testingId</a><br />
             View detail for <a id="deeper" href="/page1/deeper/things/here">deeper path</a><br />
+            Do not view detail with <a id="slash" href="/page1/">an extra slash</a><br />
             Back to <a href="/">the default route</a>
         </div>
         <div path="/page2" component="test-history"></div>
@@ -136,6 +137,15 @@ describe('router', () => {
 
         // Confirm the attribute only shows the first matching path segment
         cy.get('#id').should('have.text', 'deeper');
+
+        // Back to page 1
+        cy.get('button').click()
+
+        // Verify that a slash is ignored at the end of a route
+        cy.get('#slash').click();
+        cy.get('#location').should('have.text', '/page1/');
+        cy.get('#page1').should('exist');
+        cy.get('test-component').should('not.exist');
 
         // Back to default route
         cy.get('#startOver').click();
