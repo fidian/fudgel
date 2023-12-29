@@ -50,8 +50,8 @@ else
 fi
 (
     echo '['
-    echo "$(sizeAsJson "Whole framework (ESM)" fudgel.min.mjs),"
-    echo "$(sizeAsJson "Whole framework (UMD)" fudgel.umd.min.js),"
+    echo "$(sizeAsJson "Everything (ESM)" fudgel.min.mjs),"
+    echo "$(sizeAsJson "Everything (UMD)" fudgel.umd.min.js),"
     echo "$(sizeAsJson "component()" only-component.min.mjs),"
     echo "$(sizeAsJson "di()" only-di.min.mjs),"
     echo "$(sizeAsJson "new Emitter()" only-emitter.min.mjs),"
