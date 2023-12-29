@@ -14,10 +14,12 @@ defineRouterComponent('app-router');
             Back to <a href="/">the default route</a>
         </div>
         <div path="/page2" component="test-history"></div>
+        <div path="/page3" component="test-template"></div>
         <div id="default">
             Default fallback route<br />
             <a id="page1link" href="/page1">Page 1</a> test links, routes, attributes<br />
             <a id="page2link" href="/page2">Page 2</a> test history and navigation
+            <a id="page3link" href="/page3">Page 3</a> test template and nested routes
         </div>
         <div id="notShown">
             Never shown
@@ -76,6 +78,20 @@ class TestHistoryComponent {
     }
 }
 
+@Component('test-template', {
+    template: `
+        <app-router>
+            <template>
+                <test-component id="testComponent" path="/page3/:id"></test-component>
+                <div id="page3default">
+                    <a id="page3link" href="/page3/123">Show ID 123</a>
+                </div>
+            </template>
+        </app-router>
+    `
+})
+export class TestTemplate {}
+
 let testHistoryInits = 0;
 
 describe('router', () => {
@@ -130,7 +146,6 @@ describe('router', () => {
         let initsBefore;
         cy.get('a#page2link').click();
         cy.get('#inits').then(() => {
-            console.log(testHistoryInits);
             initsBefore = testHistoryInits;
         });
         cy.get('#deeper').click();
@@ -149,5 +164,16 @@ describe('router', () => {
         cy.get('#location').should('have.text', '/page2/deeper');
         cy.get('button#pushState').click();
         cy.get('#location').should('have.text', '/');
+    });
+
+    it('works with a <template> element', () => {
+        // Navigate to the template
+        cy.get('a#page3link').click();
+        cy.get('#page3default').should('exist');
+
+        // Route to the test element
+        cy.get('a#page3link').click();
+        cy.get('#123').should('exist');
+        cy.get('#id').should('have.text', '123');
     });
 });

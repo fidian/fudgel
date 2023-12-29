@@ -14,12 +14,19 @@ class RouterComponent extends HTMLElement {
 
     constructor() {
         super();
-        const children = this.children;
+        let children = this.children;
+        let firstChild = children[0];
 
-        while (children.length > 0) {
-            const element = children[0];
-            this.#routeElements.push(element as HTMLElement);
-            this.#fragment.appendChild(element);
+        if (firstChild.nodeName === 'TEMPLATE') {
+            // Use the children within the template
+            this.#routeElements = Array.from((firstChild as HTMLTemplateElement).content.children) as HTMLElement[];
+        } else {
+            // Use direct children and move elements to a document fragment
+            while (children.length > 0) {
+                const element = children[0];
+                this.#routeElements.push(element as HTMLElement);
+                this.#fragment.appendChild(element);
+            }
         }
     }
 
@@ -109,10 +116,10 @@ class RouterComponent extends HTMLElement {
 
             if (typeof regexpAttr !== 'string') {
                 regexpStr = path
-                    .replace(/\*\*?/g, (match) =>
+                    .replace(/\*+/g, (match) =>
                         match.length > 1 ? '.*' : '[^/]*'
                     )
-                    .replace(/:[^:/]+/g, (match) => `(?<${match.slice(1)}>[^/]*)`);
+                    .replace(/:[^:\/]+/g, (match) => `(?<${match.slice(1)}>[^/]*)`);
             }
 
             const regexp = new RegExp(`^${regexpStr}(/.*)?$`);

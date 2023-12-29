@@ -225,27 +225,45 @@
             </code-sample>
             <p>
                 Be careful about custom components. It is important that you use
-                the <code>component</code> attribute to initialize them.
-                Otherwise, your custom component will get instantiated and
-                copied, which probably won't work well. This could be overcome
-                by using templates and slots, but was not used in order to keep
-                the router minimalistic.
+                the <code>component</code> attribute to initialize them, as
+                shown above. If you don't, your custom component will get
+                instantiated and copied, which probably won't work well.
+                Alternately, you can just wrap all routes in a template as
+                shown below.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
+                    <!-- Wrapping in a template fixes issues -->
                     <app-router>
-                        <div path="/works" component="my-component">
+                        <template>
+                            <div path="/replace" component="my-component">
+                                Replaces this div with the component.
+                            </div>
+                            <div path="/embed">
+                                <my-component>
+                                    Works as expected.
+                                </my-component>
+                            </div>
+                            <my-component path="/direct">
+                                Also works as expected.
+                            </my-component>
+                        </template>
+                    </app-router>
+
+                    <!-- This example does NOT WORK how you want -->
+                    <app-router>
+                        <div path="/replace" component="my-component">
                             Replaces this div with the component.
                         </div>
-                        <div path="/fail">
+                        <div path="/embed">
                             <my-component>
                                 Instantiates the component and removes it from
                                 the DOM, afterwards adding clones to the DOM.
                                 Probably not what you want.
                             </my-component>
                         </div>
-                        <my-component path="/also-fail">
+                        <my-component path="/direct">
                             Same problem as the one above.
                         </my-component>
                     </app-router>
