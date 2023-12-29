@@ -1,12 +1,17 @@
 {
     "name": "fudgel",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "description": "Minimalist web component library to take the pain out of automatic updates.",
     "keywords": [
         "lightweight",
         "web-component",
+        "web component",
         "slim.js",
-        "angular"
+        "angular",
+        "router",
+        "declarative",
+        "micro",
+        "tiny"
     ],
     "repository": {
         "type": "git",
