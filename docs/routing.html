@@ -136,16 +136,19 @@
 
             <h2>Creating Routes</h2>
             <p>
-                Any child of the router element is considered routable. If it
-                has a path, then the path is matched against the URL. If there
+                Any direct child of the router element is considered routable.
+                If it has a path, then the path is matched against the URL and
+                all specified segments must match (more on this later). If there
                 is no path, then it defaults to "**", which matches all paths.
             </p>
-            <code-sample type="html">
+            <code-sample type="html" live="true">
                 <!-- prettier-ignore -->
                 <template>
                     <app-router>
                         <div path="/user/:userId">
-                            Show info for a specific user
+                            Show info for a specific user<br />
+                            Inspect the element and see
+                            the user-id attribute
                         </div>
                         <div path="/user">
                             Show user list
@@ -154,25 +157,46 @@
                             Show store list
                         </div>
                         <div path="/store/:storeId">
-                            Show single store
+                            Show single store<br />
                             (never used - see below)
                         </div>
                         <div>
-                            This matches everything.
+                            This matches everything<br />
                             It's path is assumed to be "**"
                         </div>
                     </app-router>
+
+                    <script type="module" src="location-changer.js"></script>
                 </template>
             </code-sample>
             <p>
-                Only the first matching route will be shown, so make sure you
-                start from most specific to least specific. For example, the
-                route <code>/user/123</code> correctly maps to "Show info for a
-                specific user", but <code>/store/123</code> will scan through
-                the elements and stop on "Show store list" because it matches
-                the beginning of the URL first.
+                Route matching will match entire path segments but ignore
+                segments in the URL that don't exist in the path, plus only the
+                first matching route will be shown. Make sure you order the
+                children from most specific path to least specific. For example,
+                the route <code>/user/123</code> correctly maps to "Show info
+                for a specific user", but <code>/store/123</code>
+                will scan through the elements and stop on "Show store list"
+                because it matches the beginning of the URL first.
             </p>
-            <p>Routes can have several attributes.</p>
+            <p>Some more examples of routing with the above example:</p>
+            <ul>
+                <li>
+                    URL: <code>/</code> &rarr; Result: "This matches everything"
+                </li>
+                <li>URL: <code>/user</code> &rarr; Result: "Show user list"</li>
+                <li>
+                    URL: <code>/user/</code> &rarr; Result: "Show user list"
+                </li>
+                <li>
+                    URL: <code>/user/1234</code> &rarr; Result: "Show info for a
+                    specific user"
+                </li>
+            </ul>
+            <p>
+                Elements that are routes can have several attributes to control
+                what they do.
+            </p>
             <ul>
                 <li>
                     <code>component</code> - When the path matches, create an
@@ -198,7 +222,7 @@
                     document's title to match this attribute.
                 </li>
             </ul>
-            <code-sample type="html">
+            <code-sample type="html" live="true">
                 <!-- prettier-ignore -->
                 <template>
                     <app-router>
@@ -215,21 +239,26 @@
                         </div>
                         <div path="/store" title="Store List"
                             component="store-list">
-                            Show custom store-liste element.
+                            Show custom store-list element.
                         </div>
                         <div path="^/[aeiou]+$" title="Vowels" regexp>
-                            Paths can contain regular exprssions.
+                            Path has only vowels.
+                            Illustrating regular expressions.
                         </div>
+                        <div>No routes match</div>
                     </app-router>
+
+                    <script type="module" src="location-changer.js"></script>
                 </template>
             </code-sample>
             <p>
-                Be careful about custom components. It is important that you use
-                the <code>component</code> attribute to initialize them, as
-                shown above. If you don't, your custom component will get
-                instantiated and copied, which probably won't work well.
-                Alternately, you can just wrap all routes in a template as
-                shown below.
+                Be careful about custom components - you must either use the
+                <code>component</code> attribute to initialize them as shown
+                above, or you need to wrap all of your routes in a
+                <code>&lt;template&gt;</code> element. Failure to do either of
+                these methods will cause your component to be instantiated and
+                then copied, which will probably not work well for any event
+                bindings.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -272,11 +301,19 @@
             <p>
                 Named parameters are passed to elements as attributes. The named
                 parameters are expected to be written in camel case, such as
-                "/user/:userId" in the example below. This will get changed into
-                the attribute "user-id" because attributes are case-insensitive.
-                The Fudgel component <code>show-user</code> sets up the
-                attribute "this.userId" and that will reference the element's
-                attribute "user-id", and the template shows the current user ID.
+                <code>/user/:userId</code> in the example below. This will get
+                changed into the attribute <code>user-id</code> on the HTML
+                element because attributes are case-insensitive. You can see
+                this if you inspect the DOM of the live example.
+            </p>
+            <p>
+                To make the effect more obvious, a Fudgel component named
+                <code>show-user</code> sets up the internal property
+                <code>this.userId</code> to mirror the element's
+                <code>user-id</code> attribute, and the template shows the
+                current user ID. This allows the example to be seen and prove
+                that everything's working as expected without involving any
+                debug tooling.
             </p>
             <code-sample type="js" live="true" html="<main-page></main-page>">
                 <!-- prettier-ignore -->
@@ -321,14 +358,29 @@
                 updated with the new URL.
             </p>
             <p>
-                The History API is also patched in order to capture routing
-                events, so your application can use
-                <code>history.pushState(null, null, url)</code> in order to
-                navigate, along with other methods from the History API.
+                The
+                <a href="https://developer.mozilla.org/docs/Web/API/History"
+                    >History API</a
+                >
+                is patched in order to capture routing events, so your
+                application can use
+                <code>history.pushState(null, null, url)</code>,
+                <code>history.back()</code> and all of the other methods to
+                navigate.
             </p>
             <p>
-                Finally, you can get a reference to the router element and call
-                it's <code>go(url)</code> method.
+                You can also get a reference to the router element and call it's
+                <code>go(url)</code> method.
+            </p>
+            <p>
+                The
+                <a href="https://developer.mozilla.org/docs/Web/API/Navigation"
+                    >Navigation API</a
+                >
+                is not used because it is experimental and isn't
+                <a href="https://caniuse.com/mdn-api_navigation"
+                    >widely adopted</a
+                >.
             </p>
             <code-sample type="js">
                 <!-- prettier-ignore -->
@@ -408,9 +460,10 @@
             <h2>Need More Functionality?</h2>
             <p>
                 This is just a slimmed-down version of a few other fantastic web
-                component routers combined into one that is fairly minimal yet
-                provides enough for smaller projects. If you are looking for
-                something with a bit more pizzaz, check these out.
+                component routers that were combined. This router's goal is to
+                be fairly minimal and provide enough for most smaller projects.
+                If you are looking for something with a bit more pizzaz, check
+                these out.
             </p>
 
             <ul>
