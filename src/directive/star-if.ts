@@ -1,8 +1,8 @@
 import { addBindings } from '../bindings';
+import { childScope, getScope } from '../scope';
 import { Controller } from '../controller';
 import { createValueFunction } from '../util';
 import { findBindings } from '../parse';
-import { getScope } from '../scope';
 import { hooksOff } from '../hooks';
 import { linkNodesWrapped } from '../link-nodes';
 import { StructuralDirective } from './types';
@@ -21,6 +21,7 @@ export const starIfDirective: StructuralDirective = (
             if (!activeNode) {
                 // Add
                 activeNode = source.cloneNode(true) as HTMLElement;
+                childScope(scope, activeNode);
                 linkNodesWrapped(activeNode, thisRef);
                 anchor.after(activeNode);
             }
