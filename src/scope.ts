@@ -9,7 +9,12 @@ export const getScope = (node: Node) => {
         n = n.parentNode;
     }
 
-    return scope || {};
+    if (!scope) {
+        scope = {};
+        metadataScope(document.body, scope);
+    }
+
+    return scope;
 };
 
 export const childScope = (parentScope: Object, childNode: Node) => {

@@ -7,13 +7,11 @@ import {
     metadataComponentController,
     metadataControllerElement,
     metadataElementController,
-    metadataScope,
 } from './metadata';
 
 export class CustomElement extends HTMLElement {
     constructor() {
         super();
-        metadataScope(this, {});
     }
 
     attributeChangedCallback(

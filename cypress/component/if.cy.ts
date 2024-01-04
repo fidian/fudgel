@@ -1,4 +1,6 @@
-import { component } from '../../src/fudgel';
+import { attr, component, defineRouterComponent, metadataControllerElement } from '../../src/fudgel';
+
+defineRouterComponent('app-router');
 
 component('test-element', {
     template:
@@ -31,6 +33,53 @@ component('test-for-if', {
     }];
 });
 
+component('nested-component', {
+    template: `nested ID {{this.id}}`
+}, class {
+    constructor() {
+        attr(this, 'id');
+    }
+});
+
+component('test-for-if-routed', {
+    template: `
+        <div>Router enabled</div>
+        <app-router>
+            <div path="**">
+                <div *for="item of this.list">
+                    <nested-component *if="$scope.item.show" id="{{$scope.item.name}}">
+                    </nested-component>
+                </div>
+            </div>
+        </app-router>
+    `
+}, class {
+    list = [ {
+        show: true,
+        name: "first"
+    }, {
+        show: false,
+        name: "second"
+    }, {
+        show: true,
+        name: "third"
+    }];
+});
+
+component('test-for-if-routed-delayed', {
+    template: 'Delaying'
+}, class {
+    onViewInit() {
+        setTimeout(() => {
+            const element = metadataControllerElement.get(this);
+
+            if (element) {
+                element.shadowRoot.innerHTML = '<test-for-if-routed></test-for-if-routed>';
+            }
+        }, 1);
+    }
+});
+
 describe('if', () => {
     it('toggles based on an internal value', () => {
         cy.mount('<test-element></test-element>');
@@ -50,8 +99,15 @@ describe('if', () => {
         cy.get('#wrong').should('not.exist');
     });
 
-    it.only('works with nesting', () => {
+    it('works with nesting and direct mounting', () => {
         cy.mount('<test-for-if></test-for-if>');
+        cy.get('#first').should('exist');
+        cy.get('#second').should('not.exist');
+        cy.get('#third').should('exist');
+    });
+
+    it('works with nesting through routing', () => {
+        cy.mount('<test-for-if-routed-delayed></test-for-if-routed-delayed>');
         cy.get('#first').should('exist');
         cy.get('#second').should('not.exist');
         cy.get('#third').should('exist');
