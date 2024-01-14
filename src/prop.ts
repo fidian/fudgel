@@ -29,8 +29,10 @@ const addPropHook = (proto: Object, propertyName: string) => {
 
                 if (element) {
                     const update = (thisRef: CustomElement, newValue: any) => {
-                        metadataElementController(thisRef)![propertyName] =
-                            newValue;
+                        const controller = metadataElementController(thisRef)!;
+                        const oldValue = controller[propertyName];
+                        controller[propertyName] = newValue;
+                        controller.onChange && controller.onChange(propertyName, oldValue, newValue);
                     };
                     patchSetter(element, propertyName, update);
                     update(element, (element as any)[propertyName]);
