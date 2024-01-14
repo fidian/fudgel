@@ -67,6 +67,24 @@ component(
     }
 );
 
+@Component('test-update-child', {
+    template: '{{this.childValue}}'
+})
+class TestUpdateChildComponent {
+    @Prop() childValue = 'initialValue';
+}
+
+@Component('test-update-parent', {
+    template: '<button @click="this.update()">Update</button><test-update-child .child-value="this.value"></test-update-child>'
+})
+class TestUpdateParentComponent {
+    value = 'fromParent';
+
+    update() {
+        this.value = 'afterUpdate';
+    }
+}
+
 describe('prop', () => {
     it('assigns a string property', () => {
         cy.mount('<test-string></test-string>');
@@ -76,7 +94,7 @@ describe('prop', () => {
         cy.mount('<test-async></test-async>');
         cy.get('show-prop').shadow().should('have.text', 'after-update');
     });
-    it.only('shows items from a list', () => {
+    it('shows items from a list', () => {
         cy.mount('<test-scope></test-scope>');
         cy.get('test-scope-item')
             .shadow()
@@ -100,5 +118,11 @@ describe('prop', () => {
         cy.get('test-scope-item')
             .shadow()
             .should('have.text', 'Item: updatedNameItem: second-item');
+    });
+    it('triggers onUpdate', () => {
+        cy.mount('<test-update-parent></test-update-parent>');
+        cy.get('test-update-child').shadow().should('have.text', 'fromParent');
+        cy.get('button').click();
+        cy.get('test-update-child').shadow().should('have.text', 'afterUpdate');
     });
 });
