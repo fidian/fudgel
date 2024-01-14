@@ -1,4 +1,4 @@
-import { attr, component } from '../../src/fudgel';
+import { component } from '../../src/fudgel';
 
 component('custom-element', {
     template: '<span id="test" class="a {{this.internalValue}} c"><button @click="this.buttonClicked($event)">Change</button>'
@@ -11,15 +11,11 @@ component('custom-element', {
 });
 
 component('the-child', {
+    attr: ['test', 'childValue'],
     template: '<div id="test">{{this.test}}</div><div id="childValue">{{this.childValue}}</div><button @click="this.buttonClicked()">Update</button>'
 }, class {
     test = 'value before init';
     childValue = 'value before attr';
-
-    constructor() {
-        attr(this, 'test');
-        attr(this, 'childValue');
-    }
 
     buttonClicked() {
         this.test = 'test-update';

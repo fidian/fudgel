@@ -4,7 +4,6 @@
 // https://github.com/kcmr/code-sample
 
 import {
-    attr,
     component,
     css as css,
     metadataControllerElement,
@@ -15,6 +14,7 @@ import { hljs } from './highlight.js';
 component(
     'code-sample',
     {
+        attr: ['type', 'live', 'html'],
         style: css`
             :host {
                 display: block;
@@ -171,9 +171,6 @@ component(
     },
     class {
         constructor() {
-            attr(this, 'type');
-            attr(this, 'live');
-            attr(this, 'html');
             this.label = 'Copy';
         }
 

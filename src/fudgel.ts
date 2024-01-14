@@ -1,5 +1,4 @@
 export * from './actions';
-export * from './attr';
 export * from './component';
 export * from './constructor';
 export * from './controller';
@@ -9,6 +8,5 @@ export { addDirective } from './directive/index';
 export * from './emitter';
 export { metadataControllerElement } from './metadata';
 export * from './parse';
-export * from './prop';
 export * from './router';
 export * from './tag-functions';

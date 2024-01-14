@@ -48,11 +48,12 @@
             <code-sample type="js" live="true" html="<main-page></main-page>">
                 <!-- prettier-ignore -->
                 <template>
-                    import { attr, component, defineRouterComponent } from './fudgel.min.js';
+                    import { component, defineRouterComponent } from './fudgel.min.js';
 
                     defineRouterComponent('app-router');
 
                     component('main-page', {
+                        attr: ['thing'],
                         template: `
                             <app-router>
                                 &lt;div path="^(/(index.html|routing.html)?)?$"
@@ -90,10 +91,6 @@
                             The value from the route is "{{this.thing}}".
                         `
                     }, class {
-                        constructor() {
-                            attr(this, 'thing');
-                        }
-
                         goBack() {
                             history.go(-1);
                         }
@@ -318,7 +315,7 @@
             <code-sample type="js" live="true" html="<main-page></main-page>">
                 <!-- prettier-ignore -->
                 <template>
-                    import { attr, component, defineRouterComponent } from './fudgel.min.js';
+                    import { component, defineRouterComponent } from './fudgel.min.js';
 
                     defineRouterComponent('app-router');
 
@@ -337,14 +334,11 @@
                     });
 
                     component('show-user', {
+                        attr: ['userId'],
                         template: `
                             UserId: {{this.userId}}<br />
                             <a href="/">Back to index</a>
                         `
-                    }, class {
-                        constructor() {
-                            attr(this, 'userId');
-                        }
                     });
                 </template>
             </code-sample>

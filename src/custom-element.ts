@@ -1,4 +1,7 @@
 import { createTemplate, createStyle } from './elements';
+import { Controller } from './controller';
+import { CustomElementConfig } from './custom-element-config';
+import { camelToDash, dashToCamel, getAttribute, setAttribute } from './util';
 import { findPrototypeHooks } from './prototype-hooks';
 import { hooksOff, hooksRun } from './hooks';
 import { linkNodes } from './link-nodes';
@@ -8,6 +11,7 @@ import {
     metadataControllerElement,
     metadataElementController,
 } from './metadata';
+import { patchSetter } from './setter';
 
 export class CustomElement extends HTMLElement {
     constructor() {
@@ -15,12 +19,16 @@ export class CustomElement extends HTMLElement {
     }
 
     attributeChangedCallback(
-        attrName: string,
-        oldValue: string,
+        attributeName: string,
+        _oldValue: string,
         newValue: string
     ) {
-        const controller = metadataElementController(this)!;
-        hooksRun(`attr:${attrName}`, controller, oldValue, newValue);
+        const propertyName = dashToCamel(attributeName);
+        const controller = metadataElementController(this);
+
+        if (controller) {
+            this.#change(controller, propertyName, newValue);
+        }
     }
 
     connectedCallback() {
@@ -40,6 +48,7 @@ export class CustomElement extends HTMLElement {
         }
 
         // Initialize before adding child nodes
+        this.#bindings(config, controller);
         controller.onInit && controller.onInit();
         hooksRun('init', controller);
 
@@ -65,5 +74,61 @@ export class CustomElement extends HTMLElement {
         if (this.shadowRoot) {
             this.shadowRoot.innerHTML = '';
         }
+    }
+
+    #bindings(config: CustomElementConfig, controllerInternal: Controller) {
+        for (const propertyName of config.prop || []) {
+            // When element changes, update controller
+            const updateController = (
+                thisRef: CustomElement,
+                newValue: any
+            ) => {
+                const controller = metadataElementController(thisRef)!;
+                this.#change(controller, propertyName, newValue);
+            };
+            patchSetter(this, propertyName, updateController);
+            updateController(this, (this as any)[propertyName]);
+
+            // When controller changes, update element
+            const updateElement = (thisRef: Controller, newValue: any) => {
+                const element = metadataControllerElement.get(thisRef);
+
+                if (element) {
+                    (element as any)[propertyName] = newValue;
+                }
+            };
+            patchSetter(controllerInternal, propertyName, updateElement);
+            updateElement(controllerInternal, controllerInternal[propertyName]);
+        }
+
+        for (const propertyName of config.attr || []) {
+            const attributeName = camelToDash(propertyName);
+
+            // Set initial value - updates are tracked with attributeChangedCallback
+            this.#change(controllerInternal, propertyName, getAttribute(this, attributeName));
+
+            // When the internal property changes, update the attribute but only
+            // if it is not defined as a "prop" binding.
+            if (!(config.prop || []).includes(propertyName)) {
+                const updateAttribute = (
+                    thisRef: Controller,
+                    newValue: any
+                ) => {
+                    const element = metadataControllerElement.get(thisRef);
+
+                    if (element) {
+                        setAttribute(element, attributeName, newValue);
+                    }
+                };
+                patchSetter(controllerInternal, propertyName, updateAttribute);
+            }
+        }
+    }
+
+    #change(controller: Controller, propertyName: string, newValue: any) {
+        const oldValue = (controller as any)[propertyName];
+        (controller as any)[propertyName] = newValue;
+        controller.onChange &&
+            controller.onChange(propertyName, oldValue, newValue);
     }
 }

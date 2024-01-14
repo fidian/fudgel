@@ -1,8 +1,9 @@
-import { component, css, html, prop } from './fudgel.min.js';
+import { component, css, html } from './fudgel.min.js';
 
 component(
     'sidebar-item',
     {
+        prop: ['url', 'label', 'aliasUrl'],
         style: css`
             :host {
                 display: block;
@@ -10,12 +11,5 @@ component(
             }
         `,
         template: html` <a href="{{this.url}}">{{this.label || '?'}}</a> `,
-    },
-    class {
-        constructor() {
-            prop(this, 'url');
-            prop(this, 'label');
-            prop(this, 'aliasUrl');
-        }
     }
 );

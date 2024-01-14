@@ -1,4 +1,4 @@
-import { attr, component, defineRouterComponent, metadataControllerElement } from '../../src/fudgel';
+import { component, defineRouterComponent, metadataControllerElement } from '../../src/fudgel';
 
 defineRouterComponent('app-router');
 
@@ -34,11 +34,8 @@ component('test-for-if', {
 });
 
 component('nested-component', {
+    attr: ['id'],
     template: `nested ID {{this.id}}`
-}, class {
-    constructor() {
-        attr(this, 'id');
-    }
 });
 
 component('test-for-if-routed', {

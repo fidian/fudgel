@@ -1,4 +1,4 @@
-import { Attr, Component, defineRouterComponent } from '../../src/fudgel';
+import { Component, defineRouterComponent } from '../../src/fudgel';
 
 defineRouterComponent('app-router');
 
@@ -47,13 +47,14 @@ class TestApplicationComponent {
 }
 
 @Component('test-component', {
+    attr: ['id'],
     template: `
         id attribute is <span id="id">{{this.id}}</span><br />
         <button @click.stop.prevent="this.goBack()">Go Back</button>
     `
 })
 class TestComponent {
-    @Attr() id;
+    id;
 
     goBack() {
         history.back();

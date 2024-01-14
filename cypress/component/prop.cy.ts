@@ -1,10 +1,11 @@
-import { Component, component, Prop, update } from '../../src/fudgel';
+import { Component, component, update } from '../../src/fudgel';
 
 @Component('show-prop', {
+    prop: ['prop'],
     template: '{{this.prop}}',
 })
 class ShowProp {
-    @Prop() prop = 'not yet replaced';
+    prop = 'not yet replaced';
 }
 
 component('test-string', {
@@ -28,12 +29,11 @@ component(
 let trackInstance = 0;
 
 @Component('test-scope-item', {
+    prop: ['prop'],
     template: 'Item: {{this.prop ? this.prop.name : "no prop set"}}',
 })
 class TestScopeItem {
-    @Prop()
     prop;
-
     name = `test-scope-item[${trackInstance++}]`;
 }
 
@@ -68,10 +68,11 @@ component(
 );
 
 @Component('test-update-child', {
+    prop: ['childValue'],
     template: '{{this.childValue}}'
 })
 class TestUpdateChildComponent {
-    @Prop() childValue = 'initialValue';
+    childValue = 'initialValue';
 }
 
 @Component('test-update-parent', {

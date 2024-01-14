@@ -1,6 +1,7 @@
 /**
  * Set up config and define a custom element.
  */
+import { camelToDash } from './util';
 import { Constructor } from './constructor';
 import { Controller } from './controller';
 import { CustomElement } from './custom-element';
@@ -26,7 +27,9 @@ export const component = (
     config: CustomElementConfig,
     constructor?: Constructor
 ) => {
-    const base = class extends CustomElement {};
+    const base = class extends CustomElement {
+        static observedAttributes: string[] = (config.attr || []).map(camelToDash);
+    };
     metadataComponentConfig(base, config);
     metadataComponentController(
         base,

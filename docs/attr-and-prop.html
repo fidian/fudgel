@@ -27,12 +27,15 @@
     </head>
     <body>
         <page-wrapper>
-            <h1>Attr and Prop</h1>
+            <h1>Attributes and Properties</h1>
             <p>
-                There are two other helpers in the project that will link your
-                controller to values on the custom element. Attributes are the
-                string values added via the HTML. Properties are values set
-                through JavaScript on the <code>HTMLElement</code> instance.
+                The main way to get information passed into a custom element is
+                to use DOM element attributes and instance properties.
+                Attributes are the string values added via the HTML. Properties
+                are values set through JavaScript on the
+                <code>HTMLElement</code> instance.  Your controller will
+                operate independently of the element, so Fudgel offers an easy
+                way to bind to these input sources.
             </p>
             <p>
                 To illustrate this difference, consider the following HTML. This
@@ -40,7 +43,9 @@
                 <code>"Table of Contents"</code>. Attributes are restricted to
                 just strings. A nice feature of attributes is that when the
                 controller class's property is updated, the HTMLElement's
-                attribute is also automatically updated.
+                attribute is also automatically updated (as long as you aren't
+                also using this as a property). This conditional two-way
+                binding is automatic.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -66,8 +71,8 @@
             </code-sample>
             <p>
                 In order to bind your custom element to an attribute or property
-                and have the controller's property change automatically, there
-                are some helper functions you can use.
+                and have the controller's property change automatically, you will
+                need to set it up in the custom element's config.
             </p>
             <code-sample
                 type="js"
@@ -76,9 +81,11 @@
             >
                 <!-- prettier-ignore -->
                 <template>
-                    import { attr, component, prop } from './fudgel.min.js';
+                    import { component } from './fudgel.min.js';
 
                     component('prop-and-attr', {
+                        attr: ['myAttr'],
+                        prop: ['myProp'],
                         template: `
                             <div><b>prop</b>: {{this.myProp}}</div>
                             <div><b>attr</b>: {{this.myAttr}}</div>
@@ -87,8 +94,6 @@
                         constructor() {
                             this.myAttr = 'Initial value is wiped by the attribute';
                             this.myProp = 'This has not yet been assigned';
-                            attr(this, 'myAttr');
-                            prop(this, 'myProp');
                         }
                     });
 
@@ -96,26 +101,6 @@
                         document.querySelector('prop-and-attr').myProp =
                             'This came from a property assignment';
                     }, 1000);
-                </template>
-            </code-sample>
-            <p>
-                In TypeScript, this same result can happen through decorators.
-            </p>
-            <code-sample type="ts">
-                <!-- prettier-ignore -->
-                <template>
-                    import { Attr, Component, Prop } from 'fudgel';
-
-                    @Component('prop-and-attr', {
-                        template: `
-                            <div><b>prop</b>: {{this.myProp}}</div>
-                            <div><b>attr</b>: {{this.myAttr}}</div>
-                        `
-                    })
-                    class {
-                        @Attr() myAttr: string;
-                        @Prop() myProp: any;
-                    });
                 </template>
             </code-sample>
             <p>
