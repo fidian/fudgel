@@ -1,12 +1,13 @@
 import { camelToDash, getAttribute, setAttribute } from './util';
 import { createElement, createFragment, doc, win } from './elements';
+import { dispatchCustomEvent } from './actions';
 
 interface MatchedRoute {
     e: HTMLElement;
     g: [string, string][];
 }
 
-class RouterComponent extends HTMLElement {
+export class RouterComponent extends HTMLElement {
     #fragment = createFragment();
     #lastMatched: HTMLElement[] = [];
     #routeElements: HTMLElement[] = [];
@@ -169,6 +170,8 @@ class RouterComponent extends HTMLElement {
         if (matchedRoute) {
             this.#activate(matchedRoute);
         }
+
+        dispatchCustomEvent(document.body, 'routeChange', url);
     }
 }
 

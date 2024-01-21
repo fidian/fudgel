@@ -383,6 +383,67 @@
                 </template>
             </code-sample>
 
+            <h2>Getting Notified</h2>
+
+            <p>
+                When the router notices changes to the location, a custom
+                <code>routeChange</code> event is triggered on
+                <code>document.body</code>. Note that the same route can be
+                emitted multiple times when there are multiple routers used for
+                nested routing.
+            </p>
+
+            <code-sample type="js" live="true" html="<main-page></main-page>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, defineRouterComponent } from './fudgel.min.js';
+
+                    defineRouterComponent('app-router');
+
+                    component('main-page', {
+                        template: `
+                        <app-router>
+                            <div path="/fake">
+                                Just including the router so it sets up the
+                                events. This demo does not show routing. It
+                                shows how locations can be monitored with
+                                events.
+                            </div>
+                        </app-router>
+                        <div>
+                            Click here to switch routes:<br />
+                            <a href="/route1">Route 1</a><br />
+                            <a href="/route2">Route 2</a>
+                        </div>
+                        <route-changes></route-changes>
+                        `
+                    });
+
+                    component('route-changes', {
+                        template: `
+                            Number of route changes: {{this.count}}
+                        `
+                    }, class {
+                        count = 0;
+                        listener = () =&gt; this.count += 1;
+
+                        onInit() {
+                            document.body.addEventListener(
+                                'routeChange',
+                                this.listener
+                            );
+                        }
+
+                        onDestroy() {
+                            document.body.removeEventListener(
+                                'routeChange',
+                                this.listener
+                            );
+                        }
+                    });
+                </template>
+            </code-sample>
+
             <h2>What About Using Hashes?</h2>
             <p>
                 This router manipulates the History API for the following
