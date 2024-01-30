@@ -1,7 +1,7 @@
-import { createComment } from './elements';
-import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index';
-import { entries, setAttribute, stringify } from './util';
-import { StructuralDirective } from './directive/types';
+import { createComment } from './elements.js';
+import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index.js';
+import { entries, setAttribute, stringify } from './util.js';
+import { StructuralDirective } from './directive/types.js';
 
 export const linkStructuralDirective = (
     controller: Object,

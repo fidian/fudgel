@@ -5,8 +5,8 @@
  * when each Node is removed. The controller is used to track which collection
  * of hooks to run (regardless of Node).
  */
-import { Controller } from './controller';
-import { metadataControllerHooks, metadataHookRemove } from './metadata';
+import { Controller } from './controller.js';
+import { metadataControllerHooks, metadataHookRemove } from './metadata.js';
 
 export type HookCallback = (...args: any[]) => void;
 

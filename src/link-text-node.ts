@@ -1,6 +1,6 @@
-import { addBindings } from './bindings';
-import { getScope } from './scope';
-import { parseText } from './parse';
+import { addBindings } from './bindings.js';
+import { getScope } from './scope.js';
+import { parseText } from './parse.js';
 
 export function linkTextNode(controller: Object, currentNode: Text): void | number {
     // Node.TEXT_NODE === 3

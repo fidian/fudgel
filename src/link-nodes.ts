@@ -1,8 +1,8 @@
-import { Controller } from './controller';
-import { createFragment, doc } from './elements';
-import { linkElementNode } from './link-element-node';
-import { linkStructuralDirective } from './link-structural-directive';
-import { linkTextNode } from './link-text-node';
+import { Controller } from './controller.js';
+import { createFragment, doc } from './elements.js';
+import { linkElementNode } from './link-element-node.js';
+import { linkStructuralDirective } from './link-structural-directive.js';
+import { linkTextNode } from './link-text-node.js';
 
 /**
  * Link elements and nodes to functions and the controller.

@@ -1,4 +1,4 @@
-import { createValueFunction, memoize, toString } from './util';
+import { createValueFunction, memoize, toString } from './util.js';
 
 export const parseText = memoize((text: string) => {
     const chunks = text.split(/{{(.*?)}}/);

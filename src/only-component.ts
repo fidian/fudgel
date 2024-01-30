@@ -1,1 +1,1 @@
-export { component } from './fudgel';
+export { component } from './fudgel.js';

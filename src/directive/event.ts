@@ -1,8 +1,8 @@
-import { Controller } from '../controller';
-import { createFunction, dashToCamel, setAttribute } from '../util';
-import { doc, win } from '../elements';
-import { GeneralDirective } from './types';
-import { getScope } from '../scope';
+import { Controller } from '../controller.js';
+import { createFunction, dashToCamel, setAttribute } from '../util.js';
+import { doc, win } from '../elements.js';
+import { GeneralDirective } from './types.js';
+import { getScope } from '../scope.js';
 
 export const eventDirective: GeneralDirective = (
     controller: Controller,

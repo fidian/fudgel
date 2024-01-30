@@ -6,10 +6,10 @@
  * These are important for decorators because they only have access to the
  * class prototype and are not applied during instantiation.
  */
-import { Controller } from './controller';
-import { getPrototypeOf } from './util';
-import { HookCallback } from './hooks';
-import { metadataPrototypeHooks } from './metadata';
+import { Controller } from './controller.js';
+import { getPrototypeOf } from './util.js';
+import { HookCallback } from './hooks.js';
+import { metadataPrototypeHooks } from './metadata.js';
 
 export const findPrototypeHooks = (controller: Controller) => {
     let proto = controller.constructor.prototype

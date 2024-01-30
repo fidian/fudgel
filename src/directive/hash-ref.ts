@@ -1,6 +1,6 @@
-import { Controller } from '../controller';
-import { dashToCamel, setAttribute } from '../util';
-import { GeneralDirective } from './types';
+import { Controller } from '../controller.js';
+import { dashToCamel, setAttribute } from '../util.js';
+import { GeneralDirective } from './types.js';
 
 export const hashRefDirective: GeneralDirective = (
     controller: Controller,

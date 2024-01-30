@@ -1,4 +1,4 @@
-import { metadataPatchedSetter } from './metadata';
+import { metadataPatchedSetter } from './metadata.js';
 
 export type SetterCallback<T extends Object> = (thisRef: T, newValue: any, oldValue: any) => void;
 export interface TrackedSetters<T extends Object> {

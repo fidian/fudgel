@@ -1,9 +1,9 @@
-import { Constructor } from './constructor';
-import { Controller } from './controller';
-import { CustomElement } from './custom-element';
-import { CustomElementConfig } from './custom-element-config';
-import { HookCallback } from './hooks';
-import { TrackedSetters } from './setter';
+import { Constructor } from './constructor.js';
+import { Controller } from './controller.js';
+import { CustomElement } from './custom-element.js';
+import { CustomElementConfig } from './custom-element-config.js';
+import { HookCallback } from './hooks.js';
+import { TrackedSetters } from './setter.js';
 
 export interface MetadataMap<K extends WeakKey, V> {
     (key: K): V | undefined;

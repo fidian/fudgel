@@ -1,4 +1,4 @@
-import { directives, GENERAL_DIRECTIVE_INDEX } from './directive/index';
+import { directives, GENERAL_DIRECTIVE_INDEX } from './directive/index.js';
 
 export function linkElementNode(
     controller: Object,

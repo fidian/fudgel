@@ -1,1 +1,1 @@
-export { defineRouterComponent } from './fudgel';
+export { defineRouterComponent } from './fudgel.js';

@@ -1,4 +1,4 @@
-import { metadataScope } from './metadata';
+import { metadataScope } from './metadata.js';
 
 export const getScope = (node: Node) => {
     let scope = metadataScope(node);

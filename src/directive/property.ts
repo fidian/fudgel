@@ -1,9 +1,9 @@
-import { addBindings } from '../bindings';
-import { Controller } from '../controller';
-import { createValueFunction, dashToCamel, setAttribute } from '../util';
-import { GeneralDirective } from './types';
-import { findBindings } from '../parse';
-import { getScope } from '../scope';
+import { addBindings } from '../bindings.js';
+import { Controller } from '../controller.js';
+import { createValueFunction, dashToCamel, setAttribute } from '../util.js';
+import { GeneralDirective } from './types.js';
+import { findBindings } from '../parse.js';
+import { getScope } from '../scope.js';
 
 export const propertyDirective: GeneralDirective = (
     controller: Controller,

@@ -1,6 +1,6 @@
-import { Controller } from './controller';
-import { hookOn, hooksRun } from './hooks';
-import { patchSetter } from './setter';
+import { Controller } from './controller.js';
+import { hookOn, hooksRun } from './hooks.js';
+import { patchSetter } from './setter.js';
 
 export function addBindings(
     controller: Controller,

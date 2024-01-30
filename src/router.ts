@@ -1,6 +1,6 @@
-import { camelToDash, getAttribute, setAttribute } from './util';
-import { createElement, createFragment, doc, win } from './elements';
-import { dispatchCustomEvent } from './actions';
+import { camelToDash, getAttribute, setAttribute } from './util.js';
+import { createElement, createFragment, doc, win } from './elements.js';
+import { dispatchCustomEvent } from './actions.js';
 
 interface MatchedRoute {
     e: HTMLElement;

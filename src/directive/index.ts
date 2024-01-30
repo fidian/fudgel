@@ -1,11 +1,11 @@
-import { attributeDirective } from './attribute';
-import { eventDirective } from './event';
-import { hashRefDirective } from './hash-ref';
-import { propertyDirective } from './property';
-import { starForDirective } from './star-for';
-import { starIfDirective } from './star-if';
-import { starRepeatDirective } from './star-repeat';
-import { GeneralDirective, StructuralDirective } from './types';
+import { attributeDirective } from './attribute.js';
+import { eventDirective } from './event.js';
+import { hashRefDirective } from './hash-ref.js';
+import { propertyDirective } from './property.js';
+import { starForDirective } from './star-for.js';
+import { starIfDirective } from './star-if.js';
+import { starRepeatDirective } from './star-repeat.js';
+import { GeneralDirective, StructuralDirective } from './types.js';
 
 export interface GeneralDirectiveRegistry {
     [key: string]: GeneralDirective;

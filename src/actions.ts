@@ -1,6 +1,6 @@
-import { Controller } from './controller';
-import { hooksRun } from './hooks';
-import { metadataControllerElement } from './metadata';
+import { Controller } from './controller.js';
+import { hooksRun } from './hooks.js';
+import { metadataControllerElement } from './metadata.js';
 
 export const dispatchCustomEvent = (
     e: Element,

@@ -1,11 +1,11 @@
-import { addBindings } from '../bindings';
-import { childScope, getScope } from '../scope';
-import { Controller } from '../controller';
-import { createValueFunction, entries } from '../util';
-import { findBindings } from '../parse';
-import { hooksOff } from '../hooks';
-import { linkNodesWrapped } from '../link-nodes';
-import { StructuralDirective } from './types';
+import { addBindings } from '../bindings.js';
+import { childScope, getScope } from '../scope.js';
+import { Controller } from '../controller.js';
+import { createValueFunction, entries } from '../util.js';
+import { findBindings } from '../parse.js';
+import { hooksOff } from '../hooks.js';
+import { linkNodesWrapped } from '../link-nodes.js';
+import { StructuralDirective } from './types.js';
 
 export const starForDirective: StructuralDirective = (
     controller: Controller,

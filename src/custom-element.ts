@@ -1,17 +1,17 @@
-import { createTemplate, createStyle } from './elements';
-import { Controller } from './controller';
-import { CustomElementConfig } from './custom-element-config';
-import { camelToDash, dashToCamel, getAttribute, setAttribute } from './util';
-import { findPrototypeHooks } from './prototype-hooks';
-import { hooksOff, hooksRun } from './hooks';
-import { linkNodes } from './link-nodes';
+import { createTemplate, createStyle } from './elements.js';
+import { Controller } from './controller.js';
+import { CustomElementConfig } from './custom-element-config.js';
+import { camelToDash, dashToCamel, getAttribute, setAttribute } from './util.js';
+import { findPrototypeHooks } from './prototype-hooks.js';
+import { hooksOff, hooksRun } from './hooks.js';
+import { linkNodes } from './link-nodes.js';
 import {
     metadataComponentConfig,
     metadataComponentController,
     metadataControllerElement,
     metadataElementController,
-} from './metadata';
-import { patchSetter } from './setter';
+} from './metadata.js';
+import { patchSetter } from './setter.js';
 
 export class CustomElement extends HTMLElement {
     constructor() {

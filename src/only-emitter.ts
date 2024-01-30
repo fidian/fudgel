@@ -1,1 +1,1 @@
-export { Emitter } from './fudgel';
+export { Emitter } from './fudgel.js';

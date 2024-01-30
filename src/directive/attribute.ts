@@ -1,9 +1,9 @@
-import { addBindings } from '../bindings';
-import { Controller } from '../controller';
-import { GeneralDirective } from './types';
-import { getScope } from '../scope';
-import { parseText } from '../parse';
-import { setAttribute } from '../util';
+import { addBindings } from '../bindings.js';
+import { Controller } from '../controller.js';
+import { GeneralDirective } from './types.js';
+import { getScope } from '../scope.js';
+import { parseText } from '../parse.js';
+import { setAttribute } from '../util.js';
 
 export const attributeDirective: GeneralDirective = (
     controller: Controller,

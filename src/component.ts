@@ -1,17 +1,17 @@
 /**
  * Set up config and define a custom element.
  */
-import { camelToDash } from './util';
-import { Constructor } from './constructor';
-import { Controller } from './controller';
-import { CustomElement } from './custom-element';
+import { camelToDash } from './util.js';
+import { Constructor } from './constructor.js';
+import { Controller } from './controller.js';
+import { CustomElement } from './custom-element.js';
 import {
     CustomElementConfig,
-} from './custom-element-config';
+} from './custom-element-config.js';
 import {
     metadataComponentConfig,
     metadataComponentController,
-} from './metadata';
+} from './metadata.js';
 
 // Decorator to wire a class as a custom component
 export const Component = (tag: string, config: CustomElementConfig) => {

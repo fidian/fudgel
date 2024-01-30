@@ -1,1 +1,1 @@
-export { di } from './fudgel';
+export { di } from './fudgel.js';
