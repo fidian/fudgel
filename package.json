@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "0.16.0",
+    "version": "0.17.0",
     "description": "Minimalist web component library to take the pain out of automatic updates.",
     "keywords": [
         "lightweight",
@@ -33,6 +33,7 @@
     "main": "dist/fudgel.js",
     "module": "dist/fudgel.min.mjs",
     "unpkg": "dist/fudgel.umd.min.js",
+    "type": "module",
     "types": "dist/fudgel.d.ts",
     "devDependencies": {
         "agadoo": "^3.0.0",
