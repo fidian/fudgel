@@ -1,6 +1,7 @@
 import { camelToDash, getAttribute, setAttribute } from './util.js';
-import { createElement, createFragment, doc, win } from './elements.js';
+import { cloneNode, createElement, createFragment, doc, win } from './elements.js';
 import { dispatchCustomEvent } from './actions.js';
+import { isString } from './util.js';
 
 interface MatchedRoute {
     e: HTMLElement;
@@ -65,7 +66,7 @@ export class RouterComponent extends HTMLElement {
                 matchedRoute.e,
             component
                 ? createElement(component)
-                : (matchedRoute.e.cloneNode(true) as HTMLElement)];
+                : cloneNode(matchedRoute.e)];
             append = true;
         }
 
@@ -115,7 +116,7 @@ export class RouterComponent extends HTMLElement {
             const regexpAttr = getAttribute(routeElement, 'regexp');
             let regexpStr = path;
 
-            if (typeof regexpAttr !== 'string') {
+            if (!isString(regexpAttr)) {
                 regexpStr = path
                     .replace(/\*+/g, (match) =>
                         match.length > 1 ? '.*' : '[^/]*'

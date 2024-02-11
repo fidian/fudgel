@@ -1,5 +1,6 @@
 import { addBindings } from '../bindings.js';
 import { childScope, getScope } from '../scope.js';
+import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { createValueFunction, entries } from '../util.js';
 import { findBindings } from '../parse.js';
@@ -55,7 +56,7 @@ export const starForDirective: StructuralDirective = (
                     copy.remove();
                 }
 
-                copy = source.cloneNode(true) as HTMLElement;
+                copy = cloneNode(source);
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[keyName] = key;
                 (scope as any)[valueName] = value;

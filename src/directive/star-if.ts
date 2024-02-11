@@ -1,5 +1,6 @@
 import { addBindings } from '../bindings.js';
 import { childScope, getScope } from '../scope.js';
+import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { createValueFunction } from '../util.js';
 import { findBindings } from '../parse.js';
@@ -20,7 +21,7 @@ export const starIfDirective: StructuralDirective = (
         if (getValue.call(thisRef, scope)) {
             if (!activeNode) {
                 // Add
-                activeNode = source.cloneNode(true) as HTMLElement;
+                activeNode = cloneNode(source);
                 childScope(scope, activeNode);
                 linkNodesWrapped(activeNode, thisRef);
                 anchor.after(activeNode);

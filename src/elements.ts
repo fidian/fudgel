@@ -4,6 +4,8 @@
 export const doc = document;
 export const win = window;
 
+export const cloneNode = (node: Node) => node.cloneNode(true) as HTMLElement;
+
 export const createElement: Document['createElement'] = (name: string) =>
     doc.createElement(name);
 

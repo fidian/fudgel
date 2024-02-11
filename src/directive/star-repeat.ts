@@ -1,5 +1,6 @@
 import { addBindings } from '../bindings.js';
 import { childScope, getScope } from '../scope.js';
+import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { createValueFunction } from '../util.js';
 import { findBindings } from '../parse.js';
@@ -37,7 +38,7 @@ export const starRepeatDirective: StructuralDirective = (
         let lastNode = activeNodes[lastIndex - 1] || anchor;
 
         while (activeNodes.length < desired) {
-            let copy = source.cloneNode(true) as HTMLElement;
+            let copy = cloneNode(source);
             const scope = childScope(anchorScope, copy);
             scope[scopeName] = lastIndex++;
             linkNodesWrapped(copy, thisRef);

@@ -48,8 +48,8 @@ export const setAttribute = (
         value = '';
     }
 
-    if (typeof value === 'string') {
-        node.setAttribute(name, value);
+    if (isString(value)) {
+        node.setAttribute(name, value as string);
     } else {
         node.removeAttribute(name);
     }
