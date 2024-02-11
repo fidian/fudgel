@@ -11,12 +11,15 @@ export const attributeDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const result = parseText(attrValue);
+    const result = parseText(attrValue, true);
 
     if (result) {
         const update = (thisRef: Controller) => {
-            const value = result.fn.call(thisRef, getScope(node));
-            setAttribute(node, attrName, value);
+            setAttribute(
+                node,
+                attrName,
+                result.fn.call(thisRef, getScope(node))
+            );
         };
         addBindings(controller, node, update, result.binds);
         update(controller);

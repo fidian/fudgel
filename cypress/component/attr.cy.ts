@@ -1,4 +1,4 @@
-import { component } from '../../src/fudgel';
+import { component } from '../../src/fudgel.js';
 
 component('custom-element', {
     template: '<span id="test" class="a {{this.internalValue}} c"><button @click="this.buttonClicked($event)">Change</button>'
@@ -8,6 +8,18 @@ component('custom-element', {
     buttonClicked(event: Event) {
         this.internalValue = `BBB`;
     }
+});
+
+component('test-true', {
+    template: '<input id="test" type="text" disabled="{{this.disabled}}">'
+}, class {
+    disabled = true;
+});
+
+component('test-false', {
+    template: '<input id="test" type="text" disabled="{{this.disabled}}">'
+}, class {
+    disabled = false;
 });
 
 component('the-child', {
@@ -40,5 +52,15 @@ describe('attr', () => {
         cy.get('#childValue').should('have.text', 'child-value-update');
         cy.get('the-child').should('have.attr', 'test', 'test-update');
         cy.get('the-child').should('have.attr', 'child-value', 'child-value-update');
+    });
+
+    it('sets true as empty string for attributes', () => {
+        cy.mount('<test-true></test-true>');
+        cy.get('#test').should('have.attr', 'disabled');
+    });
+
+    it('removes attributes set as false', () => {
+        cy.mount('<test-false></test-false>');
+        cy.get('#test').should('not.have.attr', 'disabled');
     });
 });

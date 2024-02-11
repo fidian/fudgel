@@ -1,6 +1,6 @@
 import { createValueFunction, memoize, toString } from './util.js';
 
-export const parseText = memoize((text: string) => {
+export const parseText = memoize((text: string, allowBoolean = false) => {
     const chunks = text.split(/{{(.*?)}}/);
 
     if (chunks.length < 2) {
@@ -25,12 +25,25 @@ export const parseText = memoize((text: string) => {
         isJs = !isJs;
     }
 
+    if (portions.length === 3 && portions[0] === '' && portions[2] === '' && allowBoolean) {
+        return {
+            fn: function (scope: Object) {
+                const x = portions[1].call(this, scope);
+
+                return typeof x === 'boolean' ? x : toString(x);
+            },
+            binds,
+        };
+    }
+
     return {
+        // This MUST stay as a function
         fn: function (scope: Object) {
             return portions
                 .map(
                     x => (
-                        (x = x && x.call ? x.call(this, scope) : x), toString(x)
+                        (x = x && x.call ? x.call(this, scope) : x),
+                        toString(x)
                     )
                 )
                 .join('');
