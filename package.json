@@ -31,7 +31,7 @@
         "test:interactive": "cypress open --component"
     },
     "main": "dist/fudgel.js",
-    "module": "dist/fudgel.min.mjs",
+    "module": "dist/fudgel.mjs",
     "unpkg": "dist/fudgel.umd.min.js",
     "type": "module",
     "types": "dist/fudgel.d.ts",
