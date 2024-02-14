@@ -84,7 +84,8 @@
             </code-sample>
             <p>
                 Event handlers can also have modifiers, indicating what should
-                be done with the event.
+                be done with the event. These are separated by a period and
+                appear after the event name, always in kebab-case.
             </p>
             <ul>
                 <li>
@@ -101,7 +102,9 @@
                 </li>
                 <li>
                     <code>passive</code> - Signifies that this event is passive
-                    and will not have <code>preventDefault</code> called on it.
+                    and the developer will not call <code>preventDefault</code>
+                    on the event, allowing the engine to tweak how the event is
+                    processed.
                 </li>
                 <li>
                     <code>prevent</code> - Calls <code>preventDefault</code> on
@@ -117,39 +120,130 @@
                 </li>
                 <li><code>window</code> - Bind the event to the window.</li>
             </ul>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    <button @click.stop.prevent.once="this.dispatchClick($event)">
-                        Only fires once
-                    </button>
-                </template>
-            </code-sample>
-            <p>
-                Child elements can be referenced within your controller after
-                the lifecycle event <code>onViewInit</code>. This uses the
-                <code>#ref</code> attribute, and the value of the attribute is
-                the name you want assigned in your controller.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<my-custom-element></my-custom-element>"
-            >
+            <code-sample type="js" live="true" html="<test-events></test-events>">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';
 
-                    ('my-custom-element', {
+                    component('test-events', {
                         template: `
-                            <div><span #ref="theSpan">
-                                Check the console
-                            </span></div>
+                            <div
+                                @click.stop.prevent.outside="this.click('outside')"
+                                @click.stop.prevent="this.click('inside')"
+                                style="border: 1px solid black; padding: 10px; display: inline-block;"
+                                >
+                                Click inside or outside this box
+                            </div>
+                            <div>{{this.clickMessage}}</div>
                         `
                     }, class {
-                        onViewInit() {
-                            // Shows the span in the console
-                            console.log(this.theSpan);
+                        clickMessage = 'Ready for your next click';
+                        timeout = null;
+                        click(message) {
+                            if (this.timeout) {
+                                clearTimeout(this.timeout);
+                            }
+                            this.clickMessage = `You clicked ${message} the box!`;
+                            this.timeout = setTimeout(() =&gt; {
+                                this.clickMessage = 'Ready for your next click';
+                                this.timeout = null;
+                            }, 2000);
+                        }
+                    });
+                </template>
+            </code-sample>
+            <p>
+                You can also fire events only when certain key combinations are
+                pressed.
+            </p>
+            <ul>
+                <li><code>alt</code> - The alt key must be pressed.</li>
+                <li><code>ctrl</code> - The control key must be pressed.</li>
+                <li>
+                    <code>meta</code> - The meta key must be pressed, which is
+                    the same as the Command key on Mac or Super key on Windows.
+                </li>
+                <li><code>shift</code> - The shift key must be pressed.</li>
+                <li>
+                    <code>exact</code> - The exact key combination must be
+                    pressed. This means using
+                    <code>keypress.ctrl.exact</code> only fires when a
+                    control-key combination is pressed but will not fire if the
+                    shift key is also pressed.
+                </li>
+            </ul>
+            <code-sample type="js" live="true" html="<test-events></test-events>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('test-events', {
+                        template: `
+                            <button
+                                @click.stop.prevent="this.clicks++"
+                                @click.ctrl="this.controlClicks++"
+                                @click.shift.exact="this.shiftClicksExact++"
+                                >
+                                Click me!
+                            </button>
+                            <div>Number of clicks: {{this.clicks}}</div>
+                            <div>Number of control-clicks: {{this.controlClicks}}</div>
+                            <div>Number of shift-clicks with exact: {{this.shiftClicksExact}}</div>
+                        `
+                    }, class {
+                        clicks = 0;
+                        controlClicks = 0;
+                        shiftClicksExact = 0;
+                    });
+                </template>
+            </code-sample>
+            <p>
+                Finally, any other event modifier will be treated as a key
+                value. This means using <code>keypress.a</code> will only fire
+                when the "a" key is pressed. Key values are listed on
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
+                    >MDN's Keyboard Event Key Values page</a
+                >. Make sure to use all lowercase and kebab-case names, such as
+                <code>keypress.arrow-left</code>.
+            </p>
+            <p>
+                Some keys are difficult to represent as HTML attributes, so you
+                can use their ASCII values or code point values, such as
+                <code>keypress.code-32</code> for space (hex 0x20, ASCII code
+                point 32) and <code>keypress.code-252</code> for ü.
+            </p>
+            <code-sample type="js" live="true" html="<test-events></test-events>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('test-events', {
+                        template: `
+                            <div>
+                                <input type="text"
+                                       @keypress.code-32="this.spaceCount++"
+                                       @keydown.enter="this.input2.focus()"
+                                       @keydown.tab.stop.prevent="this.message($event)"
+                                       #ref="input1"
+                                       />
+                                ({{this.spaceCount}} spaces pressed)
+                            </div>
+                            <input type="text"
+                                   @keypress.code-32="this.spaceCount++"
+                                   @keydown.enter="this.input1.focus()"
+                                   @keydown.tab.stop.prevent="this.message($event)"
+                                   #ref="input2"
+                                   />
+                            <div>Press enter to switch between fields</div>
+                            <div>Press tab for silly messages</div>
+                        `
+                    }, class {
+                        spaceCount = 0;
+                        message(event) {
+                            this.input1.value = 'You pressed tab!';
+                            this.input2.value = 'Congratulations!';
+                            alert('Here is a silly message!');
                         }
                     });
                 </template>

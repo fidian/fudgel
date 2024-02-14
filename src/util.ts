@@ -25,19 +25,21 @@ export const dashToCamel = (dashed: string) => {
     return dashed.replace(/-(\p{Ll})/gu, match => match[1].toUpperCase());
 };
 
-export const camelToDash = (dashed: string) => {
-    return dashed.replace(/\p{Lu}/gu, match => `-${match[0]}`.toLowerCase());
+export const camelToDash = (camel: string) => {
+    return camel.replace(/\p{Lu}/gu, match => `-${match[0]}`.toLowerCase());
 };
+
+export const pascalToDash = (pascal: string) => {
+    return camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
+}
 
 export const toString = <T>(value: T) =>
     value === null || value === undefined ? '' : `${value}`;
 
 export const isString = (x: any) => typeof x === 'string';
 
-export const getAttribute = (
-    node: HTMLElement,
-    name: string
-) => node.getAttribute(name);
+export const getAttribute = (node: HTMLElement, name: string) =>
+    node.getAttribute(name);
 
 export const setAttribute = (
     node: HTMLElement,

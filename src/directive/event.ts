@@ -1,8 +1,48 @@
 import { Controller } from '../controller.js';
-import { createFunction, dashToCamel, setAttribute } from '../util.js';
+import {
+    createFunction,
+    dashToCamel,
+    pascalToDash,
+    setAttribute,
+} from '../util.js';
 import { doc, win } from '../elements.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
+
+// The guards come from Vue.js, an excellent framework.
+type KeyedEvent = KeyboardEvent | MouseEvent | TouchEvent;
+
+// When these return truthy values, the guard will STOP and not call the callback.
+const modifierGuards: Record<
+    string,
+    (e: Event, node: HTMLElement, modifierSet: Set<string>) => void | boolean
+> = {
+    // These are handled before the event handler is created, but are added
+    // here so we don't mistake them as key values.
+    window: () => {},
+    document: () => {},
+
+    // Actions
+    stop: e => e.stopPropagation(),
+    prevent: e => e.preventDefault(),
+
+    // Targeting
+    self: (e, node) => e.target !== node,
+    outside: (e, node) => node.contains(e.target as Node),
+
+    // Key modifiers
+    ctrl: e => !(e as KeyedEvent).ctrlKey,
+    shift: e => !(e as KeyedEvent).shiftKey,
+    alt: e => !(e as KeyedEvent).altKey,
+    meta: e => !(e as KeyedEvent).metaKey,
+    left: e => (e as MouseEvent).button !== 0,
+    middle: e => (e as MouseEvent).button !== 1,
+    right: e => (e as MouseEvent).button !== 2,
+    exact: (e, _node, modifierSet) =>
+        ['ctrl', 'shift', 'alt', 'meta'].some(
+            m => (e as any)[`${m}Key`] && !modifierSet.has(m)
+        ),
+};
 
 export const eventDirective: GeneralDirective = (
     controller: Controller,
@@ -38,25 +78,20 @@ export const eventDirective: GeneralDirective = (
     eventTarget.addEventListener(
         eventName,
         event => {
-            if (modifierSet.has('prevent')) {
-                event.preventDefault();
+            if (
+                !modifiers.some(modifier =>
+                    (
+                        modifierGuards[modifier] ||
+                        ((e: Event) =>
+                            pascalToDash((e as KeyboardEvent).key) !==
+                            (modifier.match(/^code-\d+$/)
+                                ? String.fromCodePoint(+modifier.split('-')[1])
+                                : modifier))
+                    )(event, node, modifierSet)
+                )
+            ) {
+                fn.call(controller, scope, event);
             }
-
-            if (modifierSet.has('stop')) {
-                event.stopPropagation();
-            }
-
-            const target = event.target as Node;
-
-            if (modifierSet.has('self') && target !== node) {
-                return;
-            }
-
-            if (modifierSet.has('outside') && node.contains(target)) {
-                return;
-            }
-
-            fn.call(controller, scope, event);
         },
         options
     );
