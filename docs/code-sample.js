@@ -69,91 +69,92 @@ component(
             button#live {
                 bottom: 0;
             }
-
-            /* Colors from oneDark theme */
-            .hljs {
-                display: block;
-                overflow-x: auto;
-                color: var(--code-sample-color, #abb2bf);
-                background: var(--code-sample-background, #282c34);
-            }
-
-            .hljs-comment,
-            .hljs-quote {
-                color: #5c6370;
-                font-style: italic;
-            }
-
-            .hljs-doctag,
-            .hljs-keyword,
-            .hljs-formula {
-                color: #c678dd;
-            }
-
-            .hljs-section,
-            .hljs-name,
-            .hljs-selector-tag,
-            .hljs-deletion,
-            .hljs-subst,
-            .hljs-tag {
-                color: #e06c75;
-            }
-
-            .hljs-literal {
-                color: #56b6c2;
-            }
-
-            .hljs-string,
-            .hljs-regexp,
-            .hljs-addition,
-            .hljs-attribute,
-            .hljs-meta-string {
-                color: #98c379;
-            }
-
-            .hljs-built_in,
-            .hljs-class .hljs-title {
-                color: #e6c07b;
-            }
-
-            .hljs-attr,
-            .hljs-variable,
-            .hljs-template-variable,
-            .hljs-type,
-            .hljs-selector-class,
-            .hljs-selector-attr,
-            .hljs-selector-pseudo,
-            .hljs-number {
-                color: #d19a66;
-            }
-
-            .hljs-symbol,
-            .hljs-bullet,
-            .hljs-link,
-            .hljs-meta,
-            .hljs-selector-id,
-            .hljs-title {
-                color: #61aeee;
-            }
-
-            .hljs-emphasis {
-                font-style: italic;
-            }
-
-            .hljs-strong {
-                font-weight: bold;
-            }
-
-            .hljs-link {
-                text-decoration: underline;
-            }
-
-            .hljs-params {
-                color: #e6c07b;
-            }
         `,
         // Do not use "html" template tag here. Prettier will break the spacing.
         template: `
+            <style>
+                /* Colors from oneDark theme */
+                code-sample .hljs {
+                    display: block;
+                    overflow-x: auto;
+                    color: var(--code-sample-color, #abb2bf);
+                    background: var(--code-sample-background, #282c34);
+                }
+
+                code-sample .hljs-comment,
+                code-sample .hljs-quote {
+                    color: #5c6370;
+                    font-style: italic;
+                }
+
+                code-sample .hljs-doctag,
+                code-sample .hljs-keyword,
+                code-sample .hljs-formula {
+                    color: #c678dd;
+                }
+
+                code-sample .hljs-section,
+                code-sample .hljs-name,
+                code-sample .hljs-selector-tag,
+                code-sample .hljs-deletion,
+                code-sample .hljs-subst,
+                code-sample .hljs-tag {
+                    color: #e06c75;
+                }
+
+                code-sample .hljs-literal {
+                    color: #56b6c2;
+                }
+
+                code-sample .hljs-string,
+                code-sample .hljs-regexp,
+                code-sample .hljs-addition,
+                code-sample .hljs-attribute,
+                code-sample .hljs-meta-string {
+                    color: #98c379;
+                }
+
+                code-sample .hljs-built_in,
+                code-sample .hljs-class .hljs-title {
+                    color: #e6c07b;
+                }
+
+                code-sample .hljs-attr,
+                code-sample .hljs-variable,
+                code-sample .hljs-template-variable,
+                code-sample .hljs-type,
+                code-sample .hljs-selector-class,
+                code-sample .hljs-selector-attr,
+                code-sample .hljs-selector-pseudo,
+                code-sample .hljs-number {
+                    color: #d19a66;
+                }
+
+                code-sample .hljs-symbol,
+                code-sample .hljs-bullet,
+                code-sample .hljs-link,
+                code-sample .hljs-meta,
+                code-sample .hljs-selector-id,
+                code-sample .hljs-title {
+                    color: #61aeee;
+                }
+
+                code-sample .hljs-emphasis {
+                    font-style: italic;
+                }
+
+                code-sample .hljs-strong {
+                    font-weight: bold;
+                }
+
+                code-sample .hljs-link {
+                    text-decoration: underline;
+                }
+
+                code-sample .hljs-params {
+                    color: #e6c07b;
+                }
+            </style>
             <div *if="!this.useLivePlayground" id="code-container">
                 <button
                     id="copy"
@@ -196,7 +197,8 @@ component(
             this.playgroundStr = this.codeStr;
 
             if (this.type === 'js') {
-                this.playgroundStr = `<script type="module">\n${this.playgroundStr}\n</script>\n\n${this.html}`.trim();
+                this.playgroundStr =
+                    `<script type="module">\n${this.playgroundStr}\n</script>\n\n${this.html}`.trim();
             }
 
             const textNode = document.createTextNode(this.codeStr);

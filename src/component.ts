@@ -85,7 +85,7 @@ const scopeStyle = (style: string, tag: string, className: string) => {
     let modified = '';
 
     for (const rule of sandboxStyleRules(style)) {
-        const original = (rule as any).selectorText;
+        const original = (rule as any).selectorText || '';
 
         // Once :scope is universally supported, this can be simplified
         // const modifiedSelector = original.replace(
