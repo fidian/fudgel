@@ -1,7 +1,7 @@
+import { camelToDash, dashToCamel, getAttribute, setAttribute } from './util.js';
 import { createTemplate, createStyle } from './elements.js';
 import { Controller } from './controller.js';
 import { CustomElementConfig } from './custom-element-config.js';
-import { camelToDash, dashToCamel, getAttribute, setAttribute } from './util.js';
 import { findPrototypeHooks } from './prototype-hooks.js';
 import { hooksOff, hooksRun } from './hooks.js';
 import { linkNodes } from './link-nodes.js';
@@ -40,12 +40,12 @@ export class CustomElement extends HTMLElement {
         metadataControllerElement.set(controller, this);
         findPrototypeHooks(controller);
         const config = metadataComponentConfig(constructor)!;
-        const root = this.shadowRoot || this.attachShadow({ mode: 'open' });
+        const root = config.useShadow ? this.shadowRoot || this.attachShadow({ mode: 'open' }) : this;
+        this.classList.add(config.className);
 
-        // Add styling within the element
-        if (config.style) {
-            root.appendChild(createStyle(config.style));
-        }
+        // Add styling within the element when using a shadow DOM.
+        // When not using this, the CSS is applied in component().
+        config.style && root.appendChild(createStyle(config.style));
 
         // Initialize before adding child nodes
         this.#bindings(config, controller);
@@ -57,6 +57,7 @@ export class CustomElement extends HTMLElement {
         const template = createTemplate();
         template.innerHTML = templateText;
         linkNodes(template.content, controller);
+
         root.append(template.content);
         controller.onViewInit && controller.onViewInit();
     }

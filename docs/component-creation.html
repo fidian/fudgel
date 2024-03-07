@@ -75,9 +75,11 @@
             <ul>
                 <li>
                     <code>style</code> - [optional, string] CSS styles for your
-                    custom element. Because we use a shadow DOM, this will
-                    insert a new <code>&lt;style&gt;</code> element that will
-                    affect your component and its children.
+                    custom element. When using a shadow DOM, this will insert a
+                    new <code>&lt;style&gt;</code> element that will affect your
+                    component. Otherwise, your CSS styles and elements in the
+                    template will be modified so the styles are scoped to the
+                    component.
                 </li>
                 <li>
                     <code>template</code> - [required, string] The HTML template
@@ -86,6 +88,11 @@
                     elements and bindings. This template will be processed in
                     the element's scope, even when passing content to child
                     custom elements.
+                </li>
+                <li>
+                    <code>useShadow</code> - [optional, boolean] If true,
+                    encapsulate the component inside a shadow DOM. This is
+                    <code>false</code> by default.
                 </li>
             </ul>
             <code-sample
@@ -126,19 +133,41 @@
             <h2>Styles</h2>
             <p>
                 What's the web without CSS? Fudgel supports automatically adding
-                a style tag for your new element. These are created within the
-                shadow root and are thus scoped to your element and its
-                children. Styles are a string containing plain CSS. In the below
-                example, all buttons within the element will be styled but none
-                outside of the element will have those styles applied.
+                scoped styles that affect just your new element. Styles are a
+                string containing plain CSS. In the below example, all buttons
+                within the element will be styled but none outside of the
+                element will have those styles applied.
             </p>
-            <code-sample type="js">
+            <p>
+                To style your host element, use the <code>:scope</code> selector
+                because Fudgel uses
+                <a href="https://caniuse.com/css-cascade-scope">scoped styles</a
+                >, because they are generally available in browsers. Your styles
+                will automatically be wrapped in <code>@scope { ... }</code> to
+                ensure they are scoped to your component. Additionally, all
+                classes are also scoped to your component through a generated
+                class name. Styles affect just your component and if you want
+                to avoid inheriting styles from the parent, add the
+                <code>useShadow: true</code> option to your component's
+                configuration.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<styled-click-me-button></styled-click-me-button>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from 'fudgel';
 
                     component('styled-click-me-button', {
                         style: `
+                            :scope {
+                                display: block;
+                                background-color: green;
+                                padding: 10px;
+                            }
+
                             button {
                                 border-radius: 4px;
                                 border-width: 2x;

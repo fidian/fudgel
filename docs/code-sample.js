@@ -16,7 +16,7 @@ component(
     {
         attr: ['type', 'live', 'html'],
         style: css`
-            :host {
+            :scope {
                 display: block;
             }
 

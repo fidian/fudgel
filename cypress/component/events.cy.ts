@@ -1,5 +1,5 @@
-import { component, Controller } from '../../src/fudgel';
-import { prototypeHook } from '../../src/prototype-hooks';
+import { component, Controller } from '../../src/fudgel.js';
+import { prototypeHook } from '../../src/prototype-hooks.js';
 
 const events = [];
 const trigger = (obj: Controller, event: string) => {
@@ -59,16 +59,44 @@ component(
         }
     }
 );
+component(
+    'test-parent-shadow',
+    {
+        template: '<test-child-shadow></test-child-shadow>',
+        useShadow: true,
+    },
+    class TestParentShadow extends LogEvents {}
+);
+component(
+    'test-child-shadow',
+    {
+        template: '{{this.state}}',
+        useShadow: true,
+    },
+    class TestChildShadow extends LogEvents {
+        state = 'starting';
+
+        onInit() {
+            super.onInit();
+
+            // This should not trigger onChange
+            this.state = 'working';
+
+            // Triggers onChange after onInit
+            setTimeout(() => (this.state = 'ready'));
+        }
+    }
+);
 
 describe('event order', () => {
     beforeEach(() => {
         console.log('Starting test run');
+        events.splice(0, events.length);
         cy.mount('<test-parent></test-parent>');
     });
 
     it('is in the correct order', () => {
         cy.get('test-child')
-            .shadow()
             .should('have.text', 'ready')
             .then(() => {
                 console.groupCollapsed('Events after test ran');
@@ -87,6 +115,39 @@ describe('event order', () => {
                     'TestChild onViewInit',
                     'TestParent onViewInit',
                     'TestChild onChange state',
+                ]);
+            });
+    });
+});
+
+describe('with shadow DOM', () => {
+    beforeEach(() => {
+        console.log('Starting test run');
+        events.splice(0, events.length);
+        cy.mount('<test-parent-shadow></test-parent-shadow>');
+    });
+
+    it('is in the correct order', () => {
+        cy.get('test-child-shadow')
+            .shadow()
+            .should('have.text', 'ready')
+            .then(() => {
+                console.groupCollapsed('Events after test ran');
+                for (const event of events) {
+                    console.log(event);
+                }
+                console.groupEnd();
+                expect(events).to.deep.equal([
+                    // Create the parent
+                    'TestParentShadow constructor',
+                    'TestParentShadow hook',
+                    'TestParentShadow onInit',
+                    'TestChildShadow constructor',
+                    'TestChildShadow hook',
+                    'TestChildShadow onInit',
+                    'TestChildShadow onViewInit',
+                    'TestParentShadow onViewInit',
+                    'TestChildShadow onChange state',
                 ]);
             });
     });

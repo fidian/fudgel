@@ -38,9 +38,9 @@ component('the-child', {
 describe('attr', () => {
     it('replaces text in mustache-like syntax for attributes', () => {
         cy.mount('<custom-element></custom-element>');
-        cy.get('#test').should('have.attr', 'class', 'a b c');
+        cy.get('#test').should('have.attr', 'class', 'a b c fudgel-0');
         cy.get('button').click();
-        cy.get('#test').should('have.attr', 'class', 'a BBB c');
+        cy.get('#test').should('have.attr', 'class', 'a BBB c fudgel-0');
     });
 
     it('uses camelCase attributes', () => {

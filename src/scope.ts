@@ -1,3 +1,4 @@
+import { doc } from './elements.js';
 import { metadataScope } from './metadata.js';
 
 export const getScope = (node: Node) => {
@@ -11,7 +12,7 @@ export const getScope = (node: Node) => {
 
     if (!scope) {
         scope = {};
-        metadataScope(document.body, scope);
+        metadataScope(doc.body, scope);
     }
 
     return scope;

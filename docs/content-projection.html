@@ -36,7 +36,7 @@
                 button. There are two ways you have access to outside content in
                 order to "project" it into your element.
             </p>
-            <h2>Using Slots</h2>
+            <h2>Using Slots with Shadow DOM</h2>
             <p>
                 You can use slotted content to achieve the same result, which
                 leverages built-in browser features. Imagine using
@@ -62,7 +62,8 @@
                                 padding: 4px;
                             }
                         `,
-                        template: `<button><slot></slot></button>`
+                        template: `<button><slot></slot></button>`,
+                        useShadow: true
                     });
                 </template>
             </code-sample>
@@ -85,6 +86,12 @@
                 children using a query selector, walking the DOM, or other
                 techniques.
             </p>
+            <p>
+                A pitfall of this approach is that the DOM elements do not
+                update when the parent updates them. It's because a copy of the
+                elements are made and updates are not detected on parent
+                elements.
+            </p>
             <code-sample
                 type="js"
                 live="true"
@@ -92,7 +99,7 @@
             >
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, metadataControllerElement } from './fudgel.min.js';
+                    import { component, rootElement } from './fudgel.min.js';
 
                     component('custom-button', {
                         style: `
@@ -106,7 +113,7 @@
                         template: `<button #ref="button"></button>`
                     }, class {
                         onViewInit() {
-                            const element = metadataControllerElement.get(this);
+                            const element = rootElement(this);
 
                             for (const childNode of element.childNodes) {
                                 this.button.append(childNode.cloneNode(true));

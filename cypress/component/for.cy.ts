@@ -1,4 +1,4 @@
-import { component } from '../../src/fudgel';
+import { component } from '../../src/fudgel.js';
 
 component('test-element-map', {
     template:

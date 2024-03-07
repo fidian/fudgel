@@ -3,7 +3,7 @@
         "experimentalDecorators": true,
         "lib": ["dom", "es2019"],
         "moduleResolution": "nodenext",
-        "target": "es6",
+        "target": "esNext",
         "types": ["cypress", "node"]
     },
     "include": ["**/*.ts"]

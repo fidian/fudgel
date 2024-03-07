@@ -4,7 +4,7 @@ component(
     'page-wrapper',
     {
         style: css`
-            :host {
+            :scope {
                 display: flex;
                 width: 100%;
                 max-width: 100%;
@@ -43,6 +43,7 @@ component(
                 </div>
             </div>
         `,
+        useShadow: true
     },
     class {}
 );

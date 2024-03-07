@@ -1,4 +1,4 @@
-import { component } from '../../src/fudgel';
+import { component } from '../../src/fudgel.js';
 
 component('custom-element', {
     template: '<span id="test">an {{this.internalValue}} {{this.where()}}</span><button @click="this.buttonClicked($event)">Change</button>'

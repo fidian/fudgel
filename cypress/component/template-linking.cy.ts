@@ -1,4 +1,4 @@
-import { component, metadataControllerElement } from '../../src/fudgel';
+import { component, metadataControllerElement } from '../../src/fudgel.js';
 
 component('link-child', {
     template: 'value:"{{this.childValue}}"'
@@ -19,6 +19,6 @@ component('link-parent', {
 describe('Template linking', () => {
     it('replaces placeholders in templates in parent elements using parent element data', () => {
         cy.mount('<link-parent></link-parent>');
-        cy.get('link-child').shadow().should('have.text', 'value:"ok"');
+        cy.get('link-child').should('have.text', 'value:"ok"');
     });
 });

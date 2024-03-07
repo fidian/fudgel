@@ -1,4 +1,4 @@
-import { Component, component, update } from '../../src/fudgel';
+import { Component, component, update } from '../../src/fudgel.js';
 
 @Component('show-prop', {
     prop: ['prop'],
@@ -89,41 +89,37 @@ class TestUpdateParentComponent {
 describe('prop', () => {
     it('assigns a string property', () => {
         cy.mount('<test-string></test-string>');
-        cy.get('show-prop').shadow().should('have.text', 'some value');
+        cy.get('show-prop').should('have.text', 'some value');
     });
     it('shows updates to a class property', () => {
         cy.mount('<test-async></test-async>');
-        cy.get('show-prop').shadow().should('have.text', 'after-update');
+        cy.get('show-prop').should('have.text', 'after-update');
     });
     it('shows items from a list', () => {
         cy.mount('<test-scope></test-scope>');
         cy.get('test-scope-item')
-            .shadow()
             .should('have.text', 'Item: after-update');
 
         // Add a second item
         cy.get('#updateList').click();
         cy.get('test-scope-item')
-            .shadow()
             .should('have.text', 'Item: after-updateItem: second-item');
 
         // Update the first item and manually redraw, but this does not update
         // the label.
         cy.get('#updateName').click();
         cy.get('test-scope-item')
-            .shadow()
             .should('have.text', 'Item: after-updateItem: second-item');
 
         // Update everything in all components
         cy.get('#updateAll').click();
         cy.get('test-scope-item')
-            .shadow()
             .should('have.text', 'Item: updatedNameItem: second-item');
     });
     it('triggers onUpdate', () => {
         cy.mount('<test-update-parent></test-update-parent>');
-        cy.get('test-update-child').shadow().should('have.text', 'fromParent');
+        cy.get('test-update-child').should('have.text', 'fromParent');
         cy.get('button').click();
-        cy.get('test-update-child').shadow().should('have.text', 'afterUpdate');
+        cy.get('test-update-child').should('have.text', 'afterUpdate');
     });
 });

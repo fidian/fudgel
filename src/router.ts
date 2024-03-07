@@ -172,7 +172,7 @@ export class RouterComponent extends HTMLElement {
             this.#activate(matchedRoute);
         }
 
-        dispatchCustomEvent(document.body, 'routeChange', url);
+        dispatchCustomEvent(doc.body, 'routeChange', url);
     }
 }
 

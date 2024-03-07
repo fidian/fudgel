@@ -1,5 +1,5 @@
 import { Controller } from './controller.js';
-import { createFragment, doc } from './elements.js';
+import { createFragment, createTreeWalker } from './elements.js';
 import { linkElementNode } from './link-element-node.js';
 import { linkStructuralDirective } from './link-structural-directive.js';
 import { linkTextNode } from './link-text-node.js';
@@ -16,10 +16,7 @@ export const linkNodes = (
     root: Node,
     controller: Object
 ) => {
-    // NodeFilter.SHOW_ELEMENT = 0x1
-    // NodeFilter.SHOW_TEXT = 0x4
-    // NodeFilter.SHOW_COMMENT = 0x80 - necessary for structural directives
-    const treeWalker = doc.createTreeWalker(root, 0x1 + 0x4 + 0x80);
+    const treeWalker = createTreeWalker(root, 0x85);
 
     // true is a special flag where a controller advanced the pointer but there
     // is no next node.

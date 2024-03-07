@@ -4,7 +4,7 @@ component(
     'sidebar-menu',
     {
         style: css`
-            :host {
+            :scope {
                 display: flex;
                 flex-direction: column;
             }

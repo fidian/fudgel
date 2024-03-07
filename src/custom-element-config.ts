@@ -26,4 +26,13 @@ export interface CustomElementConfig {
      * HTML template.
      */
     template: string;
+
+    /**
+     * Whether or not the shadow DOM should be used.
+     */
+    useShadow?: boolean;
+}
+
+export interface CustomElementConfigInternal extends CustomElementConfig {
+    className: string;
 }

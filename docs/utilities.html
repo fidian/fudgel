@@ -37,7 +37,7 @@
             <h2><code>emit</code> - Sending Data to Parents</h2>
             <p>
                 Dispatching events from your controller can be tricky with the
-                shadow DOM. DOM. Also, for minification, you will probably want
+                shadow DOM. Also, for minification, you will probably want
                 to leverage shared code to send events.
             </p>
             <code-sample
@@ -61,6 +61,37 @@
                                 youCanUse: 'whatever you like',
                                 when: new Date()
                             });
+                        }
+                    });
+                </template>
+            </code-sample>
+            <h2><code>rootElement</code> - Access the main DOM element</h2>
+            <p>
+                Your component creates all of its template elements in one
+                parent element. This will be the custom element or the shadow
+                DOM element. To easily access this element from your
+                controller, use <code>rootElement()</code>.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<root-element></root-element>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, rootElement } from './fudgel.min.js';
+
+                    component('root-element', {
+                        template: 'Wait for it ...'
+                    }, class {
+                        onViewInit() {
+                            setTimeout(() =&gt; {
+                                const element = rootElement(this);
+
+                                if (element) {
+                                    element.innerHTML = 'Hello, World!';
+                                }
+                            }, 1000);
                         }
                     });
                 </template>

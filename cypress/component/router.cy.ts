@@ -1,4 +1,4 @@
-import { Component, defineRouterComponent } from '../../src/fudgel';
+import { Component, defineRouterComponent } from '../../src/fudgel.js';
 
 defineRouterComponent('app-router');
 

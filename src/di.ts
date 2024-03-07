@@ -1,6 +1,6 @@
 type Constructor<T extends Object> = new () => T;
 
-export const registered = new Map<Object, Object>();
+const registered = new Map<Object, Object>();
 
 const circular: Object[] = [];
 

@@ -1,4 +1,4 @@
-import { Component, component, Prop } from '../../src/fudgel';
+import { Component, component } from '../../src/fudgel.js';
 
 component('test-element', {
     template:

@@ -114,7 +114,8 @@
                 properties, and fully supports TypeScript. All of this is done
                 while allowing you, the developer, to maintain control; add
                 additional directives, hook into the component's lifecycle, and
-                even handle content projection using slots.
+                even handle content projection using slots when using the
+                shadow DOM.
             </p>
             <p>What do you get by using Fudgel?</p>
             <ul>
@@ -131,7 +132,10 @@
                 <li>
                     Event handlers, tying events to your controller's methods
                 </li>
-                <li>Support for styles within the shadow DOM</li>
+                <li>
+                    Support for styles, either automatically scoped or within a
+                    shadow DOM
+                </li>
                 <li>Iterate over objects, arrays, maps, and other iterables</li>
                 <li>Conditionally remove elements</li>
                 <li>Child element references</li>
@@ -224,7 +228,7 @@
                 lists:
                 <a
                     href="https://caniuse.com/?feats=mdn-html_elements_slot,template,mdn-api_customelementregistry,template-literals,mdn-api_document_createelement,mdn-api_shadowroot"
-                    >custom elements</a
+                    >custom elements and CSS</a
                 >,
                 <a
                     href="https://caniuse.com/?feats=es6,mdn-javascript_builtins_object_defineproperty,customevent,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_create,mdn-javascript_builtins_object_getownpropertydescriptor,mdn-javascript_builtins_object_getprototypeof,mdn-javascript_classes_private_class_fields"
@@ -269,6 +273,12 @@
                     <a href="https://vuejs.org/">Vue.js</a> is big into using
                     slots for content projection, plus they also have event
                     handlers with modifiers.
+                </li>
+                <li>
+                    <a href="https://skruv.io/">Skruv</a> is a small library
+                    that's similar to Slim.js, but it's not as feature-rich.
+                    It's the source for the CSS scoping that Fudgel currently
+                    uses.
                 </li>
             </ul>
             <h2>Best Practices</h2>

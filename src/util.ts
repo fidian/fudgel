@@ -1,3 +1,6 @@
+import { Controller } from './controller';
+import { metadataControllerElement } from './metadata';
+
 export const entries = (iterable: any) =>
     iterable.entries ? iterable.entries() : Object.entries(iterable);
 export const stringify = (x: any) => JSON.stringify(x);
@@ -14,6 +17,7 @@ export const memoize = <T extends (...args: any[]) => any>(fn: T) => {
     };
 };
 
+// Memoizing reduces repeats by a factor of ~200.
 export const createFunction = memoize(
     (args: string, code: string) => new Function(args, code)
 );
@@ -41,6 +45,14 @@ export const isString = (x: any) => typeof x === 'string';
 export const getAttribute = (node: HTMLElement, name: string) =>
     node.getAttribute(name);
 
+export const getPrototypeOf = (x: Object) => Object.getPrototypeOf(x);
+
+export const rootElement = (controller: Controller) => {
+    const element = metadataControllerElement.get(controller);
+
+    return element ? element.shadowRoot || element : null;
+}
+
 export const setAttribute = (
     node: HTMLElement,
     name: string,
@@ -56,5 +68,3 @@ export const setAttribute = (
         node.removeAttribute(name);
     }
 };
-
-export const getPrototypeOf = (x: Object) => Object.getPrototypeOf(x);

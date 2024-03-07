@@ -1,4 +1,4 @@
-import { component, defineRouterComponent, metadataControllerElement } from '../../src/fudgel';
+import { component, defineRouterComponent, rootElement } from '../../src/fudgel.js';
 
 defineRouterComponent('app-router');
 
@@ -68,10 +68,11 @@ component('test-for-if-routed-delayed', {
 }, class {
     onViewInit() {
         setTimeout(() => {
-            const element = metadataControllerElement.get(this);
+            const root = rootElement(this);
 
-            if (element) {
-                element.shadowRoot.innerHTML = '<test-for-if-routed></test-for-if-routed>';
+            if (root) {
+                // Note, this would wipe out styles. Avoid setting innerHTML.
+                root.innerHTML = '<test-for-if-routed></test-for-if-routed>';
             }
         }, 1);
     }
