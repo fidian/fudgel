@@ -41,13 +41,14 @@ component(
                 box-sizing: border-box;
                 border: 1px solid black;
             }
-
-            iframe {
-                width: 100%;
-                height: 100%;
-            }
         `,
         template: html`
+            <style>
+                iframe.livePlayground {
+                    width: 100%;
+                    height: 100%;
+                }
+            </style>
             <div class="wrapper">
                 <textarea
                     #ref="code"
@@ -81,6 +82,7 @@ component(
             // Wipe any old iFrame and replace it entirely because
             // custom elements can't be redefined.
             const iframe = document.createElement('iframe');
+            iframe.classList.add('livePlayground');
             this.demo.innerHTML = '';
             this.demo.append(iframe);
             const iframeDocument = iframe.contentWindow.document;
