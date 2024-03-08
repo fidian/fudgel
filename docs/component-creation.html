@@ -160,11 +160,12 @@
                 </template>
             </code-sample>
 
-            <h3>How does Scoping Work?</h3>
+            <h3>How Does Scoping Work?</h3>
             <p>Imagine you use this CSS for your component:</p>
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
+                    /* This is the orignal CSS */
                     :scope {
                         display: block;
                         background-color: green;
@@ -180,6 +181,8 @@
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
+                    /* Automatically rewritten CSS */
+                    /* Only for browsers supporting @scope */
                     @scope {
                         :scope {
                             display: block;
@@ -197,6 +200,8 @@
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
+                    /* Automatically rewritten CSS */
+                    /* Only for browsers without @scope */
                     component-name {
                         display: block;
                         background-color: green;
@@ -214,6 +219,8 @@
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
+                    /* Automatically rewritten CSS */
+                    /* Only for browsers without @scope in shadow DOM */
                     :host {
                         display: block;
                         background-color: green;
