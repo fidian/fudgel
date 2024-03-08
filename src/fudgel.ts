@@ -1,5 +1,5 @@
 export * from './actions.js';
-export * from './component.js';
+export { Component, component } from './component.js';
 export * from './constructor.js';
 export * from './controller.js';
 export * from './custom-element.js';

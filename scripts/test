@@ -6,8 +6,14 @@ status() {
     echo "### $1"
 }
 
+status "Building"
+npm run build
+
 status "Tree shaking"
 agadoo dist/fudgel.mjs
 
-status "Cypress"
+status "Cypress (Electron)"
 cypress run --component
+
+status "Cypress (Chrome)"
+cypress run --component --browser chrome

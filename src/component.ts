@@ -7,7 +7,7 @@ import { Controller } from './controller.js';
 import {
     createTemplate,
     createTreeWalker,
-    sandboxStyleRules
+    sandboxStyleRules,
 } from './elements.js';
 import { CustomElement } from './custom-element.js';
 import {
@@ -28,12 +28,12 @@ export const Component = (tag: string, config: CustomElementConfig) => {
 };
 
 const ce = customElements;
-let cssScopeMethod = () => {
+let cssScopeSupported = () => {
     const result = sandboxStyleRules('@scope{}').length > 0;
-    cssScopeMethod = () => result;
+    cssScopeSupported = () => result;
 
     return result;
-}
+};
 
 export const component = (
     tag: string,
@@ -42,7 +42,13 @@ export const component = (
 ) => {
     bootstrap();
     const className = `fudgel-${nextN()}`;
-    const style = scopeStyle(configInitial.style || '', tag, className);
+    const style = scopeStyle(
+        configInitial.style || '',
+        tag,
+        className,
+        cssScopeSupported(),
+        configInitial.useShadow
+    );
     const config = {
         ...configInitial,
         className,
@@ -78,31 +84,73 @@ const updateClasses = (templateNode: HTMLTemplateElement, id: string) => {
     }
 };
 
-// Scope the style to the component by adding the element name at the beginning
-// (only if not using @scope) and adding a custom class name to the end. Once
-// browsers universally support the :scope selector, this can be simplified.
-const scopeStyle = (style: string, tag: string, className: string) => {
-    let modified = '';
+export const scopeStyle = (
+    style: string,
+    tag: string,
+    className: string,
+    scopeSupported: boolean,
+    useShadow?: boolean
+) => {
+    const scopeStyleRule = (
+        rule: CSSRule
+    ) => {
+        if ((rule as CSSStyleRule)[SELECTOR_TEXT]) {
+            (rule as CSSStyleRule)[SELECTOR_TEXT] = (rule as CSSStyleRule)[
+                SELECTOR_TEXT
+            ].split(',')
+                .map((selectorText: string) =>
+                    updateSelectorText(
+                        selectorText
+                    )
+                )
+                .join(',');
+            tag = ''; // Don't need to scope children selectors
+        }
 
-    for (const rule of sandboxStyleRules(style)) {
-        const original = (rule as any).selectorText || '';
+        for (const childRule of (rule as CSSGroupingRule).cssRules) {
+            scopeStyleRule(childRule);
+        }
 
-        // Once :scope is universally supported, this can be simplified
-        // const modifiedSelector = original.replace(
-        //     /(?<!(?:^|[^\\])(?:\\\\)*\\)\s*(,|$)/g,
-        //     `.${className}$1`
-        // );
-        const modifiedSelector = original
-            .split(/(?<!(?:^|[^\\])(?:\\\\)*\\)\s*,/)
-            .map(
-                cssScopeMethod()
-                    ? (input: string) => `${input}.${className}`
-                    : (input: string) =>
-                          `${tag} ${input}.${className}`.replace(/ :scope/, '')
-            )
-            .join(',');
-        modified += `${modifiedSelector}${rule.cssText.slice(original.length)}`;
-    }
+        return `${scopeSupported ? '@scope{' : ''}${rule.cssText}${
+            scopeSupported ? '}' : ''
+        }`;
+    };
 
-    return cssScopeMethod() ? `@scope{${modified}}` : modified;
+    const updateSelectorText = (
+        selector: string,
+    ) => {
+        selector = selector.trim();
+        const addSuffix = (x: string) => `${x}.${className}`;
+        const replaceScope = (x: string, withThis: string) =>
+            x.replace(/:scope/, withThis);
+        const doesNotHaveScope = replaceScope(selector, '') === selector;
+
+        if (scopeSupported) {
+            if (doesNotHaveScope) {
+                selector = addSuffix(selector);
+            }
+        } else if (useShadow) {
+            selector = replaceScope(selector, ':host');
+
+            if (doesNotHaveScope || selector.includes(' ')) {
+                selector = addSuffix(selector);
+            }
+        } else {
+            selector = replaceScope(selector, tag);
+
+            if (doesNotHaveScope) {
+                selector = `${tag} ${addSuffix(selector)}`;
+            }
+        }
+
+        return selector;
+    };
+
+    return [...sandboxStyleRules(style)]
+        .map(rule =>
+            scopeStyleRule(rule)
+        )
+        .join('');
 };
+
+const SELECTOR_TEXT = 'selectorText';

@@ -1,5 +1,5 @@
-import { Controller } from './controller';
-import { metadataControllerElement } from './metadata';
+import { Controller } from './controller.js';
+import { metadataControllerElement } from './metadata.js';
 
 export const entries = (iterable: any) =>
     iterable.entries ? iterable.entries() : Object.entries(iterable);
