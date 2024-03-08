@@ -34,10 +34,6 @@ component(
                 url: 'component-creation.html',
             },
             {
-                label: 'Styling',
-                url: 'styling.html',
-            },
-            {
                 label: 'Attr and Prop',
                 url: 'attr-and-prop.html',
             },
