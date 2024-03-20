@@ -3,7 +3,7 @@ import { Component, metadataControllerElement } from '../../src/fudgel.js';
 const date = new Date();
 
 @Component('custom-element', {
-    template: '<span id="test">^{{this.output}}$</span>'
+    template: '<span id="test">^{{output}}$</span>'
 })
 class CustomElement {
     array = [ 1, "test" ];

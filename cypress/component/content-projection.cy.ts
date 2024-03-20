@@ -4,7 +4,7 @@ component(
     'parent-element',
     {
         template: html`<child-element
-            >{{this.name}}</child-element
+            >{{name}}</child-element
         >`,
     },
     class {
@@ -38,7 +38,7 @@ component(
     'parent-element-shadow',
     {
         template: html`<child-element-shadow
-            >{{this.name}}<span slot="x">Correct</span></child-element-shadow
+            >{{name}}<span slot="x">Correct</span></child-element-shadow
         >`,
     },
     class {

@@ -10,6 +10,6 @@ component(
                 padding: 0.5em;
             }
         `,
-        template: html` <a href="{{this.url}}">{{this.label || '?'}}</a> `,
+        template: html` <a href="{{url}}">{{label}}</a> `,
     }
 );

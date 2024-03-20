@@ -155,19 +155,19 @@ component(
                     color: #e6c07b;
                 }
             </style>
-            <div *if="!this.useLivePlayground" id="code-container">
+            <div *if="!useLivePlayground" id="code-container">
                 <button
                     id="copy"
                     title="Copy to clipboard"
-                    @click="return this.copyToClipboard()">{{this.label}}</button>
+                    @click="copyToClipboard()">{{label}}</button>
                 <button
-                    *if="this.live"
+                    *if="live"
                     id="live"
                     title="See in an editable playground"
-                    @click="return this.livePlayground()">Live Demo</button>
+                    @click="livePlayground()">Live Demo</button>
                 <pre #ref="pre"></pre>
             </div>
-            <live-playground *if="this.useLivePlayground"><template>{{this.playgroundStr}}</template></live-playground>
+            <live-playground *if="useLivePlayground"><template>{{playgroundStr}}</template></live-playground>
         `,
     },
     class {

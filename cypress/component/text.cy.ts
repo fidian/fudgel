@@ -1,7 +1,7 @@
 import { component } from '../../src/fudgel.js';
 
 component('custom-element', {
-    template: '<span id="test">an {{this.internalValue}} {{this.where()}}</span><button @click="this.buttonClicked($event)">Change</button>'
+    template: '<span id="test">an {{internalValue}} {{where()}}</span><button @click="buttonClicked($event)">Change</button>'
 }, class {
     internalValue = 'internal value';
 
@@ -15,7 +15,7 @@ component('custom-element', {
 });
 
 component('multi-bind', {
-    template: '<div id="one">{{this.obj.one}}</div><div id="two">{{this.obj.two}}</div>'
+    template: '<div id="one">{{obj.one}}</div><div id="two">{{obj.two}}</div>'
 }, class {
     obj = {
         one: 'ONE',

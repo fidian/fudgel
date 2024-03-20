@@ -2,7 +2,7 @@ import { component } from '../../src/fudgel.js';
 
 component('test-element-map', {
     template:
-        '<button @click="this.swap()">Toggle</button><span id="thing_{{$scope.theKey}}" *for="theKey, theValue of this.value">{{$scope.theKey}} = {{$scope.theValue}}</span>',
+        '<button @click="swap()">Toggle</button><span id="thing_{{theKey}}" *for="theKey, theValue of value">{{theKey}} = {{theValue}}</span>',
 }, class {
     value = new Map([['thing1', 'value1'], ['thing2', 'value2']]);
     value2 = new Map([['x1', 'y1'], ['x2', 'y2'], ['x3', 'y3']]);
@@ -16,7 +16,7 @@ component('test-element-map', {
 
 component('test-element-object', {
     template:
-        '<button @click="this.swap()">Toggle</button><span id="thing_{{$scope.theKey}}" *for="theKey, theValue of this.value">{{$scope.theKey}} = {{$scope.theValue}}</span>',
+        '<button @click="swap()">Toggle</button><span id="thing_{{theKey}}" *for="theKey, theValue of value">{{theKey}} = {{theValue}}</span>',
 }, class {
     value: object = {
         thing1: 'value1',
@@ -36,7 +36,7 @@ component('test-element-object', {
 });
 
 component('test-change-to-undefined', {
-    template: '<ul *if="this.list"><li *for="this.list">{{$scope.value}}</li></ul><button @click.stop.prevent="this.removeList()">Remove list</button>'
+    template: '<ul *if="list"><li *for="list">{{value}}</li></ul><button @click.stop.prevent="removeList()">Remove list</button>'
 }, class {
     list = ['abc', 123, false, null, true];
 
@@ -46,7 +46,7 @@ component('test-change-to-undefined', {
 });
 
 component('test-iterating-over-empty-list', {
-    template: '<div id="x"><div *for="item of this.list"><span>{{$scope.item}}</span></div></div>'
+    template: '<div id="x"><div *for="item of list"><span>{{item}}</span></div></div>'
 }, class {
     list = ['x'];
 

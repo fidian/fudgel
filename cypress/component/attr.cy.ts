@@ -1,7 +1,7 @@
 import { component } from '../../src/fudgel.js';
 
 component('custom-element', {
-    template: '<span id="test" class="a {{this.internalValue}} c"><button @click="this.buttonClicked($event)">Change</button>'
+    template: '<span id="test" class="a {{internalValue}} c"><button @click="buttonClicked($event)">Change</button>'
 }, class {
     internalValue = 'b';
 
@@ -11,20 +11,20 @@ component('custom-element', {
 });
 
 component('test-true', {
-    template: '<input id="test" type="text" disabled="{{this.disabled}}">'
+    template: '<input id="test" type="text" disabled="{{disabled}}">'
 }, class {
     disabled = true;
 });
 
 component('test-false', {
-    template: '<input id="test" type="text" disabled="{{this.disabled}}">'
+    template: '<input id="test" type="text" disabled="{{disabled}}">'
 }, class {
     disabled = false;
 });
 
 component('the-child', {
     attr: ['test', 'childValue'],
-    template: '<div id="test">{{this.test}}</div><div id="childValue">{{this.childValue}}</div><button @click="this.buttonClicked()">Update</button>'
+    template: '<div id="test">{{test}}</div><div id="childValue">{{childValue}}</div><button @click="buttonClicked()">Update</button>'
 }, class {
     test = 'value before init';
     childValue = 'value before attr';

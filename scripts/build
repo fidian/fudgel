@@ -58,4 +58,4 @@ fi
     sizeAsJson "RouterComponent" only-router.min.mjs
     echo ']'
 ) > docs/fudgel-sizes.json
-cat docs/fudgel-sizes.json
+git diff docs/fudgel-sizes.json

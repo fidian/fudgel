@@ -5,26 +5,22 @@ export const entries = (iterable: any) =>
     iterable.entries ? iterable.entries() : Object.entries(iterable);
 export const stringify = (x: any) => JSON.stringify(x);
 
-export const memoize = <T extends (...args: any[]) => any>(fn: T) => {
-    const cache: {
-        [key: string]: ReturnType<T>;
-    } = {};
+export const memoize = <FN extends (arg: any) => any>(fn: FN) => {
+    const cache = new Map<Parameters<FN>[0], ReturnType<FN>>();
 
-    return (...args: Parameters<T>) => {
-        const key = stringify(args);
+    return (arg: Parameters<FN>[0]) => {
+        if (cache.has(arg)) {
+            return cache.get(arg);
+        }
 
-        return cache[key] || (cache[key] = fn(...args));
+        const out = fn(arg);
+        cache.set(arg, out);
+
+        return out;
     };
 };
 
 // Memoizing reduces repeats by a factor of ~200.
-export const createFunction = memoize(
-    (args: string, code: string) => new Function(args, code)
-);
-
-export const createValueFunction = (code: string) =>
-    createFunction('$scope', `return ${code}`);
-
 export const dashToCamel = (dashed: string) => {
     return dashed.replace(/-(\p{Ll})/gu, match => match[1].toUpperCase());
 };
@@ -68,3 +64,9 @@ export const setAttribute = (
         node.removeAttribute(name);
     }
 };
+
+export const uniqueListJoin = (a: string[], b: string[]) => [...new Set([...a, ...b])];
+
+// Look up a property on an object. If it is a function, bind its context
+// to the object.
+export const bindFn = (root: any, prop: string | symbol) => typeof root[prop] === 'function' ? root[prop].bind(root) : root[prop];

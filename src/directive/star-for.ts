@@ -1,11 +1,11 @@
 import { addBindings } from '../bindings.js';
-import { childScope, getScope } from '../scope.js';
+import { childScope, getScope, scopeProxy } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
-import { createValueFunction, entries } from '../util.js';
-import { findBindings } from '../parse.js';
+import { entries } from '../util.js';
 import { hooksOff } from '../hooks.js';
 import { linkNodesWrapped } from '../link-nodes.js';
+import { parse } from '../jsep.js';
 import { StructuralDirective } from './types.js';
 
 export const starForDirective: StructuralDirective = (
@@ -26,11 +26,11 @@ export const starForDirective: StructuralDirective = (
         attrValue = matches[3];
     }
 
-    const getValue = createValueFunction(attrValue);
+    const parsed = parse(attrValue);
     const anchorScope = getScope(anchor);
     let activeNodes = new Map<any, HTMLElement>();
     const update = (thisRef: Controller) => {
-        const iterable = getValue.call(thisRef, anchorScope) || [];
+        const iterable = parsed[0](scopeProxy(thisRef, anchorScope)) || [];
         let oldNodes = activeNodes;
         activeNodes = new Map();
         let lastNode: HTMLElement | Comment = anchor;
@@ -76,6 +76,6 @@ export const starForDirective: StructuralDirective = (
             old.remove();
         }
     };
-    addBindings(controller, anchor, update, findBindings(attrValue));
+    addBindings(controller, anchor, update, parsed[1], anchorScope);
     update(controller);
 };

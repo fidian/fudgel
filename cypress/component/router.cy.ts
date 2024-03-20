@@ -4,8 +4,8 @@ defineRouterComponent('app-router');
 
 @Component('test-application', {
     template: `
-    <div>Current route: <span id="location">{{this.location}}</span><br />
-    History length: <span id="historyLength">{{this.historyLength}}</span></div>
+    <div>Current route: <span id="location">{{location}}</span><br />
+    History length: <span id="historyLength">{{historyLength}}</span></div>
     <app-router>
         <div path="/page1/:id" component="test-component"></div>
         <div path="/page1" id="page1">
@@ -49,8 +49,8 @@ class TestApplicationComponent {
 @Component('test-component', {
     attr: ['id'],
     template: `
-        id attribute is <span id="id">{{this.id}}</span><br />
-        <button @click.stop.prevent="this.goBack()">Go Back</button>
+        id attribute is <span id="id">{{id}}</span><br />
+        <button @click.stop.prevent="goBack()">Go Back</button>
     `
 })
 class TestComponent {
@@ -63,7 +63,7 @@ class TestComponent {
 
 @Component('test-history', {
     template: `
-        History inits: <span id="inits">{{this.inits}}</span><br />
+        History inits: <span id="inits">{{inits}}</span><br />
         <a id="deeper" href="/page2/deeper">Go deeper</a><br />
         <button id="back" @click.stop.prevent="history.back()">history.back()</button><br />
         <button id="forward" @click.stop.prevent="history.forward()">history.forward()</button><br />
@@ -72,6 +72,7 @@ class TestComponent {
     `
 })
 class TestHistoryComponent {
+    history = history;
     inits = 0;
 
     onInit() {

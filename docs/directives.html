@@ -48,8 +48,8 @@
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
-                    <div class="class1 class2 {{this.extraClasses}}">
-                        Hello, {{this.user.firstName}}!
+                    <div class="class1 class2 {{extraClasses}}">
+                        Hello, {{user.firstName}}!
                     </div>
                 </template>
             </code-sample>
@@ -67,7 +67,7 @@
                     <!-- Effectively the same as
                         otherElement.currentUser = this.user
                     -->
-                    <other-element .current-user="this.user"></other-element>
+                    <other-element .current-user="user"></other-element>
                 </template>
             </code-sample>
             <p>
@@ -77,7 +77,7 @@
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
-                    <button @click="this.dispatchClick($event)">
+                    <button @click="dispatchClick($event)">
                         Click me!
                     </button>
                 </template>
@@ -120,7 +120,11 @@
                 </li>
                 <li><code>window</code> - Bind the event to the window.</li>
             </ul>
-            <code-sample type="js" live="true" html="<test-events></test-events>">
+            <code-sample
+                type="js"
+                live="true"
+                html="<test-events></test-events>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';
@@ -128,13 +132,13 @@
                     component('test-events', {
                         template: `
                             <div
-                                @click.stop.prevent.outside="this.click('outside')"
-                                @click.stop.prevent="this.click('inside')"
+                                @click.stop.prevent.outside="click('outside')"
+                                @click.stop.prevent="click('inside')"
                                 style="border: 1px solid black; padding: 10px; display: inline-block;"
                                 >
                                 Click inside or outside this box
                             </div>
-                            <div>{{this.clickMessage}}</div>
+                            <div>{{clickMessage}}</div>
                         `
                     }, class {
                         clickMessage = 'Ready for your next click';
@@ -172,7 +176,11 @@
                     shift key is also pressed.
                 </li>
             </ul>
-            <code-sample type="js" live="true" html="<test-events></test-events>">
+            <code-sample
+                type="js"
+                live="true"
+                html="<test-events></test-events>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';
@@ -180,20 +188,29 @@
                     component('test-events', {
                         template: `
                             <button
-                                @click.stop.prevent="this.clicks++"
-                                @click.ctrl="this.controlClicks++"
-                                @click.shift.exact="this.shiftClicksExact++"
+                                @click.stop.prevent="changeClicks()"
+                                @click.ctrl="changeControlClicks()"
+                                @click.shift.exact="changeShiftClicksExact()"
                                 >
                                 Click me!
                             </button>
-                            <div>Number of clicks: {{this.clicks}}</div>
-                            <div>Number of control-clicks: {{this.controlClicks}}</div>
-                            <div>Number of shift-clicks with exact: {{this.shiftClicksExact}}</div>
+                            <div>Number of clicks: {{clicks}}</div>
+                            <div>Number of control-clicks: {{controlClicks}}</div>
+                            <div>Number of shift-clicks with exact: {{shiftClicksExact}}</div>
                         `
                     }, class {
                         clicks = 0;
                         controlClicks = 0;
                         shiftClicksExact = 0;
+                        changeClicks() {
+                            this.clicks += 1;
+                        }
+                        changeControlClicks() {
+                            this.controlClicks += 1;
+                        }
+                        changeShiftClicksExact() {
+                            this.shiftClicksExact += 1;
+                        }
                     });
                 </template>
             </code-sample>
@@ -213,7 +230,11 @@
                 <code>keypress.code-32</code> for space (hex 0x20, ASCII code
                 point 32) and <code>keypress.code-252</code> for ü.
             </p>
-            <code-sample type="js" live="true" html="<test-events></test-events>">
+            <code-sample
+                type="js"
+                live="true"
+                html="<test-events></test-events>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';
@@ -222,17 +243,17 @@
                         template: `
                             <div>
                                 <input type="text"
-                                       @keypress.code-32="this.spaceCount++"
-                                       @keydown.enter="this.input2.focus()"
-                                       @keydown.tab.stop.prevent="this.message($event)"
+                                       @keypress.code-32="changeSpaceCount()"
+                                       @keydown.enter="input2.focus()"
+                                       @keydown.tab.stop.prevent="message($event)"
                                        #ref="input1"
                                        />
-                                ({{this.spaceCount}} spaces pressed)
+                                ({{spaceCount}} spaces pressed)
                             </div>
                             <input type="text"
-                                   @keypress.code-32="this.spaceCount++"
-                                   @keydown.enter="this.input1.focus()"
-                                   @keydown.tab.stop.prevent="this.message($event)"
+                                   @keypress.code-32="changeSpaceCount()"
+                                   @keydown.enter="input1.focus()"
+                                   @keydown.tab.stop.prevent="message($event)"
                                    #ref="input2"
                                    />
                             <div>Press enter to switch between fields</div>
@@ -240,6 +261,9 @@
                         `
                     }, class {
                         spaceCount = 0;
+                        changeSpaceCount() {
+                            this.spaceCount += 1;
+                        }
                         message(event) {
                             this.input1.value = 'You pressed tab!';
                             this.input2.value = 'Congratulations!';
@@ -258,8 +282,8 @@
                 <!-- prettier-ignore -->
                 <template>
                     <p>Showing
-                        <span *ngIf="this.username">{{this.username}}</span>
-                        <span *ngIf="!this.username">an unknown user</span>
+                        <span *if="username">{{username}}</span>
+                        <span *if="!username">an unknown user</span>
                     </p>
                 </template>
             </code-sample>
@@ -271,38 +295,36 @@
                 <!-- prettier-ignore -->
                 <template>
                     <p>5 stars: <span *repeat="5">*</span></p>
-                    <p>Some stars: <span *repeat="this.starCount">*</span></p>
+                    <p>Some stars: <span *repeat="starCount">*</span></p>
                 </template>
             </code-sample>
             <p>
                 Iterating across an object, array, set, map, or any other
                 iterable is also possible, plus this also updates when the
                 property on your controller is updated. The key and value are
-                assigned to <code>$scope.key</code> and
-                <code>$scope.value</code>.
+                assigned to <code>key</code> and <code>value</code>.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
                     <ul>
-                        <li *for="this.saleItemArray">{{$scope.value.itemPrice}}</li>
+                        <li *for="saleItemArray">{{value.itemPrice}}</li>
                     </ul>
                 </template>
             </code-sample>
             <p>
-                You can rename <code>$scope.key</code> and
-                <code>$scope.value</code> to suit your needs. Also, nested
-                scopes inherit from each other, exactly how you think they
-                should.
+                You can rename <code>key</code> and <code>value</code> to suit
+                your needs. Also, nested scopes inherit from each other, exactly
+                how you think they should.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
-                    <div *for="username, user of this.userObjectKeyedByUsername">
-                        <p>{{$scope.username}}:</p>
+                    <div *for="username, user of userObjectKeyedByUsername">
+                        <p>{{username}}:</p>
                         <ul>
-                            <li *for="value of $scope.user.favoriteThings">
-                                {{$scope.user.firstName}} likes {{$scope.value}}
+                            <li *for="value of user.favoriteThings">
+                                {{user.firstName}} likes {{value}}
                             </li>
                         </ul>
                     </div>

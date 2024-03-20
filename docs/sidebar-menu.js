@@ -11,10 +11,10 @@ component(
         `,
         template: html`
             <sidebar-item
-                *for="item of this.pages"
-                .label="$scope.item.label"
-                .url="$scope.item.url"
-                .aliasUrl="$scope.item.aliasUrl"
+                *for="item of pages"
+                .label="item.label"
+                .url="item.url"
+                .alias-url="item.aliasUrl"
             ></sidebar-item>
         `,
     },
@@ -30,8 +30,8 @@ component(
                 url: 'getting-started.html',
             },
             {
-                label: 'Component Creation',
-                url: 'component-creation.html',
+                label: 'Component Basics',
+                url: 'component-basics.html',
             },
             {
                 label: 'Attr and Prop',

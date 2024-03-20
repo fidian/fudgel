@@ -1,8 +1,12 @@
-import { camelToDash, dashToCamel, getAttribute, setAttribute } from './util.js';
+import {
+    camelToDash,
+    dashToCamel,
+    getAttribute,
+    setAttribute,
+} from './util.js';
 import { createTemplate, createStyle } from './elements.js';
 import { Controller } from './controller.js';
 import { CustomElementConfig } from './custom-element-config.js';
-import { findPrototypeHooks } from './prototype-hooks.js';
 import { hooksOff, hooksRun } from './hooks.js';
 import { linkNodes } from './link-nodes.js';
 import {
@@ -34,13 +38,12 @@ export class CustomElement extends HTMLElement {
     connectedCallback() {
         const constructor = this.constructor;
         const controller = new (metadataComponentController(constructor)!)();
-
-        // Need basic information so prototype hooks can set up hooks correctly
+        const config = metadataComponentConfig(constructor)!;
+        const root = config.useShadow
+            ? this.shadowRoot || this.attachShadow({ mode: 'open' })
+            : this;
         metadataElementController(this, controller);
         metadataControllerElement.set(controller, this);
-        findPrototypeHooks(controller);
-        const config = metadataComponentConfig(constructor)!;
-        const root = config.useShadow ? this.shadowRoot || this.attachShadow({ mode: 'open' }) : this;
         this.classList.add(config.className);
 
         // Add styling within the element when using a shadow DOM.
@@ -53,11 +56,9 @@ export class CustomElement extends HTMLElement {
         hooksRun('init', controller);
 
         // Create initial child elements from the template.
-        const templateText = config.template;
         const template = createTemplate();
-        template.innerHTML = templateText;
+        template.innerHTML = config.template;
         linkNodes(template.content, controller);
-
         root.append(template.content);
         controller.onViewInit && controller.onViewInit();
     }
@@ -106,7 +107,11 @@ export class CustomElement extends HTMLElement {
             const attributeName = camelToDash(propertyName);
 
             // Set initial value - updates are tracked with attributeChangedCallback
-            this.#change(controllerInternal, propertyName, getAttribute(this, attributeName));
+            this.#change(
+                controllerInternal,
+                propertyName,
+                getAttribute(this, attributeName)
+            );
 
             // When the internal property changes, update the attribute but only
             // if it is not defined as a "prop" binding.

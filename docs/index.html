@@ -100,22 +100,20 @@
                 painful. Why keep learning new things? Can't new things look and
                 feel like traditional JavaScript and HTML? Yes, it absolutely
                 can. Fudgel lets you write an HTML template and associate it
-                with a JavaScript class that acts as its controller. You call
-                methods from the HTML to do things in the class. Likewise,
-                changes in the class are automatically reflected in the HTML.
-                You don't have to manually redraw or worry about the magic; it
-                just works.
+                with a JavaScript class. You call methods from the HTML to do
+                things in the class. Likewise, changes in the class are
+                automatically reflected in the HTML. You don't have to manually
+                redraw or worry about the magic; it just works.
             </p>
             <p>
                 When given a class as a controller, Fudgel will automatically
                 parse the HTML template and set up bindings to your controller's
-                properties. When they change, the HTML is automatically updated.
-                It also handles events, passes data as attributes and
-                properties, and fully supports TypeScript. All of this is done
-                while allowing you, the developer, to maintain control; add
-                additional directives, hook into the component's lifecycle, and
-                even handle content projection using slots when using the shadow
-                DOM.
+                properties. When they change, the HTML is also updated. Fudgel
+                also handles events, passes data as attributes and properties,
+                and fully supports TypeScript. All of this is done while
+                allowing you, the developer, to maintain control; add additional
+                directives, hook into the component's lifecycle, and even handle
+                content projection using slots when using the shadow DOM.
             </p>
             <p>What do you get by using Fudgel?</p>
             <ul>
@@ -143,15 +141,19 @@
                     No build system or compilation needed; you can just use
                     vanilla JavaScript
                 </li>
+                <li>
+                    Works with even the most restrictive Content-Security-Policy
+                    directives.
+                </li>
                 <li>Full TypeScript support</li>
                 <li>Published as both UMD and a module</li>
                 <li>
-                    Darn small, coming in at about 4k minified and gzipped for
-                    the Web Component. With all bells and whistles, it's 5k.
+                    Darn small, coming in at about 5k compressed for the Web
+                    Component; 6k if you include everything else
                 </li>
                 <li>
                     Fully tree-shakeable, reducing your bundle size when you
-                    don't use everything supplied
+                    don't use all of the features
                 </li>
             </ul>
             <code-sample
@@ -165,7 +167,7 @@
 
                     component('my-custom-element', {
                         template: `
-                            Hello {{this.name}}, welcome to Fudgel!
+                            Hello {{name}}, welcome to Fudgel!
                         `
                     }, class MyCustomElement {
                         name = "Developer"
@@ -203,7 +205,7 @@
                 to wire up custom elements in order to make web components. It
                 does this by providing many of the features you could see in
                 other frameworks, while keeping the bundle size small. Fudgel
-                adds around 5k (the complete bundle, minified and compressed) to
+                adds around 6k (the complete bundle, minified and compressed) to
                 your assets that need to be delivered. This is extraordinaly
                 small when compared to some of the more popular frameworks like
                 Angular or React.
@@ -216,7 +218,7 @@
                 had roughly 2k (13.6k uncompressed). The entire framework is
                 equivalent to loading <em>just the HTML</em> for this page
                 twice. Put another way, this framework is about 1/4 the size of
-                either font used on this site or 1/40 of the logo's download
+                a font used on this site or 1/40 of the logo's download
                 size. It's almost unfair to compare this miniscule framework to
                 other frameworks.
             </p>
@@ -235,7 +237,7 @@
                     >custom elements and CSS</a
                 >,
                 <a
-                    href="https://caniuse.com/?feats=es6,mdn-javascript_builtins_object_defineproperty,customevent,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_create,mdn-javascript_builtins_object_getownpropertydescriptor,mdn-javascript_builtins_object_getprototypeof,mdn-javascript_classes_private_class_fields"
+                    href="https://caniuse.com/?feats=es6,mdn-javascript_builtins_object_defineproperty,customevent,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_create,mdn-javascript_builtins_object_getownpropertydescriptor,mdn-javascript_builtins_object_getprototypeof,mdn-javascript_classes_private_class_fields,proxy"
                     >language features</a
                 >. When you do, make sure to scroll to the "Summary" section and
                 select "Intersection". The minimum browser version with full
@@ -281,8 +283,8 @@
                 <li>
                     <a href="https://skruv.io/">Skruv</a> is a small library
                     that's similar to Slim.js, but it's not as feature-rich.
-                    It's the source for the CSS scoping that Fudgel currently
-                    uses.
+                    It's the inspiration for the CSS scoping that Fudgel
+                    currently uses.
                 </li>
             </ul>
             <h2>Best Practices</h2>

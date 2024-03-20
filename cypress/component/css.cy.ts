@@ -86,7 +86,7 @@ component(
                 <pre
                     style="margin: 0"
                     class="result"
-                ><code>{{this.style}}</code></pre>
+                ><code>{{style}}</code></pre>
             </div>
         `,
     },
@@ -117,34 +117,34 @@ component(
             }
         `,
         template: html`
-            <textarea #ref="input" @input="this.update()"></textarea>
+            <textarea #ref="input" @input="update()"></textarea>
             <p>
                 Both of these should be the same because @scope support is
                 enabled. (#light-true, #shadow-true)
             </p>
             <test-style
                 id="light-true"
-                text="{{this.text}}"
+                text="{{text}}"
                 scope-supported="true"
                 use-shadow="false"
             ></test-style>
             <test-style
                 id="shadow-true"
-                text="{{this.text}}"
+                text="{{text}}"
                 scope-supported="true"
                 use-shadow="true"
             ></test-style>
             <p>Fallback for light DOM. (#light-false)</p>
             <test-style
                 id="light-false"
-                text="{{this.text}}"
+                text="{{text}}"
                 scope-supported="false"
                 use-shadow="false"
             ></test-style>
             <p>Fallback for shadow DOM. (#shadow-false)</p>
             <test-style
                 id="shadow-false"
-                text="{{this.text}}"
+                text="{{text}}"
                 scope-supported="false"
                 use-shadow="true"
             ></test-style>

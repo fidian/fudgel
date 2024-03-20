@@ -50,10 +50,15 @@
                 <code>onChange(propertyName, oldValue, newValue)</code> will be
                 triggered whenever a monitored property is updated. Monitored
                 properties are the ones that are referenced in a template, plus
-                any attribute or property listed in the config.
-                Differences are detected by using <code>===</code> (strict
-                equals), so changes to immutable objects trigger change
-                detection more easily.
+                any attribute or property listed in the config. Differences are
+                detected by using <code>===</code> (strict equals), so changes
+                to immutable objects trigger change detection more easily.
+            </p>
+            <p>
+                Calling <code>update()</code> (see
+                <a href="utilities.html">Utilities</a>) will also call
+                <code>onChange()</code> for all attributes and properties that
+                are copied into the controller.
             </p>
             <p>
                 <code>onDestroy()</code> is when the controller is being

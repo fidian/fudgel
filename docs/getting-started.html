@@ -101,7 +101,7 @@
                     import { component } from './fudgel.min.js';
 
                     component('my-custom-component', {
-                        template: `Hello {{this.audience}}`
+                        template: `Hello {{audience}}`
                     }, class {
                         audience = 'world';
                     });
@@ -112,7 +112,7 @@
                 <template>
                     // Vanilla JavaScript using window.Fudgel
                     window.Fudgel.component('my-custom-component', {
-                        template: `Hello {{this.audience}}`
+                        template: `Hello {{audience}}`
                     }, class {
                         audience = 'world';
                     });
@@ -125,7 +125,7 @@
                     import { Component } from 'fudgel';
 
                     @Component('my-custom-component', {
-                        template: `Hello {{this.audience}}`
+                        template: `Hello {{audience}}`
                     })
                     export class MyCustomComponent {
                         audience = 'world';

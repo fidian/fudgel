@@ -27,7 +27,7 @@
     </head>
     <body>
         <page-wrapper>
-            <h1>Component Creation</h1>
+            <h1>Component Basics</h1>
             <p>
                 The <code>component()</code> function will create a new element
                 and register it with <code>window.customElements</code> as long
@@ -54,7 +54,7 @@
                     import { component } from './fudgel.min.js';
 
                     component('say-hello', {
-                        template: `<p>Hello, {{this.audience}}!</p>`
+                        template: `<p>Hello, {{audience}}!</p>`
                     }, class {
                         audience = 'world';
                     });
@@ -122,7 +122,7 @@
                     import { Component } from 'fudgel';
 
                     @Component('say-hello', {
-                        template: `<p>Hello, {{this.audience}}</p>`
+                        template: `<p>Hello, {{audience}}</p>`
                     })
                     export class SayHelloComponent {
                         audience = 'world';
@@ -130,13 +130,72 @@
                 </template>
             </code-sample>
 
+            <h2>Bindings</h2>
+            <p>
+                You may have noticed the <code>{{audience}}</code> in the
+                previous example. This is a binding, and it will automatically
+                be replaced with the value of the property
+                <code>audience</code> from the controller. There are a few
+                different types of bindings you can use.
+            </p>
+            <p>
+                The first is a simple text replacement, already discussed. You
+                can replace any HTML text or portions of element attributes with
+                bindings. <code>&lt;p&gt;Hello, {{personName}}</code> and
+                <code>&lt;img src="{{imagePath}}/{{imageName}}"&gt;</code> are
+                examples of this. When you replace the entire attribute with a
+                boolean value, then the attribute will be removed or added,
+                based on the boolean.
+                <code
+                    >&lt;input type="text" disabled="{{isDisabled}}" /&gt;</code
+                >
+            </p>
+            <p>
+                Bindings are also used for event handlers.
+                <code
+                    >&lt;button @click="handleClick($event)"&gt; Click Me
+                    &lt;/button&gt;</code
+                >
+                will call <code>handleClick()</code> in the controller, passing
+                the current event as its only parameter.
+                <code>$event</code> only works for event handlers. For more
+                information about events, see the
+                <a href="directives.html">Directives</a> page.
+            </p>
+            <p>
+                Lastly, bindings are frequently used for
+                <a href="directives.html">directives</a>. These will manipulate
+                DOM elements, assign properties, and more.
+            </p>
+            <p>
+                Bindings fully support strings, numbers, property lookups, and
+                function calls. To keep the size of the parser to a minimum,
+                ternary statements and assignments are not allowed and only a
+                handful of unary and binary operations are supported. Simple
+                math operations (+, -, *, /, %), logical operators (&amp;&amp;,
+                ||, !), comparisons (==, !=, ===, !==, &gt;, &lt;, &gt;=,
+                &lt;=), and bitwise operations (&lt;&lt;, &gt;&gt;,
+                &gt;&gt;&gt;, ~, ^, &amp;, |) are supported.
+            </p>
+            <p>
+                Because arbitrary JavaScript is not allowed in bindings, it is
+                preferred that any actions that change the state of the
+                component be done as methods on the controller.
+            </p>
+
             <h2>Styling</h2>
             <p>
-                Web components need styling in order to look good. Fudgel helps with styling by scoping your styles so they don't automatically affect the rest of the page. This is done using a few different techniques, based on what the browser supports.
+                Web components need styling in order to look good. Fudgel helps
+                with styling by scoping your styles so they don't automatically
+                affect the rest of the page. This is done using a few different
+                techniques, based on what the browser supports.
             </p>
             <h3>Let's Begin</h3>
             <p>
-                Simply put, you style your component by adding a <code>style</code> property to your component's configuration. This property should contain a string of CSS that you want to apply to your component. This is the simplest way to add styles.
+                Simply put, you style your component by adding a
+                <code>style</code> property to your component's configuration.
+                This property should contain a string of CSS that you want to
+                apply to your component. This is the simplest way to add styles.
             </p>
             <code-sample
                 type="js"
@@ -177,7 +236,13 @@
                     }
                 </template>
             </code-sample>
-            <p>If your browser supports <code>@scope</code>, Fudgel will rewrite your CSS by adding a unique class to this component and its descendents in the template. The below examples assume the component is called <code>component-name</code>, and the generated class name for it is <code>fudgel-123</code>.</p>
+            <p>
+                If your browser supports <code>@scope</code>, Fudgel will
+                rewrite your CSS by adding a unique class to this component and
+                its descendents in the template. The below examples assume the
+                component is called <code>component-name</code>, and the
+                generated class name for it is <code>fudgel-7</code>.
+            </p>
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
@@ -190,13 +255,19 @@
                             padding: 10px;
                         }
 
-                        h1.fudgel-123, h2.fudgel-123 {
+                        h1.fudgel-7, h2.fudgel-7 {
                             font-weight: bold;
                         }
                     }
                 </template>
             </code-sample>
-            <p>Using the generated class name helps to prevent the CSS selectors from targeting elements in other custom components. If your browser doesn't support <code>@scope</code> yet, the CSS will change a little. This fallback could be removed once the majority of browsers support scoped CSS.</p>
+            <p>
+                Using the generated class name helps to prevent the CSS
+                selectors from targeting elements in other custom components. If
+                your browser doesn't support <code>@scope</code> yet, the CSS
+                will change a little. This fallback could be removed once the
+                majority of browsers support scoped CSS.
+            </p>
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
@@ -215,7 +286,11 @@
             </code-sample>
 
             <h3>Styling the Host Element</h3>
-            <p>When you are using a shadow DOM and your browser does not support <code>@scope</code>, the CSS will be changed to look like this.</p>
+            <p>
+                When you are using a shadow DOM and your browser does not
+                support <code>@scope</code>, the CSS will be changed to look
+                like this.
+            </p>
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
@@ -233,7 +308,15 @@
                 </template>
             </code-sample>
             <h3>How to Avoid Scoping</h3>
-            <p>When your custom element needs to inject other DOM elements, they will not have the generated class name applied automatically. This will affect your CSS. For instance, the code sample custom element uses <a href="highlight.js">Highlight.js</a> to colorize the code. These elements need to be styled, so the component needs to inject the styles itself.</p>
+            <p>
+                When your custom element needs to inject other DOM elements,
+                they will not have the generated class name applied
+                automatically. This will affect your CSS. For instance, the code
+                sample custom element uses
+                <a href="highlight.js">Highlight.js</a> to colorize the code.
+                These elements need to be styled, so the component needs to
+                inject the styles itself.
+            </p>
             <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>

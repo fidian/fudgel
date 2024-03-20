@@ -1,25 +1,39 @@
 import { Controller } from './controller.js';
 import { hookOn, hooksRun } from './hooks.js';
 import { patchSetter } from './setter.js';
+import { Scope } from './scope.js';
 
 export function addBindings(
     controller: Controller,
     node: Node,
     callback: (thisRef: Object) => void,
-    bindingList: Set<string>
+    bindingList: string[],
+    scope: Scope
 ) {
     hookOn(controller, node, 'set:', callback);
 
     for (const binding of bindingList) {
         const hookName = `set:${binding}`;
-        patchSetter(
-            controller,
-            binding,
-            (thisRef: Controller, newValue, oldValue) => {
-                hooksRun(hookName, thisRef, newValue, oldValue);
-                (thisRef as any).onChange && (thisRef as any).onChange(binding, newValue, oldValue);
-            }
-        );
-        hookOn(controller, node, hookName, callback);
+
+        if (binding in scope) {
+            patchSetter(
+                scope,
+                binding,
+                (_ignore: Scope, newValue, oldValue) => {
+                    hooksRun(hookName, controller, newValue, oldValue);
+                }
+            );
+            hookOn(scope, node, hookName, callback);
+        } else {
+            patchSetter(
+                controller,
+                binding,
+                (thisRef: Controller, newValue, oldValue) => {
+                    hooksRun(hookName, thisRef, newValue, oldValue);
+                    (thisRef as any).onChange && (thisRef as any).onChange(binding, newValue, oldValue);
+                }
+            );
+            hookOn(controller, node, hookName, callback);
+        }
     }
 }

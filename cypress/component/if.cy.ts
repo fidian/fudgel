@@ -4,19 +4,25 @@ defineRouterComponent('app-router');
 
 component('test-element', {
     template:
-        '<button @click="this.value = !this.value">Toggle</button><span id="truthy" *if="this.value">YES</span><span id="falsy" *if="!this.value">NO</span>',
+        '<button @click="toggle()">Toggle</button><span id="truthy" *if="value">YES</span><span id="falsy" *if="!value">NO</span>',
+}, class {
+    value = false;
+
+    toggle() {
+        this.value = !this.value;
+    }
 });
 
 component('test-undefined', {
     template:
-        '<span id="wrong" *if="this.x">WRONG</span><span id="right" *if="!this.x">RIGHT</span>'
+        '<span id="wrong" *if="x">WRONG</span><span id="right" *if="!x">RIGHT</span>'
 });
 
 component('test-for-if', {
     template: `
-        <div *for="item of this.list">
-            <div *if="$scope.item.show" id="{{$scope.item.name}}">
-                {{$scope.item.name}}
+        <div *for="item of list">
+            <div *if="item.show" id="{{item.name}}">
+                {{item.name}}
             </div>
         </div>
     `
@@ -35,7 +41,7 @@ component('test-for-if', {
 
 component('nested-component', {
     attr: ['id'],
-    template: `nested ID {{this.id}}`
+    template: `nested ID {{id}}`
 });
 
 component('test-for-if-routed', {
@@ -43,8 +49,8 @@ component('test-for-if-routed', {
         <div>Router enabled</div>
         <app-router>
             <div path="**">
-                <div *for="item of this.list">
-                    <nested-component *if="$scope.item.show" id="{{$scope.item.name}}">
+                <div *for="item of list">
+                    <nested-component *if="item.show" id="{{item.name}}">
                     </nested-component>
                 </div>
             </div>

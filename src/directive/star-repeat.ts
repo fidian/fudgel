@@ -1,11 +1,10 @@
 import { addBindings } from '../bindings.js';
-import { childScope, getScope } from '../scope.js';
+import { childScope, getScope, scopeProxy } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
-import { createValueFunction } from '../util.js';
-import { findBindings } from '../parse.js';
 import { hooksOff } from '../hooks.js';
 import { linkNodesWrapped } from '../link-nodes.js';
+import { parse } from '../jsep.js';
 import { StructuralDirective } from './types.js';
 
 export const starRepeatDirective: StructuralDirective = (
@@ -22,11 +21,11 @@ export const starRepeatDirective: StructuralDirective = (
         scopeName = matches[2];
     }
 
-    const getValue = createValueFunction(attrValue);
+    const parsed = parse(attrValue);
     const anchorScope = getScope(anchor);
     let activeNodes: HTMLElement[] = [];
     const update = (thisRef: Controller) => {
-        let desired = +getValue.call(thisRef, anchorScope);
+        let desired = +parsed[0](scopeProxy(thisRef, anchorScope));
 
         while (activeNodes.length > desired) {
             const target = activeNodes.pop()!;
@@ -47,6 +46,6 @@ export const starRepeatDirective: StructuralDirective = (
             lastNode = copy;
         }
     };
-    addBindings(controller, anchor, update, findBindings(attrValue));
+    addBindings(controller, anchor, update, parsed[1], anchorScope);
     update(controller);
 };

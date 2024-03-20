@@ -1,7 +1,7 @@
 import { component, metadataControllerElement } from '../../src/fudgel.js';
 
 component('link-child', {
-    template: 'value:"{{this.childValue}}"'
+    template: 'value:"{{childValue}}"'
 }, class {
     childValue = 'initialized';
     onViewInit() {
@@ -11,7 +11,7 @@ component('link-child', {
 });
 
 component('link-parent', {
-    template: '<link-child><template>{{this.parentValue}}</template></link-child>'
+    template: '<link-child><template>{{parentValue}}</template></link-child>'
 }, class {
     parentValue = 'ok';
 });

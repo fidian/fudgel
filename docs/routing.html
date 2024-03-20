@@ -85,10 +85,10 @@
                         template: `
                             Page 2: Go to
                             <a href="/unknown">an unknown page</a>.<br />
-                            Going <a href="#" @click.stop.prevent="this.goBack()">back</a>
+                            Going <a href="#" @click.stop.prevent="goBack()">back</a>
                             does not work well in this playground, but it does
                             work in a regular app.<br />
-                            The value from the route is "{{this.thing}}".
+                            The value from the route is "{{thing}}".
                         `
                     }, class {
                         goBack() {
@@ -336,7 +336,7 @@
                     component('show-user', {
                         attr: ['userId'],
                         template: `
-                            UserId: {{this.userId}}<br />
+                            UserId: {{userId}}<br />
                             <a href="/">Back to index</a>
                         `
                     });
@@ -421,7 +421,7 @@
 
                     component('route-changes', {
                         template: `
-                            Number of route changes: {{this.count}}
+                            Number of route changes: {{count}}
                         `
                     }, class {
                         count = 0;

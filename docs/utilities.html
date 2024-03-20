@@ -51,7 +51,7 @@
 
                     component('button-sample', {
                         template: `
-                            <button @click.stop.prevent="this.clicked()">Click me</button>
+                            <button @click.stop.prevent="clicked()">Click me</button>
                             to send a custom event
                         `
                     }, class {
@@ -113,8 +113,8 @@
 
                     component('user-sample', {
                         template: `
-                            <p>Name: {{this.user.name}}</p>
-                            <button @click="return this.clicked()">Update</button>
+                            <p>Name: {{user.name}}</p>
+                            <button @click="clicked()">Update</button>
                         `
                     }, class {
                         onInit() {
@@ -220,7 +220,7 @@
                     }
 
                     component('demo-di', {
-                        template: `<button @click="this.sendLog()">
+                        template: `<button @click="sendLog()">
                                 Log to Console
                             </button>`
                     }, class {
@@ -312,14 +312,14 @@
                     component('tick-counter', {
                         template: `
                             &lt;button
-                                *if="!this.tracking"
-                                @click="this.toggleTracking()"
+                                *if="!tracking"
+                                @click="toggleTracking()"
                             &gt;Watch Ticks&lt;/button&gt;
                             &lt;button
-                                *if="this.tracking"
-                                @click="this.toggleTracking()"
+                                *if="tracking"
+                                @click="toggleTracking()"
                             &gt;Stop Watching&lt;/button&gt;
-                            <div>Tick count: {{this.tickCount}}</div>
+                            <div>Tick count: {{tickCount}}</div>
                         `
                     }, class {
                         tracking = false;

@@ -1,8 +1,8 @@
-import { Component, component, update } from '../../src/fudgel.js';
+import { Component, component, html, update } from '../../src/fudgel.js';
 
 @Component('show-prop', {
     prop: ['prop'],
-    template: '{{this.prop}}',
+    template: '{{prop}}',
 })
 class ShowProp {
     prop = 'not yet replaced';
@@ -15,7 +15,7 @@ component('test-string', {
 component(
     'test-async',
     {
-        template: '<show-prop .prop="this.value"></show-prop>',
+        template: '<show-prop .prop="value"></show-prop>',
     },
     class {
         value = 'before-update';
@@ -30,18 +30,27 @@ let trackInstance = 0;
 
 @Component('test-scope-item', {
     prop: ['prop'],
-    template: 'Item: {{this.prop ? this.prop.name : "no prop set"}}',
+    template: 'Item: {{propName}}',
 })
 class TestScopeItem {
     prop;
-    name = `test-scope-item[${trackInstance++}]`;
+    propName = 'no prop set';
+    onChange() {
+        this.propName = this.prop ? this.prop.name : 'no prop set';
+    }
 }
 
 component(
     'test-scope',
     {
-        template:
-            '<test-scope-item *for="this.list" .prop="$scope.value"></test-scope-item><button id="updateList" @click.stop.prevent="this.updateList()">updateList</button><button id="updateName" @click="this.updateName()">updateName</button><button id="updateAll" @click="this.updateAll()">updateAll</button>',
+        template: html`<test-scope-item
+                *for="list"
+                .prop="value"
+            ></test-scope-item
+            ><button id="updateList" @click.stop.prevent="updateList()">
+                updateList</button
+            ><button id="updateName" @click="updateName()">updateName</button
+            ><button id="updateAll" @click="updateAll()">updateAll</button>`,
     },
     class {
         list = [];
@@ -52,6 +61,7 @@ component(
         }
 
         updateAll() {
+            // This function is exposed by Fudgel to redraw all components.
             update();
         }
 
@@ -61,7 +71,11 @@ component(
         }
 
         updateName() {
+            // This updates a deeply nested property, which does not trigger a
+            // redraw.
             this.list[0].name = 'updatedName';
+            // Only trigger an update of this one component, which also doesn't
+            // redraw the label.
             update(this);
         }
     }
@@ -69,14 +83,15 @@ component(
 
 @Component('test-update-child', {
     prop: ['childValue'],
-    template: '{{this.childValue}}'
+    template: '{{childValue}}',
 })
 class TestUpdateChildComponent {
     childValue = 'initialValue';
 }
 
 @Component('test-update-parent', {
-    template: '<button @click="this.update()">Update</button><test-update-child .child-value="this.value"></test-update-child>'
+    template:
+        '<button @click="update()">Update</button><test-update-child .child-value="value"></test-update-child>',
 })
 class TestUpdateParentComponent {
     value = 'fromParent';
@@ -97,24 +112,29 @@ describe('prop', () => {
     });
     it('shows items from a list', () => {
         cy.mount('<test-scope></test-scope>');
-        cy.get('test-scope-item')
-            .should('have.text', 'Item: after-update');
+        cy.get('test-scope-item').should('have.text', 'Item: after-update');
 
         // Add a second item
         cy.get('#updateList').click();
-        cy.get('test-scope-item')
-            .should('have.text', 'Item: after-updateItem: second-item');
+        cy.get('test-scope-item').should(
+            'have.text',
+            'Item: after-updateItem: second-item'
+        );
 
         // Update the first item and manually redraw, but this does not update
         // the label.
         cy.get('#updateName').click();
-        cy.get('test-scope-item')
-            .should('have.text', 'Item: after-updateItem: second-item');
+        cy.get('test-scope-item').should(
+            'have.text',
+            'Item: after-updateItem: second-item'
+        );
 
         // Update everything in all components
         cy.get('#updateAll').click();
-        cy.get('test-scope-item')
-            .should('have.text', 'Item: updatedNameItem: second-item');
+        cy.get('test-scope-item').should(
+            'have.text',
+            'Item: updatedNameItem: second-item'
+        );
     });
     it('triggers onUpdate', () => {
         cy.mount('<test-update-parent></test-update-parent>');

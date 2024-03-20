@@ -1,5 +1,4 @@
 import { component, Controller } from '../../src/fudgel.js';
-import { prototypeHook } from '../../src/prototype-hooks.js';
 
 const events = [];
 const trigger = (obj: Controller, event: string) => {
@@ -27,12 +26,6 @@ class LogEvents {
     }
 }
 
-// This is a non-standard way to add a hook. They should be done interally and
-// are actually added using @Attr or @Prop.
-prototypeHook(LogEvents, function (instance) {
-    trigger(instance, 'hook');
-});
-
 component(
     'test-parent',
     {
@@ -43,7 +36,7 @@ component(
 component(
     'test-child',
     {
-        template: '{{this.state}}',
+        template: '{{state}}',
     },
     class TestChild extends LogEvents {
         state = 'starting';
@@ -70,7 +63,7 @@ component(
 component(
     'test-child-shadow',
     {
-        template: '{{this.state}}',
+        template: '{{state}}',
         useShadow: true,
     },
     class TestChildShadow extends LogEvents {
@@ -107,10 +100,8 @@ describe('event order', () => {
                 expect(events).to.deep.equal([
                     // Create the parent
                     'TestParent constructor',
-                    'TestParent hook',
                     'TestParent onInit',
                     'TestChild constructor',
-                    'TestChild hook',
                     'TestChild onInit',
                     'TestChild onViewInit',
                     'TestParent onViewInit',
@@ -140,10 +131,8 @@ describe('with shadow DOM', () => {
                 expect(events).to.deep.equal([
                     // Create the parent
                     'TestParentShadow constructor',
-                    'TestParentShadow hook',
                     'TestParentShadow onInit',
                     'TestChildShadow constructor',
-                    'TestChildShadow hook',
                     'TestChildShadow onInit',
                     'TestChildShadow onViewInit',
                     'TestParentShadow onViewInit',

@@ -26,10 +26,10 @@ component(
                         <th class="topHeader">Minified</th>
                         <th class="topHeader">Gzipped</th>
                     </tr>
-                    <tr *for="row of this.data">
-                        <th>{{$scope.row.name}}</th>
-                        <td>{{$scope.row.minified.toLocaleString()}}</td>
-                        <td>{{$scope.row.gzipped.toLocaleString()}}</td>
+                    <tr *for="row of data">
+                        <th>{{row.name}}</th>
+                        <td>{{row.minified.toLocaleString()}}</td>
+                        <td>{{row.gzipped.toLocaleString()}}</td>
                     </tr>
                 </table>
             </div>

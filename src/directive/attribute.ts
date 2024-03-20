@@ -1,8 +1,8 @@
 import { addBindings } from '../bindings.js';
 import { Controller } from '../controller.js';
 import { GeneralDirective } from './types.js';
-import { getScope } from '../scope.js';
-import { parseText } from '../parse.js';
+import { getScope, scopeProxy } from '../scope.js';
+import { parseTextAllowBoolean } from '../parse.js';
 import { setAttribute } from '../util.js';
 
 export const attributeDirective: GeneralDirective = (
@@ -11,17 +11,18 @@ export const attributeDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const result = parseText(attrValue, true);
+    const result = parseTextAllowBoolean(attrValue);
 
     if (result) {
+        const scope = getScope(node);
         const update = (thisRef: Controller) => {
             setAttribute(
                 node,
                 attrName,
-                result.fn.call(thisRef, getScope(node))
+                result[0](scopeProxy(thisRef, scope))
             );
         };
-        addBindings(controller, node, update, result.binds);
+        addBindings(controller, node, update, result[1], scope);
         update(controller);
     }
 };

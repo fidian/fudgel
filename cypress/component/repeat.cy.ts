@@ -2,7 +2,7 @@ import { component } from '../../src/fudgel.js';
 
 component('test-element', {
     template:
-        '<button @click="this.changeSize()">Change Size</button><div id="item{{$scope.index}}" *repeat="this.size">Item {{$scope.index}}</div>',
+        '<button @click="changeSize()">Change Size</button><div id="item{{index}}" *repeat="size">Item {{index}}</div>',
 }, class {
     size = 3;
     nextSizes = [5, 3];

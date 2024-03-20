@@ -1,0 +1,5 @@
+Add a switch directive
+Perform speed tests - general
+Perform speed tests - large *for
+Perform speed tests - large *repeat
+Verify that there's no memory leaks, preferably automatically in the unit tests

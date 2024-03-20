@@ -2,7 +2,7 @@ import { Component, component } from '../../src/fudgel.js';
 
 component('test-element', {
     template:
-        '<div #ref="child"></div><span id="name">{{this.child.nodeName}}</span>',
+        '<div #ref="child"></div><span id="name">{{child.nodeName}}</span>',
 });
 
 describe('ref', () => {

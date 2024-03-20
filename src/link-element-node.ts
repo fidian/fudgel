@@ -3,7 +3,7 @@ import { directives, GENERAL_DIRECTIVE_INDEX } from './directive/index.js';
 export function linkElementNode(
     controller: Object,
     currentNode: HTMLElement
-): void | number {
+): void {
     // Node.ELEMENT_NODE === 1
     if (currentNode.nodeType === 1) {
         for (const attr of [...currentNode.attributes]) {
@@ -21,6 +21,4 @@ export function linkElementNode(
             applyDirective && applyDirective(controller, currentNode, attr.nodeValue || '', attrName);
         }
     }
-
-    return 1;
 }

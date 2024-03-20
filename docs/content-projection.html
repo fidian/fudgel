@@ -36,50 +36,6 @@
                 button. There are two ways you have access to outside content in
                 order to "project" it into your element.
             </p>
-            <h2>Using Slots with Shadow DOM</h2>
-            <p>
-                You can use slotted content to achieve the same result, which
-                leverages built-in browser features. Imagine using
-                "&lt;custom-button&gt;&lt;b&gt;BOLD
-                SAVE&lt;/b&gt;&lt;/custom-button&gt;"
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<custom-button><b>BOLD SAVE</b></custom-button>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('custom-button', {
-                        style: `
-                            button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                                padding: 4px;
-                            }
-                        `,
-                        template: `<button><slot></slot></button>`,
-                        useShadow: true
-                    });
-                </template>
-            </code-sample>
-            <p>
-                You can also project multiple pieces of content using named
-                slots. Read more about
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
-                    ><code>slot</code> elements</a
-                >
-                and
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
-                    ><code>slot</code> attributes</a
-                >.
-            </p>
             <h2>Manual Content Retrieval</h2>
             <p>
                 Your controller can access the custom element and pull its
@@ -122,6 +78,51 @@
                     });
                 </template>
             </code-sample>
+            <h2>Using Slots with Shadow DOM</h2>
+            <p>
+                You can use slotted content when your element enables
+                <code>useShadow: true</code> in its configuration. This
+                leverages built-in browser features. Imagine using
+                "&lt;custom-button&gt;&lt;b&gt;BOLD
+                TEXT&lt;/b&gt;&lt;/custom-button&gt;"
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<custom-button><b>BOLD TEXT</b></custom-button>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                                padding: 4px;
+                            }
+                        `,
+                        template: `<button><slot></slot></button>`,
+                        useShadow: true
+                    });
+                </template>
+            </code-sample>
+            <p>
+                You can also project multiple pieces of content using named
+                slots. Read more about
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
+                    ><code>slot</code> elements</a
+                >
+                and
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
+                    ><code>slot</code> attributes</a
+                >.
+            </p>
         </page-wrapper>
     </body>
     <script src="js.js" type="module"></script>

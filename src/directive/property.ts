@@ -1,9 +1,9 @@
 import { addBindings } from '../bindings.js';
 import { Controller } from '../controller.js';
-import { createValueFunction, dashToCamel, setAttribute } from '../util.js';
+import { dashToCamel, setAttribute } from '../util.js';
 import { GeneralDirective } from './types.js';
-import { findBindings } from '../parse.js';
-import { getScope } from '../scope.js';
+import { getScope, scopeProxy } from '../scope.js';
+import { parse } from '../jsep.js';
 
 export const propertyDirective: GeneralDirective = (
     controller: Controller,
@@ -11,14 +11,14 @@ export const propertyDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const getValue = createValueFunction(attrValue);
+    const parsed = parse(attrValue);
     const prop = dashToCamel(attrName.slice(1));
     const scope = getScope(node);
     const update = (thisRef: Controller) => {
-        const value = getValue.call(thisRef, scope);
+        const value = parsed[0](scopeProxy(thisRef, scope));
         (node as any)[prop] = value;
     };
-    addBindings(controller, node, update, findBindings(attrValue));
+    addBindings(controller, node, update, parsed[1], scope);
     update(controller);
     setAttribute(node, attrName);
 };

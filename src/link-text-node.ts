@@ -1,5 +1,5 @@
 import { addBindings } from './bindings.js';
-import { getScope } from './scope.js';
+import { getScope, scopeProxy } from './scope.js';
 import { parseText } from './parse.js';
 
 export function linkTextNode(controller: Object, currentNode: Text): void | number {
@@ -8,10 +8,11 @@ export function linkTextNode(controller: Object, currentNode: Text): void | numb
         const result = parseText(currentNode.textContent || '');
 
         if (result) {
+            const scope = getScope(currentNode);
             const update = (thisRef: Object) => {
-                currentNode.nodeValue = result.fn.call(thisRef, getScope(currentNode));
+                currentNode.nodeValue = result[0](scopeProxy(thisRef, scope));
             };
-            addBindings(controller, currentNode, update, result.binds);
+            addBindings(controller, currentNode, update, result[1], scope);
             update(controller);
 
             return 1;
