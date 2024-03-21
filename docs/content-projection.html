@@ -48,10 +48,21 @@
                 elements are made and updates are not detected on parent
                 elements.
             </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <!-- Here is the sample HTML -->
+                    <custom-button>
+                        <template>
+                            <b>BOLD TEXT</b>
+                        </template>
+                    </custom-button>
+                </template>
+            </code-sample>
             <code-sample
                 type="js"
                 live="true"
-                html="<custom-button><b>BOLD SAVE</b></custom-button>"
+                html="<custom-button><template><b>BOLD TEXT</b></template></custom-button>"
             >
                 <!-- prettier-ignore -->
                 <template>
@@ -70,10 +81,8 @@
                     }, class {
                         onViewInit() {
                             const element = rootElement(this);
-
-                            for (const childNode of element.childNodes) {
-                                this.button.append(childNode.cloneNode(true));
-                            }
+                            const template = element.querySelector('template');
+                            this.button.append(template.content);
                         }
                     });
                 </template>
@@ -82,10 +91,17 @@
             <p>
                 You can use slotted content when your element enables
                 <code>useShadow: true</code> in its configuration. This
-                leverages built-in browser features. Imagine using
-                "&lt;custom-button&gt;&lt;b&gt;BOLD
-                TEXT&lt;/b&gt;&lt;/custom-button&gt;"
+                leverages built-in browser features.
             </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <!-- Here is the sample HTML -->
+                    <custom-button>
+                        <b>BOLD TEXT</b>
+                    </custom-button>
+                </template>
+            </code-sample>
             <code-sample
                 type="js"
                 live="true"
