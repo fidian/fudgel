@@ -46,14 +46,14 @@ export class CustomElement extends HTMLElement {
         metadataControllerElement.set(controller, this);
         this.classList.add(config.className);
 
-        // Add styling within the element when using a shadow DOM.
-        // When not using this, the CSS is applied in component().
-        config.style && root.appendChild(createStyle(config.style));
-
         // Initialize before adding child nodes
         this.#bindings(config, controller);
         controller.onInit && controller.onInit();
         hooksRun('init', controller);
+
+        // Add styling within the element when using a shadow DOM.
+        // When not using this, the CSS is applied in component().
+        config.style && root.appendChild(createStyle(config.style));
 
         // Create initial child elements from the template.
         const template = createTemplate();
