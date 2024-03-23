@@ -9,5 +9,6 @@ export * from './emitter.js';
 export { metadataControllerElement } from './metadata.js';
 export * from './parse.js';
 export * from './router.js';
+export * from './slot.js';
 export * from './tag-functions.js';
 export { getAttribute, setAttribute, rootElement } from './util.js';

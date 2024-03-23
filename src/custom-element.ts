@@ -53,7 +53,7 @@ export class CustomElement extends HTMLElement {
 
         // Add styling within the element when using a shadow DOM.
         // When not using this, the CSS is applied in component().
-        config.style && root.appendChild(createStyle(config.style));
+        config.style && root.append(createStyle(config.style));
 
         // Create initial child elements from the template.
         const template = createTemplate();

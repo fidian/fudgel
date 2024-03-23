@@ -17,7 +17,7 @@ export const createFragment = () => doc.createDocumentFragment();
 
 export const createStyle = (content: string) => {
     const s = createElement('style');
-    s.appendChild(createTextNode(content));
+    s.append(createTextNode(content));
 
     return s;
 }
@@ -33,7 +33,7 @@ export const sandboxStyleRules = (css: string) => {
     const sandbox = doc.implementation.createHTMLDocument('');
     const style = sandbox.createElement('style');
     style.textContent = css;
-    sandbox.body.appendChild(style);
+    sandbox.body.append(style);
 
     return style.sheet!.cssRules;
 }

@@ -3,6 +3,7 @@ import { Controller } from './controller.js';
 import { CustomElement } from './custom-element.js';
 import { CustomElementConfigInternal } from './custom-element-config.js';
 import { HookCallback } from './hooks.js';
+import { SlotInfo } from './slot.js';
 import { TrackedSetters } from './setter.js';
 
 export interface MetadataMap<K extends WeakKey, V> {
@@ -26,7 +27,7 @@ export const metadataControllerHooks = makeMap<
     { [key: string]: HookCallback[] }
 >();
 export const metadataElementController = makeMap<HTMLElement, Controller>();
+export const metadataElementSlotContent = makeMap<ShadowRoot | HTMLElement, SlotInfo>();
 export const metadataHookRemove = makeMap<Node, (() => void)[]>();
 export const metadataPatchedSetter = makeMap<Object, TrackedSetters<Object>>();
-export const metadataPrototypeHooks = makeMap<Object, HookCallback[]>();
 export const metadataScope = makeMap<Node, Object>();

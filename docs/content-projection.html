@@ -36,6 +36,128 @@
                 button. There are two ways you have access to outside content in
                 order to "project" it into your element.
             </p>
+            <h2>Using Slots with Shadow DOM</h2>
+            <p>
+                You can use slotted content when your element enables
+                <code>useShadow: true</code> in its configuration. This
+                leverages built-in browser features and works well.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <!-- Here is the sample HTML -->
+                    <custom-button>
+                        <b>BOLD TEXT</b>
+                    </custom-button>
+                </template>
+            </code-sample>
+            <code-sample
+                type="js"
+                live="true"
+                html="<custom-button><b>BOLD TEXT</b></custom-button>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                                padding: 4px;
+                            }
+                        `,
+                        template: `<button><slot></slot></button>`,
+                        useShadow: true
+                    });
+                </template>
+            </code-sample>
+            <p>
+                You can also project multiple pieces of content using named
+                slots. Read more about
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
+                    ><code>slot</code> elements</a
+                >
+                and
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
+                    ><code>slot</code> attributes</a
+                >.
+            </p>
+            <h2>Using Slot-Like with Light DOM</h2>
+            <p>
+                Fudgel comes with a custom element that is named
+                <code>slot-like</code> by default. It allows you to project
+                content similar to how the native <code>slot</code> element
+                works in shadow DOMs. When you don't want the extra
+                encapsulation of a shadow DOM, you could use this feature.
+            </p>
+            <p>
+                In order for this custom element to work, you first need to make
+                sure it is defined in the browser, using
+                <code>defineSlotComponent()</code>. This can accept a single,
+                optional parameter that is the name of the custom element. By
+                default it uses <code>slot-like</code>. The second thing you
+                must do is call <code>slotInit(this)</code> within your
+                component's <code>onInit()</code> before the DOM is altered.
+                This moves all content to an internal store that preserves the
+                nodes until they are placed into slots.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <!-- Here is the sample HTML -->
+                    <custom-button>
+                        <b>BOLD TEXT</b>
+                    </custom-button>
+                </template>
+            </code-sample>
+            <code-sample
+                type="js"
+                live="true"
+                html="<custom-button><b>BOLD TEXT</b></custom-button>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, defineSlotComponent, slotInit } from './fudgel.min.js';
+
+                    defineSlotComponent();
+
+                    component('custom-button', {
+                        style: `
+                            button {
+                                border-radius: 4px;
+                                border-width: 2x;
+                                border-color: blue;
+                                border-style: solid;
+                                padding: 4px;
+                            }
+                        `,
+                        template: `<button><slot-like></slot-like></button>`,
+                        }, class {
+                            onInit() {
+                                slotInit(this);
+                            }
+                        });
+                </template>
+            </code-sample>
+            <p>
+                This method also supports named slots, very similar to the
+                standard. Read more about
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
+                    ><code>slot</code> elements</a
+                >
+                and
+                <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
+                    ><code>slot</code> attributes</a
+                >.
+            </p>
             <h2>Manual Content Retrieval</h2>
             <p>
                 Your controller can access the custom element and pull its
@@ -87,58 +209,6 @@
                     });
                 </template>
             </code-sample>
-            <h2>Using Slots with Shadow DOM</h2>
-            <p>
-                You can use slotted content when your element enables
-                <code>useShadow: true</code> in its configuration. This
-                leverages built-in browser features.
-            </p>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    <!-- Here is the sample HTML -->
-                    <custom-button>
-                        <b>BOLD TEXT</b>
-                    </custom-button>
-                </template>
-            </code-sample>
-            <code-sample
-                type="js"
-                live="true"
-                html="<custom-button><b>BOLD TEXT</b></custom-button>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('custom-button', {
-                        style: `
-                            button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                                padding: 4px;
-                            }
-                        `,
-                        template: `<button><slot></slot></button>`,
-                        useShadow: true
-                    });
-                </template>
-            </code-sample>
-            <p>
-                You can also project multiple pieces of content using named
-                slots. Read more about
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
-                    ><code>slot</code> elements</a
-                >
-                and
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
-                    ><code>slot</code> attributes</a
-                >.
-            </p>
         </page-wrapper>
     </body>
     <script src="js.js" type="module"></script>

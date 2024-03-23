@@ -33,7 +33,7 @@ status "Minify UMD"
 terser --ecma 6 --compress --mangle -o dist/fudgel.umd.min.js -- dist/fudgel.umd.js
 gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
 
-for NAME in component di emitter router; do
+for NAME in component di emitter router slot; do
     status "Extracting just $NAME"
     rollup dist/only-$NAME.js --file dist/only-$NAME.mjs --format esm
 
@@ -55,7 +55,8 @@ fi
     echo "$(sizeAsJson "component()" only-component.min.mjs),"
     echo "$(sizeAsJson "di()" only-di.min.mjs),"
     echo "$(sizeAsJson "new Emitter()" only-emitter.min.mjs),"
-    sizeAsJson "RouterComponent" only-router.min.mjs
+    echo "$(sizeAsJson "RouterComponent" only-router.min.mjs),"
+    sizeAsJson "SlotComponent" only-slot.min.mjs
     echo ']'
 ) > docs/fudgel-sizes.json
 git diff docs/fudgel-sizes.json

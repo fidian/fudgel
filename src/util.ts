@@ -38,7 +38,7 @@ export const toString = <T>(value: T) =>
 
 export const isString = (x: any) => typeof x === 'string';
 
-export const getAttribute = (node: HTMLElement, name: string) =>
+export const getAttribute = (node: Element | HTMLElement, name: string) =>
     node.getAttribute(name);
 
 export const getPrototypeOf = (x: Object) => Object.getPrototypeOf(x);
@@ -70,3 +70,5 @@ export const uniqueListJoin = (a: string[], b: string[]) => [...new Set([...a, .
 // Look up a property on an object. If it is a function, bind its context
 // to the object.
 export const bindFn = (root: any, prop: string | symbol) => typeof root[prop] === 'function' ? root[prop].bind(root) : root[prop];
+
+export const appendChild = (parent: Node, child: Node) => parent.appendChild(child);

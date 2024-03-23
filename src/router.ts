@@ -8,7 +8,7 @@ interface MatchedRoute {
     g: [string, string][];
 }
 
-export class RouterComponent extends HTMLElement {
+class RouterComponent extends HTMLElement {
     #fragment = createFragment();
     #lastMatched: HTMLElement[] = [];
     #routeElements: HTMLElement[] = [];
@@ -27,7 +27,7 @@ export class RouterComponent extends HTMLElement {
             while (children.length > 0) {
                 const element = children[0];
                 this.#routeElements.push(element as HTMLElement);
-                this.#fragment.appendChild(element);
+                this.#fragment.append(element);
             }
         }
     }
@@ -77,7 +77,7 @@ export class RouterComponent extends HTMLElement {
         }
 
         if (append) {
-            this.appendChild(e);
+            this.append(e);
         }
     }
 

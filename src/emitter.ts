@@ -20,8 +20,9 @@ export class Emitter {
         }
     };
 
-    on = (name: string, callback: EmitterCallback) =>
-        this.#c(name).push(callback) && (() => this.off(name, callback));
+    on = (name: string, callback: EmitterCallback): (() => void) =>
+        (this.#c(name).push(callback) as unknown as true) &&
+        (() => this.off(name, callback));
 
     #c = (name: string) =>
         this.#m.get(name) || this.#m.set(name, []).get(name)!;
