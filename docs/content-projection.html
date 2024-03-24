@@ -36,6 +36,16 @@
                 button. There are two ways you have access to outside content in
                 order to "project" it into your element.
             </p>
+            <h2>Normal Process Without Content Projection</h2>
+            <p>
+                Normally, any extra content within the custom element does not
+                bleed through. When using a shadow DOM, one can access this
+                content using <code>&lt;slot&gt;</code>. If the light DOM is
+                more your thing, Fudgel will automatically clear this content
+                for you between <code>onInit()</code> and
+                <code>onViewInit()</code>. You can use a method from below to
+                preserve the content and project it into your template.
+            </p>
             <h2>Using Slots with Shadow DOM</h2>
             <p>
                 You can use slotted content when your element enables

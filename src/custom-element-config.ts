@@ -10,6 +10,13 @@ export interface CustomElementConfig {
     attr?: string[];
 
     /**
+     * Normally, content within the custom element is wiped out after onInit()
+     * is called. This happens just before the new <style> element and all content
+     * from the template are added. To keep the content, set this to true.
+     */
+    preserveContent?: boolean;
+
+    /**
      * Element properites to map to the controller's internal properties. This
      * is always a two-way binding.
      *

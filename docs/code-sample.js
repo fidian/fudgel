@@ -175,7 +175,7 @@ component(
             this.label = 'Copy';
         }
 
-        onViewInit() {
+        onInit() {
             const elem = metadataControllerElement.get(this);
             const template = elem.querySelector('template');
 
@@ -187,10 +187,10 @@ component(
                 return;
             }
 
-            const code = document.createElement('code');
+            const codeElement = document.createElement('code');
 
             if (this.type) {
-                code.classList.add(`language-${this.type}`);
+                codeElement.classList.add(`language-${this.type}`);
             }
 
             this.codeStr = cleanText(template.innerHTML);
@@ -202,9 +202,13 @@ component(
             }
 
             const textNode = document.createTextNode(this.codeStr);
-            code.appendChild(textNode);
-            this.pre.appendChild(code);
-            hljs.highlightElement(code);
+            codeElement.appendChild(textNode);
+            this.codeElement = codeElement;
+        }
+
+        onViewInit() {
+            this.pre.appendChild(this.codeElement);
+            hljs.highlightElement(this.codeElement);
         }
 
         copyToClipboard() {
