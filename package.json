@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "Minimalist web component library to take the pain out of automatic updates.",
     "keywords": [
         "lightweight",
@@ -8,6 +8,7 @@
         "web",
         "component",
         "router",
+        "slot",
         "declarative",
         "micro",
         "tiny",
@@ -27,6 +28,7 @@
         "build": "scripts/build",
         "build:unminified": "scripts/build-unminified",
         "docs": "docs/update-scripts",
+        "reinstall": "rm -rf node_modules/ package-lock.json && npm install",
         "start": "light-server -s docs/ -p 8080",
         "test": "scripts/test",
         "test:interactive": "cypress open --component"
@@ -38,12 +40,12 @@
     "types": "dist/fudgel.d.ts",
     "devDependencies": {
         "agadoo": "^3.0.0",
-        "cypress": "^13.7.0",
+        "cypress": "^13.7.1",
         "cypress-ct-custom-elements": "^1.0.0",
         "light-server": "^2.9.1",
         "rollup": "^4.13.0",
         "terser": "^5.29.2",
-        "typescript": "^5.4.2",
-        "vite": "^5.1.6"
+        "typescript": "^5.4.3",
+        "vite": "^5.2.4"
     }
 }
