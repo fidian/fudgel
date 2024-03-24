@@ -34,9 +34,7 @@
  *     </inner-element>
  * </outer-element>
  */
-import {
-    createFragment,
-} from './elements.js';
+import { createFragment } from './elements.js';
 import { Controller } from './controller';
 import { Emitter } from './emitter';
 import { getAttribute } from './util.js';
@@ -57,6 +55,14 @@ export interface SlotInfo {
 const getFragment = (slotInfo: SlotInfo, name: string) =>
     slotInfo.n[name] || (slotInfo.n[name] = createFragment());
 
+// Given an element, find its parent element. The parent element may be outside
+// of a shadow root.
+const getParent = (element: HTMLElement): HTMLElement | undefined =>
+    element.parentElement ||
+    (((element.getRootNode() as ShadowRoot) || {}).host as
+        | HTMLElement
+        | undefined);
+
 // Move all elements inside the controller's root element into the metadata.
 export const slotInit = (controller: Controller) => {
     const root = rootElement(controller);
@@ -70,7 +76,7 @@ export const slotInit = (controller: Controller) => {
                 '': createFragment(),
             },
             s: getScope(
-                metadataControllerElement.get(controller)!.parentElement!
+                getParent(metadataControllerElement.get(controller)!) as Node
             ),
         };
 
@@ -102,13 +108,13 @@ class SlotComponent extends HTMLElement {
         // The parent must not change even if this element is later relocated
         // elsewhere (eg. deeper via content projection into content
         // projection) in the DOM.
-        let parent = this.parentElement;
+        let parent = getParent(this);
 
         while (
             parent &&
             !(this.#slotInfo = metadataElementSlotContent(parent))
         ) {
-            parent = parent.parentElement;
+            parent = getParent(parent);
         }
     }
 

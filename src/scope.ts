@@ -7,11 +7,14 @@ export type Scope = Record<string | symbol, any>;
 
 export const getScope = (node: Node): Scope => {
     let scope = metadataScope(node);
-    let n = node.parentNode;
 
-    while (!scope && n) {
-        scope = metadataScope(n);
-        n = n.parentNode;
+    if (node) {
+        let n = node.parentNode;
+
+        while (!scope && n) {
+            scope = metadataScope(n);
+            n = n.parentNode;
+        }
     }
 
     if (!scope) {
