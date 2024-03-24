@@ -165,7 +165,7 @@ const gobbleBinaryExpression = () => {
         combineLast();
     }
 
-    return node;
+    return stack[0] as ValueProvider;
 };
 
 const gobbleToken = (): ValueProvider => {
