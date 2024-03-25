@@ -4,9 +4,12 @@ component('link-child', {
     template: 'value:"{{childValue}}"'
 }, class {
     childValue = 'initialized';
+    template: HTMLTemplateElement;
+    onInit() {
+        this.template = metadataControllerElement.get(this)!.querySelector('template');
+    }
     onViewInit() {
-        const template = metadataControllerElement.get(this)!.querySelector('template');
-        this.childValue = template.innerHTML;
+        this.childValue = this.template.innerHTML;
     }
 });
 

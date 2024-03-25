@@ -4,7 +4,7 @@ import { sandboxStyleRules } from '../../src/elements.js';
 
 component('parent-element', {
     style: css`
-        :scope {
+        :host {
             background-color: blue;
             padding: 10px;
             display: block;
@@ -21,7 +21,7 @@ component('parent-element', {
 });
 component('child-element', {
     style: css`
-        :scope,
+        :host,
         a,
         b {
             background-color: white;
@@ -101,7 +101,6 @@ component(
                 this.text,
                 'custom-element',
                 'fudgel-123',
-                this.scopeSupported === 'true',
                 this.useShadow === 'true'
             );
         }
@@ -118,34 +117,16 @@ component(
         `,
         template: html`
             <textarea #ref="input" @input="update()"></textarea>
-            <p>
-                Both of these should be the same because @scope support is
-                enabled. (#light-true, #shadow-true)
-            </p>
+            <p>Shadow DOM. (#light)</p>
             <test-style
-                id="light-true"
+                id="light"
                 text="{{text}}"
-                scope-supported="true"
                 use-shadow="false"
             ></test-style>
+            <p>Fallback for shadow DOM. (#shadow)</p>
             <test-style
-                id="shadow-true"
+                id="shadow"
                 text="{{text}}"
-                scope-supported="true"
-                use-shadow="true"
-            ></test-style>
-            <p>Fallback for light DOM. (#light-false)</p>
-            <test-style
-                id="light-false"
-                text="{{text}}"
-                scope-supported="false"
-                use-shadow="false"
-            ></test-style>
-            <p>Fallback for shadow DOM. (#shadow-false)</p>
-            <test-style
-                id="shadow-false"
-                text="{{text}}"
-                scope-supported="false"
                 use-shadow="true"
             ></test-style>
         `,
@@ -166,23 +147,20 @@ const tests = [
     //
     // confirm: run the test in the browser when the styles are parsed and the
     //     browser's cssText matches this pattern.
-    // true: scope supported
-    // false: scope not supported
-    // shadow: scope not supported and useShadow is true
+    // light: light DOM version (scoped and :host is changed)
+    // shadow: shadow DOM version (scoped)
     {
         id: '1',
         input: 'div { background-color: red; }',
         confirm: 'div { background-color: red; }',
-        true: '@scope { div.fudgel-123 { background-color: red; } }',
-        false: 'custom-element  div.fudgel-123 { background-color: red; }',
+        light: 'custom-element div.fudgel-123 { background-color: red; }',
         shadow: 'div.fudgel-123 { background-color: red; }',
     },
     {
         id: '2',
-        input: ':scope { background-color: blue; }',
-        confirm: ':scope { background-color: blue; }',
-        true: '@scope { :scope { background-color: blue; } }',
-        false: 'custom-element { background-color: blue; }',
+        input: ':host { background-color: blue; }',
+        confirm: ':host { background-color: blue; }',
+        light: 'custom-element { background-color: blue; }',
         shadow: ':host { background-color: blue; }',
     },
     {
@@ -190,8 +168,7 @@ const tests = [
         input: '@media (max-width:720px){div{span{display:block;}}}',
         confirm:
             '@media (max-width: 720px) { div { span { display: block; } } }',
-        true: '@scope { @media (max-width: 720px) { div.fudgel-123 { span.fudgel-123 { display: block; } } } }',
-        false: '@media (max-width: 720px) { custom-element div.fudgel-123 { span.fudgel-123 { display: block; } } }',
+        light: '@media (max-width: 720px) { custom-element div.fudgel-123 { span.fudgel-123 { display: block; } } }',
         shadow: '@media (max-width: 720px) { div.fudgel-123 { span.fudgel-123 { display: block; } } }',
     },
 ];
@@ -214,7 +191,6 @@ describe(
         });
 
         for (const test of tests) {
-            console.log(test.input);
             const confirm = makePattern(test.confirm);
             const rules = sandboxStyleRules(test.input);
 
@@ -242,16 +218,10 @@ describe(
                         });
                     });
                     it('writes correct styles', () => {
-                        cy.get('#light-true .result')
+                        cy.get('#light .result')
                             .invoke('text')
-                            .should('match', makePattern(test.true));
-                        cy.get('#light-false .result')
-                            .invoke('text')
-                            .should('match', makePattern(test.false));
-                        cy.get('#shadow-true .result')
-                            .invoke('text')
-                            .should('match', makePattern(test.true));
-                        cy.get('#shadow-false .result')
+                            .should('match', makePattern(test.light));
+                        cy.get('#shadow .result')
                             .invoke('text')
                             .should('match', makePattern(test.shadow));
                     });
