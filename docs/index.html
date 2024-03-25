@@ -152,8 +152,8 @@
                 <li>Full TypeScript support</li>
                 <li>Published as both UMD and a module</li>
                 <li>
-                    Darn small, coming in at about 5k compressed for the Web
-                    Component; 6k if you include everything else
+                    Darn small, coming in at under 5k compressed for the Web
+                    Component; about 6k if you include everything else
                 </li>
                 <li>
                     Fully tree-shakeable, reducing your bundle size when you
@@ -218,13 +218,12 @@
             <p>
                 Yes, those numbers are in bytes. As a comparison, your browser
                 requested just this HTML, consuming about 740 bytes. The
-                response headers were about 1k and the compressed response body
-                had roughly 2k (13.6k uncompressed). The entire framework is
-                equivalent to loading <em>just the HTML</em> for this page
-                twice. Put another way, this framework is about 1/2 the size of
-                a font used on this site or 1/30 of the logo's download size.
-                It's almost unfair to compare this miniscule framework to other
-                frameworks.
+                response headers and HTML were compressed and consumed about
+                5.2k. The entire framework is equivalent to loading
+                <em>just the HTML</em> for this page! Put another way, this
+                framework is about 1/2 the size of a font used on this site or
+                1/30 of the logo's download size. It's almost unfair to compare
+                this miniscule framework to other frameworks.
             </p>
             <h2>Browser Support</h2>
             <p>
@@ -253,11 +252,12 @@
             <h2>Goals and Prior Work</h2>
             <p>
                 Fudgel was designed to make a JavaScript and HTML developer feel
-                comfortable quickly. It does the heavy lifting by automatic
+                comfortable quickly. It does the heavy lifting via automatic
                 bindings and updates while the developer focuses entirely on the
                 interactions. The focus is to create self-contained web
                 components using <code>window.customElements</code>, suitable
-                for inclusion on any project.
+                for inclusion on any project, regardless of other frameworks
+                being used.
             </p>
             <p>
                 This project has received the benefit of having others blaze

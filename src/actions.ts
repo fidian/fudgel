@@ -1,6 +1,6 @@
 import { Controller } from './controller.js';
 import { hooksRun } from './hooks.js';
-import { metadataComponentConfig, metadataControllerElement } from './metadata.js';
+import { metadataControllerConfig, metadataControllerElement } from './metadata.js';
 
 export const dispatchCustomEvent = (
     e: Element,
@@ -43,11 +43,10 @@ export const update = (controller?: Object, propertyName?: string) => {
 };
 
 export const updateController = (controller: Controller, propertyName?: string) => {
-    const element = metadataControllerElement.get(controller)!;
-    const config = metadataComponentConfig(element.constructor)!;
-
     // Mark all attributes and properties as being changed so internals get updated
     if (controller.onChange) {
+        const config = metadataControllerConfig(controller)!;
+
         for (const name of [...(config.prop || []), ...(config.attr || [])]) {
             controller.onChange(name, (controller as any)[name], (controller as any)[name]);
         }

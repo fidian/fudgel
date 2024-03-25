@@ -34,12 +34,15 @@
  *     </inner-element>
  * </outer-element>
  */
-import { createFragment } from './elements.js';
+import { createElement, createFragment, createTemplate, createTreeWalker } from './elements.js';
 import { Controller } from './controller';
+import { CustomElementConfig } from './custom-element-config';
 import { Emitter } from './emitter';
-import { getAttribute } from './util.js';
+import { getAttribute, setAttribute } from './util.js';
 import { getScope, Scope } from './scope';
+import { hookOnGlobal } from './hooks';
 import {
+    metadataControllerConfig,
     metadataControllerElement,
     metadataElementSlotContent,
     metadataScope,
@@ -62,39 +65,6 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
     (((element.getRootNode() as ShadowRoot) || {}).host as
         | HTMLElement
         | undefined);
-
-// Move all elements inside the controller's root element into the metadata.
-export const slotInit = (controller: Controller) => {
-    const root = rootElement(controller);
-
-    if (root) {
-        // Set up the basic info. The outer element's scope is used in order to
-        // support Fudgel bindings.
-        const slotInfo: SlotInfo = {
-            e: new Emitter(),
-            n: {
-                '': createFragment(),
-            },
-            s: getScope(
-                getParent(metadataControllerElement.get(controller)!) as Node
-            ),
-        };
-
-        // Grab all content for named slots
-        for (const child of root.querySelectorAll('[slot]')) {
-            getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
-                child
-            );
-        }
-
-        // Now collect everything else and add it to the default slot
-        for (const child of root.childNodes) {
-            slotInfo.n[''].append(child);
-        }
-
-        metadataElementSlotContent(root, slotInfo);
-    }
-};
 
 class SlotComponent extends HTMLElement {
     static observedAttributes = ['name'];
@@ -167,5 +137,72 @@ class SlotComponent extends HTMLElement {
 }
 
 export const defineSlotComponent = (name = 'slot-like') => {
+    const configCache = new Set<CustomElementConfig>();
     customElements.define(name, SlotComponent);
+
+    // Move all elements inside the controller's root element into the
+    // metadata. Also, change the DOM elements from <slot> to the <slot-like>
+    // custom element.
+    hookOnGlobal('init', (controller: Controller) => {
+        const root = rootElement(controller);
+        const config = metadataControllerConfig(controller)!;
+
+        if (root && !config.useShadow) {
+            // Set up the basic info. The outer element's scope is used in order to
+            // support Fudgel bindings.
+            const slotInfo: SlotInfo = {
+                e: new Emitter(),
+                n: {
+                    '': createFragment(),
+                },
+                s: getScope(
+                    getParent(metadataControllerElement.get(controller)!) as Node
+                ),
+            };
+
+            // Grab all content for named slots
+            for (const child of root.querySelectorAll('[slot]')) {
+                getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
+                    child
+                );
+            }
+
+            // Now collect everything else and add it to the default slot
+            for (const child of root.childNodes) {
+                slotInfo.n[''].append(child);
+            }
+
+            metadataElementSlotContent(root, slotInfo);
+
+            // Rewrite the template and change "slot" to "slot-like". Only do
+            // this once per config.
+            if (!configCache.has(config)) {
+                configCache.add(config);
+                rewriteTemplate(config, name);
+            }
+        }
+    });
 };
+
+const rewriteTemplate = (config: CustomElementConfig, name: string) => {
+    const template = createTemplate();
+    template.innerHTML = config.template;
+    const treeWalker = createTreeWalker(template.content, 0x01);
+    let currentNode: HTMLElement | null;
+
+    while (currentNode = treeWalker.nextNode() as HTMLElement) {
+        if (currentNode.nodeName === 'SLOT') {
+            const slotLike = createElement(name);
+
+            for (const attr of currentNode.attributes) {
+                setAttribute(slotLike, attr.name, attr.value);
+            }
+
+            treeWalker.previousNode() as HTMLElement;
+            slotLike.append(...currentNode.childNodes);
+            currentNode.replaceWith(slotLike);
+        }
+    }
+
+    config.template = template.innerHTML;
+}

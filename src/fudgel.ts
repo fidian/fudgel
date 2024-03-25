@@ -6,6 +6,7 @@ export * from './custom-element.js';
 export * from './di.js';
 export { addDirective } from './directive/index.js';
 export * from './emitter.js';
+export { hookOnGlobal } from './hooks.js';
 export { metadataControllerElement } from './metadata.js';
 export * from './parse.js';
 export * from './router.js';

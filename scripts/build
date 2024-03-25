@@ -38,7 +38,7 @@ for NAME in component di emitter router slot; do
     rollup dist/only-$NAME.js --file dist/only-$NAME.mjs --format esm
 
     status "Minify just $NAME"
-    terser --ecma 6 --compress --mangle -o dist/only-$NAME.min.mjs -- dist/only-$NAME.mjs
+    terser --ecma 6 --compress --mangle --module -o dist/only-$NAME.min.mjs -- dist/only-$NAME.mjs
     gzip -9 -c dist/only-$NAME.min.mjs > dist/only-$NAME.min.mjs.gz
 done
 

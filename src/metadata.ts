@@ -21,6 +21,7 @@ const makeMap = <K extends WeakKey, V>() => {
 
 export const metadataComponentConfig = makeMap<Object, CustomElementConfigInternal>();
 export const metadataComponentController = makeMap<Object, Constructor>();
+export const metadataControllerConfig = makeMap<Controller, CustomElementConfigInternal>();
 export const metadataControllerElement = new Map<Controller, CustomElement>();
 export const metadataControllerHooks = makeMap<
     Controller,

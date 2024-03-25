@@ -12,6 +12,7 @@ import { linkNodes } from './link-nodes.js';
 import {
     metadataComponentConfig,
     metadataComponentController,
+    metadataControllerConfig,
     metadataControllerElement,
     metadataElementController,
 } from './metadata.js';
@@ -45,6 +46,7 @@ export class CustomElement extends HTMLElement {
             : this;
         metadataElementController(this, controller);
         metadataControllerElement.set(controller, this);
+        metadataControllerConfig(controller, config);
         this.classList.add(config.className);
 
         // Initialize before adding child nodes

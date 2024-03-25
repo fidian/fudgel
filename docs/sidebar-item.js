@@ -5,7 +5,7 @@ component(
     {
         prop: ['url', 'label', 'aliasUrl'],
         style: css`
-            :scope {
+            :host {
                 display: block;
                 padding: 0.5em;
             }

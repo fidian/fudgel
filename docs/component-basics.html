@@ -208,7 +208,7 @@
 
                     component('styled-button', {
                         style: `
-                            :scope {
+                            :host {
                                 display: block;
                                 background-color: green;
                                 padding: 10px;
@@ -225,7 +225,7 @@
                 <!-- prettier-ignore -->
                 <template>
                     /* This is the orignal CSS */
-                    :scope {
+                    :host {
                         display: block;
                         background-color: green;
                         padding: 10px;
@@ -237,49 +237,42 @@
                 </template>
             </code-sample>
             <p>
-                If your browser supports <code>@scope</code>, Fudgel will
-                rewrite your CSS by adding a unique class to this component and
-                its descendents in the template. The below examples assume the
-                component is called <code>component-name</code>, and the
-                generated class name for it is <code>fudgel-7</code>.
+                When using the light DOM, it also replaces
+                <code>:host</code> with the custom element's name. Also, each
+                style rule will have a unique class added to it, which prevents
+                your styles from leaking out to child components. The below
+                examples assume the component is called
+                <code>component-name</code>, and the generated class name for it
+                is <code>fudgel-24</code>.
             </p>
             <code-sample type="css">
                 <!-- prettier-ignore -->
                 <template>
                     /* Automatically rewritten CSS */
-                    /* Only for browsers supporting @scope */
-                    @scope {
-                        :scope {
-                            display: block;
-                            background-color: green;
-                            padding: 10px;
-                        }
-
-                        h1.fudgel-7, h2.fudgel-7 {
-                            font-weight: bold;
-                        }
-                    }
-                </template>
-            </code-sample>
-            <p>
-                Using the generated class name helps to prevent the CSS
-                selectors from targeting elements in other custom components. If
-                your browser doesn't support <code>@scope</code> yet, the CSS
-                will change a little. This fallback could be removed once the
-                majority of browsers support scoped CSS.
-            </p>
-            <code-sample type="css">
-                <!-- prettier-ignore -->
-                <template>
-                    /* Automatically rewritten CSS */
-                    /* Only for browsers without @scope */
+                    /* Light DOM version */
                     component-name {
                         display: block;
                         background-color: green;
                         padding: 10px;
                     }
 
-                    component-name h1.fudgel-123, component-name h2.fudgel-123 {
+                    component-name h1.fudgel-24, component-name h2.fudgel-24 {
+                        font-weight: bold;
+                    }
+                </template>
+            </code-sample>
+            <code-sample type="css">
+                <!-- prettier-ignore -->
+                <template>
+                    /* Automatically rewritten CSS */
+                    /* Shadow DOM version */
+                    :host {
+                        display: block;
+                        background-color: green;
+                        padding: 10px;
+                    }
+
+                    h1.fudgel-24, h2.fudgel-24 {
                         font-weight: bold;
                     }
                 </template>
@@ -287,26 +280,10 @@
 
             <h3>Styling the Host Element</h3>
             <p>
-                When you are using a shadow DOM and your browser does not
-                support <code>@scope</code>, the CSS will be changed to look
-                like this.
+                Use <code>:host</code> to style the host element. It will
+                automatically be changed to the element's name when your element
+                is using only the light DOM. You may have noticed this in the previous example.
             </p>
-            <code-sample type="css">
-                <!-- prettier-ignore -->
-                <template>
-                    /* Automatically rewritten CSS */
-                    /* Only for browsers without @scope in shadow DOM */
-                    :host {
-                        display: block;
-                        background-color: green;
-                        padding: 10px;
-                    }
-
-                    component-name h1.fudgel-123, component-name h2.fudgel-123 {
-                        font-weight: bold;
-                    }
-                </template>
-            </code-sample>
             <h3>How to Avoid Scoping</h3>
             <p>
                 When your custom element needs to inject other DOM elements,
@@ -316,6 +293,10 @@
                 <a href="highlight.js">Highlight.js</a> to colorize the code.
                 These elements need to be styled, so the component needs to
                 inject the styles itself.
+            </p>
+            <p>
+                Fudgel will not modify any styles that are in a
+                <code>&lt;style&gt;</code> tag in your template.
             </p>
             <code-sample type="js">
                 <!-- prettier-ignore -->

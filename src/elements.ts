@@ -24,8 +24,8 @@ export const createStyle = (content: string) => {
 
 export const createTemplate = () => createElement('template');
 
-// NodeFilter.SHOW_ELEMENT = 0x1
-// NodeFilter.SHOW_TEXT = 0x4
+// NodeFilter.SHOW_ELEMENT = 0x01
+// NodeFilter.SHOW_TEXT = 0x04
 // NodeFilter.SHOW_COMMENT = 0x80 - necessary for structural directives
 export const createTreeWalker = (root: Node, filter: number) => doc.createTreeWalker(root, filter);
 

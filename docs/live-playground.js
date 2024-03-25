@@ -2,7 +2,7 @@ import {
     component,
     css,
     html,
-    metadataControllerElement,
+    rootElement
 } from './fudgel.min.js';
 import { cleanText } from './clean-text.js';
 
@@ -60,19 +60,21 @@ component(
         `,
     },
     class {
-        onViewInit() {
-            const elem = metadataControllerElement.get(this);
-            const template = elem.querySelector('template');
+        onInit() {
+            const elem = rootElement(this);
+            this.template = elem.querySelector('template');
 
-            if (!template) {
+            if (!this.template) {
                 console.error(
                     '<live-playground>:',
                     'Content must be provided inside a <template> tag'
                 );
                 return;
             }
+        }
 
-            this.code.value = cleanText(template.innerHTML);
+        onViewInit() {
+            this.code.value = cleanText(this.template.innerHTML);
             this.code.onchange = () => this.scheduleUpdate();
             this.code.onkeyup = () => this.scheduleUpdate();
             this.update();

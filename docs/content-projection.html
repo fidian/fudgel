@@ -38,19 +38,22 @@
             </p>
             <h2>Normal Process Without Content Projection</h2>
             <p>
-                Normally, any extra content within the custom element does not
-                bleed through. When using a shadow DOM, one can access this
-                content using <code>&lt;slot&gt;</code>. If the light DOM is
-                more your thing, Fudgel will automatically clear this content
-                for you between <code>onInit()</code> and
-                <code>onViewInit()</code>. You can use a method from below to
-                preserve the content and project it into your template.
+                Extra content within the custom element will be removed. The DOM
+                elements will be present during <code>onInit()</code> and are
+                removed before <code>onViewInit()</code>. Both of these are
+                detailed in
+                <a href="lifecycle-methods.html">Lifecycle Methods</a>.
             </p>
-            <h2>Using Slots with Shadow DOM</h2>
+            <p>
+                If you wanted this content to be copied into your component,
+                this is easily done using one of the following methods.
+            </p>
+            <h2>Slots and Shadow DOM</h2>
             <p>
                 You can use slotted content when your element enables
                 <code>useShadow: true</code> in its configuration. This
-                leverages built-in browser features and works well.
+                leverages built-in browser features and works well. To project
+                content, use the <code>&lt;slot&gt;</code> element.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -98,24 +101,13 @@
                     ><code>slot</code> attributes</a
                 >.
             </p>
-            <h2>Using Slot-Like with Light DOM</h2>
+            <h2>Slots and Light DOM</h2>
             <p>
-                Fudgel comes with a custom element that is named
-                <code>slot-like</code> by default. It allows you to project
-                content similar to how the native <code>slot</code> element
-                works in shadow DOMs. When you don't want the extra
-                encapsulation of a shadow DOM, you could use this feature.
-            </p>
-            <p>
-                In order for this custom element to work, you first need to make
-                sure it is defined in the browser, using
-                <code>defineSlotComponent()</code>. This can accept a single,
-                optional parameter that is the name of the custom element. By
-                default it uses <code>slot-like</code>. The second thing you
-                must do is call <code>slotInit(this)</code> within your
-                component's <code>onInit()</code> before the DOM is altered.
-                This moves all content to an internal store that preserves the
-                nodes until they are placed into slots.
+                There is no browser-native support for slots in the light DOM,
+                so Fudgel can provide this for you. You simply will need to make
+                sure to define the custom slot-like element and then
+                <code>&lt;slot&gt;</code> will be rewritten automatically and it
+                will work as expected.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -133,10 +125,13 @@
             >
                 <!-- prettier-ignore -->
                 <template>
-                    import { component, defineSlotComponent, slotInit } from './fudgel.min.js';
+                    import { component, defineSlotComponent } from './fudgel.min.js';
 
+                    // Crucial: create the custom component during your
+                    // application's bootstrap.
                     defineSlotComponent();
 
+                    // Now slots will work in your light DOM component.
                     component('custom-button', {
                         style: `
                             button {
@@ -147,17 +142,32 @@
                                 padding: 4px;
                             }
                         `,
-                        template: `<button><slot-like></slot-like></button>`,
-                        }, class {
-                            onInit() {
-                                slotInit(this);
-                            }
-                        });
+                        template: `<button><slot></slot></button>`,
+                    });
                 </template>
             </code-sample>
             <p>
-                This method also supports named slots, very similar to the
-                standard. Read more about
+                How does this work? Calling
+                <code>defineSlotComponent()</code> will define the custom
+                component with the default name of <code>slot-like</code>, which
+                you can change by using
+                <code>defineSlotComponent('custom-element-name')</code>. Please
+                make sure you do this right away, before your custom elements
+                get created. This function also adds a hook to Fudgel for
+                component creation so all light DOM components will have their
+                template rewritten, changing <code>slot</code> elements into
+                <code>slot-like</code> elements. This template change happens
+                once.
+            </p>
+            <p>
+                The downside of this method is that you may see a flicker of the
+                original DOM before it is put into the right places within your
+                component. This is because the DOM structure is built before the
+                custom element's <code>connectedCallback()</code> is called.
+            </p>
+            <p>
+                This method is designed to operate like the native
+                <code>&lt;slot&gt;</code> element. Read more about
                 <a
                     href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
                     ><code>slot</code> elements</a
@@ -172,13 +182,12 @@
             <p>
                 Your controller can access the custom element and pull its
                 children using a query selector, walking the DOM, or other
-                techniques.
-            </p>
-            <p>
-                A pitfall of this approach is that the DOM elements do not
-                update when the parent updates them. It's because a copy of the
-                elements are made and updates are not detected on parent
-                elements.
+                techniques. Make sure you capture the content during
+                <code>onInit()</code> and then add the content to the DOM in
+                <code>onViewInit()</code> because the element is cleared and the
+                template is applied between these two method calls. Learn more
+                about these
+                <a href="lifecycle-methods.html">Lifecycle Methods</a>.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -211,10 +220,13 @@
                         `,
                         template: `<button #ref="button"></button>`
                     }, class {
-                        onViewInit() {
+                        onInit() {
                             const element = rootElement(this);
-                            const template = element.querySelector('template');
-                            this.button.append(template.content);
+                            this.template = element.querySelector('template');
+                        }
+
+                        onViewInit() {
+                            this.button.append(this.template.content);
                         }
                     });
                 </template>

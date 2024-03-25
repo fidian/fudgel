@@ -28,12 +28,6 @@ export const Component = (tag: string, config: CustomElementConfig) => {
 };
 
 const ce = customElements;
-let cssScopeSupported = () => {
-    const result = sandboxStyleRules('@scope{}').length > 0;
-    cssScopeSupported = () => result;
-
-    return result;
-};
 
 export const component = (
     tag: string,
@@ -46,7 +40,6 @@ export const component = (
         configInitial.style || '',
         tag,
         className,
-        cssScopeSupported(),
         configInitial.useShadow
     );
     const config = {
@@ -88,7 +81,6 @@ export const scopeStyle = (
     style: string,
     tag: string,
     className: string,
-    scopeSupported: boolean,
     useShadow?: boolean
 ) => {
     const scopeStyleRule = (
@@ -111,9 +103,7 @@ export const scopeStyle = (
             scopeStyleRule(childRule);
         }
 
-        return `${scopeSupported ? '@scope{' : ''}${rule.cssText}${
-            scopeSupported ? '}' : ''
-        }`;
+        return rule.cssText;
     };
 
     const updateSelectorText = (
@@ -122,16 +112,10 @@ export const scopeStyle = (
         selector = selector.trim();
         const addSuffix = (x: string) => `${x}.${className}`;
         const replaceScope = (x: string, withThis: string) =>
-            x.replace(/:scope/, withThis);
+            x.replace(/:host/, withThis);
         const doesNotHaveScope = replaceScope(selector, '') === selector;
 
-        if (scopeSupported) {
-            if (doesNotHaveScope) {
-                selector = addSuffix(selector);
-            }
-        } else if (useShadow) {
-            selector = replaceScope(selector, ':host');
-
+        if (useShadow) {
             if (doesNotHaveScope || selector.includes(' ')) {
                 selector = addSuffix(selector);
             }

@@ -8,7 +8,10 @@
 import { Controller } from './controller.js';
 import { metadataControllerHooks, metadataHookRemove } from './metadata.js';
 
-export type HookCallback = (...args: any[]) => void;
+export type HookCallback = (controller: Controller, ...args: any[]) => void;
+
+// Hooks that are applied to every controller
+const globalHooks: Record<string, HookCallback[]> = {};
 
 // Known hooks and their arguments
 // attr:PROP_NAME
@@ -20,17 +23,18 @@ export type HookCallback = (...args: any[]) => void;
 // set:PROP_NAME
 //   controller, oldValue, newValue - internal property changed
 export const hooksRun = (name: string, controller: Controller, ...args: any[]) => {
-    const hooks = metadataControllerHooks(controller)
+    hooksRunInternal(globalHooks, name, controller, ...args);
+    hooksRunInternal(metadataControllerHooks(controller) || {}, name, controller, ...args);
+}
 
-    if (hooks) {
-        for (const hook of (hooks[name] || [])) {
-            // A hook can be removed during execution of hooks, and the
-            // `hooks[name]` array will be recreated. In this situation, we
-            // want to make sure the removed hooks are not called even if they
-            // were in the original list.
-            if (hooks[name].includes(hook)) {
-                hook(controller, ...args);
-            }
+const hooksRunInternal = (hooks: Record<string, HookCallback[]>, name: string, controller: Controller, ...args: any[]) => {
+    for (const hook of (hooks[name] || [])) {
+        // A hook can be removed during execution of hooks, and the
+        // `hooks[name]` array will be recreated. In this situation, we
+        // want to make sure the removed hooks are not called even if they
+        // were in the original list.
+        if (hooks[name].includes(hook)) {
+            hook(controller, ...args);
         }
     }
 };
@@ -75,3 +79,12 @@ export const hookOn = (
         }
     });
 };
+
+export const hookOnGlobal = (name: string, cb: HookCallback) => {
+    const hooks = globalHooks[name] || (globalHooks[name] = []);
+    hooks.push(cb);
+
+    return () => {
+        globalHooks[name] = globalHooks[name].filter(callback => callback !== cb);
+    };
+}
