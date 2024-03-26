@@ -66,7 +66,7 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
         | HTMLElement
         | undefined);
 
-class SlotComponent extends HTMLElement {
+export class SlotComponent extends HTMLElement {
     static observedAttributes = ['name'];
     #eventRemover?: () => void;
     #slotInfo?: SlotInfo;

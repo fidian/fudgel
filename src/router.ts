@@ -8,7 +8,7 @@ interface MatchedRoute {
     g: [string, string][];
 }
 
-class RouterComponent extends HTMLElement {
+export class RouterComponent extends HTMLElement {
     #fragment = createFragment();
     #lastMatched: HTMLElement[] = [];
     #routeElements: HTMLElement[] = [];
