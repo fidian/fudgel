@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "Minimalist web component library to take the pain out of automatic updates.",
     "keywords": [
         "lightweight",
@@ -40,12 +40,12 @@
     "types": "dist/fudgel.d.ts",
     "devDependencies": {
         "agadoo": "^3.0.0",
-        "cypress": "^13.7.1",
+        "cypress": "^13.7.2",
         "cypress-ct-custom-elements": "^1.0.0",
         "light-server": "^2.9.1",
-        "rollup": "^4.13.0",
-        "terser": "^5.29.2",
-        "typescript": "^5.4.3",
-        "vite": "^5.2.6"
+        "rollup": "^4.14.1",
+        "terser": "^5.30.3",
+        "typescript": "^5.4.4",
+        "vite": "^5.2.8"
     }
 }
