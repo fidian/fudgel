@@ -14,6 +14,7 @@ import {
     CustomElementConfig,
     CustomElementConfigInternal,
 } from './custom-element-config.js';
+import { hooksRun } from './hooks.js';
 import {
     metadataComponentConfig,
     metadataComponentController,
@@ -61,6 +62,7 @@ export const component = (
     template.innerHTML = config.template;
     updateClasses(template, className);
     config.template = template.innerHTML;
+    hooksRun('component', base, base, config);
     ce.get(tag) || ce.define(tag, base);
 };
 

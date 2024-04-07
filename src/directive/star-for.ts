@@ -34,43 +34,39 @@ export const starForDirective: StructuralDirective = (
         let oldNodes = activeNodes;
         activeNodes = new Map();
         let lastNode: HTMLElement | Comment = anchor;
-        const removedNodes = new Map(oldNodes);
 
-        for (const [key] of entries(iterable)) {
-            removedNodes.delete(key);
-        }
-
-        for (const removeNode of removedNodes.values()) {
-            hooksOff(removeNode);
-            removeNode.remove();
-            oldNodes.delete(removeNode);
-        }
-
+        // Attempt to reuse nodes based on the key of the iterable
         for (const [key, value] of entries(iterable)) {
+            // Attempt to find the old node
             let copy = oldNodes.get(key);
             oldNodes.delete(key);
 
-            if (copy !== lastNode.nextSibling) {
+            if (copy === lastNode.nextSibling) {
+                // Next node is in the right position. Update the value in
+                // scope, which should trigger bindings.
+                const scope = getScope(copy);
+                (scope as any)[valueName] = value;
+            } else {
+                // Delete the old node if it exists
                 if (copy) {
                     hooksOff(copy);
                     copy.remove();
                 }
 
+                // Create a new node and set its scope
                 copy = cloneNode(source);
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[keyName] = key;
                 (scope as any)[valueName] = value;
                 linkNodesWrapped(copy, thisRef);
                 lastNode.after(copy);
-            } else {
-                const scope = childScope(anchorScope, copy);
-                (scope as any)[valueName] = value;
             }
 
             lastNode = copy;
             activeNodes.set(key, lastNode);
         }
 
+        // Clean up any remaining nodes.
         for (const old of oldNodes.values()) {
             hooksOff(old);
             old.remove();

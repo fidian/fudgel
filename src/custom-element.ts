@@ -52,7 +52,7 @@ export class CustomElement extends HTMLElement {
         // Initialize before adding child nodes
         this.#bindings(config, controller);
         controller.onInit && controller.onInit();
-        hooksRun('init', controller);
+        hooksRun('init', controller, controller);
 
         // Create initial child elements from the template.
         const template = createTemplate();

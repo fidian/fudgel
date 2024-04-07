@@ -34,8 +34,14 @@
  *     </inner-element>
  * </outer-element>
  */
-import { createElement, createFragment, createTemplate, createTreeWalker } from './elements.js';
+import {
+    createElement,
+    createFragment,
+    createTemplate,
+    createTreeWalker,
+} from './elements.js';
 import { Controller } from './controller';
+import { CustomElement } from './custom-element';
 import { CustomElementConfig } from './custom-element-config';
 import { Emitter } from './emitter';
 import { getAttribute, setAttribute } from './util.js';
@@ -137,8 +143,36 @@ export class SlotComponent extends HTMLElement {
 }
 
 export const defineSlotComponent = (name = 'slot-like') => {
-    const configCache = new Set<CustomElementConfig>();
     customElements.define(name, SlotComponent);
+
+    // Rewrite templates for custom elements that use slots in light DOM.
+    hookOnGlobal(
+        'component',
+        (_baseClass: CustomElement, config: CustomElementConfig) => {
+            if (!config.useShadow) {
+                const template = createTemplate();
+                template.innerHTML = config.template;
+                const treeWalker = createTreeWalker(template.content, 0x01);
+                let currentNode: HTMLElement | null;
+
+                while ((currentNode = treeWalker.nextNode() as HTMLElement)) {
+                    if (currentNode.nodeName === 'SLOT') {
+                        const slotLike = createElement(name);
+
+                        for (const attr of currentNode.attributes) {
+                            setAttribute(slotLike, attr.name, attr.value);
+                        }
+
+                        treeWalker.previousNode() as HTMLElement;
+                        slotLike.append(...currentNode.childNodes);
+                        currentNode.replaceWith(slotLike);
+                    }
+                }
+
+                config.template = template.innerHTML;
+            }
+        }
+    );
 
     // Move all elements inside the controller's root element into the
     // metadata. Also, change the DOM elements from <slot> to the <slot-like>
@@ -156,7 +190,9 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     '': createFragment(),
                 },
                 s: getScope(
-                    getParent(metadataControllerElement.get(controller)!) as Node
+                    getParent(
+                        metadataControllerElement.get(controller)!
+                    ) as Node
                 ),
             };
 
@@ -173,36 +209,6 @@ export const defineSlotComponent = (name = 'slot-like') => {
             }
 
             metadataElementSlotContent(root, slotInfo);
-
-            // Rewrite the template and change "slot" to "slot-like". Only do
-            // this once per config.
-            if (!configCache.has(config)) {
-                configCache.add(config);
-                rewriteTemplate(config, name);
-            }
         }
     });
 };
-
-const rewriteTemplate = (config: CustomElementConfig, name: string) => {
-    const template = createTemplate();
-    template.innerHTML = config.template;
-    const treeWalker = createTreeWalker(template.content, 0x01);
-    let currentNode: HTMLElement | null;
-
-    while (currentNode = treeWalker.nextNode() as HTMLElement) {
-        if (currentNode.nodeName === 'SLOT') {
-            const slotLike = createElement(name);
-
-            for (const attr of currentNode.attributes) {
-                setAttribute(slotLike, attr.name, attr.value);
-            }
-
-            treeWalker.previousNode() as HTMLElement;
-            slotLike.append(...currentNode.childNodes);
-            currentNode.replaceWith(slotLike);
-        }
-    }
-
-    config.template = template.innerHTML;
-}

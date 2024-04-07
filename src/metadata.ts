@@ -2,7 +2,6 @@ import { Constructor } from './constructor.js';
 import { Controller } from './controller.js';
 import { CustomElement } from './custom-element.js';
 import { CustomElementConfigInternal } from './custom-element-config.js';
-import { HookCallback } from './hooks.js';
 import { SlotInfo } from './slot.js';
 import { TrackedSetters } from './setter.js';
 
@@ -11,7 +10,7 @@ export interface MetadataMap<K extends WeakKey, V> {
     (key: K, value: V): NonNullable<V>;
 }
 
-const makeMap = <K extends WeakKey, V>() => {
+export const makeMap = <K extends WeakKey, V>() => {
     const map = new WeakMap<K, V>();
     const fn = (key: K, value?: V) =>
         map.get(key) || (value && map.set(key, value).get(key)!);
@@ -23,12 +22,7 @@ export const metadataComponentConfig = makeMap<Object, CustomElementConfigIntern
 export const metadataComponentController = makeMap<Object, Constructor>();
 export const metadataControllerConfig = makeMap<Controller, CustomElementConfigInternal>();
 export const metadataControllerElement = new Map<Controller, CustomElement>();
-export const metadataControllerHooks = makeMap<
-    Controller,
-    { [key: string]: HookCallback[] }
->();
 export const metadataElementController = makeMap<HTMLElement, Controller>();
 export const metadataElementSlotContent = makeMap<ShadowRoot | HTMLElement, SlotInfo>();
-export const metadataHookRemove = makeMap<Node, (() => void)[]>();
 export const metadataPatchedSetter = makeMap<Object, TrackedSetters<Object>>();
 export const metadataScope = makeMap<Node, Object>();

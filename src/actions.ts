@@ -54,5 +54,5 @@ export const updateController = (controller: Controller, propertyName?: string) 
 
 
     // Update all bound functions
-    hooksRun(`set:${propertyName || ''}`, controller);
+    hooksRun(`set:${propertyName || ''}`, controller, controller);
 }

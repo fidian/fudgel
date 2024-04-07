@@ -7,3 +7,22 @@ Perform speed tests - large *for
 Perform speed tests - large *repeat
 
 Verify that there's no memory leaks, preferably automatically in the unit tests
+
+Comparisons
+* React
+* Angular
+* Mithril
+* VanJS
+Compare
+* Types of updates
+* Size
+* Speed
+* Preprocessor needed
+* HTML or HyperScript
+* State management
+* Events
+* Style scoping
+* Web components
+* Routing
+* Server-side rendering
+* Classes, functions, both

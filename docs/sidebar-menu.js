@@ -58,6 +58,10 @@ component(
                 url: 'utilities.html',
             },
             {
+                label: 'Examples',
+                url: 'examples.html',
+            },
+            {
                 label: 'GitHub',
                 url: 'https://github.com/fidian/fudgel'
             }

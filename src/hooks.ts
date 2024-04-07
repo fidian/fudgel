@@ -5,36 +5,40 @@
  * when each Node is removed. The controller is used to track which collection
  * of hooks to run (regardless of Node).
  */
-import { Controller } from './controller.js';
-import { metadataControllerHooks, metadataHookRemove } from './metadata.js';
+import { makeMap } from './metadata.js';
 
-export type HookCallback = (controller: Controller, ...args: any[]) => void;
+export type HookCallback = (...args: any[]) => void;
 
-// Hooks that are applied to every controller
+// Hooks that are applied to every object
 const globalHooks: Record<string, HookCallback[]> = {};
+
+const hooksForTarget = makeMap<Object, { [key: string]: HookCallback[] }>();
+const hooksRemove = makeMap<Object, (() => void)[]>();
 
 // Known hooks and their arguments
 // attr:PROP_NAME
 //   controller, oldValue, newValue - attribute on element changed
+// component
+//   customElement, customElementConfig - component is being defined
 // init
 //   controller - during controller initialization after DOM is ready
 // set:
 //   controller - flag all internal properties as stale
 // set:PROP_NAME
 //   controller, oldValue, newValue - internal property changed
-export const hooksRun = (name: string, controller: Controller, ...args: any[]) => {
-    hooksRunInternal(globalHooks, name, controller, ...args);
-    hooksRunInternal(metadataControllerHooks(controller) || {}, name, controller, ...args);
+export const hooksRun = (name: string, target: Object, ...args: any[]) => {
+    hooksRunInternal(globalHooks, name, target, ...args);
+    hooksRunInternal(hooksForTarget(target) || {}, name, ...args);
 }
 
-const hooksRunInternal = (hooks: Record<string, HookCallback[]>, name: string, controller: Controller, ...args: any[]) => {
+const hooksRunInternal = (hooks: Record<string, HookCallback[]>, name: string, ...args: any[]) => {
     for (const hook of (hooks[name] || [])) {
         // A hook can be removed during execution of hooks, and the
         // `hooks[name]` array will be recreated. In this situation, we
         // want to make sure the removed hooks are not called even if they
         // were in the original list.
         if (hooks[name].includes(hook)) {
-            hook(controller, ...args);
+            hook(...args);
         }
     }
 };
@@ -44,7 +48,7 @@ export const hooksOff = (node: Node) => {
     let target;
 
     while ((target = queue.shift())) {
-        for (const remover of metadataHookRemove(target, [])) {
+        for (const remover of hooksRemove(target, [])) {
             remover();
         }
 
@@ -55,13 +59,12 @@ export const hooksOff = (node: Node) => {
 };
 
 export const hookOn = (
-    controller: Controller,
+    target: Object,
     node: Node,
     name: string,
     cb: HookCallback
 ) => {
-    const hooks =
-        metadataControllerHooks(controller, {})
+    const hooks = hooksForTarget(target, {})
 
     if (!hooks[name]) {
         hooks[name] = [cb];
@@ -69,10 +72,9 @@ export const hookOn = (
         hooks[name].push(cb);
     }
 
-    const remove =
-        metadataHookRemove(node, []);
+    const remove = hooksRemove(node, []);
     remove.push(() => {
-        const hookCollection = metadataControllerHooks(controller);
+        const hookCollection = hooksForTarget(target);
 
         if (hookCollection && hookCollection[name]) {
             hookCollection[name] = hookCollection[name].filter(callback => callback !== cb);

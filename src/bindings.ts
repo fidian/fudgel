@@ -19,8 +19,8 @@ export function addBindings(
             patchSetter(
                 scope,
                 binding,
-                (_ignore: Scope, newValue, oldValue) => {
-                    hooksRun(hookName, controller, newValue, oldValue);
+                (scopeRef: Scope, newValue, oldValue) => {
+                    hooksRun(hookName, scopeRef, controller, newValue, oldValue);
                 }
             );
             hookOn(scope, node, hookName, callback);
@@ -29,7 +29,7 @@ export function addBindings(
                 controller,
                 binding,
                 (thisRef: Controller, newValue, oldValue) => {
-                    hooksRun(hookName, thisRef, newValue, oldValue);
+                    hooksRun(hookName, thisRef, thisRef, newValue, oldValue);
                     (thisRef as any).onChange && (thisRef as any).onChange(binding, newValue, oldValue);
                 }
             );
