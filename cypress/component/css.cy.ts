@@ -117,13 +117,13 @@ component(
         `,
         template: html`
             <textarea #ref="input" @input="update()"></textarea>
-            <p>Shadow DOM. (#light)</p>
+            <p>Light DOM. (#light)</p>
             <test-style
                 id="light"
                 text="{{text}}"
                 use-shadow="false"
             ></test-style>
-            <p>Fallback for shadow DOM. (#shadow)</p>
+            <p>Shadow DOM. (#shadow)</p>
             <test-style
                 id="shadow"
                 text="{{text}}"
@@ -146,20 +146,24 @@ const tests = [
     // 0), and double spaces must match at least one whitespace character.
     //
     // confirm: run the test in the browser when the styles are parsed and the
-    //     browser's cssText matches this pattern.
+    //     browser's cssText matches these patterns. One pattern per generated
+    //     rule. If the browser's CSS parser does not support some of the
+    //     CSS here, then the confirmation rule will fail and the test will
+    //     be skipped. Information about why the skipping happened is also
+    //     logged to the console.
     // light: light DOM version (scoped and :host is changed)
     // shadow: shadow DOM version (scoped)
     {
         id: '1',
         input: 'div { background-color: red; }',
-        confirm: 'div { background-color: red; }',
+        confirm: ['div { background-color: red; }'],
         light: 'custom-element div.fudgel-123 { background-color: red; }',
         shadow: 'div.fudgel-123 { background-color: red; }',
     },
     {
         id: '2',
         input: ':host { background-color: blue; }',
-        confirm: ':host { background-color: blue; }',
+        confirm: [':host { background-color: blue; }'],
         light: 'custom-element { background-color: blue; }',
         shadow: ':host { background-color: blue; }',
     },
@@ -167,9 +171,16 @@ const tests = [
         id: '3',
         input: '@media (max-width:720px){div{span{display:block;}}}',
         confirm:
-            '@media (max-width: 720px) { div { span { display: block; } } }',
+            ['@media (max-width: 720px) { div { span { display: block; } } }'],
         light: '@media (max-width: 720px) { custom-element div.fudgel-123 { span.fudgel-123 { display: block; } } }',
         shadow: '@media (max-width: 720px) { div.fudgel-123 { span.fudgel-123 { display: block; } } }',
+    },
+    {
+        id: '4',
+        input: 'a-b{width:100vw;}@media (max-width:940px){a-b{width: 50vw;}}',
+        confirm: ['a-b { width: 100vw; }', '@media (max-width: 940px) { a-b { width: 50vw; } }'],
+        light: 'custom-element a-b.fudgel-123 { width: 100vw; } @media (max-width: 940px) { custom-element a-b.fudgel-123 { width: 50vw; } }',
+        shadow: 'a-b.fudgel-123 { width: 100vw; } @media (max-width: 940px) { a-b.fudgel-123 { width: 50vw; } }',
     },
 ];
 function makePattern(str: string) {
@@ -191,17 +202,31 @@ describe(
         });
 
         for (const test of tests) {
-            const confirm = makePattern(test.confirm);
+            const confirm = test.confirm.map((input) => makePattern(input));
             const rules = sandboxStyleRules(test.input);
+            let allMatch = true;
 
             if (
-                rules.length !== 1 ||
-                !rules[0].cssText.match(makePattern(test.confirm))
+                rules.length !== confirm.length
             ) {
                 console.log('skip css test', test.id);
                 console.log('# of rules:', rules.length);
-                console.log('cssText:', JSON.stringify(rules[0].cssText));
-                console.log('pattern:', makePattern(test.confirm));
+                continue;
+            }
+
+            // Verify the input was parsed correctly
+            for (let i = 0; i < rules.length; i += 1) {
+                if (!rules[i].cssText.match(confirm[i])) {
+                    allMatch = false;
+                    console.log('skip css test', test.id);
+                    console.log(`cssText[${i}]:`, JSON.stringify(rules[0].cssText));
+                    console.log(`pattern[${i}]:`, makePattern(test.confirm[i]));
+                    break;
+                }
+            }
+
+            if (!allMatch) {
+                describe(`scopeStyle, test ${test.id} - failed to confirm`, () => {});
                 continue;
             }
 

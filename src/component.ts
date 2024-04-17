@@ -86,23 +86,26 @@ export const scopeStyle = (
     useShadow?: boolean
 ) => {
     const scopeStyleRule = (
-        rule: CSSRule
+        rule: CSSRule,
+        tagForScope: string
     ) => {
+        console.log('scopeStyleRule', rule);
         if ((rule as CSSStyleRule)[SELECTOR_TEXT]) {
             (rule as CSSStyleRule)[SELECTOR_TEXT] = (rule as CSSStyleRule)[
                 SELECTOR_TEXT
             ].split(',')
                 .map((selectorText: string) =>
                     updateSelectorText(
-                        selectorText
+                        selectorText,
+                        tagForScope
                     )
                 )
                 .join(',');
-            tag = ''; // Don't need to scope children selectors
+            tagForScope = ''; // Don't need to scope children selectors
         }
 
         for (const childRule of (rule as CSSGroupingRule).cssRules) {
-            scopeStyleRule(childRule);
+            scopeStyleRule(childRule, tagForScope);
         }
 
         return rule.cssText;
@@ -110,8 +113,10 @@ export const scopeStyle = (
 
     const updateSelectorText = (
         selector: string,
+        tagForScope: string
     ) => {
         selector = selector.trim();
+        console.log('Incoming selector', selector);
         const addSuffix = (x: string) => `${x}.${className}`;
         const replaceScope = (x: string, withThis: string) =>
             x.replace(/:host/, withThis);
@@ -122,20 +127,19 @@ export const scopeStyle = (
                 selector = addSuffix(selector);
             }
         } else {
-            selector = replaceScope(selector, tag);
+            selector = replaceScope(selector, tagForScope);
 
             if (doesNotHaveScope) {
-                selector = `${tag} ${addSuffix(selector)}`;
+                selector = `${tagForScope} ${addSuffix(selector)}`;
             }
         }
 
+        console.log('Outgoing selector', selector);
         return selector;
     };
 
     return [...sandboxStyleRules(style)]
-        .map(rule =>
-            scopeStyleRule(rule)
-        )
+        .map(rule => scopeStyleRule(rule, tag))
         .join('');
 };
 
