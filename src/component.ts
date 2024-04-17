@@ -89,7 +89,6 @@ export const scopeStyle = (
         rule: CSSRule,
         tagForScope: string
     ) => {
-        console.log('scopeStyleRule', rule);
         if ((rule as CSSStyleRule)[SELECTOR_TEXT]) {
             (rule as CSSStyleRule)[SELECTOR_TEXT] = (rule as CSSStyleRule)[
                 SELECTOR_TEXT
@@ -116,7 +115,6 @@ export const scopeStyle = (
         tagForScope: string
     ) => {
         selector = selector.trim();
-        console.log('Incoming selector', selector);
         const addSuffix = (x: string) => `${x}.${className}`;
         const replaceScope = (x: string, withThis: string) =>
             x.replace(/:host/, withThis);
@@ -134,7 +132,6 @@ export const scopeStyle = (
             }
         }
 
-        console.log('Outgoing selector', selector);
         return selector;
     };
 
