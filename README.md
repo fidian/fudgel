@@ -12,6 +12,11 @@ For detailed information and live examples, check out the [documentation site](h
 Upgrading
 ---------
 
+* 1.3.0
+    * Updated the build scripts to produce ES6-compatible code without private
+      fields. The typical `#` prefix is now replaced with `µ` during
+      minification and after the identifiers have been mangled. This opens up
+      more browsers to the power of Fudgel.
 * 1.2.0
     * Went back to shadow DOM styles, so change `:scope` to `:host` in your
       styles. This will automatically be changed to work if your element only

@@ -23,14 +23,14 @@ status "Bundle module"
 rollup dist/fudgel.js --file dist/fudgel.mjs --format esm
 
 status "Minify module"
-terser --ecma 6 --compress --mangle --module -o dist/fudgel.min.mjs -- dist/fudgel.mjs
+terser --ecma 6 --compress --mangle --module -- dist/fudgel.mjs | sed 's/\([.;{}]\)#/\\1µ/g' > dist/fudgel.min.mjs
 gzip -9 -c dist/fudgel.min.mjs > dist/fudgel.min.mjs.gz
 
 status "Bundle UMD"
 rollup dist/fudgel.js --file dist/fudgel.umd.js --format umd --name Fudgel
 
 status "Minify UMD"
-terser --ecma 6 --compress --mangle -o dist/fudgel.umd.min.js -- dist/fudgel.umd.js
+terser --ecma 6 --compress --mangle -- dist/fudgel.umd.js | sed 's/\([.;{}]\)#/\\1µ/g' > dist/fudgel.umd.min.js
 gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
 
 for NAME in component di emitter router slot; do
