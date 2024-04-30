@@ -23,7 +23,7 @@ status "Bundle module"
 rollup dist/fudgel.js --file dist/fudgel.mjs --format esm
 
 status "Minify module"
-terser --ecma 6 --compress --mangle --module -- dist/fudgel.mjs | sed 's/\([.;{}]\)#/\\1µ/g' > dist/fudgel.min.mjs
+terser --ecma 6 --compress --mangle --module -- dist/fudgel.mjs | sed 's/\([.;{}]\)#/\1µ/g' > dist/fudgel.min.mjs
 gzip -9 -c dist/fudgel.min.mjs > dist/fudgel.min.mjs.gz
 
 status "Bundle UMD"
