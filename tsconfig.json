@@ -22,7 +22,8 @@
         "removeComments": true,
         "sourceMap": true,
         "strict": true,
-        "target": "esNext"
+        "target": "esNext",
+        "useDefineForClassFields": false
     },
     "include": ["src/**/*.ts"]
 }

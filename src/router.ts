@@ -9,10 +9,10 @@ interface MatchedRoute {
 }
 
 export class RouterComponent extends HTMLElement {
-    #fragment = createFragment();
-    #lastMatched: HTMLElement[] = [];
-    #routeElements: HTMLElement[] = [];
-    #undo: (() => void)[] = [];
+    private _fragment = createFragment();
+    private _lastMatched: HTMLElement[] = [];
+    private _routeElements: HTMLElement[] = [];
+    private _undo: (() => void)[] = [];
 
     constructor() {
         super();
@@ -21,28 +21,28 @@ export class RouterComponent extends HTMLElement {
 
         if (firstChild.nodeName === 'TEMPLATE') {
             // Use the children within the template
-            this.#routeElements = Array.from((firstChild as HTMLTemplateElement).content.children) as HTMLElement[];
+            this._routeElements = Array.from((firstChild as HTMLTemplateElement).content.children) as HTMLElement[];
         } else {
             // Use direct children and move elements to a document fragment
             while (children.length > 0) {
                 const element = children[0];
-                this.#routeElements.push(element as HTMLElement);
-                this.#fragment.append(element);
+                this._routeElements.push(element as HTMLElement);
+                this._fragment.append(element);
             }
         }
     }
 
     connectedCallback() {
-        this.#listen(win, 'popstate', this.#popState);
-        this.#listen(doc.body, 'click', this.#clickedLink);
-        this.#route(win.location.pathname);
-        this.#patch(win.history, 'pushState', this.#modifyStateGenerator);
-        this.#patch(win.history, 'replaceState', this.#modifyStateGenerator);
+        this._listen(win, 'popstate', this._popState);
+        this._listen(doc.body, 'click', this._clickedLink);
+        this._route(win.location.pathname);
+        this._patch(win.history, 'pushState', this._modifyStateGenerator);
+        this._patch(win.history, 'replaceState', this._modifyStateGenerator);
     }
 
     disconnectedCallback() {
-        while (this.#undo.length) {
-            this.#undo.pop()!();
+        while (this._undo.length) {
+            this._undo.pop()!();
         }
     }
 
@@ -50,10 +50,10 @@ export class RouterComponent extends HTMLElement {
         win.history.pushState(null, '', url);
     }
 
-    #activate(matchedRoute: MatchedRoute) {
+    private _activate(matchedRoute: MatchedRoute) {
         let append = false;
 
-        if (matchedRoute.e !== this.#lastMatched[0]) {
+        if (matchedRoute.e !== this._lastMatched[0]) {
             const title = getAttribute(matchedRoute.e, 'title');
             const component = getAttribute(matchedRoute.e, 'component');
             this.innerHTML = '';
@@ -62,7 +62,7 @@ export class RouterComponent extends HTMLElement {
                 doc.title = title;
             }
 
-            this.#lastMatched = [
+            this._lastMatched = [
                 matchedRoute.e,
             component
                 ? createElement(component)
@@ -70,7 +70,7 @@ export class RouterComponent extends HTMLElement {
             append = true;
         }
 
-        const e = this.#lastMatched[1];
+        const e = this._lastMatched[1];
 
         for (const [key, value] of matchedRoute.g) {
             setAttribute(e, camelToDash(key), value);
@@ -81,7 +81,7 @@ export class RouterComponent extends HTMLElement {
         }
     }
 
-    #clickedLink(e: Event) {
+    private _clickedLink(e: Event) {
         if (!e.defaultPrevented) {
             const link = e
                 .composedPath()
@@ -98,20 +98,20 @@ export class RouterComponent extends HTMLElement {
         }
     }
 
-    #listen(
+    private _listen(
         target: Window | HTMLElement,
         eventName: string,
         unboundListener: (...args: any[]) => void
     ): void {
         const boundListener = unboundListener.bind(this);
         target.addEventListener(eventName, boundListener);
-        this.#undo.push(() =>
+        this._undo.push(() =>
             target.removeEventListener(eventName, boundListener)
         );
     }
 
-    #match(url: string): MatchedRoute | null {
-        for (const routeElement of this.#routeElements) {
+    private _match(url: string): MatchedRoute | null {
+        for (const routeElement of this._routeElements) {
             const path = getAttribute(routeElement, 'path') || '**';
             const regexpAttr = getAttribute(routeElement, 'regexp');
             let regexpStr = path;
@@ -138,17 +138,17 @@ export class RouterComponent extends HTMLElement {
         return null;
     }
 
-    #modifyStateGenerator(
+    private _modifyStateGenerator(
         target: object,
         original: (state: any, title: string, url?: string | null) => void
     ) {
         return (state: any, title: string, url?: string | null) => {
             original.call(target, state, title, url);
-            this.#route(url || '/');
+            this._route(url || '/');
         };
     }
 
-    #patch(
+    private _patch(
         target: object,
         methodName: string,
         generator: (
@@ -158,18 +158,18 @@ export class RouterComponent extends HTMLElement {
     ) {
         const original = (target as any)[methodName];
         (target as any)[methodName] = generator.call(this, target, original);
-        this.#undo.push(() => ((target as any)[methodName] = original));
+        this._undo.push(() => ((target as any)[methodName] = original));
     }
 
-    #popState() {
-        this.#route(win.location.pathname);
+    private _popState() {
+        this._route(win.location.pathname);
     }
 
-    #route(url: string) {
-        const matchedRoute = this.#match(url);
+    private _route(url: string) {
+        const matchedRoute = this._match(url);
 
         if (matchedRoute) {
-            this.#activate(matchedRoute);
+            this._activate(matchedRoute);
         }
 
         dispatchCustomEvent(doc.body, 'routeChange', url);

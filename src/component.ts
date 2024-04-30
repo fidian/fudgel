@@ -48,22 +48,22 @@ export const component = (
         className,
         style,
     } as CustomElementConfigInternal;
-    const base = class extends CustomElement {
-        static observedAttributes: string[] = (config.attr || []).map(
-            camelToDash
-        );
-    };
-    metadataComponentConfig(base, config as CustomElementConfigInternal);
+
+    // Define the class and use the older method of defining a static property
+    // to support more browsers.
+    class Base extends CustomElement {};
+    (Base as any).observedAttributes = (config.attr || []).map(camelToDash);
+    metadataComponentConfig(Base, config as CustomElementConfigInternal);
     metadataComponentController(
-        base,
+        Base,
         constructor || class implements Controller {}
     );
     const template = createTemplate();
     template.innerHTML = config.template;
     updateClasses(template, className);
     config.template = template.innerHTML;
-    hooksRun('component', base, base, config);
-    ce.get(tag) || ce.define(tag, base);
+    hooksRun('component', Base, Base, config);
+    ce.get(tag) || ce.define(tag, Base);
 };
 
 const updateClasses = (templateNode: HTMLTemplateElement, id: string) => {
@@ -103,7 +103,7 @@ export const scopeStyle = (
             tagForScope = ''; // Don't need to scope children selectors
         }
 
-        for (const childRule of (rule as CSSGroupingRule).cssRules) {
+        for (const childRule of (rule as CSSGroupingRule).cssRules || []) {
             scopeStyleRule(childRule, tagForScope);
         }
 

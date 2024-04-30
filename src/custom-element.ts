@@ -32,7 +32,7 @@ export class CustomElement extends HTMLElement {
         const controller = metadataElementController(this);
 
         if (controller) {
-            this.#change(controller, propertyName, newValue);
+            this._change(controller, propertyName, newValue);
         }
     }
 
@@ -50,7 +50,7 @@ export class CustomElement extends HTMLElement {
         this.classList.add(config.className);
 
         // Initialize before adding child nodes
-        this.#bindings(config, controller);
+        this._bindings(config, controller);
         controller.onInit && controller.onInit();
         hooksRun('init', controller, controller);
 
@@ -61,7 +61,7 @@ export class CustomElement extends HTMLElement {
 
         // Remove all existing content when not using a shadow DOM to simulate
         // the same behavior as our shadow DOM contents.
-        useShadow || this.#clearContent();
+        useShadow || this._clearContent();
 
         // Add styling within the element when using a shadow DOM.
         // When not using this, the CSS is applied in component().
@@ -80,10 +80,10 @@ export class CustomElement extends HTMLElement {
         // Need to eliminate the hard reference to the element.
         // Everything else should be able to be garbage collected.
         metadataControllerElement.delete(controller);
-        this.#clearContent();
+        this._clearContent();
     }
 
-    #bindings(config: CustomElementConfig, controllerInternal: Controller) {
+    private _bindings(config: CustomElementConfig, controllerInternal: Controller) {
         for (const propertyName of config.prop || []) {
             // When element changes, update controller
             const updateController = (
@@ -91,7 +91,7 @@ export class CustomElement extends HTMLElement {
                 newValue: any
             ) => {
                 const controller = metadataElementController(thisRef)!;
-                this.#change(controller, propertyName, newValue);
+                this._change(controller, propertyName, newValue);
             };
             patchSetter(this, propertyName, updateController);
             updateController(this, (this as any)[propertyName]);
@@ -112,7 +112,7 @@ export class CustomElement extends HTMLElement {
             const attributeName = camelToDash(propertyName);
 
             // Set initial value - updates are tracked with attributeChangedCallback
-            this.#change(
+            this._change(
                 controllerInternal,
                 propertyName,
                 getAttribute(this, attributeName)
@@ -136,14 +136,14 @@ export class CustomElement extends HTMLElement {
         }
     }
 
-    #change(controller: Controller, propertyName: string, newValue: any) {
+    private _change(controller: Controller, propertyName: string, newValue: any) {
         const oldValue = (controller as any)[propertyName];
         (controller as any)[propertyName] = newValue;
         controller.onChange &&
             controller.onChange(propertyName, oldValue, newValue);
     }
 
-    #clearContent() {
+    private _clearContent() {
         this.innerHTML = '';
 
         if (this.shadowRoot) {

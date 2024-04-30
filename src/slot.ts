@@ -73,9 +73,8 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
         | undefined);
 
 export class SlotComponent extends HTMLElement {
-    static observedAttributes = ['name'];
-    #eventRemover?: () => void;
-    #slotInfo?: SlotInfo;
+    private _eventRemover?: () => void;
+    private _slotInfo?: SlotInfo;
 
     constructor() {
         super();
@@ -88,7 +87,7 @@ export class SlotComponent extends HTMLElement {
 
         while (
             parent &&
-            !(this.#slotInfo = metadataElementSlotContent(parent))
+            !(this._slotInfo = metadataElementSlotContent(parent))
         ) {
             parent = getParent(parent);
         }
@@ -99,48 +98,51 @@ export class SlotComponent extends HTMLElement {
         oldValue: string,
         newValue: string
     ) {
-        const slotInfo = this.#slotInfo;
+        const slotInfo = this._slotInfo;
 
         if (slotInfo && oldValue !== newValue) {
-            this.#removeContent(slotInfo, oldValue);
-            this.#addContent(slotInfo);
+            this._removeContent(slotInfo, oldValue);
+            this._addContent(slotInfo);
         }
     }
 
     connectedCallback() {
-        const slotInfo = this.#slotInfo;
+        const slotInfo = this._slotInfo;
 
         if (slotInfo) {
             // Set the scope of this element to match the outer element's scope.
             metadataScope(this, slotInfo.s);
-            this.#addContent(slotInfo);
+            this._addContent(slotInfo);
         }
     }
 
     disconnectedCallback() {
-        if (this.#slotInfo) {
-            this.#removeContent(
-                this.#slotInfo,
+        if (this._slotInfo) {
+            this._removeContent(
+                this._slotInfo,
                 getAttribute(this, 'name') || ''
             );
         }
     }
 
-    #addContent(slotInfo: SlotInfo) {
+    private _addContent(slotInfo: SlotInfo) {
         const name = getAttribute(this, 'name') || '';
         this.append(slotInfo.n[name] || []);
-        this.#eventRemover = slotInfo.e.on(name, () => {
-            this.#removeContent(slotInfo, name);
-            this.#addContent(slotInfo);
+        this._eventRemover = slotInfo.e.on(name, () => {
+            this._removeContent(slotInfo, name);
+            this._addContent(slotInfo);
         });
     }
 
-    #removeContent(slotInfo: SlotInfo, oldName: string) {
-        this.#eventRemover!();
+    private _removeContent(slotInfo: SlotInfo, oldName: string) {
+        this._eventRemover!();
         getFragment(slotInfo, oldName).append(...this.childNodes);
         slotInfo.e.emit(oldName);
     }
 }
+
+// Using the old ES6 method instead of defining a static property to support older browsers.
+(SlotComponent as any).observedAttributes = ['name'];
 
 export const defineSlotComponent = (name = 'slot-like') => {
     customElements.define(name, SlotComponent);

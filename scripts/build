@@ -13,6 +13,10 @@ sizeAsJson() {
     echo "$line"
 }
 
+runTerser() {
+    terser --mangle-props regex=/^_/ --ecma 6 --compress --mangle --module ${@+"$@"}
+}
+
 status "Clean"
 rm -rf dist/
 
@@ -21,26 +25,18 @@ tsc
 
 status "Build module"
 rollup dist/fudgel.js --file dist/fudgel.mjs --format esm
-terser --ecma 6 --compress --mangle --module -o dist/fudgel.min.mjs dist/fudgel.mjs
-sed -i 's/\([ .;{}]\)#/\1µ/g' dist/fudgel.min.mjs dist/fudgel.mjs
-# babel --source-type module dist/fudgel.mjs --out-file dist/fudgel.mjs2
-# babel --source-type module --compact true --minified dist/fudgel.min.mjs --out-file dist/fudgel.min.mjs2
+runTerser --module -o dist/fudgel.min.mjs dist/fudgel.mjs
 gzip -9 -c dist/fudgel.min.mjs > dist/fudgel.min.mjs.gz
 
 status "Build UMD"
 rollup dist/fudgel.js --file dist/fudgel.umd.js --format umd --name Fudgel
-terser --ecma 6 --compress --mangle -o dist/fudgel.umd.min.js dist/fudgel.umd.js
-sed -i 's/\([ .;{}]\)#/\1µ/g' dist/fudgel.umd.min.js dist/fudgel.umd.js
-# babel --source-type script dist/fudgel.umd.js --out-file dist/fudgel.umd.js2
-# babel --compact true --minified --source-type script dist/fudgel.umd.min.js --out-file dist/fudgel.umd.min.js2
+runTerser -o dist/fudgel.umd.min.js dist/fudgel.umd.js
 gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
 
 for NAME in component di emitter router slot; do
     status "Extracting just $NAME"
     rollup dist/only-$NAME.js --file dist/only-$NAME.mjs --format esm
-    terser --ecma 6 --compress --mangle --module -o dist/only-$NAME.min.mjs -- dist/only-$NAME.mjs
-    sed -i 's/\([.;{}]\)#/\1µ/g' dist/only-$NAME.min.mjs
-    # babel --source-type script dist/only-$NAME.min.mjs --out-file dist/only-$NAME.min.mjs2
+    runTerser --module -o dist/only-$NAME.min.mjs dist/only-$NAME.mjs
     gzip -9 -c dist/only-$NAME.min.mjs > dist/only-$NAME.min.mjs.gz
 done
 

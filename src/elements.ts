@@ -35,7 +35,7 @@ export const sandboxStyleRules = (css: string) => {
     style.textContent = css;
     sandbox.body.append(style);
 
-    return style.sheet!.cssRules;
+    return style.sheet!.cssRules || [];
 }
 
 export const testCssSelector = (selector: string) => {

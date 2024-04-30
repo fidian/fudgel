@@ -292,18 +292,18 @@
                     import { component, Emitter } from './fudgel.min.js';
 
                     class MyService {
-                        #emitter = new Emitter();
+                        emitter = new Emitter();
 
                         constructor() {
-                            setInterval(() =&gt; this.#emitter.emit('tick'), 1000);
+                            setInterval(() =&gt; this.emitter.emit('tick'), 1000);
                         }
 
                         onTick(callback) {
-                            return this.#emitter.on('tick', callback);
+                            return this.emitter.on('tick', callback);
                         }
 
                         offTick(callback) {
-                            return this.#emitter.off('tick', callback);
+                            return this.emitter.off('tick', callback);
                         }
                     };
 
