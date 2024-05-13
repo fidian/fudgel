@@ -1,1 +1,1 @@
-export { defineSlotComponent } from './fudgel.js';
+export { defineSlotComponent } from './slot.js';

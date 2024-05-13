@@ -4,8 +4,8 @@
  * Both `doc` and `win` have a fallback to an object to support unit testing of
  * some things in a non-browser environment, such as `di()`.
  */
-export const doc = document || {};
-export const win = window || {};
+export const doc = document;
+export const win = window;
 
 export const cloneNode = (node: Node) => node.cloneNode(true) as HTMLElement;
 
