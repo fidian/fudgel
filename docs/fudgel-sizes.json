@@ -1,9 +1,9 @@
 [
-{ "name": "Everything (ESM)", "minified": 14572, "gzipped": 6225 },
-{ "name": "Everything (UMD)", "minified": 14689, "gzipped": 6292 },
-{ "name": "component()", "minified": 10814, "gzipped": 4766 },
-{ "name": "di()", "minified": 941, "gzipped": 552 },
-{ "name": "new Emitter()", "minified": 1029, "gzipped": 568 },
-{ "name": "RouterComponent", "minified": 2685, "gzipped": 1371 },
-{ "name": "SlotComponent", "minified": 2043, "gzipped": 1044 }
+{ "name": "Everything (ESM)", "minified": 14580, "gzipped": 6227 },
+{ "name": "Everything (UMD)", "minified": 14697, "gzipped": 6294 },
+{ "name": "component()", "minified": 10822, "gzipped": 4768 },
+{ "name": "di()", "minified": 945, "gzipped": 554 },
+{ "name": "new Emitter()", "minified": 1033, "gzipped": 570 },
+{ "name": "RouterComponent", "minified": 2693, "gzipped": 1373 },
+{ "name": "SlotComponent", "minified": 2047, "gzipped": 1047 }
 ]
