@@ -1,5 +1,5 @@
 import { Controller } from './controller.js';
-import { hookOn, hooksRun } from './hooks.js';
+import { hookOn, hookWhenSet } from './hooks.js';
 import { patchSetter } from './setter.js';
 import { Scope } from './scope.js';
 
@@ -16,21 +16,15 @@ export function addBindings(
         const hookName = `set:${binding}`;
 
         if (binding in scope) {
-            patchSetter(
-                scope,
-                binding,
-                (scopeRef: Scope, newValue, oldValue) => {
-                    hooksRun(hookName, scopeRef, controller, newValue, oldValue);
-                }
-            );
+            hookWhenSet(controller, scope, binding);
             hookOn(scope, node, hookName, callback);
         } else {
+            hookWhenSet(controller, controller, binding);
             patchSetter(
                 controller,
                 binding,
                 (thisRef: Controller, newValue, oldValue) => {
-                    hooksRun(hookName, thisRef, thisRef, newValue, oldValue);
-                    (thisRef as any).onChange && (thisRef as any).onChange(binding, newValue, oldValue);
+                    (thisRef as any).onChange?.(binding, newValue, oldValue);
                 }
             );
             hookOn(controller, node, hookName, callback);

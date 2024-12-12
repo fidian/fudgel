@@ -51,7 +51,7 @@ export class CustomElement extends HTMLElement {
 
         // Initialize before adding child nodes
         this._bindings(config, controller);
-        controller.onInit && controller.onInit();
+        controller.onInit?.();
         hooksRun('init', controller, controller);
 
         // Create initial child elements from the template.
@@ -69,12 +69,12 @@ export class CustomElement extends HTMLElement {
 
         // Finally, add the processed nodes
         root.append(template.content);
-        controller.onViewInit && controller.onViewInit();
+        controller.onViewInit?.();
     }
 
     disconnectedCallback() {
         const controller = metadataElementController(this)!;
-        controller && controller.onDestroy && controller.onDestroy();
+        controller?.onDestroy?.();
         hooksOff(this);
 
         // Need to eliminate the hard reference to the element.
@@ -139,8 +139,7 @@ export class CustomElement extends HTMLElement {
     private _change(controller: Controller, propertyName: string, newValue: any) {
         const oldValue = (controller as any)[propertyName];
         (controller as any)[propertyName] = newValue;
-        controller.onChange &&
-            controller.onChange(propertyName, oldValue, newValue);
+        controller.onChange?.(propertyName, oldValue, newValue);
     }
 
     private _clearContent() {

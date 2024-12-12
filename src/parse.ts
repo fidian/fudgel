@@ -32,7 +32,7 @@ const assembleCall = (splitResult: null | [any[], string[]]) =>
         ? [
               (root: Object) => {
                   return splitResult[0]
-                      .map(x => toString(x && x.call ? x(root) : x))
+                      .map(x => toString(x?.call ? x(root) : x))
                       .join('');
               },
               splitResult[1],
@@ -43,20 +43,20 @@ const assembleCall = (splitResult: null | [any[], string[]]) =>
 // See parseText
 export const parseTextAllowBoolean = memoize((text: string) => {
     const splitResult = splitText(text);
+    const first = splitResult?.[0];
 
     if (
-        splitResult &&
-        splitResult[0].length === 3 &&
-        splitResult[0][0] === '' &&
-        splitResult[0][2] === ''
+        first?.length === 3 &&
+        first[0] === '' &&
+        first[2] === ''
     ) {
         return [
             (root: Object) => {
-                const x = splitResult[0][1](root);
+                const x = first[1](root);
 
                 return typeof x === 'boolean' ? x : toString(x);
             },
-            splitResult[1],
+            splitResult![1],
         ];
     }
 

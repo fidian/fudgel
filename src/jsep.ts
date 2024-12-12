@@ -123,7 +123,7 @@ const gobbleBinaryOp = () => {
     return biop;
 };
 const gobbleBinaryExpression = () => {
-    let node, biop, biopNext, stack, left, right, combineLast;
+    let node, biop, biopNext, stack: (ValueProvider|BinaryOp)[], left, right, combineLast;
 
     // First, try to get the leftmost thing
     // Then, check to see if there's a binary operator operating on that leftmost thing

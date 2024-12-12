@@ -158,7 +158,6 @@ import('./fudgel.min.js').then(({ component, css, html, update }) => {
 
             select(id) {
                 this.selected = id;
-                update(this); // force update of bound events
             }
 
             swapRows() {
@@ -170,11 +169,23 @@ import('./fudgel.min.js').then(({ component, css, html, update }) => {
             }
 
             update() {
+                let counter = 0;
+
                 for (const item of this.data) {
-                    item.label += ' !!!';
+                    if (counter % 10 === 0) {
+                        item.label += ' !!!';
+                    }
+
+                    counter += 1;
                 }
 
                 this.selected = null;
+
+                // Force update because nested properties are not monitored
+                // The nested properties are in the HTML: {{item.label}}
+                // If the item object reference changed, this would not
+                // be necessary.
+                update(this);
             }
 
             buildData(count) {

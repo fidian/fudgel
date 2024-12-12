@@ -24,7 +24,8 @@ export const patchSetter = <T extends Object>(
                 const oldValue = value;
 
                 if (newValue !== oldValue) {
-                    desc.set ? desc.set(newValue) : (value = newValue);
+                    desc.set?.(newValue);
+                    value = newValue;
 
                     for (const cb of callbacks) {
                         cb(this, newValue, oldValue);

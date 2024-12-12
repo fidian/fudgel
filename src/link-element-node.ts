@@ -18,7 +18,7 @@ export function linkElementNode(
                 directiveList[firstChar] ||
                 directiveList[''];
 
-            applyDirective && applyDirective(controller, currentNode, attr.nodeValue || '', attrName);
+            applyDirective?.(controller, currentNode, attr.nodeValue || '', attrName);
         }
     }
 }

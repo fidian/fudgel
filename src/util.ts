@@ -33,8 +33,7 @@ export const pascalToDash = (pascal: string) => {
     return camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
 }
 
-export const toString = <T>(value: T) =>
-    value === null || value === undefined ? '' : `${value}`;
+export const toString = <T>(value: T) => `${value ?? ''}`;
 
 export const isString = (x: any) => typeof x === 'string';
 
@@ -46,7 +45,7 @@ export const getPrototypeOf = (x: Object) => Object.getPrototypeOf(x);
 export const rootElement = (controller: Controller) => {
     const element = metadataControllerElement.get(controller);
 
-    return element ? element.shadowRoot || element : null;
+    return element?.shadowRoot ?? element ?? null;
 }
 
 export const setAttribute = (
