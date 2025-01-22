@@ -73,6 +73,7 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
         | undefined);
 
 export class SlotComponent extends HTMLElement {
+    static observedAttributes = ['name'];
     private _eventRemover?: () => void;
     private _slotInfo?: SlotInfo;
 
@@ -140,9 +141,6 @@ export class SlotComponent extends HTMLElement {
         slotInfo.e.emit(oldName);
     }
 }
-
-// Using the old ES6 method instead of defining a static property to support older browsers.
-(SlotComponent as any).observedAttributes = ['name'];
 
 export const defineSlotComponent = (name = 'slot-like') => {
     customElements.define(name, SlotComponent);
