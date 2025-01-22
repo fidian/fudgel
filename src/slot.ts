@@ -73,7 +73,6 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
         | undefined);
 
 export class SlotComponent extends HTMLElement {
-    static observedAttributes = ['name'];
     private _eventRemover?: () => void;
     private _slotInfo?: SlotInfo;
 
@@ -143,12 +142,15 @@ export class SlotComponent extends HTMLElement {
 }
 
 export const defineSlotComponent = (name = 'slot-like') => {
+    // Need to set this here for better tree shaking in case slot-like is not
+    // needed.
+    (SlotComponent as any).observedAttributes = ['name'];
     customElements.define(name, SlotComponent);
 
     // Rewrite templates for custom elements that use slots in light DOM.
     hookOnGlobal(
         'component',
-        (_baseClass: CustomElement, config: CustomElementConfig) => {
+        (_target: CustomElement, _baseClass: CustomElement, config: CustomElementConfig) => {
             if (!config.useShadow) {
                 const template = createTemplate();
                 template.innerHTML = config.template;

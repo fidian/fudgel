@@ -31,7 +31,7 @@ const metadataHookOnSet = makeMap<Controller | Scope, Record<string, number>>();
 // set:PROP_NAME
 //   controller, oldValue, newValue - internal property changed
 export const hooksRun = (name: string, target: Object, ...args: any[]) => {
-    hooksRunInternal(globalHooks, name, ...args);
+    hooksRunInternal(globalHooks, name, target, ...args);
     hooksRunInternal(hooksForTarget(target) || {}, name, ...args);
 };
 
