@@ -109,6 +109,23 @@
                 <code>&lt;slot&gt;</code> will be rewritten automatically and it
                 will work as expected.
             </p>
+            <p>
+                If you choose to use <code>&lt;slot-like&gt;</code> instead of
+                <code>&lt;slot&gt;</code>, that will work equally well. You're
+                able to also just use slot-like in your own projects without
+                Fudgel, though automatic template rewriting won't happen outside
+                of Fudgel components.
+            </p>
+            <p>
+                The only caveat about this technique is your components must be
+                upgraded after the initial DOM is created. If you define
+                slot-like and custom elements before the DOM is finished,
+                there's no way to tell when the child elements have finished
+                being added to the custom element, so the slot-like element
+                won't be able to know when to initialize. (Search for "custom
+                element connectedCallback no child nodes" to find lots more
+                information.)
+            </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
                 <template>
