@@ -184,12 +184,12 @@ export const defineSlotComponent = (name = 'slot-like') => {
 }
 
 function patch(proto: Controller) {
-    const onInit = proto.onInit;
     const onChildren = proto.onChildren;
     let root: ShadowRoot | HTMLElement;
 
-    // Initialize slot info
-    proto.onInit = function (this: Controller) {
+    // When children are done being added, move them to slotInfo so
+    // <slot-like> can find the content.
+    proto.onParse = function (this: Controller) {
         root = rootElement(this)!;
 
         // Set up the basic info. The outer element's scope is used in
@@ -205,12 +205,7 @@ function patch(proto: Controller) {
                 ) as Node
             ),
         });
-        onInit?.call(this);
-    };
 
-    // When children are done being added, move them to slotInfo so
-    // <slot-like> can find the content.
-    proto.onParse = function (this: Controller) {
         const slotInfo = metadataElementSlotContent(root)!;
 
         // Grab all content for named slots
