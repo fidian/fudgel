@@ -2,6 +2,7 @@ import { Constructor } from './constructor.js';
 import { Controller } from './controller.js';
 import { CustomElement } from './custom-element.js';
 import { CustomElementConfigInternal } from './custom-element-config.js';
+import { MutationObserverInfo } from './when-parsed.js';
 import { SlotInfo } from './slot.js';
 import { TrackedSetters } from './setter.js';
 
@@ -33,5 +34,6 @@ export const metadataElementSlotContent = makeMap<
     ShadowRoot | HTMLElement,
     SlotInfo
 >();
+export const metadataMutationObserver = makeMap<Node, MutationObserverInfo>();
 export const metadataPatchedSetter = makeMap<Object, TrackedSetters<Object>>();
 export const metadataScope = makeMap<Node, Object>();

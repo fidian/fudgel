@@ -7,7 +7,7 @@ import {
 import { createTemplate, createStyle } from './elements.js';
 import { Controller } from './controller.js';
 import { CustomElementConfig } from './custom-element-config.js';
-import { hooksOff, hooksRun } from './hooks.js';
+import { hooksOff } from './hooks.js';
 import { linkNodes } from './link-nodes.js';
 import {
     metadataComponentConfig,
@@ -17,6 +17,7 @@ import {
     metadataElementController,
 } from './metadata.js';
 import { patchSetter } from './setter.js';
+import { whenParsed } from './when-parsed.js';
 
 export class CustomElement extends HTMLElement {
     constructor() {
@@ -52,24 +53,27 @@ export class CustomElement extends HTMLElement {
         // Initialize before adding child nodes
         this._bindings(config, controller);
         controller.onInit?.();
-        hooksRun('init', controller, controller);
 
-        // Create initial child elements from the template.
-        const template = createTemplate();
-        template.innerHTML = config.template;
-        linkNodes(template.content, controller);
+        // Need to wait until child nodes are ready.
+        whenParsed(this, () => {
+            controller.onParse?.();
 
-        // Remove all existing content when not using a shadow DOM to simulate
-        // the same behavior as our shadow DOM contents.
-        useShadow || this._clearContent();
+            // Create initial child elements from the template.
+            const template = createTemplate();
+            template.innerHTML = config.template;
+            linkNodes(template.content, controller);
 
-        // Add styling within the element when using a shadow DOM.
-        // When not using this, the CSS is applied in component().
-        config.style && root.append(createStyle(config.style));
+            // Remove all existing content when not using a shadow DOM to simulate
+            // the same behavior shown when using a shadow DOM.
+            useShadow || this._clearContent();
 
-        // Finally, add the processed nodes
-        root.append(template.content);
-        controller.onViewInit?.();
+            // Add styling within the element. Works with or without a shadow DOM.
+            config.style && root.append(createStyle(config.style));
+
+            // Finally, add the processed nodes
+            root.append(template.content);
+            controller.onViewInit?.();
+        });
     }
 
     disconnectedCallback() {

@@ -40,11 +40,21 @@
                 up.
             </p>
             <p>
-                <code>onViewInit()</code>, if you have one, will be executed at
-                the very end after the custom element is connected to the DOM.
-                At this point, all children are in the DOM,
-                <code>#ref</code> directives are set up, and your element is
-                basically live.
+                <code>onParse()</code> is fired when all child nodes are parsed.
+                If you are doing your own content transclusion, this would be an
+                important method to use. With lengthy HTML, there might be
+                multiple chunks of child nodes added as children to the custom
+                element. This method is called after all of them are added,
+                using a technique of watching for the document's content to be
+                loaded and using a mutation observer to see if any parents have
+                next siblings.
+            </p>
+            <p>
+                <code>onViewInit()</code> will be executed at the very end after
+                the custom element is connected to the DOM and the template has
+                also been attached and processed. At this point, all children
+                are in the DOM, <code>#ref</code> directives are set up, and
+                your element is basically live.
             </p>
             <p>
                 <code>onChange(propertyName, oldValue, newValue)</code> will be

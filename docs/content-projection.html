@@ -104,27 +104,17 @@
             <h2>Slots and Light DOM</h2>
             <p>
                 There is no browser-native support for slots in the light DOM,
-                so Fudgel can provide this for you. You simply will need to make
-                sure to define the custom slot-like element and then
-                <code>&lt;slot&gt;</code> will be rewritten automatically and it
-                will work as expected.
+                however Fudgel can provide similar functionality! First, you
+                need to define the custom slot-like element, and after that
+                point all components will have <code>&lt;slot&gt;</code>
+                elements rewritten automatically to work as expected. This means
+                you can keep your template looking the same whether using light
+                DOM or shadow DOM.
             </p>
             <p>
-                If you choose to use <code>&lt;slot-like&gt;</code> instead of
-                <code>&lt;slot&gt;</code>, that will work equally well. You're
-                able to also just use slot-like in your own projects without
-                Fudgel, though automatic template rewriting won't happen outside
-                of Fudgel components.
-            </p>
-            <p>
-                The only caveat about this technique is your components must be
-                upgraded after the initial DOM is created. If you define
-                slot-like and custom elements before the DOM is finished,
-                there's no way to tell when the child elements have finished
-                being added to the custom element, so the slot-like element
-                won't be able to know when to initialize. (Search for "custom
-                element connectedCallback no child nodes" to find lots more
-                information.)
+                This even works when parsing large amounts of HTML, thanks to
+                the <code>.onParse()</code>
+                <a href="lifecycle-methods.html">Lifecycle Method</a>.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -144,8 +134,8 @@
                 <template>
                     import { component, defineSlotComponent } from './fudgel.min.js';
 
-                    // Crucial: create the custom component during your
-                    // application's bootstrap.
+                    // Crucial: create the custom slot component before
+                    // defining components that need this element!
                     defineSlotComponent();
 
                     // Now slots will work in your light DOM component.
@@ -174,13 +164,16 @@
                 component creation so all light DOM components will have their
                 template rewritten, changing <code>slot</code> elements into
                 <code>slot-like</code> elements. This template change happens
-                once.
+                once during each components initial definition. If the template
+                is rewritten, the controller's <code>.onInit()</code> and
+                <code>.onParse()</code> methods will be patched to push content
+                into the slots.
             </p>
             <p>
                 The downside of this method is that you may see a flicker of the
                 original DOM before it is put into the right places within your
                 component. This is because the DOM structure is built before the
-                custom element's <code>connectedCallback()</code> is called.
+                template overrides the node's content.
             </p>
             <p>
                 This method is designed to operate like the native
@@ -200,11 +193,16 @@
                 Your controller can access the custom element and pull its
                 children using a query selector, walking the DOM, or other
                 techniques. Make sure you capture the content during
-                <code>onInit()</code> and then add the content to the DOM in
+                <code>onParse()</code> and then add the content to the DOM in
                 <code>onViewInit()</code> because the element is cleared and the
                 template is applied between these two method calls. Learn more
                 about these
                 <a href="lifecycle-methods.html">Lifecycle Methods</a>.
+            </p>
+            <p>
+                One advantage of using this technique is the template element is
+                not rendered, so it can avoid the flicker of the slot-like
+                approach.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -237,7 +235,7 @@
                         `,
                         template: `<button #ref="button"></button>`
                     }, class {
-                        onInit() {
+                        onParse() {
                             const element = rootElement(this);
                             this.template = element.querySelector('template');
                         }

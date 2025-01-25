@@ -1,11 +1,16 @@
-import { component, html, metadataControllerElement } from '../../src/fudgel.js';
+import {
+    component,
+    defineSlotComponent,
+    html,
+    metadataControllerElement,
+} from '../../src/fudgel.js';
+
+defineSlotComponent();
 
 component(
     'parent-element',
     {
-        template: html`<child-element
-            >{{name}}</child-element
-        >`,
+        template: html`<child-element>{{name}}</child-element>`,
     },
     class {
         name = 'parent';
@@ -16,9 +21,9 @@ component(
     'child-element',
     {
         template: html`<div id="unnamedSlot" style="border: 2px solid blue">
-                <slot #ref="slot"></slot>
-            </div>`,
-        useShadow: true
+            <slot #ref="slot"></slot>
+        </div>`,
+        useShadow: true,
     },
     class {
         name = 'child';
@@ -55,12 +60,46 @@ component(
             <div id="unnamedSlot" style="border: 2px solid blue">
                 <slot></slot>
             </div>`,
-        useShadow: true
+        useShadow: true,
     },
     class {
         name = 'child';
     }
 );
+
+component('content-projection', {
+    template: html`<slot></slot>`,
+});
+
+component(
+    'delayed-projection',
+    {
+        template: html`<content-projection *if="show"
+            >${generateContentDivs()}</content-projection
+        >`,
+    },
+    class {
+        show = false;
+
+        onViewInit() {
+            this.show = true;
+        }
+    }
+);
+
+function generateContentDivs() {
+    return 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').join(html`
+        <div class="this-div-is-here-to-inject-extra-content">
+            <div class="the-goal-is-to-consume-lots-of-space">
+                <div class="abcdefghijklmnopqrstuvwxyz0123456789">
+                    <div
+                        class="many-many-many-many-many-many-many-many-many-bytes"
+                    ></div>
+                </div>
+            </div>
+        </div>
+    `);
+}
 
 describe('basic initialization', () => {
     beforeEach(() => {
@@ -100,5 +139,18 @@ describe('with shadow dom', () => {
                     'parent'
                 );
             });
+    });
+});
+
+describe('with content supplied', () => {
+    beforeEach(() => {
+        cy.mount(`<content-projection>Is this italics? <i>YES</i></content-projection>`);
+    });
+
+    it('projects content', () => {
+        cy.get('content-projection slot-like i').should(
+            'contain.text',
+            'YES'
+        );
     });
 });

@@ -199,7 +199,7 @@ Promise.all([
                     this.label = 'Copy';
                 }
 
-                onInit() {
+                onParse() {
                     const elem = metadataControllerElement.get(this);
                     const template = elem.querySelector('template');
 

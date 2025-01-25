@@ -48,7 +48,7 @@ import { getAttribute, setAttribute } from './util.js';
 import { getScope, Scope } from './scope';
 import { hookOnGlobal } from './hooks';
 import {
-    metadataControllerConfig,
+    metadataComponentController,
     metadataControllerElement,
     metadataElementSlotContent,
     metadataScope,
@@ -72,93 +72,95 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
         | HTMLElement
         | undefined);
 
-export class SlotComponent extends HTMLElement {
-    private _eventRemover?: () => void;
-    private _slotInfo?: SlotInfo;
-
-    constructor() {
-        super();
-
-        // Find the parent custom element that is using this component.
-        // The parent must not change even if this element is later relocated
-        // elsewhere (eg. deeper via content projection into content
-        // projection) in the DOM.
-        let parent = getParent(this);
-
-        while (
-            parent &&
-            !(this._slotInfo = metadataElementSlotContent(parent))
-        ) {
-            parent = getParent(parent);
-        }
-    }
-
-    attributeChangedCallback(
-        _name: string,
-        oldValue: string,
-        newValue: string
-    ) {
-        const slotInfo = this._slotInfo;
-
-        if (slotInfo && oldValue !== newValue) {
-            this._removeContent(slotInfo, oldValue);
-            this._addContent(slotInfo);
-        }
-    }
-
-    connectedCallback() {
-        const slotInfo = this._slotInfo;
-
-        if (slotInfo) {
-            // Set the scope of this element to match the outer element's scope.
-            metadataScope(this, slotInfo.s);
-            this._addContent(slotInfo);
-        }
-    }
-
-    disconnectedCallback() {
-        if (this._slotInfo) {
-            this._removeContent(
-                this._slotInfo,
-                getAttribute(this, 'name') || ''
-            );
-        }
-    }
-
-    private _addContent(slotInfo: SlotInfo) {
-        const name = getAttribute(this, 'name') || '';
-        this.append(slotInfo.n[name] || []);
-        this._eventRemover = slotInfo.e.on(name, () => {
-            this._removeContent(slotInfo, name);
-            this._addContent(slotInfo);
-        });
-    }
-
-    private _removeContent(slotInfo: SlotInfo, oldName: string) {
-        this._eventRemover!();
-        getFragment(slotInfo, oldName).append(...this.childNodes);
-        slotInfo.e.emit(oldName);
-    }
-}
-
 export const defineSlotComponent = (name = 'slot-like') => {
-    // Need to set this here for better tree shaking in case slot-like is not
-    // needed.
+    class SlotComponent extends HTMLElement {
+        private _eventRemover?: () => void;
+        private _slotInfo?: SlotInfo;
+
+        constructor() {
+            super();
+
+            // Find the parent custom element that is using this component.
+            // The parent must not change even if this element is later relocated
+            // elsewhere (eg. deeper via content projection into content
+            // projection) in the DOM.
+            let parent = getParent(this);
+
+            while (
+                parent &&
+                !(this._slotInfo = metadataElementSlotContent(parent))
+            ) {
+                parent = getParent(parent);
+            }
+        }
+
+        attributeChangedCallback(
+            _name: string,
+            oldValue: string,
+            newValue: string
+        ) {
+            const slotInfo = this._slotInfo;
+
+            if (slotInfo && oldValue !== newValue) {
+                this._removeContent(slotInfo, oldValue);
+                this._addContent(slotInfo);
+            }
+        }
+
+        connectedCallback() {
+            const slotInfo = this._slotInfo;
+
+            if (slotInfo) {
+                // Set the scope of this element to match the outer element's scope.
+                metadataScope(this, slotInfo.s);
+                this._addContent(slotInfo);
+            }
+        }
+
+        disconnectedCallback() {
+            if (this._slotInfo) {
+                this._removeContent(
+                    this._slotInfo,
+                    getAttribute(this, 'name') || ''
+                );
+            }
+        }
+
+        private _addContent(slotInfo: SlotInfo) {
+            const name = getAttribute(this, 'name') || '';
+            this.append(slotInfo.n[name] || []);
+            this._eventRemover = slotInfo.e.on(name, () => {
+                this._removeContent(slotInfo, name);
+                this._addContent(slotInfo);
+            });
+        }
+
+        private _removeContent(slotInfo: SlotInfo, oldName: string) {
+            this._eventRemover!();
+            getFragment(slotInfo, oldName).append(...this.childNodes);
+            slotInfo.e.emit(oldName);
+        }
+    }
+
     (SlotComponent as any).observedAttributes = ['name'];
     customElements.define(name, SlotComponent);
 
     // Rewrite templates for custom elements that use slots in light DOM.
     hookOnGlobal(
         'component',
-        (_target: CustomElement, _baseClass: CustomElement, config: CustomElementConfig) => {
+        (_target: CustomElement, baseClass: CustomElement, config: CustomElementConfig) => {
             if (!config.useShadow) {
+                let usesSlotLike = false;
                 const template = createTemplate();
                 template.innerHTML = config.template;
                 const treeWalker = createTreeWalker(template.content, 0x01);
                 let currentNode: HTMLElement | null;
 
                 while ((currentNode = treeWalker.nextNode() as HTMLElement)) {
+                    // Change DOM elements in the template from <slot> to the
+                    // <slot-like>
                     if (currentNode.nodeName === 'SLOT') {
+                        usesSlotLike = true;
                         const slotLike = createElement(name);
 
                         for (const attr of currentNode.attributes) {
@@ -171,46 +173,58 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     }
                 }
 
-                config.template = template.innerHTML;
+                if (usesSlotLike) {
+                    config.template = template.innerHTML;
+                }
+
+                patch(metadataComponentController(baseClass)?.prototype!);
             }
         }
     );
+}
 
-    // Move all elements inside the controller's root element into the
-    // metadata. Also, change the DOM elements from <slot> to the <slot-like>
-    // custom element.
-    hookOnGlobal('init', (controller: Controller) => {
-        const root = rootElement(controller);
-        const config = metadataControllerConfig(controller)!;
+function patch(proto: Controller) {
+    const onInit = proto.onInit;
+    const onChildren = proto.onChildren;
+    let root: ShadowRoot | HTMLElement;
 
-        if (root && !config.useShadow) {
-            // Set up the basic info. The outer element's scope is used in order to
-            // support Fudgel bindings.
-            const slotInfo: SlotInfo = {
-                e: new Emitter(),
-                n: {
-                    '': createFragment(),
-                },
-                s: getScope(
-                    getParent(
-                        metadataControllerElement.get(controller)!
-                    ) as Node
-                ),
-            };
+    // Initialize slot info
+    proto.onInit = function (this: Controller) {
+        root = rootElement(this)!;
 
-            // Grab all content for named slots
-            for (const child of root.querySelectorAll('[slot]')) {
-                getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
-                    child
-                );
-            }
+        // Set up the basic info. The outer element's scope is used in
+        // order to support Fudgel bindings.
+        metadataElementSlotContent(root, {
+            e: new Emitter(),
+            n: {
+                '': createFragment(),
+            },
+            s: getScope(
+                getParent(
+                    metadataControllerElement.get(this)!
+                ) as Node
+            ),
+        });
+        onInit?.call(this);
+    };
 
-            // Now collect everything else and add it to the default slot
-            for (const child of root.childNodes) {
-                slotInfo.n[''].append(child);
-            }
+    // When children are done being added, move them to slotInfo so
+    // <slot-like> can find the content.
+    proto.onParse = function (this: Controller) {
+        const slotInfo = metadataElementSlotContent(root)!;
 
-            metadataElementSlotContent(root, slotInfo);
+        // Grab all content for named slots
+        for (const child of [...root.querySelectorAll('[slot]')]) {
+            getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
+                child
+            );
         }
-    });
+
+        // Now collect everything else and add it to the default slot
+        for (const child of [...root.childNodes]) {
+            slotInfo.n[''].append(child);
+        }
+
+        onChildren?.call(this);
+    };
 };
