@@ -26,8 +26,10 @@ export const whenParsed = (element: CustomElement, callback: () => void) => {
         return false;
     };
 
-    // If the document is already loaded or any parent has a next sibling, we're done.
-    if (ownerDocument.readyState === 'complete' || isReady()) {
+    // If the document is already loaded or any parent has a next sibling,
+    // we're done. "loading" means the document is still loading. "interactive"
+    // and "complete" are both good enough for DOM manipulation.
+    if (ownerDocument.readyState !== 'loading' || isReady()) {
         callback();
     } else {
         // Watch the document or document fragment for changes.
