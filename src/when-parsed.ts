@@ -12,7 +12,10 @@ const DOMContentLoaded = 'DOMContentLoaded';
 // However, when they are added during initial HTML load, the web component's
 // child elements may not be added or may be added in phases. This function
 // waits and determines when the child nodes are ready.
-export const whenParsed = (element: CustomElement, callback: () => void) => {
+//
+// Elements using a shadow DOM are always considered ready because they don't
+// need or can't really access projected content from slots.
+export const whenParsed = (element: CustomElement, root: CustomElement | ShadowRoot, callback: () => void) => {
     const ownerDocument = element.ownerDocument;
     const isReady = () => {
         let node: Node | null = element;
@@ -29,7 +32,7 @@ export const whenParsed = (element: CustomElement, callback: () => void) => {
     // If the document is already loaded or any parent has a next sibling,
     // we're done. "loading" means the document is still loading. "interactive"
     // and "complete" are both good enough for DOM manipulation.
-    if (ownerDocument.readyState !== 'loading' || isReady()) {
+    if (root === element || ownerDocument.readyState !== 'loading' || isReady()) {
         callback();
     } else {
         // Watch the document or document fragment for changes.

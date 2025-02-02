@@ -40,14 +40,17 @@
                 up.
             </p>
             <p>
-                <code>onParse()</code> is fired when all child nodes are parsed.
-                If you are doing your own content transclusion, this would be an
-                important method to use. With lengthy HTML, there might be
-                multiple chunks of child nodes added as children to the custom
-                element. This method is called after all of them are added,
-                using a technique of watching for the document's content to be
-                loaded and using a mutation observer to see if any parents have
-                next siblings.
+                <code>onParse()</code> is fired when all child nodes are parsed
+                for light DOM elements and is fired immediately after
+                <code>onInit()</code> for shadow DOM elements. If you are doing
+                your own light DOM
+                <a href="content-projection.html">content projection</a>, this
+                would be an important method to use. With lengthy HTML, there
+                might be multiple chunks of child nodes added as children to the
+                custom element. This method is called after all of them are
+                added, using a technique of watching for the document's content
+                to be loaded and using a mutation observer to see if any parents
+                have next siblings.
             </p>
             <p>
                 <code>onViewInit()</code> will be executed at the very end after

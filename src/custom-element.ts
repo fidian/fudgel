@@ -54,8 +54,9 @@ export class CustomElement extends HTMLElement {
         this._bindings(config, controller);
         controller.onInit?.();
 
-        // Need to wait until child nodes are ready.
-        whenParsed(this, () => {
+        // Need to wait until child nodes are ready for light DOM elements that
+        // use slots.
+        whenParsed(this, root, () => {
             controller.onParse?.();
 
             // Create initial child elements from the template.
@@ -87,7 +88,10 @@ export class CustomElement extends HTMLElement {
         this._clearContent();
     }
 
-    private _bindings(config: CustomElementConfig, controllerInternal: Controller) {
+    private _bindings(
+        config: CustomElementConfig,
+        controllerInternal: Controller
+    ) {
         for (const propertyName of config.prop || []) {
             // When element changes, update controller
             const updateController = (
@@ -140,7 +144,11 @@ export class CustomElement extends HTMLElement {
         }
     }
 
-    private _change(controller: Controller, propertyName: string, newValue: any) {
+    private _change(
+        controller: Controller,
+        propertyName: string,
+        newValue: any
+    ) {
         const oldValue = (controller as any)[propertyName];
         (controller as any)[propertyName] = newValue;
         controller.onChange?.(propertyName, oldValue, newValue);
