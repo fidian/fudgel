@@ -90,7 +90,7 @@ export class RouterComponent extends HTMLElement {
                 | undefined;
 
             if (link) {
-                if (link.href && link.origin === win.location.origin) {
+                if (link.href && link.origin === win.location.origin && !link.href.startsWith('blob:')) {
                     e.preventDefault();
                     this.go(`${link.pathname}${link.search}${link.hash}`);
                 }
