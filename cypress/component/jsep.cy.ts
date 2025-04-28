@@ -1,7 +1,6 @@
 import {
     Component,
     html,
-    metadataControllerElement,
 } from '../../src/fudgel.js';
 
 const date = new Date();

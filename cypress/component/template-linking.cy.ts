@@ -1,4 +1,4 @@
-import { component, metadataControllerElement } from '../../src/fudgel.js';
+import { component, controllerToElement } from '../../src/fudgel.js';
 
 component('link-child', {
     template: 'value:"{{childValue}}"'
@@ -6,7 +6,7 @@ component('link-child', {
     childValue = 'initialized';
     template: HTMLTemplateElement;
     onInit() {
-        this.template = metadataControllerElement.get(this)!.querySelector('template');
+        this.template = controllerToElement(this)!.querySelector('template');
     }
     onViewInit() {
         this.childValue = this.template.innerHTML;
