@@ -65,12 +65,13 @@
                     });
                 </template>
             </code-sample>
-            <h2><code>rootElement</code> - Access the main DOM element</h2>
+            <h2><code>rootElement</code> - Access the content DOM element</h2>
             <p>
                 Your component creates all of its template elements in one
-                parent element. This will be the custom element or the shadow
-                DOM element. To easily access this element from your
-                controller, use <code>rootElement()</code>.
+                parent element. When using a shadow DOM, this is the shadow DOM
+                element. Otherwise, this is the custom element.  To easily
+                access this element from your controller for content
+                manipulation, use <code>rootElement()</code>.
             </p>
             <code-sample
                 type="js"
@@ -338,6 +339,132 @@
                             } else {
                                 myService.offTick(this.tickTracker);
                             }
+                        }
+                    });
+                </template>
+            </code-sample>
+            <h2><code>controllerToElement</code> - Get an element from a controller</h2>
+            <p>
+                Fudgel components have controllers that are separated from the
+                DOM element. To help eliminate circular references and
+                encourage garbage collection, Fudgel only links elements
+                directly to controllers and not vice-versa. This map allows you
+                to query for an element if you have a controller. This might be
+                useful when you need to manipulate the DOM element from a
+                component that uses the shadow DOM.
+            </p>
+            <p>
+                It is possible for this to return <code>null</code> when the
+                DOM element is deleted. Because JavaScript doesn't support
+                destroying objects, the controller instance might persist long
+                after the DOM element is gone.
+            </p>
+            <p>
+                Look this value up every time you need it. Do not cache the
+                result because it could lead to memory leaks in your
+                application.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<set-attribute></set-attribute>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, controllerToElement } from './fudgel.min.js';
+
+                    component('set-attribute', {
+                        template: 'Inspect the DOM and notice the attribute value changing.',
+                        useShadow: true
+                    }, class {
+                        onViewInit() {
+                            let count = 0;
+                            this.interval = setInterval(() =&gt; {
+                                const element = controllerToElement(this);
+
+                                if (element) {
+                                    element.setAttribute('data-attribute', count ++);
+                                }
+                            }, 1000);
+                        }
+                        onDestroy() {
+                            clearInterval(this.interval);
+                        }
+                    });
+                </template>
+            </code-sample>
+            <h2><code>elementToController</code> - Get a controller from a Fudgel DOM element</h2>
+            <p>
+                When a child needs to access a parent's controller, this map
+                will retrieve the current bindings between DOM elements and
+                Fudgel controllers.
+            </p>
+            <p>
+                It is possible for this to return <code>null</code> when the
+                element is not registered to Fudgel.
+            </p>
+            <p>
+                The below examples use the shadow DOM just to help illustrate
+                when this is needed. Using shadow DOMs is not required for this
+                to work.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<parent-element></parent-element>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component, controllerToElement, elementToController } from './fudgel.min.js';
+
+                    component('parent-element', {
+                        template: '<child-element></child-element>',
+                        useShadow: true
+                    }, class {
+                        // Called from child element
+                        logMessage(message) {
+                            console.log('Parent:', message);
+                        }
+                    });
+
+                    component('child-element', {
+                        template: `
+                            <button @click="clicked()">Click me to log in parent</button>
+                        `,
+                        useShadow: true
+                    }, class {
+                        clicked() {
+                            // Get the actual DOM element (not rootElement)
+                            const childElement = controllerToElement(this);
+
+                            if (!childElement) {
+                                console.error('Child element not in DOM');
+                                return;
+                            }
+
+                            const parentElement = this.closest('parent-element', childElement);
+
+                            if (!parentElement) {
+                                console.error('Could not find parent element in DOM');
+                                return;
+                            }
+
+                            const parent = elementToController(parentElement);
+
+                            if (!parent) {
+                                console.error('Could not find parent controller');
+                                return;
+                            }
+
+                            parent.logMessage('Hello from child');
+                        }
+
+                        // Pierce the shadow DOM layers to get the parent element.
+                        closest(selector, el) {
+                            return (
+                                (el !== document && el !== window && el.closest(selector)) ||
+                                this.closest(selector, el.getRootNode().host)
+                            );
                         }
                     });
                 </template>

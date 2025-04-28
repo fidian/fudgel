@@ -10,7 +10,7 @@ Promise.all([
     import('./hljs.js'),
 ]).then(
     ([
-        { component, css, html, metadataControllerElement, rootElement },
+        { component, css, html, controllerToElement, rootElement },
         { hljs },
     ]) => {
         const cleanText = (str) => {
@@ -200,7 +200,7 @@ Promise.all([
                 }
 
                 onParse() {
-                    const elem = metadataControllerElement.get(this);
+                    const elem = controllerToElement(this);
                     const template = elem.querySelector('template');
 
                     if (!template) {

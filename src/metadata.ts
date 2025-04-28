@@ -29,7 +29,11 @@ export const metadataControllerConfig = makeMap<
     CustomElementConfigInternal
 >();
 export const metadataControllerElement = new Map<Controller, CustomElement>();
+export const controllerToElement = (controller: Controller) =>
+    metadataControllerElement.get(controller);
 export const metadataElementController = makeMap<HTMLElement, Controller>();
+export const elementToController = (element: HTMLElement) =>
+    metadataElementController(element);
 export const metadataElementSlotContent = makeMap<
     ShadowRoot | HTMLElement,
     SlotInfo
