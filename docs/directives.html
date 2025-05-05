@@ -35,15 +35,15 @@
                 directives, which affect adding and removing DOM elements, and
                 general directives, which leaves the DOM structure intact.
             </p>
-            <h2>General Directives</h2>
+            <h2>Text Replacement - <code>{{ }}</code></h2>
             <p>
                 Text nodes and attributes may use a syntax similar to
                 <a href="https://mustache.github.io/">Mustache</a>, using double
                 braces. The content within will be evaluated as JavaScript and
                 the value that is returned will be inserted in place of the
-                braces. Below, <code>this</code> refers to the controller
-                instance and the content within the braces will be updated
-                whenever the referenced variable changes.
+                braces. Below, <code>extraClasses</code> refers to the
+                controller's property and the content within the braces will be
+                updated whenever the referenced variable changes.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -53,12 +53,13 @@
                     </div>
                 </template>
             </code-sample>
+            <h2>Assignment of Properties - <code>.</code></h2>
             <p>
-                If you need to pass more complicated data and if the custom
-                element supports it, you can assign properties directly to the
-                element. Again, if the referenced variables change, the property
-                will automatically be updated. This is done by prefixing the
-                property name with a dot and changing the name to kebab-case
+                If you need to pass more complicated data and if the element
+                supports it, you can assign properties directly to the element.
+                Again, if the referenced variables change, the property will
+                automatically be updated. This is done by prefixing the property
+                name with a dot and changing the name to kebab-case
                 (hyphenated).
             </p>
             <code-sample type="html">
@@ -70,9 +71,10 @@
                     <other-element .current-user="user"></other-element>
                 </template>
             </code-sample>
+            <h2>Events - <code>@</code></h2>
             <p>
-                Event handlers are bound with a prefixed attribute. The event is
-                available as <code>$event</code>.
+                Event handlers are bound with a <code>@</code>-prefixed
+                attribute. The event is available as <code>$event</code>.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -222,6 +224,7 @@
                     href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
                     >MDN's Keyboard Event Key Values page</a
                 >. Make sure to use all lowercase and kebab-case names, such as
+                <code>keypress.enter</code> and
                 <code>keypress.arrow-left</code>.
             </p>
             <p>
@@ -272,11 +275,12 @@
                     });
                 </template>
             </code-sample>
-            <h2>Structural Directives</h2>
+            <h2>Conditional Display - <code>*if</code></h2>
             <p>
                 Conditionally display an element with <code>*if</code>. This
                 will automatically be updated if using a property on your
-                controller.
+                controller. If the condition is false, the DOM element is
+                removed. When it is true, the DOM element is put back.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -287,6 +291,7 @@
                     </p>
                 </template>
             </code-sample>
+            <h2>Repeating Elements - <code>*repeat</code></h2>
             <p>
                 Repeating a chunk of HTML a number of times is very easy. You
                 can use a fixed number or execute code to find the number.
@@ -298,6 +303,7 @@
                     <p>Some stars: <span *repeat="starCount">*</span></p>
                 </template>
             </code-sample>
+            <h2>Iterating - <code>*for</code></h2>
             <p>
                 Iterating across an object, array, set, map, or any other
                 iterable is also possible, plus this also updates when the
@@ -330,6 +336,38 @@
                     </div>
                 </template>
             </code-sample>
+            <h2>Referencing Elements - <code>#ref</code></h2>
+            <p>
+                The controller might need to access a DOM element directly. To
+                make this very easy, add the <code>#ref</code> attribute to the
+                element. This will assign the element to the controller's
+                property with the same name as the attribute.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('test-ref', {
+                        template: `
+                            <input type="text" #ref="inputField" />
+                            <button @click="focus()">Focus the input</button>
+                        `
+                    }, class {
+                        inputField = null; // This will be the HTMLInputElement
+
+                        focus() {
+                            this.inputField?.focus();
+                        }
+                    });
+                </template>
+            </code-sample>
+            <p>
+                Technically, with this simple example, you could use
+                <code>inputField.focus()</code> directly without a controller.
+                This example just makes it more clear that the property is added
+                to the controller.
+            </p>
             <h2>Adding Custom Directives</h2>
             <p>
                 You are welcome to add your own directives. There are three
