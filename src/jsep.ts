@@ -58,16 +58,18 @@ const literals: { [key: string]: ValueProviderFunction } = {
     null: () => null,
 };
 export const parse = (exprToParse: string): ValueProvider => {
+    // Assign to a global variable
     expr = exprToParse;
+
+    // Set up index and code (global variables)
     index = 0;
+    advance(0);
+
+    // Use a default return value
     let result: ValueProvider = [() => {}, []];
 
     try {
-        // The string may be empty. If so, advance() will throw.
-        advance(0);
-
-        // Parse the rest of the expression.
-        result = gobbleExpression() || throwError();
+        result = code ? gobbleExpression() || throwError() : result;
     } catch (ignore) {
     }
 
