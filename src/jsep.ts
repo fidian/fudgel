@@ -60,10 +60,13 @@ const literals: { [key: string]: ValueProviderFunction } = {
 export const parse = (exprToParse: string): ValueProvider => {
     expr = exprToParse;
     index = 0;
-    advance(0);
     let result: ValueProvider = [() => {}, []];
 
     try {
+        // The string may be empty. If so, advance() will throw.
+        advance(0);
+
+        // Parse the rest of the expression.
         result = gobbleExpression() || throwError();
     } catch (ignore) {
     }
