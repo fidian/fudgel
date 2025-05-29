@@ -4,7 +4,11 @@ import {
     getAttribute,
     setAttribute,
 } from './util.js';
-import { createTemplate, createStyle } from './elements.js';
+import {
+    createElement,
+    createTemplate,
+    createTextNode,
+} from './elements.js';
 import { Controller } from './controller.js';
 import { CustomElementConfig } from './custom-element-config.js';
 import { hooksOff } from './hooks.js';
@@ -68,8 +72,18 @@ export class CustomElement extends HTMLElement {
             // the same behavior shown when using a shadow DOM.
             useShadow || this._clearContent();
 
-            // Add styling within the element. Works with or without a shadow DOM.
-            config.style && root.append(createStyle(config.style));
+            // With a shadow DOM, append styling within the element.
+            // Add styling to either the parent document or the parent shadow root.
+            const styleParent = root.getRootNode() as Document | ShadowRoot;
+            if (
+                config.style &&
+                !styleParent.querySelector('style.' + config.className)
+            ) {
+                const s = createElement('style');
+                s.classList.add(config.className);
+                s.prepend(createTextNode(config.style));
+                ((styleParent as any).body || styleParent).prepend(s);
+            }
 
             // Finally, add the processed nodes
             root.append(template.content);

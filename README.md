@@ -12,6 +12,16 @@ For detailed information and live examples, check out the [documentation site](h
 Upgrading
 ---------
 
+* 1.7.0
+    * Styles are only added once to each document. This means only 1 style
+      element per document fragment instead of seeing the same styles applied
+      once per component.
+* 1.6.0
+    * Additional exports were added.
+* 1.5.0
+    * slot-like was updated and correct element parsing is now detected.
+* 1.4.0
+    * Dependencies updated.
 * 1.3.0
     * Updated the build scripts to produce ES6-compatible code without private
       fields. The typical `#` prefix is now replaced with `µ` during

@@ -18,13 +18,6 @@ export const createComment = (content: string) => doc.createComment(content);
 
 export const createFragment = () => doc.createDocumentFragment();
 
-export const createStyle = (content: string) => {
-    const s = createElement('style');
-    s.append(createTextNode(content));
-
-    return s;
-}
-
 export const createTemplate = () => createElement('template');
 
 // NodeFilter.SHOW_ELEMENT = 0x01
