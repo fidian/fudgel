@@ -112,6 +112,15 @@
                 examples and this functionality works with your favorite
                 frameworks equally well.
             </p>
+            <p>
+                A single custom element can bind to the same name as both an
+                attribute and a property. Fudgel will initially get the
+                attribute value, then override it with the property value.  Any
+                change through an attribute or a property will result in the
+                controller's property being updated.  Updates to the
+                controller's property will update the attribute (as
+                appropriate).
+            </p>
         </page-wrapper>
     </body>
     <script src="js.js" type="module"></script>

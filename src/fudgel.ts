@@ -7,6 +7,7 @@ export * from './di.js';
 export { addDirective } from './directive/index.js';
 export * from './emitter.js';
 export { hookOnGlobal } from './hooks.js';
+export { parse } from './jsep.js'; // For much easier testing
 export { controllerToElement, elementToController } from './metadata.js';
 export * from './parse.js';
 export { defineRouterComponent } from './router.js';

@@ -53,6 +53,23 @@
                     </div>
                 </template>
             </code-sample>
+            <p>
+                When you use a boolean value as the entire attribute value,
+                such as in the next example, the attribute will be set to an
+                empty string if <code>true</code> and removed if
+                <code>false</code>. This is useful for attributes that are
+                either present or not, such as <code>disabled</code>,
+                <code>checked</code>, and <code>readonly</code>.
+            </p>
+            <code-sample type="html">
+                <!-- prettier-ignore -->
+                <template>
+                    <input
+                        type="checkbox"
+                        checked="{{user.isAdmin}}"
+                        disabled="{{!user.isActive}}"
+                    />
+                </template>
             <h2>Assignment of Properties - <code>.</code></h2>
             <p>
                 If you need to pass more complicated data and if the element
@@ -371,27 +388,48 @@
             <h2>Adding Custom Directives</h2>
             <p>
                 You are welcome to add your own directives. There are three
-                categories of directives when you add one. First, structural
-                directives start with <code>*</code>. Next, you can use a
-                prefixed directive that matches all attributes that start with a
-                specific character, such as <code>.</code> for property changes.
-                Finally, you can match an exact directive, as in
-                <code>#ref</code>.
+                categories of directives: structural, prefixed, and exact
+                matches.
             </p>
+
+            <p>
+                Structural directives add and remove DOM elements where the
+                structural directive is placed. These start with <code>*</code>,
+                such as <code>*for</code> and <code>*if</code>.
+            </p>
+
+            <p>
+                Prefixed directives start with a single character and are used
+                to match all attributes that start with that character. Fudgel
+                comes with <code>.</code> to set properties and <code>@</code>
+                to bind events.
+            </p>
+
+            <p>
+                Exact matches will match the entire attribute name. The
+                convention for these is to have them start with a hash, such as
+                the built-in <code>#ref</code> directive.
+            </p>
+
+            <p>
+                For all three types, you add a directive using
+                <code>addDirective()</code>.
+            </p>
+
             <code-sample type="js">
                 <!-- prettier-ignore -->
                 <template>
                     import { addDirective } from 'fudgel';
 
-                    // Specific attribute
+                    // Exact match - matches "#name" and should start with "#"
                     addDirective('#name',
                         (controller, node, attrValue, attrName) =&gt; { ... });
 
-                    // An attribute prefix
+                    // Prefixed - matches attributes starting with "?"
                     addDirective('?',
                         (controller, node, attrValue, attrName) =&gt; { ... });
 
-                    // A structural directive, which must start with *
+                    // Structural - matches "*extra" and must start with "*"
                     addDirective('*extra',
                         (controller, anchor, node, attrValue) =&gt; { ... });
                 </template>
@@ -399,8 +437,9 @@
             <p>
                 Your custom directive function must perform whatever
                 manipulation in the DOM that is necessary. For structural
-                directives, a comment is added just before the element that you
-                can use as an anchor point for adding or removing elements.
+                directives, a comment is automatically added just before the
+                element with the directive; this is an anchor point you can use
+                for adding or removing elements.
             </p>
         </page-wrapper>
     </body>

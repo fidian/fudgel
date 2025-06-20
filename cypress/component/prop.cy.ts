@@ -143,3 +143,51 @@ describe('prop', () => {
         cy.get('test-update-child').should('have.text', 'afterUpdate');
     });
 });
+
+@Component('delayed-child', {
+    prop: ['theString'],
+    style: `
+        :host {
+            display: block;
+            border: 1px solid black;
+            padding: 10px;
+        }
+    `,
+    template: '{{theString}}',
+})
+class DelayedChildComponent {}
+
+@Component('delayed-parent', {
+    prop: ['theString'],
+    style: `
+        :host {
+            display: block;
+            border: 1px solid red;
+            padding: 10px;
+        }
+    `,
+    template: '<delayed-child .the-string="theString"></delayed-child>',
+})
+class DelayedParentComponent {}
+
+@Component('delayed-grandparent', {
+    template: `
+        <button @click="update()">Update</button> - Value: {{theString}}<br />
+        <delayed-parent .the-string="theString"></delayed-parent>
+    `,
+})
+class DelayedGrandparentComponent {
+    theString = 'initial';
+    update() {
+        this.theString = 'updated';
+    }
+}
+
+describe('delayed prop updates', () => {
+    it('updates a prop in a child component after the parent updates', () => {
+        cy.mount('<delayed-grandparent></delayed-grandparent>');
+        cy.get('delayed-child').should('have.text', 'initial');
+        cy.get('button').click();
+        cy.get('delayed-child').should('have.text', 'updated');
+    });
+});

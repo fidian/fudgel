@@ -49,6 +49,7 @@ export class CustomElement extends HTMLElement {
         const root = useShadow
             ? this.shadowRoot || this.attachShadow({ mode: 'open' })
             : this;
+        const styleParent = root.getRootNode() as Document | ShadowRoot;
         metadataElementController(this, controller);
         metadataControllerElement.set(controller, this);
         metadataControllerConfig(controller, config);
@@ -74,7 +75,6 @@ export class CustomElement extends HTMLElement {
 
             // With a shadow DOM, append styling within the element.
             // Add styling to either the parent document or the parent shadow root.
-            const styleParent = root.getRootNode() as Document | ShadowRoot;
             if (
                 config.style &&
                 !styleParent.querySelector('style.' + config.className)
@@ -106,39 +106,19 @@ export class CustomElement extends HTMLElement {
         config: CustomElementConfig,
         controllerInternal: Controller
     ) {
-        for (const propertyName of config.prop || []) {
-            // When element changes, update controller
-            const updateController = (
-                thisRef: CustomElement,
-                newValue: any
-            ) => {
-                const controller = metadataElementController(thisRef)!;
-                this._change(controller, propertyName, newValue);
-            };
-            patchSetter(this, propertyName, updateController);
-            updateController(this, (this as any)[propertyName]);
-
-            // When controller changes, update element
-            const updateElement = (thisRef: Controller, newValue: any) => {
-                const element = metadataControllerElement.get(thisRef);
-
-                if (element) {
-                    (element as any)[propertyName] = newValue;
-                }
-            };
-            patchSetter(controllerInternal, propertyName, updateElement);
-            updateElement(controllerInternal, controllerInternal[propertyName]);
-        }
-
         for (const propertyName of config.attr || []) {
             const attributeName = camelToDash(propertyName);
 
-            // Set initial value - updates are tracked with attributeChangedCallback
-            this._change(
-                controllerInternal,
-                propertyName,
-                getAttribute(this, attributeName)
-            );
+            // Set initial value - updates are tracked with
+            // attributeChangedCallback.  Only set the initial value when the
+            // attribute has been defined.
+            if (this.hasAttribute(attributeName)) {
+                this._change(
+                    controllerInternal,
+                    propertyName,
+                    getAttribute(this, attributeName)
+                );
+            }
 
             // When the internal property changes, update the attribute but only
             // if it is not defined as a "prop" binding.
@@ -155,6 +135,36 @@ export class CustomElement extends HTMLElement {
                 };
                 patchSetter(controllerInternal, propertyName, updateAttribute);
             }
+        }
+
+        for (const propertyName of config.prop || []) {
+            const updateController = (
+                thisRef: CustomElement,
+                newValue: any
+            ) => {
+                const controller = metadataElementController(thisRef)!;
+                this._change(controller, propertyName, newValue);
+            };
+
+            // Only set the initial value when the property has been set
+            // on the element.
+            if (propertyName in this) {
+                updateController(this, (this as any)[propertyName])
+            }
+
+            // When element changes, update controller
+            patchSetter(this, propertyName, updateController);
+
+            // When controller changes, update element
+            const updateElement = (thisRef: Controller, newValue: any) => {
+                const element = metadataControllerElement.get(thisRef);
+
+                if (element) {
+                    (element as any)[propertyName] = newValue;
+                }
+            };
+            patchSetter(controllerInternal, propertyName, updateElement);
+            updateElement(controllerInternal, controllerInternal[propertyName]);
         }
     }
 
