@@ -114,6 +114,10 @@ import('./fudgel.min.js').then(({ component, css, html }) => {
                         url: 'routing.html',
                     },
                     {
+                        label: 'Hooks',
+                        url: 'hooks.html',
+                    },
+                    {
                         label: 'Utilities',
                         url: 'utilities.html',
                     },

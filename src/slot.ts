@@ -148,7 +148,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
     // Rewrite templates for custom elements that use slots in light DOM.
     hookOnGlobal(
         'component',
-        (_target: CustomElement, baseClass: CustomElement, config: CustomElementConfig) => {
+        (baseClass: CustomElement, config: CustomElementConfig) => {
             if (!config.useShadow) {
                 let usesSlotLike = false;
                 const template = createTemplate();

@@ -154,18 +154,18 @@
                 </template>
             </code-sample>
             <p>
-                How does this work? Calling
-                <code>defineSlotComponent()</code> will define the custom
-                component with the default name of <code>slot-like</code>, which
-                you can change by using
+                How does this work? Calling <code>defineSlotComponent()</code>
+                will define the custom component with the default name of
+                <code>slot-like</code>, which you can change by using
                 <code>defineSlotComponent('custom-element-name')</code>. Please
                 make sure you do this right away, before your custom elements
-                get created. This function also adds a hook to Fudgel for
-                component creation so all light DOM components will have their
-                template rewritten, changing <code>slot</code> elements into
-                <code>slot-like</code> elements. This template change happens
-                once during each components initial definition. If the template
-                is rewritten, the controller's <code>.onInit()</code> and
+                get created. This function also adds a <a
+                href="hooks.html">hook</a> to Fudgel for component creation so
+                all light DOM components will have their template rewritten,
+                changing <code>slot</code> elements into <code>slot-like</code>
+                elements. This template change happens once during each
+                components initial definition. If the template is rewritten,
+                the controller's <code>.onInit()</code> and
                 <code>.onParse()</code> methods will be patched to push content
                 into the slots.
             </p>

@@ -20,18 +20,18 @@ const hooksRemove = makeMap<Object, (() => void)[]>();
 const metadataHookOnSet = makeMap<Controller | Scope, Record<string, number>>();
 
 // Known hooks and their arguments
-// attr:PROP_NAME
-//   controller, oldValue, newValue - attribute on element changed
-// component
-//   customElement, customElementConfig - component is being defined
-// init
-//   controller - during controller initialization after DOM is ready
-// set:
-//   controller - flag all internal properties as stale
-// set:PROP_NAME
-//   controller, oldValue, newValue - internal property changed
+//
+// component - component is being defined
+//   target: CustomElement class
+//   args: CustomElement class, customElementConfig
+// set: - flag all internal properties as stale
+//   target: controller instance
+//   args: controller
+// set:PROP_NAME - internal property changed
+//   target: controller instance or scope object
+//   args: controller
 export const hooksRun = (name: string, target: Object, ...args: any[]) => {
-    hooksRunInternal(globalHooks, name, target, ...args);
+    hooksRunInternal(globalHooks, name, ...args);
     hooksRunInternal(hooksForTarget(target) || {}, name, ...args);
 };
 
@@ -120,6 +120,7 @@ export const hookWhenSet = (
                     `set:${property}`,
                     thisRef,
                     controller,
+                    thisRef,
                     newValue,
                     oldValue
                 );
