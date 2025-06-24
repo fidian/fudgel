@@ -76,7 +76,10 @@
                     });
                 </template>
             </code-sample>
-            <p>Using this hook you can modify the component class so it will perform an action every time it is added to the DOM.</p>
+            <p>
+                Using this hook you can modify the component class so it will
+                perform an action every time it is added to the DOM.
+            </p>
             <code-sample
                 type="js"
                 live="true"
@@ -123,9 +126,10 @@
                 the values could also change within the controller class.
             </p>
             <p>
-                When any bound property is changed, the `set:PROP_NAME` hook is
-                fired. This indicates the property was set or updated. Also,
-                this fires for scope property changes.
+                When any bound property is changed, the
+                <code>set:PROP_NAME</code>
+                hook is fired. This indicates the property was set or updated.
+                Also, this fires for scope property changes.
             </p>
             <p><code>set:PROP_NAME</code> arguments:</p>
             <ul>
@@ -133,13 +137,17 @@
                     <code>controller</code>: The controller instance affected.
                 </li>
                 <li>
-                    <code>controllerOrScope</code>: The scope or the controller instance whose bound property was changed. (Omitted when called via <code>update()</code>.)
+                    <code>controllerOrScope</code>: The scope or the controller
+                    instance whose bound property was changed. (Omitted when
+                    called via <code>update()</code>.)
                 </li>
                 <li>
-                    <code>newValue</code>: The new value of the bound property. (Omitted when called via <code>update()</code>.)
+                    <code>newValue</code>: The new value of the bound property.
+                    (Omitted when called via <code>update()</code>.)
                 </li>
                 <li>
-                    <code>oldValue</code>: The old value of the bound property. (Omitted when called via <code>update()</code>.)
+                    <code>oldValue</code>: The old value of the bound property.
+                    (Omitted when called via <code>update()</code>.)
                 </li>
             </ul>
             <code-sample
