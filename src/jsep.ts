@@ -2,6 +2,9 @@ import { bindFn, uniqueListJoin } from './util.js';
 
 // JavaScript Expression Parser (JSEP)
 // Based on the NPM package `jsep` by Stephen Oney
+//
+// All functions starting with "gobble" will remove spaces after getting
+// the token or expression it's designed to handle.
 
 type Root = { [key: string]: any };
 // [0] is what generates a value
@@ -9,10 +12,13 @@ type Root = { [key: string]: any };
 type ValueProvider = [ValueProviderFunction, string[]];
 type ValueProviderFunction = (root: Root) => any;
 
-let expr = '';
-let index = 0;
-let code = 0;
+// Global variables used during synchronous parsing.
+let expr = ''; // The expression to parse
+let index = 0; // Current index
+let code = 0; // Char code at the current index
 
+// String literal escape codes that do not map to the same character.
+// "\z" maps to "z" and those don't need to be listed.
 const escapeCodes: { [key: string]: string } = {
     b: '\b',
     f: '\f',
@@ -21,42 +27,60 @@ const escapeCodes: { [key: string]: string } = {
     t: '\t',
     v: '\v',
 };
-const unaryOps: { [key: string]: (arg: ValueProviderFunction) => ValueProviderFunction} = {
-    '-': (arg) => (root) => -arg(root),
-    '!': (arg) => (root) => !arg(root),
-    '~': (arg) => (root) => ~arg(root),
-    '+': (arg) => (root) => +arg(root),
+
+// Unary operators that take a single argument to the right of the operator
+const unaryOps: {
+    [key: string]: (arg: ValueProviderFunction) => ValueProviderFunction;
+} = {
+    '-': arg => root => -arg(root),
+    '!': arg => root => !arg(root),
+    '~': arg => root => ~arg(root),
+    '+': arg => root => +arg(root),
 };
-// [precedence, ValueProviderGenerator]
-type BinaryOp = [number, (left: ValueProviderFunction, right: ValueProviderFunction) => ValueProviderFunction];
+
+// Binary operators that take two arguments. Precendence matters for these.
+type BinaryOp = [
+    number,
+    (
+        left: ValueProviderFunction,
+        right: ValueProviderFunction
+    ) => ValueProviderFunction,
+];
 const binaryOps: { [key: string]: BinaryOp } = {
-    '||': [1, (left, right) => (root) => left(root) || right(root)],
-    '&&': [2, (left, right) => (root) => left(root) && right(root)],
-    '|': [3, (left, right) => (root) => left(root) | right(root)],
-    '^': [4, (left, right) => (root) => left(root) ^ right(root)],
-    '&': [5, (left, right) => (root) => left(root) & right(root)],
-    '==': [6, (left, right) => (root) => left(root) == right(root)],
-    '!=': [6, (left, right) => (root) => left(root) != right(root)],
-    '===': [6, (left, right) => (root) => left(root) === right(root)],
-    '!==': [6, (left, right) => (root) => left(root) !== right(root)],
-    '<': [7, (left, right) => (root) => left(root) < right(root)],
-    '>': [7, (left, right) => (root) => left(root) > right(root)],
-    '<=': [7, (left, right) => (root) => left(root) <= right(root)],
-    '>=': [7, (left, right) => (root) => left(root) >= right(root)],
-    '<<': [8, (left, right) => (root) => left(root) << right(root)],
-    '>>': [8, (left, right) => (root) => left(root) >> right(root)],
-    '>>>': [8, (left, right) => (root) => left(root) >>> right(root)],
-    '+': [9, (left, right) => (root) => left(root) + right(root)],
-    '-': [9, (left, right) => (root) => left(root) - right(root)],
-    '*': [10, (left, right) => (root) => left(root) * right(root)],
-    '/': [10, (left, right) => (root) => left(root) / right(root)],
-    '%': [10, (left, right) => (root) => left(root) % right(root)],
+    '||': [1, (left, right) => root => left(root) || right(root)],
+    '&&': [2, (left, right) => root => left(root) && right(root)],
+    '|': [3, (left, right) => root => left(root) | right(root)],
+    '^': [4, (left, right) => root => left(root) ^ right(root)],
+    '&': [5, (left, right) => root => left(root) & right(root)],
+    '==': [6, (left, right) => root => left(root) == right(root)],
+    '!=': [6, (left, right) => root => left(root) != right(root)],
+    '===': [6, (left, right) => root => left(root) === right(root)],
+    '!==': [6, (left, right) => root => left(root) !== right(root)],
+    '<': [7, (left, right) => root => left(root) < right(root)],
+    '>': [7, (left, right) => root => left(root) > right(root)],
+    '<=': [7, (left, right) => root => left(root) <= right(root)],
+    '>=': [7, (left, right) => root => left(root) >= right(root)],
+    '<<': [8, (left, right) => root => left(root) << right(root)],
+    '>>': [8, (left, right) => root => left(root) >> right(root)],
+    '>>>': [8, (left, right) => root => left(root) >>> right(root)],
+    '+': [9, (left, right) => root => left(root) + right(root)],
+    '-': [9, (left, right) => root => left(root) - right(root)],
+    '*': [10, (left, right) => root => left(root) * right(root)],
+    '/': [10, (left, right) => root => left(root) / right(root)],
+    '%': [10, (left, right) => root => left(root) % right(root)],
 };
+
+// Literals - when encountered, they are replaced with their value.
 const literals: { [key: string]: ValueProviderFunction } = {
     true: () => true,
     false: () => false,
     null: () => null,
 };
+
+// Parses an expression. Always returns a ValueProvider, which is a tuple:
+// [ValueProviderFunction, string[]].  The ValueProviderFunction takes a
+// root object for a scope and returns a value.  The string[] is a list of
+// bound properties that the ValueProviderFunction uses.
 export const parse = (exprToParse: string): ValueProvider => {
     // Assign to a global variable
     expr = exprToParse;
@@ -64,37 +88,47 @@ export const parse = (exprToParse: string): ValueProvider => {
     // Set up index and code (global variables)
     index = 0;
     advance(0);
+    gobbleSpaces();
 
     // Use a default return value
     let result: ValueProvider = [() => {}, []];
 
     try {
-        result = code ? gobbleExpression() || throwError() : result;
-    } catch (ignore) {
-    }
+        // Test for NaN
+        result = code == code ? gobbleExpression() || throwError() : result;
+    } catch (ignore) {}
 
     return result;
 };
 
+// Move to the next character in the expression.
 const advance = (n = 1) => {
     index += n;
     code = expr.charCodeAt(index);
 };
+
+// Trivial functions for minification
 const char = () => expr.charAt(index);
-const isDecimalDigit = (ch: number) => ch >= 48 && ch <= 57; // 0...9
-const isIdentifierStart = (ch: number) =>
-    /* A-Z */(ch >= 65 && ch <= 90) ||
-    /* a-z */ (ch >= 97 && ch <= 122) ||
-    /* extended */ (ch >= 128) ||
-    /* $ */ ch === 36 ||
-    /* _ */ ch === 95;
+const isDecimalDigit = () => code >= 48 && code <= 57; // 0...9
+const isIdentifierStart = () =>
+    /* A-Z */ (code >= 65 && code <= 90) ||
+    /* a-z */ (code >= 97 && code <= 122) ||
+    /* extended */ code >= 128 ||
+    /* $ */ code === 36 ||
+    /* _ */ code === 95;
 const throwError = () => {
     const err = `Parse error at index ${index}: ${expr}`;
     console.error(err);
 
     throw new Error(err);
 };
-const gobbleSpaces = () => {
+
+// Consume whitespace in the expression.
+const gobbleSpaces = (advanceChars = 0) => {
+    if (advanceChars) {
+        advance(advanceChars);
+    }
+
     while (
         code === 32 || // ' '
         code === 9 || // "\t"
@@ -104,31 +138,15 @@ const gobbleSpaces = () => {
         advance();
     }
 };
+
 const gobbleExpression = (): ValueProvider | undefined => {
-    const node = gobbleBinaryExpression();
-    gobbleSpaces();
-
-    return node;
-};
-const gobbleBinaryOp = () => {
-    gobbleSpaces();
-    // 3 is the maximum binary operator length
-    let to_check = expr.substr(index, 3);
-    let tc_len = 3;
-    let biop: BinaryOp | undefined;
-
-    while (tc_len > 0) {
-        biop = binaryOps[to_check];
-        if (biop) {
-            advance(tc_len);
-            break;
-        }
-        to_check = to_check.substr(0, --tc_len);
-    }
-    return biop;
-};
-const gobbleBinaryExpression = () => {
-    let node, biop, biopNext, stack: (ValueProvider|BinaryOp)[], left, right, combineLast;
+    let node,
+        biop,
+        biopNext,
+        stack: (ValueProvider | BinaryOp)[],
+        left,
+        right,
+        combineLast;
 
     // First, try to get the leftmost thing
     // Then, check to see if there's a binary operator operating on that leftmost thing
@@ -152,13 +170,20 @@ const gobbleBinaryExpression = () => {
         let right = stack.pop() as ValueProvider;
         let biop = stack.pop() as BinaryOp;
         let left = stack.pop() as ValueProvider;
-        stack.push([biop[1](left[0], right[0]), uniqueListJoin(left[1], right[1])]);
+        stack.push([
+            biop[1](left[0], right[0]),
+            uniqueListJoin(left[1], right[1]),
+        ]);
     };
 
-    // Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
+    // Properly deal with precedence using
+    // [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
     while ((biopNext = gobbleBinaryOp())) {
         // Reduce: make a binary expression from the three topmost entries.
-        while (stack.length > 2 && biopNext[0] <= (stack[stack.length - 2] as BinaryOp)[0]) {
+        while (
+            stack.length > 2 &&
+            biopNext[0] <= (stack[stack.length - 2] as BinaryOp)[0]
+        ) {
             combineLast();
         }
 
@@ -173,13 +198,28 @@ const gobbleBinaryExpression = () => {
     return stack[0] as ValueProvider;
 };
 
-const gobbleToken = (): ValueProvider => {
+const gobbleBinaryOp = () => {
+    // 3 is the maximum binary operator length
+    let to_check = expr.substr(index, 3);
+    let tc_len = 3;
+    let biop: BinaryOp | undefined;
+
+    while (tc_len > 0) {
+        biop = binaryOps[to_check];
+        if (biop) {
+            break;
+        }
+        to_check = to_check.substr(0, --tc_len);
+    }
+    gobbleSpaces(tc_len);
+    return biop;
+};
+
+const gobbleToken = (): ValueProvider | undefined => {
     let node: ValueProvider;
 
-    gobbleSpaces();
-
     // 46 is '.'
-    if (isDecimalDigit(code) || code === 46) {
+    if (isDecimalDigit() || code === 46) {
         // Char code 46 is a dot `.`, which can start off a numeric literal
         return gobbleNumericLiteral();
     }
@@ -193,34 +233,23 @@ const gobbleToken = (): ValueProvider => {
         const opFn = unaryOps[char()];
 
         if (opFn) {
-            advance();
+            gobbleSpaces(1);
             const argument = gobbleToken() || throwError();
             return [opFn(argument[0]), argument[1]];
         }
 
-        if (!isIdentifierStart(code)) {
-            throwError();
-        }
-
         const identifier = gobbleIdentifier();
-        node = literals[identifier] ?
-            [literals[identifier], []] :
-            [(root) => bindFn(root, identifier), [identifier]];
+        node = literals[identifier]
+            ? [literals[identifier], []]
+            : [root => bindFn(root, identifier), [identifier]];
     }
 
     return gobbleTokenProperty(node);
 };
 
 const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
-    gobbleSpaces();
-
     // '.', '[', '(', '?'
-    while (
-        code === 46 ||
-        code === 91 ||
-        code === 40 ||
-        code === 63
-    ) {
+    while (code === 46 || code === 91 || code === 40 || code === 63) {
         let optional: boolean | undefined;
         let action: (value: any, root: Root) => ValueProvider;
         let bindings: string[] = [];
@@ -228,7 +257,6 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         // '?'
         if (code === 63) {
             advance();
-            gobbleSpaces();
             if ((code as any) !== 46) {
                 throwError();
             }
@@ -237,7 +265,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
 
         // '['
         if (code === 91) {
-            advance();
+            gobbleSpaces(1);
             const expression = gobbleExpression() || throwError();
             action = (value, root) => bindFn(value, expression[0](root));
             bindings = expression[1];
@@ -245,30 +273,40 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             if ((code as any) !== 93) {
                 throwError();
             }
-            advance();
+            gobbleSpaces(1);
         } else if (code === 40) {
             // '('
-            advance();
+            gobbleSpaces(1);
             // A function call is being made; gobble all the arguments
             const args = gobbleArguments();
-            action = (value, root) => value(...args.map((arg) => (arg[0])(root)));
-            bindings = args.reduce((acc, arg) => uniqueListJoin(acc, arg[1]), bindings);
+            action = (value, root) => value(...args.map(arg => arg[0](root)));
+            bindings = args.reduce(
+                (acc, arg) => uniqueListJoin(acc, arg[1]),
+                bindings
+            );
         } else if (code === 46) {
             // '.'
-            advance();
-            gobbleSpaces();
+            gobbleSpaces(1);
             const identifier = gobbleIdentifier();
-            action = (value) => bindFn(value, identifier);
+            action = value => bindFn(value, identifier);
         } else {
             throwError();
         }
 
-        node = optional ?
-            [(root) => {
-                const value = prevNode[0](root);
-                return value === undefined ? undefined : action(value, root);
-            }, uniqueListJoin(prevNode[1], bindings)] :
-            [(root) => action(prevNode[0](root), root), uniqueListJoin(prevNode[1], bindings)];
+        node = optional
+            ? [
+                  root => {
+                      const value = prevNode[0](root);
+                      return value === undefined
+                          ? undefined
+                          : action(value, root);
+                  },
+                  uniqueListJoin(prevNode[1], bindings),
+              ]
+            : [
+                  root => action(prevNode[0](root), root),
+                  uniqueListJoin(prevNode[1], bindings),
+              ];
 
         gobbleSpaces();
     }
@@ -279,7 +317,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
 const gobbleNumericLiteral = (): ValueProvider => {
     let number = '';
 
-    while (isDecimalDigit(code)) {
+    while (isDecimalDigit()) {
         number += char();
         advance();
     }
@@ -290,7 +328,7 @@ const gobbleNumericLiteral = (): ValueProvider => {
         number += '.';
         advance();
 
-        while (isDecimalDigit(code)) {
+        while (isDecimalDigit()) {
             number += char();
             advance();
         }
@@ -311,7 +349,7 @@ const gobbleNumericLiteral = (): ValueProvider => {
 
         let needDecimal = true;
 
-        while (isDecimalDigit(code)) {
+        while (isDecimalDigit()) {
             // exponent itself
             number += char();
             advance();
@@ -324,15 +362,14 @@ const gobbleNumericLiteral = (): ValueProvider => {
     }
 
     // Check to make sure this isn't a variable name that start with a number (123abc)
-    if (isIdentifierStart(code)) {
+    if (isIdentifierStart()) {
         throwError();
-    } else if (
-        code === 46 || number === '.'
-    ) {
+    } else if (code === 46 || number === '.') {
         // 46 is '.'
         throwError();
     }
 
+    gobbleSpaces();
     const value = parseFloat(number);
     return [() => value, []];
 };
@@ -364,7 +401,7 @@ const gobbleStringLiteral = (): ValueProvider => {
         throwError();
     }
 
-    advance();
+    gobbleSpaces(1);
 
     return [() => str, []];
 };
@@ -372,25 +409,28 @@ const gobbleStringLiteral = (): ValueProvider => {
 const gobbleIdentifier = (): string => {
     let start = index;
 
-    if (isIdentifierStart(code)) {
-        advance();
-    } else {
+    if (!isIdentifierStart()) {
         throwError();
     }
 
+    advance();
+
     while (index < expr.length) {
-        if (!isIdentifierStart(code) && !isDecimalDigit(code)) {
+        if (!isIdentifierStart() && !isDecimalDigit()) {
             break;
         }
+
         advance();
     }
 
-    return expr.slice(start, index);
+    const identifier = expr.slice(start, index);
+    gobbleSpaces();
+
+    return identifier;
 };
 
 const gobbleArguments = (): ValueProvider[] => {
     const args = [];
-    gobbleSpaces();
 
     // 41 is ')'
     while (code !== 41) {
@@ -402,8 +442,7 @@ const gobbleArguments = (): ValueProvider[] => {
         gobbleSpaces();
 
         if (code === 44) {
-            advance();
-            gobbleSpaces();
+            gobbleSpaces(1);
         } else if (code !== 41) {
             throwError();
         }
