@@ -1,0 +1,266 @@
+<html>
+    <head>
+        <title>Fudgel - Lightweight Web Component Library</title>
+        <link rel="stylesheet" href="fonts/fonts.css" />
+        <link rel="stylesheet" href="./style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <page-wrapper>
+            <h1>Expressions</h1>
+            <p>
+                Fudgel supports binding to expressions in templates. This allows
+                you to insert dynamic values, call functions, and conditionally
+                render content based on the state of your controller.
+            </p>
+            <p>
+                Most JavaScript syntax works in expressions. It looks like
+                JavaScript and it has access to properties on the controller as
+                well as variables that are defined in various directives. There
+                are several examples on this page along with a list of all
+                operations that are allowed.
+            </p>
+            <p>
+                Bindings are automatically updated when the controller's
+                top-level properties change. This is a shallow compare, so
+                object references need to change or use a
+                <a href="utilities.html">utility function</a> to manually
+                trigger updates.
+            </p>
+
+            <h2>Scope</h2>
+            <p>
+                Each expression is evaluated in the context of a scope. Scopes
+                are layered on top of the controller's properties. In this
+                example, the controller's name will be shown first.
+                <code>*for</code> (a <a href="directives.html">directive</a>)
+                creates a new scope for each child element, so the
+                <code>name</code> property will be set to the value of the
+                <code>name</code> variable in the loop. This allows you to
+                access properties from the controller as well as variables
+                defined in directives.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<expression-scope></expression-scope>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('expression-scope', {
+                        template: `
+                        <p>Controller Name: {{ name }}, color {{color}}</p>
+
+                            <ul>
+                                <li *for="name of childNames">
+                                    Child Name: {{ name }}, color {{color}}
+                                </li>
+                            </ul>
+                        `,
+                    }, class {
+                        childNames = [ 'child1', 'child2' ];
+                        name = 'component';
+                        color = 'yellow';
+                    });
+                </template>
+            </code-sample>
+
+            <h2>Text Interpolation</h2>
+            <p>
+                Text interpolation allows you to insert dynamic values into the
+                HTML content. The expressions are wrapped in double curly
+                braces.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<expression-text></expression-text>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('expression-text', {
+                        template: `
+                            <p title="Greeting to {{ name }}">
+                                Hello, {{ name }}!
+                            </p>
+
+                            <img src="{{ avatarUrl }}" alt="Avatar" />
+                        `,
+                    }, class {
+                        name = 'Alice';
+                        avatarUrl = 'favicon-32x32.png';
+                    });
+                </template>
+            </code-sample>
+
+            <h2>Attributes and Boolean Values</h2>
+            <p>
+                Attributes can be set to a string with an expression, but the
+                behavior is different when it is set to <code>true</code> and
+                <code>false</code>. When the value is <code>true</code>, the
+                attribute will be added to the element. When it is
+                <code>false</code>, the attribute will be removed. This allows
+                for conditional attributes.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<expression-attr-boolean></expression-attr-boolean>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('expression-attr-boolean', {
+                        template: `
+                            <button disabled="{{ isDisabled }}">
+                                The Button
+                            </button>
+
+                            <button @click="toggle()">
+                                Toggle Disabled
+                            </button>
+                        `,
+                    }, class {
+                        isDisabled = false;
+
+                        toggle() {
+                            this.isDisabled = !this.isDisabled;
+                        }
+                    });
+                </template>
+            </code-sample>
+
+            <h2>Event Handlers</h2>
+            <p>
+                You can bind to events using the <code>@event</code> syntax. The
+                expression should resolve to a function call, but it isn't
+                required. This allows you to call methods on your controller
+                when an event occurs.
+                <a href="directives.html">Directives</a> discusses this in more
+                detail.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<expression-event></expression-event>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('expression-event', {
+                        template: `
+                            <p>Change Count: {{ changeCount }}</p>
+                            <input
+                                type="text"
+                                @input="change()"
+                                placeholder="Type something..." />
+                        `,
+                    }, class {
+                        changeCount = 0;
+
+                        change() {
+                            this.changeCount += 1;
+                        }
+                    });
+                </template>
+            </code-sample>
+
+            <h2>Property Bindings</h2>
+            <p>
+                Properties can be bound using the <code>prop</code> directive.
+                This allows you to set properties on the custom element
+                instance. The value can be a string, number, object, or any
+                other type. Learn more about
+                <a href="directives.html">directives</a> for more details.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<expression-property></expression-property>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('expression-property-child', {
+                        prop: ['name'],
+                        template: 'Name is {{name}}'
+                    });
+                    component('expression-property', {
+                        template: `
+                            <expression-property-child .name="name">
+                            </expression-property-child>
+                        `,
+                    }, class {
+                        name = 'Alice';
+                    });
+                </template>
+            </code-sample>
+
+            <h2>Allowed Expressions and Operations</h2>
+            <ul>
+                <li>
+                    Strings: <code>"Hello"</code>, <code>'World'</code>,
+                    <code>"escaped characters: \b \f \n \r \t \v"</code>
+                </li>
+                <li>
+                    Numbers: <code>42</code>, <code>3.14</code>,
+                    <code>3e-10</code>
+                </li>
+                <li>
+                    Literals: <code>true</code>, <code>false</code>,
+                    <code>null</code>
+                </li>
+                <li>
+                    Variables: <code>myVar</code>,
+                    <code>myProp.childProp</code>, <code>myProp[3]</code>,
+                    <code>myProp['childProp']</code>,
+                    <code>myProp?.childProp</code>
+                </li>
+                <li>
+                    Unary operators: <code>!myVar</code>, <code>+myVar</code>,
+                    <code>-myVar</code>, <code>~myVar</code>
+                </li>
+                <li>
+                    Binary operators: <code>||</code>, <code>??</code>,
+                    <code>&amp;&amp;</code>, <code>|</code>, <code>^</code>,
+                    <code>&amp;</code>, <code>==</code>, <code>!=</code>,
+                    <code>===</code>, <code>!==</code>, <code>&lt;</code>,
+                    <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>,
+                    <code>&lt;&lt;</code>, <code>&gt;&gt;</code>,
+                    <code>&gt;&gt;&gt;</code>, <code>+</code>, <code>-</code>,
+                    <code>*</code>, <code>/</code>, <code>%</code>,
+                    <code>**</code>
+                </li>
+                <li>Function calls: <code>myFunc(arg1, 'arg2', 3)</code></li>
+            </ul>
+        </page-wrapper>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

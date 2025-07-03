@@ -23,7 +23,7 @@ export const patchSetter = <T extends Object>(
             set: function (newValue: any) {
                 const oldValue = value;
 
-                if (newValue !== oldValue) {
+                if (!Object.is(newValue, oldValue)) {
                     desc.set?.(newValue);
                     value = newValue;
 

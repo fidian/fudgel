@@ -102,6 +102,10 @@ import('./fudgel.min.js').then(({ component, css, html }) => {
                         url: 'directives.html',
                     },
                     {
+                        label: 'Expressions',
+                        url: 'expressions.html',
+                    },
+                    {
                         label: 'Lifecycle Methods',
                         url: 'lifecycle-methods.html',
                     },

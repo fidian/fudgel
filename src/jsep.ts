@@ -47,27 +47,36 @@ type BinaryOp = [
     ) => ValueProviderFunction,
 ];
 const binaryOps: { [key: string]: BinaryOp } = {
-    '||': [1, (left, right) => root => left(root) || right(root)],
-    '&&': [2, (left, right) => root => left(root) && right(root)],
-    '|': [3, (left, right) => root => left(root) | right(root)],
-    '^': [4, (left, right) => root => left(root) ^ right(root)],
-    '&': [5, (left, right) => root => left(root) & right(root)],
-    '==': [6, (left, right) => root => left(root) == right(root)],
-    '!=': [6, (left, right) => root => left(root) != right(root)],
-    '===': [6, (left, right) => root => left(root) === right(root)],
-    '!==': [6, (left, right) => root => left(root) !== right(root)],
-    '<': [7, (left, right) => root => left(root) < right(root)],
-    '>': [7, (left, right) => root => left(root) > right(root)],
-    '<=': [7, (left, right) => root => left(root) <= right(root)],
-    '>=': [7, (left, right) => root => left(root) >= right(root)],
-    '<<': [8, (left, right) => root => left(root) << right(root)],
-    '>>': [8, (left, right) => root => left(root) >> right(root)],
-    '>>>': [8, (left, right) => root => left(root) >>> right(root)],
-    '+': [9, (left, right) => root => left(root) + right(root)],
-    '-': [9, (left, right) => root => left(root) - right(root)],
-    '*': [10, (left, right) => root => left(root) * right(root)],
-    '/': [10, (left, right) => root => left(root) / right(root)],
-    '%': [10, (left, right) => root => left(root) % right(root)],
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
+    // 1 Skip: , (comma)
+    // 2 Skip: ...x, yield, =>, x?y:z, assignments
+    '||': [3, (left, right) => root => left(root) || right(root)],
+    '??': [3, (left, right) => root => left(root) ?? right(root)],
+    '&&': [4, (left, right) => root => left(root) && right(root)],
+    '|': [5, (left, right) => root => left(root) | right(root)],
+    '^': [6, (left, right) => root => left(root) ^ right(root)],
+    '&': [7, (left, right) => root => left(root) & right(root)],
+    '==': [8, (left, right) => root => left(root) == right(root)],
+    '!=': [8, (left, right) => root => left(root) != right(root)],
+    '===': [8, (left, right) => root => left(root) === right(root)],
+    '!==': [8, (left, right) => root => left(root) !== right(root)],
+    '<': [9, (left, right) => root => left(root) < right(root)],
+    '<=': [9, (left, right) => root => left(root) <= right(root)],
+    '>': [9, (left, right) => root => left(root) > right(root)],
+    '>=': [9, (left, right) => root => left(root) >= right(root)],
+    // 9 Skip: in, instanceof
+    '<<': [10, (left, right) => root => left(root) << right(root)],
+    '>>': [10, (left, right) => root => left(root) >> right(root)],
+    '>>>': [10, (left, right) => root => left(root) >>> right(root)],
+    '+': [11, (left, right) => root => left(root) + right(root)],
+    '-': [11, (left, right) => root => left(root) - right(root)],
+    '*': [12, (left, right) => root => left(root) * right(root)],
+    '/': [12, (left, right) => root => left(root) / right(root)],
+    '%': [12, (left, right) => root => left(root) % right(root)],
+    '**': [13, (left, right) => root => left(root) ** right(root)],
+    // 14 Skip: these are unary
+    // 15 Skip: these are unary
+    // 16 Skip: new
 };
 
 // Literals - when encountered, they are replaced with their value.
@@ -76,6 +85,8 @@ const literals: { [key: string]: ValueProviderFunction } = {
     false: () => false,
     null: () => null,
 };
+
+const defaultValueProvider = [() => {}, []] as ValueProvider;
 
 // Parses an expression. Always returns a ValueProvider, which is a tuple:
 // [ValueProviderFunction, string[]].  The ValueProviderFunction takes a
@@ -91,11 +102,19 @@ export const parse = (exprToParse: string): ValueProvider => {
     gobbleSpaces();
 
     // Use a default return value
-    let result: ValueProvider = [() => {}, []];
+    let result: ValueProvider = defaultValueProvider;
 
     try {
-        // Test for NaN
-        result = code == code ? gobbleExpression() || throwError() : result;
+        // Test for NaN - if this passes, there's more to parse
+        if (code == code) {
+            result = gobbleExpression() || throwError();
+        }
+
+        // Check again at the end
+        if (code == code) {
+            result = defaultValueProvider;
+            throwError();
+        }
     } catch (ignore) {}
 
     return result;
@@ -256,9 +275,12 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         let prevNode: ValueProvider = node;
         // '?'
         if (code === 63) {
+            // Checking for optional chaining
             advance();
+            // '.'
             if ((code as any) !== 46) {
-                throwError();
+                advance(-1);
+                return node;
             }
             optional = true;
         }

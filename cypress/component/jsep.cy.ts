@@ -119,11 +119,9 @@ describe('jsep', () => {
             scope: { abc: 123 },
         },
         {
-            // Ignores the second binding - this could change in the future.
-            bindings: ['abc'],
+            // Did not parse the full string
+            fails: true,
             input: 'abc def',
-            output: 123,
-            scope: { abc: 123 },
         },
         {
             // Missing right-hand operand
@@ -173,6 +171,10 @@ describe('jsep', () => {
         {
             input: 'true === 1',
             output: false,
+        },
+        {
+            input: 'null ?? "ok"',
+            output: 'ok',
         },
 
         //
@@ -274,7 +276,7 @@ describe('jsep', () => {
             scope: {},
         },
         {
-            // Missing dot for nullish coalescence
+            // Missing dot for optional chaining
             fails: true,
             input: 'a?bb',
         },

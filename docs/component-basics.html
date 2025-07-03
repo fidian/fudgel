@@ -85,9 +85,10 @@
                     <code>template</code> - [required, string] The HTML template
                     that this element will use for content. When there is no
                     content, it is up to the controller to add the necessary DOM
-                    elements and bindings. This template will be processed in
-                    the element's scope, even when passing content to child
-                    custom elements.
+                    elements and bindings via
+                    <a href="expressions.html">expressions</a>. This template
+                    will be processed in the element's scope, even when passing
+                    content to child custom elements.
                 </li>
                 <li>
                     <code>useShadow</code> - [optional, boolean] If true,
@@ -136,12 +137,13 @@
                 previous example. This is a binding, and it will automatically
                 be replaced with the value of the property
                 <code>audience</code> from the controller. There are a few
-                different types of bindings you can use.
+                different types of bindings you can use, and they are discussed
+                more with <a href="expressions.html">expressions</a>.
             </p>
             <p>
-                The first is a simple text replacement, already discussed. You
-                can replace any HTML text or portions of element attributes with
-                bindings. <code>&lt;p&gt;Hello, {{personName}}</code> and
+                The first is a simple text replacement. You can replace any HTML
+                text or portions of element attributes with bindings.
+                <code>&lt;p&gt;Hello, {{personName}}</code> and
                 <code>&lt;img src="{{imagePath}}/{{imageName}}"&gt;</code> are
                 examples of this. When you replace the entire attribute with a
                 boolean value, then the attribute will be removed or added,
@@ -175,7 +177,8 @@
                 math operations (+, -, *, /, %), logical operators (&amp;&amp;,
                 ||, !), comparisons (==, !=, ===, !==, &gt;, &lt;, &gt;=,
                 &lt;=), and bitwise operations (&lt;&lt;, &gt;&gt;,
-                &gt;&gt;&gt;, ~, ^, &amp;, |) are supported.
+                &gt;&gt;&gt;, ~, ^, &amp;, |) are supported. This is detailed
+                more on <a href="expressions.html">the expressions page</a>.
             </p>
             <p>
                 Because arbitrary JavaScript is not allowed in bindings, it is
@@ -282,7 +285,8 @@
             <p>
                 Use <code>:host</code> to style the host element. It will
                 automatically be changed to the element's name when your element
-                is using only the light DOM. You may have noticed this in the previous example.
+                is using only the light DOM. You may have noticed this in the
+                previous example.
             </p>
             <h3>How to Avoid Scoping</h3>
             <p>

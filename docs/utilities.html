@@ -37,8 +37,8 @@
             <h2><code>emit</code> - Sending Data to Parents</h2>
             <p>
                 Dispatching events from your controller can be tricky with the
-                shadow DOM. Also, for minification, you will probably want
-                to leverage shared code to send events.
+                shadow DOM. Also, for minification, you will probably want to
+                leverage shared code to send events.
             </p>
             <code-sample
                 type="js"
@@ -69,9 +69,9 @@
             <p>
                 Your component creates all of its template elements in one
                 parent element. When using a shadow DOM, this is the shadow DOM
-                element. Otherwise, this is the custom element.  To easily
-                access this element from your controller for content
-                manipulation, use <code>rootElement()</code>.
+                element. Otherwise, this is the custom element. To easily access
+                this element from your controller for content manipulation, use
+                <code>rootElement()</code>.
             </p>
             <code-sample
                 type="js"
@@ -287,7 +287,11 @@
                 the callback (the same as using
                 <code>.off(name, callback)</code> with the correct parameters).
             </p>
-            <code-sample type="js" live="true" html="<tick-counter></tick-counter>">
+            <code-sample
+                type="js"
+                live="true"
+                html="<tick-counter></tick-counter>"
+            >
                 <!-- prettier-ignore -->
                 <template>
                     import { component, Emitter } from './fudgel.min.js';
@@ -343,19 +347,22 @@
                     });
                 </template>
             </code-sample>
-            <h2><code>controllerToElement</code> - Get an element from a controller</h2>
+            <h2>
+                <code>controllerToElement</code> - Get an element from a
+                controller
+            </h2>
             <p>
                 Fudgel components have controllers that are separated from the
-                DOM element. To help eliminate circular references and
-                encourage garbage collection, Fudgel only links elements
-                directly to controllers and not vice-versa. This map allows you
-                to query for an element if you have a controller. This might be
-                useful when you need to manipulate the DOM element from a
-                component that uses the shadow DOM.
+                DOM element. To help eliminate circular references and encourage
+                garbage collection, Fudgel only links elements directly to
+                controllers and not vice-versa. This map allows you to query for
+                an element if you have a controller. This might be useful when
+                you need to manipulate the DOM element from a component that
+                uses the shadow DOM.
             </p>
             <p>
-                It is possible for this to return <code>null</code> when the
-                DOM element is deleted. Because JavaScript doesn't support
+                It is possible for this to return <code>null</code> when the DOM
+                element is deleted. Because JavaScript doesn't support
                 destroying objects, the controller instance might persist long
                 after the DOM element is gone.
             </p>
@@ -393,7 +400,10 @@
                     });
                 </template>
             </code-sample>
-            <h2><code>elementToController</code> - Get a controller from a Fudgel DOM element</h2>
+            <h2>
+                <code>elementToController</code> - Get a controller from a
+                Fudgel DOM element
+            </h2>
             <p>
                 When a child needs to access a parent's controller, this map
                 will retrieve the current bindings between DOM elements and

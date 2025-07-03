@@ -33,9 +33,9 @@
                 to use DOM element attributes and instance properties.
                 Attributes are the string values added via the HTML. Properties
                 are values set through JavaScript on the
-                <code>HTMLElement</code> instance.  Your controller will
-                operate independently of the element, so Fudgel offers an easy
-                way to bind to these input sources.
+                <code>HTMLElement</code> instance. Your controller will operate
+                independently of the element, so Fudgel offers an easy way to
+                bind to these input sources.
             </p>
             <p>
                 To illustrate this difference, consider the following HTML. This
@@ -44,8 +44,8 @@
                 just strings. A nice feature of attributes is that when the
                 controller class's property is updated, the HTMLElement's
                 attribute is also automatically updated (as long as you aren't
-                also using this as a property). This conditional two-way
-                binding is automatic.
+                also using this as a property). This conditional two-way binding
+                is automatic.
             </p>
             <code-sample type="html">
                 <!-- prettier-ignore -->
@@ -71,8 +71,8 @@
             </code-sample>
             <p>
                 In order to bind your custom element to an attribute or property
-                and have the controller's property change automatically, you will
-                need to set it up in the custom element's config.
+                and have the controller's property change automatically, you
+                will need to set it up in the custom element's config.
             </p>
             <code-sample
                 type="js"
@@ -104,6 +104,13 @@
                 </template>
             </code-sample>
             <p>
+                The HTML template uses <code>{{myProp}}</code> and
+                <code>{{myAttr}}</code>, which are
+                <a href="expressions.html">expressions</a>. This simplified
+                Mustache-style syntax will put the content of the class
+                properties, properly escaped for safety, into the HTML document.
+            </p>
+            <p>
                 With this set up, you are now able to respond to changes in the
                 properties and attributes of the <code>HTMLElement</code> when
                 any outside actor changes them, such as with jQuery's
@@ -115,11 +122,10 @@
             <p>
                 A single custom element can bind to the same name as both an
                 attribute and a property. Fudgel will initially get the
-                attribute value, then override it with the property value.  Any
+                attribute value, then override it with the property value. Any
                 change through an attribute or a property will result in the
-                controller's property being updated.  Updates to the
-                controller's property will update the attribute (as
-                appropriate).
+                controller's property being updated. Updates to the controller's
+                property will update the attribute (as appropriate).
             </p>
         </page-wrapper>
     </body>
