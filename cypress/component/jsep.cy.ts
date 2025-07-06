@@ -176,6 +176,35 @@ describe('jsep', () => {
             input: 'null ?? "ok"',
             output: 'ok',
         },
+        {
+            // Confirms right-to-left
+            input: '2 ** 3 ** 2',
+            output: 512
+        },
+        {
+            // Confirms left to right
+            input: '60 / 6 % 10',
+            output: 0,
+        },
+        {
+            bindings: ['a'],
+            input: '"b" in a',
+            output: true,
+            scope: {
+                a: {
+                    b: 1
+                }
+            },
+        },
+        {
+            bindings: ['d', 'Date'],
+            input: 'd instanceof Date',
+            output: true,
+            scope: {
+                d: new Date(),
+                Date: Date
+            },
+        },
 
         //
         // gobbleToken
@@ -219,6 +248,18 @@ describe('jsep', () => {
         {
             input: 'null',
             output: null,
+        },
+        {
+            input: ' ~ 3 ',
+            output: -4,
+        },
+        {
+            input: 'typeof "test"',
+            output: 'string',
+        },
+        {
+            input: 'typeof "test".length',
+            output: 'number',
         },
 
         //
@@ -404,8 +445,9 @@ describe('jsep', () => {
         method(`parses '${scenario.input}'`, () => {
             const error = console.error;
             let errorCalled = false;
-            console.error = () => {
+            console.error = (...args) => {
                 errorCalled = true;
+                error.apply(console, args);
             };
             const [fn, bindings] = parse(scenario.input);
             console.error = error;

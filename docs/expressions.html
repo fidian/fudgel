@@ -259,6 +259,55 @@
                     <code>**</code>
                 </li>
                 <li>Function calls: <code>myFunc(arg1, 'arg2', 3)</code></li>
+                <li>
+                    Miscellaneous: <code>typeof</code>, <code>in</code>,
+                    <code>instanceof</code>
+                </li>
+            </ul>
+
+            <h2>Disallowed Expressions and Syntax</h2>
+            <p>
+                Templates should not create complex logic or behaviors. They
+                also should not alter the values in scope, create new functions,
+                or be forced to deal with flow-control statements. Templates
+                should only be used as a bridge to show information to the user,
+                to pass extra information along as an attribute or property, or
+                to bind events to event handlers.
+            </p>
+            <p>
+                The point of the template is to keep things simple and let the
+                controller do the heavy lifting. Several of the following items
+                are not allowed based on this principle. Others are not allowed
+                because there is no succinct way to implement them while also
+                supporting strict Content-Security-Policy directives.
+            </p>
+            <ul>
+                <li>
+                    Multiple statements: <code>method1(); method2()</code>,
+                    <code>method1(), method2()</code>
+                </li>
+                <li>
+                    Creation of new functions: <code>function test() {}</code>,
+                    <code>() =&gt; {}</code>
+                </li>
+                <li>
+                    Async, await: <code>async</code>, <code>await</code> -
+                    requires function creation
+                </li>
+                <li>
+                    Spread operator: <code>...</code> - no easy way to implement
+                </li>
+                <li>
+                    Assignments: <code>=</code>, <code>+=</code>,
+                    <code>-=</code>, etc.
+                </li>
+                <li>
+                    Prefix and postfix increment/decrement: <code>++</code>,
+                    <code>--</code>
+                </li>
+                <li>
+                    Deletion of object properties: <code>delete propName</code>
+                </li>
             </ul>
         </page-wrapper>
     </body>

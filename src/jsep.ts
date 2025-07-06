@@ -18,7 +18,7 @@ let index = 0; // Current index
 let code = 0; // Char code at the current index
 
 // String literal escape codes that do not map to the same character.
-// "\z" maps to "z" and those don't need to be listed.
+// Eg. "\z" maps to "z" - those don't need to be listed.
 const escapeCodes: { [key: string]: string } = {
     b: '\b',
     f: '\f',
@@ -36,15 +36,20 @@ const unaryOps: {
     '!': arg => root => !arg(root),
     '~': arg => root => ~arg(root),
     '+': arg => root => +arg(root),
+    typeof: arg => root => typeof arg(root),
 };
 
 // Binary operators that take two arguments. Precendence matters for these.
+// These are sorted in a special way, so iterating across these would find the
+// longest match first. This is especially evident with precedence 9 and 10
+// operators.
 type BinaryOp = [
-    number,
+    number, // precedence
     (
         left: ValueProviderFunction,
         right: ValueProviderFunction
     ) => ValueProviderFunction,
+    number?, // truthy if right-to-left precedence
 ];
 const binaryOps: { [key: string]: BinaryOp } = {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
@@ -53,37 +58,38 @@ const binaryOps: { [key: string]: BinaryOp } = {
     '||': [3, (left, right) => root => left(root) || right(root)],
     '??': [3, (left, right) => root => left(root) ?? right(root)],
     '&&': [4, (left, right) => root => left(root) && right(root)],
-    '|': [5, (left, right) => root => left(root) | right(root)],
+    '|': [5, (left, right) => root => left(root) | right(root)], // After ||
     '^': [6, (left, right) => root => left(root) ^ right(root)],
-    '&': [7, (left, right) => root => left(root) & right(root)],
-    '==': [8, (left, right) => root => left(root) == right(root)],
-    '!=': [8, (left, right) => root => left(root) != right(root)],
+    '&': [7, (left, right) => root => left(root) & right(root)], // After &&
     '===': [8, (left, right) => root => left(root) === right(root)],
+    '==': [8, (left, right) => root => left(root) == right(root)], // After ===
     '!==': [8, (left, right) => root => left(root) !== right(root)],
-    '<': [9, (left, right) => root => left(root) < right(root)],
-    '<=': [9, (left, right) => root => left(root) <= right(root)],
-    '>': [9, (left, right) => root => left(root) > right(root)],
-    '>=': [9, (left, right) => root => left(root) >= right(root)],
-    // 9 Skip: in, instanceof
-    '<<': [10, (left, right) => root => left(root) << right(root)],
-    '>>': [10, (left, right) => root => left(root) >> right(root)],
-    '>>>': [10, (left, right) => root => left(root) >>> right(root)],
+    '!=': [8, (left, right) => root => left(root) != right(root)], // After !==
+    '<<': [10, (left, right) => root => left(root) << right(root)], // Forced earlier
+    '>>>': [10, (left, right) => root => left(root) >>> right(root)], // Forced earlier
+    '>>': [10, (left, right) => root => left(root) >> right(root)], // After >>>
+    '<=': [9, (left, right) => root => left(root) <= right(root)], // After <<
+    '<': [9, (left, right) => root => left(root) < right(root)], // After <=
+    '>=': [9, (left, right) => root => left(root) >= right(root)], // After >>
+    '>': [9, (left, right) => root => left(root) > right(root)], // After >
+    instanceof: [9, (left, right) => root => left(root) instanceof right(root)],
+    in: [9, (left, right) => root => left(root) in right(root)], // After instanceof
     '+': [11, (left, right) => root => left(root) + right(root)],
     '-': [11, (left, right) => root => left(root) - right(root)],
-    '*': [12, (left, right) => root => left(root) * right(root)],
+    '**': [13, (left, right) => root => left(root) ** right(root), 1], // right-to-left, forced earlier
+    '*': [12, (left, right) => root => left(root) * right(root)], // After *
     '/': [12, (left, right) => root => left(root) / right(root)],
     '%': [12, (left, right) => root => left(root) % right(root)],
-    '**': [13, (left, right) => root => left(root) ** right(root)],
     // 14 Skip: these are unary
     // 15 Skip: these are unary
     // 16 Skip: new
 };
 
 // Literals - when encountered, they are replaced with their value.
-const literals: { [key: string]: ValueProviderFunction } = {
-    true: () => true,
-    false: () => false,
-    null: () => null,
+const literals: { [key: string]: any } = {
+    true: true,
+    false: false,
+    null: null,
 };
 
 const defaultValueProvider = [() => {}, []] as ValueProvider;
@@ -106,12 +112,12 @@ export const parse = (exprToParse: string): ValueProvider => {
 
     try {
         // Test for NaN - if this passes, there's more to parse
-        if (code == code) {
+        if (code >= 0) {
             result = gobbleExpression() || throwError();
         }
 
         // Check again at the end
-        if (code == code) {
+        if (code >= 0) {
             result = defaultValueProvider;
             throwError();
         }
@@ -128,13 +134,15 @@ const advance = (n = 1) => {
 
 // Trivial functions for minification
 const char = () => expr.charAt(index);
-const isDecimalDigit = () => code >= 48 && code <= 57; // 0...9
-const isIdentifierStart = () =>
-    /* A-Z */ (code >= 65 && code <= 90) ||
-    /* a-z */ (code >= 97 && code <= 122) ||
-    /* extended */ code >= 128 ||
-    /* $ */ code === 36 ||
-    /* _ */ code === 95;
+const isDecimalDigit = (charCode = code) => charCode > 47 && charCode < 58; // 0...9
+const isIdentifierStart = (charCode = code) =>
+    /* A-Z */ (charCode > 64 && charCode < 91) ||
+    /* a-z */ (charCode > 96 && charCode < 123) ||
+    /* extended */ charCode > 127 ||
+    /* $ */ charCode == 36 ||
+    /* _ */ charCode == 95;
+const isIdentifierPart = (charCode?: number) =>
+    isIdentifierStart(charCode) || isDecimalDigit(charCode);
 const throwError = () => {
     const err = `Parse error at index ${index}: ${expr}`;
     console.error(err);
@@ -149,65 +157,67 @@ const gobbleSpaces = (advanceChars = 0) => {
     }
 
     while (
-        code === 32 || // ' '
-        code === 9 || // "\t"
-        code === 10 || // "\n"
-        code === 13 // "\r"
+        /* space */ code == 32 ||
+        /* tab */ code == 9 ||
+        /* newline */ code == 10 ||
+        /* carriage return */ code == 13
     ) {
         advance();
     }
 };
 
 const gobbleExpression = (): ValueProvider | undefined => {
-    let node,
-        biop,
-        biopNext,
-        stack: (ValueProvider | BinaryOp)[],
-        left,
-        right,
-        combineLast;
+    const combineLast = () => {
+        const r = stack.pop() as ValueProvider,
+            op = stack.pop() as BinaryOp,
+            l = stack.pop() as ValueProvider;
+        stack.push([op[1](l[0], r[0]), uniqueListJoin(l[1], r[1])]);
+    };
 
     // First, try to get the leftmost thing
     // Then, check to see if there's a binary operator operating on that leftmost thing
-    // Don't gobbleBinaryOp without a left-hand-side
-    left = gobbleToken();
+    // Don't gobble a binary operator without a left-hand-side
+    const left = gobbleToken();
 
     if (!left) {
         return left;
     }
 
-    biop = gobbleBinaryOp();
+    let biop = gobbleTokenFromList(binaryOps);
 
     // If there wasn't a binary operator, just return the leftmost node
     if (!biop) {
         return left;
     }
 
-    right = gobbleToken() || throwError();
-    stack = [left, biop, right];
-    combineLast = () => {
-        let right = stack.pop() as ValueProvider;
-        let biop = stack.pop() as BinaryOp;
-        let left = stack.pop() as ValueProvider;
-        stack.push([
-            biop[1](left[0], right[0]),
-            uniqueListJoin(left[1], right[1]),
-        ]);
-    };
+    const stack: (ValueProvider | BinaryOp)[] = [
+        left,
+        biop,
+        gobbleToken() || throwError(),
+    ];
+
+    // Compare the previous binary operator against the newly found one.
+    // Previous = stack[stack.length-2], newly found one = biop
+    //
+    // The comparison will check the precedence of the two operators,
+    // preferring to combine the operations when the current one is less than
+    // or equal to the previous. This logic is flipped when the previous one is
+    // a right-to-left operation.
+    const comparePrev = (prev: BinaryOp) =>
+        prev[2]! ^ ((biop[0] <= prev[0]) as unknown as number);
 
     // Properly deal with precedence using
     // [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
-    while ((biopNext = gobbleBinaryOp())) {
+    while ((biop = gobbleTokenFromList(binaryOps))) {
         // Reduce: make a binary expression from the three topmost entries.
         while (
             stack.length > 2 &&
-            biopNext[0] <= (stack[stack.length - 2] as BinaryOp)[0]
+            comparePrev(stack[stack.length - 2] as BinaryOp)
         ) {
             combineLast();
         }
 
-        node = gobbleToken() || throwError();
-        stack.push(biopNext, node);
+        stack.push(biop, gobbleToken() || throwError());
     }
 
     while (stack.length > 1) {
@@ -217,50 +227,63 @@ const gobbleExpression = (): ValueProvider | undefined => {
     return stack[0] as ValueProvider;
 };
 
-const gobbleBinaryOp = () => {
-    // 3 is the maximum binary operator length
-    let to_check = expr.substr(index, 3);
-    let tc_len = 3;
-    let biop: BinaryOp | undefined;
-
-    while (tc_len > 0) {
-        biop = binaryOps[to_check];
-        if (biop) {
-            break;
+// Objects passed into here must have keys that are sorted so longer keys are first.
+//
+// Example:
+// {
+//   'instanceof': 1,
+//   'in': 2,
+// }
+//
+// This checks each of the keys in the object against the current position in
+// expr. The first one that matches will have its value returned.
+//
+// There's a check to make sure that tokens comprised of alphabetic characters
+// are not followed by an alphabetic character.
+const gobbleTokenFromList = (tokenList: Record<string, any>) => {
+    for (const item of Object.keys(tokenList)) {
+        // If the token matches exactly
+        if (expr.substr(index, item.length) == item) {
+            // If the first character is NOT a letter, then it's just symbols
+            // and we're good. Otherwise, if it is a letter, then a
+            // non-identifier character must trail the token.
+            if (
+                !isIdentifierStart() ||
+                !isIdentifierPart(expr.charCodeAt(index + item.length))
+            ) {
+                gobbleSpaces(item.length);
+                return tokenList[item];
+            }
         }
-        to_check = to_check.substr(0, --tc_len);
     }
-    gobbleSpaces(tc_len);
-    return biop;
 };
 
 const gobbleToken = (): ValueProvider | undefined => {
     let node: ValueProvider;
 
     // 46 is '.'
-    if (isDecimalDigit() || code === 46) {
+    if (isDecimalDigit() || code == 46) {
         // Char code 46 is a dot `.`, which can start off a numeric literal
         return gobbleNumericLiteral();
     }
 
-    if (code === 39 || code === 34) {
-        // 39 = "'", 34 = '"'
+    if (code == 34 || code == 39) {
+        // 34 = '"', 39 = "'"
         // Single or double quotes
         node = gobbleStringLiteral();
     } else {
-        // All unary operators are 1 character
-        const opFn = unaryOps[char()];
+        const op = gobbleTokenFromList(unaryOps);
 
-        if (opFn) {
-            gobbleSpaces(1);
+        if (op) {
             const argument = gobbleToken() || throwError();
-            return [opFn(argument[0]), argument[1]];
+            return [op(argument[0]), argument[1]];
         }
 
         const identifier = gobbleIdentifier();
-        node = literals[identifier]
-            ? [literals[identifier], []]
-            : [root => bindFn(root, identifier), [identifier]];
+        node =
+            identifier in literals
+                ? [() => literals[identifier], []]
+                : [root => bindFn(root, identifier), [identifier]];
     }
 
     return gobbleTokenProperty(node);
@@ -268,17 +291,22 @@ const gobbleToken = (): ValueProvider | undefined => {
 
 const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
     // '.', '[', '(', '?'
-    while (code === 46 || code === 91 || code === 40 || code === 63) {
+    while (
+        /* . */ code == 46 ||
+        /* [ */ code == 91 ||
+        /* ( */ code == 40 ||
+        /* ? */ code == 63
+    ) {
         let optional: boolean | undefined;
         let action: (value: any, root: Root) => ValueProvider;
         let bindings: string[] = [];
         let prevNode: ValueProvider = node;
         // '?'
-        if (code === 63) {
+        if (code == 63) {
             // Checking for optional chaining
             advance();
             // '.'
-            if ((code as any) !== 46) {
+            if ((code as number) !== 46) {
                 advance(-1);
                 return node;
             }
@@ -286,17 +314,17 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         }
 
         // '['
-        if (code === 91) {
+        if (code == 91) {
             gobbleSpaces(1);
             const expression = gobbleExpression() || throwError();
             action = (value, root) => bindFn(value, expression[0](root));
             bindings = expression[1];
             // ']'
-            if ((code as any) !== 93) {
+            if ((code as number) !== 93) {
                 throwError();
             }
             gobbleSpaces(1);
-        } else if (code === 40) {
+        } else if (code == 40) {
             // '('
             gobbleSpaces(1);
             // A function call is being made; gobble all the arguments
@@ -306,7 +334,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
                 (acc, arg) => uniqueListJoin(acc, arg[1]),
                 bindings
             );
-        } else if (code === 46) {
+        } else if (code == 46) {
             // '.'
             gobbleSpaces(1);
             const identifier = gobbleIdentifier();
@@ -345,7 +373,7 @@ const gobbleNumericLiteral = (): ValueProvider => {
     }
 
     // '.'
-    if (code === 46) {
+    if (code == 46) {
         // can start with a decimal marker
         number += '.';
         advance();
@@ -357,37 +385,35 @@ const gobbleNumericLiteral = (): ValueProvider => {
     }
 
     // e or E
-    if (code === 101 || code === 69) {
+    if (code == 101 || code == 69) {
         // exponent marker
         number += char();
         advance();
 
         // '+', '-'
-        if ((code as any) === 43 || (code as any) === 45) {
+        if ((code as number) == 43 || (code as number) == 45) {
             // exponent sign
             number += char();
             advance();
         }
 
-        let needDecimal = true;
-
-        while (isDecimalDigit()) {
-            // exponent itself
-            number += char();
-            advance();
-            needDecimal = false;
-        }
-
-        if (needDecimal) {
+        if (!isDecimalDigit()) {
             throwError();
         }
+
+        do {
+            number += char();
+            advance();
+        } while (isDecimalDigit());
     }
 
-    // Check to make sure this isn't a variable name that start with a number (123abc)
+    // Check to make sure this isn't a variable name that starts with a number
+    // (123abc)
     if (isIdentifierStart()) {
         throwError();
-    } else if (code === 46 || number === '.') {
+    } else if (code == 46 || number == '.') {
         // 46 is '.'
+        // Error with "1.." and "."
         throwError();
     }
 
@@ -402,11 +428,11 @@ const gobbleStringLiteral = (): ValueProvider => {
     advance();
 
     while (index < expr.length) {
-        if (code === quote) {
+        if (code == quote) {
             break;
         }
 
-        if (code === 92) {
+        if (code == 92) {
             // 92 is '\\'
             advance();
             // Check for all of the common escape codes
@@ -438,7 +464,7 @@ const gobbleIdentifier = (): string => {
     advance();
 
     while (index < expr.length) {
-        if (!isIdentifierStart() && !isDecimalDigit()) {
+        if (!isIdentifierPart()) {
             break;
         }
 
@@ -463,7 +489,8 @@ const gobbleArguments = (): ValueProvider[] => {
         args.push(gobbleExpression() || throwError());
         gobbleSpaces();
 
-        if (code === 44) {
+        if (code == 44) {
+            // 44 is ','
             gobbleSpaces(1);
         } else if (code !== 41) {
             throwError();

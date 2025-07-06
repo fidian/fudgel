@@ -1,3 +1,26 @@
+Allow more parentheis: (true)
+
+Allow arrays: [true]
+
+Improve number literal parsing
+https://github.com/EricSmekens/jsep/blob/master/packages/numbers/src/index.js
+
+Allow object literals
+https://github.com/EricSmekens/jsep/blob/master/packages/object/src/index.js
+
+Allow regexp literals
+https://github.com/EricSmekens/jsep/blob/master/packages/regex/src/index.js
+
+Consider adding template literals
+https://github.com/EricSmekens/jsep/blob/master/packages/template/src/index.js
+
+Add ternary
+https://github.com/EricSmekens/jsep/blob/master/packages/ternary/src/index.js
+
+Add a pipe operator |> and a placeholder #
+
+How can identifiers default to globalThis for things like Infinity, NaN, Date?
+
 Add a switch directive
 
 Perform speed tests - general
