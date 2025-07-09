@@ -1,4 +1,4 @@
-import { bindFn, uniqueListJoin } from './util.js';
+import { uniqueListJoin } from './util.js';
 
 // JavaScript Expression Parser (JSEP)
 // Based on the NPM package `jsep` by Stephen Oney
@@ -10,12 +10,14 @@ type Root = { [key: string]: any };
 // [0] is what generates a value
 // [1] lists the bound properties off of root that are used
 type ValueProvider = [ValueProviderFunction, string[]];
-type ValueProviderFunction = (root: Root) => any;
+type ValueProviderFunction = (root: Root) => ProvidedValue;
+type ProvidedValue = [any, Object?]; // Actual value, context object
 
 // Global variables used during synchronous parsing.
 let expr = ''; // The expression to parse
 let index = 0; // Current index
 let code = 0; // Char code at the current index
+let moreToParse = false; // If we are at the end of the expression
 
 // String literal escape codes that do not map to the same character.
 // Eg. "\z" maps to "z" - those don't need to be listed.
@@ -32,11 +34,11 @@ const escapeCodes: { [key: string]: string } = {
 const unaryOps: {
     [key: string]: (arg: ValueProviderFunction) => ValueProviderFunction;
 } = {
-    '-': arg => root => -arg(root),
-    '!': arg => root => !arg(root),
-    '~': arg => root => ~arg(root),
-    '+': arg => root => +arg(root),
-    typeof: arg => root => typeof arg(root),
+    '-': arg => root => [-arg(root)[0]],
+    '!': arg => root => [!arg(root)[0]],
+    '~': arg => root => [~arg(root)[0]],
+    '+': arg => root => [+arg(root)[0]],
+    typeof: arg => root => [typeof arg(root)[0]],
 };
 
 // Binary operators that take two arguments. Precendence matters for these.
@@ -55,31 +57,34 @@ const binaryOps: { [key: string]: BinaryOp } = {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
     // 1 Skip: , (comma)
     // 2 Skip: ...x, yield, =>, x?y:z, assignments
-    '||': [3, (left, right) => root => left(root) || right(root)],
-    '??': [3, (left, right) => root => left(root) ?? right(root)],
-    '&&': [4, (left, right) => root => left(root) && right(root)],
-    '|': [5, (left, right) => root => left(root) | right(root)], // After ||
-    '^': [6, (left, right) => root => left(root) ^ right(root)],
-    '&': [7, (left, right) => root => left(root) & right(root)], // After &&
-    '===': [8, (left, right) => root => left(root) === right(root)],
-    '==': [8, (left, right) => root => left(root) == right(root)], // After ===
-    '!==': [8, (left, right) => root => left(root) !== right(root)],
-    '!=': [8, (left, right) => root => left(root) != right(root)], // After !==
-    '<<': [10, (left, right) => root => left(root) << right(root)], // Forced earlier
-    '>>>': [10, (left, right) => root => left(root) >>> right(root)], // Forced earlier
-    '>>': [10, (left, right) => root => left(root) >> right(root)], // After >>>
-    '<=': [9, (left, right) => root => left(root) <= right(root)], // After <<
-    '<': [9, (left, right) => root => left(root) < right(root)], // After <=
-    '>=': [9, (left, right) => root => left(root) >= right(root)], // After >>
-    '>': [9, (left, right) => root => left(root) > right(root)], // After >
-    instanceof: [9, (left, right) => root => left(root) instanceof right(root)],
-    in: [9, (left, right) => root => left(root) in right(root)], // After instanceof
-    '+': [11, (left, right) => root => left(root) + right(root)],
-    '-': [11, (left, right) => root => left(root) - right(root)],
-    '**': [13, (left, right) => root => left(root) ** right(root), 1], // right-to-left, forced earlier
-    '*': [12, (left, right) => root => left(root) * right(root)], // After *
-    '/': [12, (left, right) => root => left(root) / right(root)],
-    '%': [12, (left, right) => root => left(root) % right(root)],
+    '||': [3, (left, right) => root => [left(root)[0] || right(root)[0]]],
+    '??': [3, (left, right) => root => [left(root)[0] ?? right(root)[0]]],
+    '&&': [4, (left, right) => root => [left(root)[0] && right(root)[0]]],
+    '|': [5, (left, right) => root => [left(root)[0] | right(root)[0]]], // After ||
+    '^': [6, (left, right) => root => [left(root)[0] ^ right(root)[0]]],
+    '&': [7, (left, right) => root => [left(root)[0] & right(root)[0]]], // After &&
+    '===': [8, (left, right) => root => [left(root)[0] === right(root)[0]]],
+    '==': [8, (left, right) => root => [left(root)[0] == right(root)[0]]], // After ===
+    '!==': [8, (left, right) => root => [left(root)[0] !== right(root)[0]]],
+    '!=': [8, (left, right) => root => [left(root)[0] != right(root)[0]]], // After !==
+    '<<': [10, (left, right) => root => [left(root)[0] << right(root)[0]]], // Forced earlier
+    '>>>': [10, (left, right) => root => [left(root)[0] >>> right(root)[0]]], // Forced earlier
+    '>>': [10, (left, right) => root => [left(root)[0] >> right(root)[0]]], // After >>>
+    '<=': [9, (left, right) => root => [left(root)[0] <= right(root)[0]]], // After <<
+    '<': [9, (left, right) => root => [left(root)[0] < right(root)[0]]], // After <=
+    '>=': [9, (left, right) => root => [left(root)[0] >= right(root)[0]]], // After >>
+    '>': [9, (left, right) => root => [left(root)[0] > right(root)[0]]], // After >
+    instanceof: [
+        9,
+        (left, right) => root => [left(root)[0] instanceof right(root)[0]],
+    ],
+    in: [9, (left, right) => root => [left(root)[0] in right(root)[0]]], // After instanceof
+    '+': [11, (left, right) => root => [left(root)[0] + right(root)[0]]],
+    '-': [11, (left, right) => root => [left(root)[0] - right(root)[0]]],
+    '**': [13, (left, right) => root => [left(root)[0] ** right(root)[0]], 1], // right-to-left, forced earlier
+    '*': [12, (left, right) => root => [left(root)[0] * right(root)[0]]], // After *
+    '/': [12, (left, right) => root => [left(root)[0] / right(root)[0]]],
+    '%': [12, (left, right) => root => [left(root)[0] % right(root)[0]]],
     // 14 Skip: these are unary
     // 15 Skip: these are unary
     // 16 Skip: new
@@ -90,9 +95,10 @@ const literals: { [key: string]: any } = {
     true: true,
     false: false,
     null: null,
+    undefined: undefined,
 };
 
-const defaultValueProvider = [() => {}, []] as ValueProvider;
+const defaultValueProvider = [() => [] as any, []] as ValueProvider;
 
 // Parses an expression. Always returns a ValueProvider, which is a tuple:
 // [ValueProviderFunction, string[]].  The ValueProviderFunction takes a
@@ -103,33 +109,35 @@ export const parse = (exprToParse: string): ValueProvider => {
     expr = exprToParse;
 
     // Set up index and code (global variables)
-    index = 0;
-    advance(0);
-    gobbleSpaces();
+    index = -1;
+    gobbleSpaces(1);
 
     // Use a default return value
     let result: ValueProvider = defaultValueProvider;
 
     try {
         // Test for NaN - if this passes, there's more to parse
-        if (code >= 0) {
+        if (moreToParse) {
             result = gobbleExpression() || throwError();
         }
 
         // Check again at the end
-        if (code >= 0) {
+        if (moreToParse) {
             result = defaultValueProvider;
             throwError();
         }
     } catch (ignore) {}
 
-    return result;
+    // Unwrap the result.
+    // Root is a scopeProxy that returns wrapped values to include context.
+    return [(root: Root) => result[0](root)[0], result[1]];
 };
 
 // Move to the next character in the expression.
 const advance = (n = 1) => {
     index += n;
     code = expr.charCodeAt(index);
+    moreToParse = code >= 0; // NaN fails this check
 };
 
 // Trivial functions for minification
@@ -166,7 +174,7 @@ const gobbleSpaces = (advanceChars = 0) => {
     }
 };
 
-const gobbleExpression = (): ValueProvider | undefined => {
+const gobbleExpression = (): ValueProvider => {
     const combineLast = () => {
         const r = stack.pop() as ValueProvider,
             op = stack.pop() as BinaryOp,
@@ -258,7 +266,7 @@ const gobbleTokenFromList = (tokenList: Record<string, any>) => {
     }
 };
 
-const gobbleToken = (): ValueProvider | undefined => {
+const gobbleToken = (): ValueProvider => {
     let node: ValueProvider;
 
     // 46 is '.'
@@ -270,7 +278,17 @@ const gobbleToken = (): ValueProvider | undefined => {
     if (code == 34 || code == 39) {
         // 34 = '"', 39 = "'"
         // Single or double quotes
-        node = gobbleStringLiteral();
+        const str = gobbleStringLiteral();
+        node = [() => [str], []];
+    } else if (code === 91) {
+        // 91 is '['
+        // Array literal
+        gobbleSpaces(1);
+        // 93 is ']'
+        node = gobbleArguments(93, true);
+    } else if (code === 123) {
+        // 123 is '{'
+        node = gobbleObjectLiteral();
     } else {
         const op = gobbleTokenFromList(unaryOps);
 
@@ -280,10 +298,13 @@ const gobbleToken = (): ValueProvider | undefined => {
         }
 
         const identifier = gobbleIdentifier();
+
+        // Careful - "root" is a Proxy that already returns a value wrapped in
+        // an array with the context.
         node =
             identifier in literals
-                ? [() => literals[identifier], []]
-                : [root => bindFn(root, identifier), [identifier]];
+                ? [() => [literals[identifier]], []]
+                : [root => root[identifier], [identifier]];
     }
 
     return gobbleTokenProperty(node);
@@ -298,7 +319,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         /* ? */ code == 63
     ) {
         let optional: boolean | undefined;
-        let action: (value: any, root: Root) => ValueProvider;
+        let action: (value: ProvidedValue, root: Root) => ProvidedValue;
         let bindings: string[] = [];
         let prevNode: ValueProvider = node;
         // '?'
@@ -317,7 +338,10 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         if (code == 91) {
             gobbleSpaces(1);
             const expression = gobbleExpression() || throwError();
-            action = (value, root) => bindFn(value, expression[0](root));
+            action = (value, root) => [
+                value[0][expression[0](root)[0]],
+                value[0],
+            ];
             bindings = expression[1];
             // ']'
             if ((code as number) !== 93) {
@@ -328,17 +352,17 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             // '('
             gobbleSpaces(1);
             // A function call is being made; gobble all the arguments
-            const args = gobbleArguments();
-            action = (value, root) => value(...args.map(arg => arg[0](root)));
-            bindings = args.reduce(
-                (acc, arg) => uniqueListJoin(acc, arg[1]),
-                bindings
-            );
+            // 41 is ')'
+            const args = gobbleArguments(41);
+            action = (value, root) => [
+                value[0].apply(value[1], args[0](root)[0]),
+            ];
+            bindings = args[1];
         } else if (code == 46) {
             // '.'
             gobbleSpaces(1);
             const identifier = gobbleIdentifier();
-            action = value => bindFn(value, identifier);
+            action = value => [value[0][identifier], value[0]];
         } else {
             throwError();
         }
@@ -347,8 +371,8 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             ? [
                   root => {
                       const value = prevNode[0](root);
-                      return value === undefined
-                          ? undefined
+                      return value[0] === undefined
+                          ? ([] as any)
                           : action(value, root);
                   },
                   uniqueListJoin(prevNode[1], bindings),
@@ -419,15 +443,15 @@ const gobbleNumericLiteral = (): ValueProvider => {
 
     gobbleSpaces();
     const value = parseFloat(number);
-    return [() => value, []];
+    return [() => [value], []];
 };
 
-const gobbleStringLiteral = (): ValueProvider => {
+const gobbleStringLiteral = (): string => {
     let str = '';
     const quote = code;
     advance();
 
-    while (index < expr.length) {
+    while (moreToParse) {
         if (code == quote) {
             break;
         }
@@ -445,13 +469,13 @@ const gobbleStringLiteral = (): ValueProvider => {
         advance();
     }
 
-    if (index >= expr.length) {
+    if (!moreToParse) {
         throwError();
     }
 
     gobbleSpaces(1);
 
-    return [() => str, []];
+    return str;
 };
 
 const gobbleIdentifier = (): string => {
@@ -463,7 +487,7 @@ const gobbleIdentifier = (): string => {
 
     advance();
 
-    while (index < expr.length) {
+    while (moreToParse) {
         if (!isIdentifierPart()) {
             break;
         }
@@ -477,27 +501,120 @@ const gobbleIdentifier = (): string => {
     return identifier;
 };
 
-const gobbleArguments = (): ValueProvider[] => {
-    const args = [];
+// This doesn't return the typical ValueProvider.
+const gobbleArguments = (
+    terminator: number,
+    allowEmpty?: boolean
+): ValueProvider => {
+    const args: ValueProvider[] = [];
 
-    // 41 is ')'
-    while (code !== 41) {
-        if (index >= expr.length) {
+    while (code !== terminator) {
+        if (!moreToParse) {
             throwError();
         }
 
-        args.push(gobbleExpression() || throwError());
-        gobbleSpaces();
+        args.push(
+            allowEmpty && code == 44 ? defaultValueProvider : gobbleExpression()
+        );
 
         if (code == 44) {
             // 44 is ','
             gobbleSpaces(1);
-        } else if (code !== 41) {
+        } else if (code !== terminator) {
             throwError();
         }
     }
 
-    advance();
+    gobbleSpaces(1);
 
-    return args;
+    return [
+        root => [args.map(arg => arg[0](root)[0])],
+        args.reduce((acc: string[], arg) => uniqueListJoin(acc, arg[1]), []),
+    ];
+};
+
+const gobbleObjectLiteral = (): ValueProvider => {
+    gobbleSpaces(1);
+    const props: [ValueProvider, ValueProvider][] = [];
+
+    // 125 is '}'
+    while (code !== 125) {
+        let propName!: string;
+        let propNameProvider!: ValueProvider;
+
+        if (!moreToParse) {
+            throwError();
+        }
+
+        // 46 is '.'
+        if (isDecimalDigit() || code == 46) {
+            // Numeric literal or dot notation
+            propNameProvider = gobbleNumericLiteral();
+        } else if (code == 34 || code == 39) {
+            // 34 = '"', 39 = "'"
+            // String literal
+            propName = gobbleStringLiteral();
+        } else if (code == 91) {
+            // 91 is '['
+            // The array syntax can be used to specify a property name
+            gobbleSpaces(1);
+            propNameProvider = gobbleExpression();
+
+            if ((code as number) != 93) {
+                // 93 is ']'
+                throwError();
+            }
+
+            gobbleSpaces(1);
+        } else {
+            propName = gobbleIdentifier();
+        }
+
+        if (propName) {
+            propNameProvider = [() => [propName], []];
+        }
+
+        // 58 is ':'
+        if (code == 58) {
+            gobbleSpaces(1);
+            props.push([
+                propNameProvider,
+                gobbleExpression()
+            ]);
+        } else if (!propName) {
+            // If there was a property name provider, then it must be followed by a colon
+            throwError();
+        } else {
+            props.push([
+                propNameProvider,
+                [((root) => [root[propName][0]]), [propName]],
+            ]);
+        }
+
+        if (code == 44) {
+            // 44 is ','
+            gobbleSpaces(1);
+        } else if (code !== 125) {
+            throwError();
+        }
+    }
+
+    gobbleSpaces(1);
+
+    return [
+        root => {
+            const obj: { [key: string]: any } = {};
+
+            for (const [nameProvider, valueProvider] of props) {
+                obj[nameProvider[0](root)[0]] = valueProvider[0](root)[0];
+            }
+
+            return [obj];
+        },
+        props.reduce(
+            (acc: string[], prop) =>
+                uniqueListJoin(acc, [...prop[0][1], ...prop[1][1]]),
+            []
+        ),
+    ];
 };

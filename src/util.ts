@@ -30,8 +30,10 @@ export const camelToDash = (camel: string) => {
 };
 
 export const pascalToDash = (pascal: string) => {
-    return camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
-}
+    return camelToDash(
+        pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase())
+    );
+};
 
 export const toString = <T>(value: T) => `${value ?? ''}`;
 
@@ -46,7 +48,7 @@ export const rootElement = (controller: Controller) => {
     const element = metadataControllerElement.get(controller);
 
     return element?.shadowRoot ?? element ?? null;
-}
+};
 
 export const setAttribute = (
     node: HTMLElement,
@@ -64,10 +66,9 @@ export const setAttribute = (
     }
 };
 
-export const uniqueListJoin = (a: string[], b: string[]) => [...new Set([...a, ...b])];
+export const uniqueListJoin = (a: string[], b: string[]) => [
+    ...new Set([...a, ...b]),
+];
 
-// Look up a property on an object. If it is a function, bind its context
-// to the object.
-export const bindFn = (root: any, prop: string | symbol) => typeof root[prop] === 'function' ? root[prop].bind(root) : root[prop];
-
-export const appendChild = (parent: Node, child: Node) => parent.appendChild(child);
+export const appendChild = (parent: Node, child: Node) =>
+    parent.appendChild(child);

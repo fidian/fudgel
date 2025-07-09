@@ -1,4 +1,6 @@
-import { Component, html, parse } from '../../src/fudgel.js';
+import { Component, html } from '../../src/fudgel.js';
+import { parse } from '../../src/jsep.js';
+import { scopeProxy } from '../../src/scope.js';
 
 const date = new Date();
 
@@ -202,8 +204,12 @@ describe('jsep', () => {
             output: true,
             scope: {
                 d: new Date(),
-                Date: Date
             },
+        },
+        {
+            bindings: ['Date'],
+            input: 'Date.parse("2024-01-23")',
+            output: 1705968000000,
         },
 
         //
@@ -260,6 +266,18 @@ describe('jsep', () => {
         {
             input: 'typeof "test".length',
             output: 'number',
+        },
+        {
+            input: '[1, "2" , [3]]',
+            output: [1, '2', [3]],
+        },
+        {
+            input: '[[]]',
+            output: [[]],
+        },
+        {
+            input: '[,,,]',
+            output: [,,,],
         },
 
         //
@@ -434,7 +452,37 @@ describe('jsep', () => {
                 b: { c: true },
             },
         },
+        {
+            // Can't parse arguments - they are required
+            fails: true,
+            input: 'a(,,)',
+        },
 
+        // gobbleObjectLiteral
+        {
+            bindings: ['B', 'c'],
+            input: '{ "a": 1, b: B, [c]: [2,3] }',
+            output: { a: 1, b: 'test', CCC: [2, 3] },
+            scope: {
+                B: 'test',
+                c: 'CCC',
+            }
+        },
+        {
+            input: '{}',
+            output: {},
+        },
+        {
+            bindings: ['a'],
+            input: '{a}',
+            output: { a: 'A' },
+            scope: { a: 'A' },
+        },
+        {
+            // Can't use array syntax without colon
+            fails: true,
+            input: '{["abc"]}',
+        },
     ].forEach(scenario => {
         let method: any = it;
 
@@ -467,7 +515,7 @@ describe('jsep', () => {
                 'function',
                 'A function to generate a value was not returned'
             );
-            const output = fn(scenario.scope || {});
+            const output = fn(scopeProxy(scenario.scope || {}, {}));
             expect(output).to.deep.equal(
                 scenario.output,
                 'Output does not match expected value'
