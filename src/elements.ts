@@ -42,3 +42,7 @@ export const testCssSelector = (selector: string) => {
         return false;
     }
 }
+
+export const toggleClass = (node: HTMLElement, className: string, force?: boolean) => {
+    node.classList.toggle(className, force);
+}

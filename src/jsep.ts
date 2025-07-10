@@ -577,17 +577,14 @@ const gobbleObjectLiteral = (): ValueProvider => {
         // 58 is ':'
         if (code == 58) {
             gobbleSpaces(1);
-            props.push([
-                propNameProvider,
-                gobbleExpression()
-            ]);
+            props.push([propNameProvider, gobbleExpression()]);
         } else if (!propName) {
             // If there was a property name provider, then it must be followed by a colon
             throwError();
         } else {
             props.push([
                 propNameProvider,
-                [((root) => [root[propName][0]]), [propName]],
+                [root => [root[propName][0]], [propName]],
             ]);
         }
 

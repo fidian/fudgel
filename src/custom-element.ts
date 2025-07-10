@@ -8,6 +8,7 @@ import {
     createElement,
     createTemplate,
     createTextNode,
+    toggleClass,
 } from './elements.js';
 import { Controller } from './controller.js';
 import { CustomElementConfig } from './custom-element-config.js';
@@ -53,7 +54,7 @@ export class CustomElement extends HTMLElement {
         metadataElementController(this, controller);
         metadataControllerElement.set(controller, this);
         metadataControllerConfig(controller, config);
-        this.classList.add(config.className);
+        toggleClass(this, config.className, true);
 
         // Initialize before adding child nodes
         this._bindings(config, controller);
@@ -80,7 +81,7 @@ export class CustomElement extends HTMLElement {
                 !styleParent.querySelector('style.' + config.className)
             ) {
                 const s = createElement('style');
-                s.classList.add(config.className);
+                toggleClass(s, config.className, true);
                 s.prepend(createTextNode(config.style));
                 ((styleParent as any).body || styleParent).prepend(s);
             }

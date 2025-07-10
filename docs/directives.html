@@ -361,6 +361,48 @@
                     </div>
                 </template>
             </code-sample>
+            <h2>Applying Conditional Classes - <code>#class</code></h2>
+            <p>
+                There's a directive that makes it much easier to add and remove
+                classes dynamically. The <code>#class</code> directive allows
+                you to define class names to add or remove if the associated
+                value is truthy or falsy. It accepts an object where the
+                property names are the class names and the property values are
+                the conditions.
+            </p>
+            <code-sample type="js" live="true" html="<test-class></test-class>">
+                <!-- prettier-ignore -->
+                <template>
+                    import { component } from './fudgel.min.js';
+
+                    component('test-class', {
+                        style: `
+                            .even { background-color: lightblue; }
+                            .notMultipleOfThree { border: 2px solid black; }
+                            .moreThanFive { font-weight: bold; }
+                        `,
+                        template: `
+                            <button @click="switchClasses()">Increment N</button>
+                            <p #class="{
+                                even: n % 2 === 0,
+                                notMultipleOfThree: n % 3,
+                                moreThanFive: n > 5
+                            }">N: {{n}}</p>
+                            <ul>
+                                <li>Blue background if even</li>
+                                <li>Black border if not a multiple of 3</li>
+                                <li>Bold text if greater than 5</li>
+                            </ul>
+                        `
+                    }, class {
+                        n = 1;
+
+                        switchClasses() {
+                            this.n = (this.n + 1) % 10;
+                        }
+                    });
+                </template>
+            </code-sample>
             <h2>Referencing Elements - <code>#ref</code></h2>
             <p>
                 The controller might need to access a DOM element directly. To
@@ -368,7 +410,7 @@
                 element. This will assign the element to the controller's
                 property with the same name as the attribute.
             </p>
-            <code-sample type="html">
+            <code-sample type="js" live="true" html="<test-ref></test-ref>">
                 <!-- prettier-ignore -->
                 <template>
                     import { component } from './fudgel.min.js';

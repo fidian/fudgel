@@ -8,6 +8,7 @@ import {
     createTemplate,
     createTreeWalker,
     sandboxStyleRules,
+    toggleClass,
 } from './elements.js';
 import { CustomElement } from './custom-element.js';
 import {
@@ -75,7 +76,7 @@ const updateClasses = (templateNode: HTMLTemplateElement, id: string) => {
             updateClasses(currentNode as HTMLTemplateElement, id);
         }
 
-        (currentNode as HTMLElement).classList.add(id);
+        toggleClass(currentNode as HTMLElement, id, true);
     }
 };
 

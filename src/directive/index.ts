@@ -1,5 +1,6 @@
 import { attributeDirective } from './attribute.js';
 import { eventDirective } from './event.js';
+import { hashClassDirective } from './hash-class.js';
 import { hashRefDirective } from './hash-ref.js';
 import { propertyDirective } from './property.js';
 import { starForDirective } from './star-for.js';
@@ -29,6 +30,7 @@ export const directives: [
     {
         '': attributeDirective,
         '@': eventDirective,
+        '#class': hashClassDirective,
         '#ref': hashRefDirective,
         '.': propertyDirective,
     },
