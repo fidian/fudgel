@@ -80,15 +80,47 @@ component(
         }
     }
 );
+component(
+    'test-parent-onchange',
+    {
+        template: `
+            Parent A: <span id="parentA">{{a}}</span><br />
+            Parent P: <span id="parentP">{{p}}</span><br />
+            <test-child-onchange a="{{a}}" .p="p">
+            </test-child-onchange>
+            <button id="updateA" @click="updateA()">Update A</button><br />
+            <button id="updateP" @click="updateP()">Update P</button><br />
+        `,
+    },
+    class TestParentOnchange extends LogEvents {
+        a = 0;
+        p = 5;
+        updateA() {
+            this.a++;
+        }
+        updateP() {
+            this.p++;
+        }
+    }
+);
+component(
+    'test-child-onchange',
+    {
+        attr: ['a'],
+        prop: ['p'],
+        template: `
+            Child A: <span id="childA">{{a}}</span><br />
+            Child P: <span id="childP">{{p}}</span><br />
+        `,
+    },
+    class TestChildOnchange extends LogEvents {}
+);
 
 describe('event order', () => {
-    beforeEach(() => {
+    it('is in the correct order', () => {
         console.log('Starting test run');
         events.splice(0, events.length);
         cy.mount('<test-parent></test-parent>');
-    });
-
-    it('is in the correct order', () => {
         cy.get('test-child')
             .should('have.text', 'ready')
             .then(() => {
@@ -98,16 +130,45 @@ describe('event order', () => {
                 }
                 console.groupEnd();
                 expect(events).to.deep.equal([
-                    // Create the parent
                     'TestParent constructor',
                     'TestParent onInit',
                     'TestChild constructor',
                     'TestChild onInit',
                     'TestChild onViewInit',
                     'TestParent onViewInit',
-                    'TestChild onChange state',
                 ]);
             });
+    });
+
+    it('triggers only one onChange when attr and prop changes', () => {
+        console.log('Starting test run');
+        events.splice(0, events.length);
+        cy.mount('<test-parent-onchange></test-parent-onchange>');
+        cy.get('#childA').should('have.text', '0');
+        cy.get('#childP').should('have.text', '5');
+        cy.get('#updateA').click();
+        cy.get('#updateP').click();
+        cy.get('#childA').should('have.text', '1');
+        cy.get('#childP').should('have.text', '6');
+        cy.get('test-child-onchange').then(() => {
+            console.groupCollapsed('Events after test ran');
+            for (const event of events) {
+                console.log(event);
+            }
+            console.groupEnd();
+            expect(events).to.deep.equal([
+                'TestParentOnchange constructor',
+                'TestParentOnchange onInit',
+                'TestChildOnchange constructor',
+                'TestChildOnchange onChange a',
+                'TestChildOnchange onChange p',
+                'TestChildOnchange onInit',
+                'TestChildOnchange onViewInit',
+                'TestParentOnchange onViewInit',
+                'TestChildOnchange onChange a',
+                'TestChildOnchange onChange p',
+            ]);
+        });
     });
 });
 
@@ -136,7 +197,6 @@ describe('with shadow DOM', () => {
                     'TestChildShadow onInit',
                     'TestChildShadow onViewInit',
                     'TestParentShadow onViewInit',
-                    'TestChildShadow onChange state',
                 ]);
             });
     });

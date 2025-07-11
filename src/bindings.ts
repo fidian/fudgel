@@ -1,6 +1,5 @@
 import { Controller } from './controller.js';
 import { hookOn, hookWhenSet } from './hooks.js';
-import { patchSetter } from './setter.js';
 import { Scope } from './scope.js';
 
 export function addBindings(
@@ -20,13 +19,6 @@ export function addBindings(
             hookOn(scope, node, hookName, callback);
         } else {
             hookWhenSet(controller, controller, binding);
-            patchSetter(
-                controller,
-                binding,
-                (thisRef: Controller, newValue, oldValue) => {
-                    (thisRef as any).onChange?.(binding, newValue, oldValue);
-                }
-            );
             hookOn(controller, node, hookName, callback);
         }
     }

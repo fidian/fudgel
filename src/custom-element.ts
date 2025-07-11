@@ -38,7 +38,7 @@ export class CustomElement extends HTMLElement {
         const controller = metadataElementController(this);
 
         if (controller) {
-            this._change(controller, propertyName, newValue);
+            this._changeControllerProperty(controller, propertyName, newValue);
         }
     }
 
@@ -114,7 +114,8 @@ export class CustomElement extends HTMLElement {
             // attributeChangedCallback.  Only set the initial value when the
             // attribute has been defined.
             if (this.hasAttribute(attributeName)) {
-                this._change(
+                // Set the initial value on the controller.
+                this._changeControllerProperty(
                     controllerInternal,
                     propertyName,
                     getAttribute(this, attributeName)
@@ -124,17 +125,21 @@ export class CustomElement extends HTMLElement {
             // When the internal property changes, update the attribute but only
             // if it is not defined as a "prop" binding.
             if (!(config.prop || []).includes(propertyName)) {
-                const updateAttribute = (
-                    thisRef: Controller,
-                    newValue: any
-                ) => {
-                    const element = metadataControllerElement.get(thisRef);
+                patchSetter(
+                    controllerInternal,
+                    propertyName,
+                    (thisRef: Controller, newValue: any) => {
+                        const element = metadataControllerElement.get(thisRef);
 
-                    if (element) {
-                        setAttribute(element, attributeName, newValue);
+                        if (
+                            element &&
+                            getAttribute(element, attributeName) !==
+                                `${newValue}`
+                        ) {
+                            setAttribute(element, attributeName, newValue);
+                        }
                     }
-                };
-                patchSetter(controllerInternal, propertyName, updateAttribute);
+                );
             }
         }
 
@@ -144,13 +149,17 @@ export class CustomElement extends HTMLElement {
                 newValue: any
             ) => {
                 const controller = metadataElementController(thisRef)!;
-                this._change(controller, propertyName, newValue);
+                this._changeControllerProperty(
+                    controller,
+                    propertyName,
+                    newValue
+                );
             };
 
             // Only set the initial value when the property has been set
             // on the element.
             if (propertyName in this) {
-                updateController(this, (this as any)[propertyName])
+                updateController(this, (this as any)[propertyName]);
             }
 
             // When element changes, update controller
@@ -169,7 +178,7 @@ export class CustomElement extends HTMLElement {
         }
     }
 
-    private _change(
+    private _changeControllerProperty(
         controller: Controller,
         propertyName: string,
         newValue: any

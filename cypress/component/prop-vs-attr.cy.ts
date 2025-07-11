@@ -95,7 +95,7 @@ describe('prop vs attr', () => {
         cy.get('show-value-prop').should('have.text', '"ok"');
         cy.get('show-value-attr-prop').should('have.text', '"ok"');
     });
-    it.only('works with attr and prop (interpolated)', () => {
+    it('works with attr and prop (interpolated)', () => {
         cy.mount('<parent-element-attr-prop-interpolated></parent-element-attr-prop-interpolated>');
         cy.get('show-value-attr').should('have.text', '"1"');
         cy.get('show-value-prop').should('have.text', '"2"');
