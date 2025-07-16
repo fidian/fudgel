@@ -1,4 +1,5 @@
 import { uniqueListJoin } from './util.js';
+import { win } from './elements.js';
 
 // JavaScript Expression Parser (JSEP)
 // Based on the NPM package `jsep` by Stephen Oney
@@ -6,12 +7,38 @@ import { uniqueListJoin } from './util.js';
 // All functions starting with "gobble" will remove spaces after getting
 // the token or expression it's designed to handle.
 
-type Root = { [key: string]: any };
+// A wrapped value, which allows for retaining the context
+type ProvidedValue = [any, Object?]; // Actual value, context object
+type RootValueProvider = { [key: string | symbol]: ProvidedValue };
+
 // [0] is what generates a value
 // [1] lists the bound properties off of root that are used
+type ValueProviderFunction = (root: RootValueProvider) => ProvidedValue;
+
+// This is used internally
 type ValueProvider = [ValueProviderFunction, string[]];
-type ValueProviderFunction = (root: Root) => ProvidedValue;
-type ProvidedValue = [any, Object?]; // Actual value, context object
+
+// This is passed back to the caller of parse()
+export type ValueProviderRoot = [(roots: object[]) => any, string[]];
+
+// Wrap an object in a Proxy to allow for layered scopes. Values returned must
+// be enclosed in an array to match ValueProvider.
+export const valueProvider = (
+    priority: object,
+    fallback?: object
+): RootValueProvider =>
+    new Proxy(
+        {},
+        {
+            get(_ignoreTarget: any, prop: string | symbol) {
+                return prop in priority
+                    ? [(priority as any)[prop], priority]
+                    : fallback
+                      ? (fallback as any)[prop]
+                      : [];
+            },
+        }
+    );
 
 // Global variables used during synchronous parsing.
 let expr = ''; // The expression to parse
@@ -100,11 +127,11 @@ const literals: { [key: string]: any } = {
 
 const defaultValueProvider = [() => [] as any, []] as ValueProvider;
 
-// Parses an expression. Always returns a ValueProvider, which is a tuple:
-// [ValueProviderFunction, string[]].  The ValueProviderFunction takes a
-// root object for a scope and returns a value.  The string[] is a list of
-// bound properties that the ValueProviderFunction uses.
-export const parse = (exprToParse: string): ValueProvider => {
+// Parses an expression. Always returns a ValueProviderRoot, which is a tuple:
+// [function, string[]].  The function takes a list of objects that are
+// searched for root values and returns a value. The returned string[] is a
+// list of bound properties that the function uses.
+export const parse = (exprToParse: string): ValueProviderRoot => {
     // Assign to a global variable
     expr = exprToParse;
 
@@ -116,21 +143,28 @@ export const parse = (exprToParse: string): ValueProvider => {
     let result: ValueProvider = defaultValueProvider;
 
     try {
-        // Test for NaN - if this passes, there's more to parse
         if (moreToParse) {
             result = gobbleExpression() || throwError();
         }
 
-        // Check again at the end
         if (moreToParse) {
             result = defaultValueProvider;
             throwError();
         }
     } catch (ignore) {}
 
-    // Unwrap the result.
-    // Root is a scopeProxy that returns wrapped values to include context.
-    return [(root: Root) => result[0](root)[0], result[1]];
+    // Unwrap the result - change it from a ValueProvider result to a ValueProviderRoot.
+    // When calling result[0], the root object needs to wrap the values in an array
+    // to produce ProvidedValue results;
+    return [
+        (roots: object[]) =>
+            result[0](
+                [...roots, valueProvider(win)].reduceRight((acc, next) =>
+                    valueProvider(next, acc)
+                ) as RootValueProvider
+            )[0],
+        result[1],
+    ];
 };
 
 // Move to the next character in the expression.
@@ -319,7 +353,10 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         /* ? */ code == 63
     ) {
         let optional: boolean | undefined;
-        let action: (value: ProvidedValue, root: Root) => ProvidedValue;
+        let action: (
+            value: ProvidedValue,
+            root: RootValueProvider
+        ) => ProvidedValue;
         let bindings: string[] = [];
         let prevNode: ValueProvider = node;
         // '?'

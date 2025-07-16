@@ -1,5 +1,5 @@
 import { addBindings } from '../bindings.js';
-import { childScope, getScope, scopeProxy } from '../scope.js';
+import { childScope, getScope } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { entries } from '../util.js';
@@ -30,7 +30,7 @@ export const starForDirective: StructuralDirective = (
     const anchorScope = getScope(anchor);
     let activeNodes = new Map<any, HTMLElement>();
     const update = (thisRef: Controller) => {
-        const iterable = parsed[0](scopeProxy(thisRef, anchorScope)) || [];
+        const iterable = parsed[0]([anchorScope, thisRef]) || [];
         let oldNodes = activeNodes;
         activeNodes = new Map();
         let lastNode: HTMLElement | Comment = anchor;

@@ -1,5 +1,5 @@
 import { addBindings } from '../bindings.js';
-import { childScope, getScope, scopeProxy } from '../scope.js';
+import { childScope, getScope } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { hooksOff } from '../hooks.js';
@@ -17,7 +17,7 @@ export const starIfDirective: StructuralDirective = (
     const scope = getScope(anchor);
     let activeNode: HTMLElement | null = null;
     const update = (thisRef: Controller) => {
-        if (parsed[0](scopeProxy(thisRef, scope))) {
+        if (parsed[0]([scope, thisRef])) {
             if (!activeNode) {
                 // Add
                 activeNode = cloneNode(source);

@@ -1,5 +1,5 @@
 import { addBindings } from '../bindings.js';
-import { childScope, getScope, scopeProxy } from '../scope.js';
+import { childScope, getScope } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { hooksOff } from '../hooks.js';
@@ -25,7 +25,7 @@ export const starRepeatDirective: StructuralDirective = (
     const anchorScope = getScope(anchor);
     let activeNodes: HTMLElement[] = [];
     const update = (thisRef: Controller) => {
-        let desired = +parsed[0](scopeProxy(thisRef, anchorScope));
+        let desired = +parsed[0]([anchorScope, thisRef]);
 
         while (activeNodes.length > desired) {
             const target = activeNodes.pop()!;

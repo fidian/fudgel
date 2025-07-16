@@ -1,6 +1,7 @@
 import { addBindings } from './bindings.js';
-import { getScope, scopeProxy } from './scope.js';
+import { getScope } from './scope.js';
 import { parseText } from './parse.js';
+import { win } from './elements.js';
 
 export function linkTextNode(controller: Object, currentNode: Text): void | number {
     // Node.TEXT_NODE === 3
@@ -10,7 +11,7 @@ export function linkTextNode(controller: Object, currentNode: Text): void | numb
         if (result) {
             const scope = getScope(currentNode);
             const update = (thisRef: Object) => {
-                currentNode.nodeValue = result[0](scopeProxy(thisRef, scope));
+                currentNode.nodeValue = result[0]([scope, thisRef]);
             };
             addBindings(controller, currentNode, update, result[1], scope);
             update(controller);

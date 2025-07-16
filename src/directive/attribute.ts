@@ -1,9 +1,10 @@
 import { addBindings } from '../bindings.js';
 import { Controller } from '../controller.js';
 import { GeneralDirective } from './types.js';
-import { getScope, scopeProxy } from '../scope.js';
+import { getScope } from '../scope.js';
 import { parseTextAllowBoolean } from '../parse.js';
 import { setAttribute } from '../util.js';
+import { win } from '../elements.js';
 
 export const attributeDirective: GeneralDirective = (
     controller: Controller,
@@ -19,7 +20,7 @@ export const attributeDirective: GeneralDirective = (
             setAttribute(
                 node,
                 attrName,
-                result[0](scopeProxy(thisRef, scope))
+                result[0]([scope, thisRef])
             );
         };
         addBindings(controller, node, update, result[1], scope);

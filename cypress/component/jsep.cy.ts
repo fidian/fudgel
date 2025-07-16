@@ -1,6 +1,5 @@
 import { Component, html } from '../../src/fudgel.js';
 import { parse } from '../../src/jsep.js';
-import { scopeProxy } from '../../src/scope.js';
 
 const date = new Date();
 
@@ -515,7 +514,7 @@ describe('jsep', () => {
                 'function',
                 'A function to generate a value was not returned'
             );
-            const output = fn(scopeProxy(scenario.scope || {}, {}));
+            const output = fn([scenario.scope || {}]);
             expect(output).to.deep.equal(
                 scenario.output,
                 'Output does not match expected value'

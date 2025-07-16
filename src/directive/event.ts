@@ -6,7 +6,7 @@ import {
 } from '../util.js';
 import { doc, win } from '../elements.js';
 import { GeneralDirective } from './types.js';
-import { getScope, scopeProxy } from '../scope.js';
+import { getScope } from '../scope.js';
 import { parse } from '../jsep.js';
 
 // The guards come from Vue.js, an excellent framework.
@@ -55,7 +55,7 @@ export const eventDirective: GeneralDirective = (
     const parsed = parse(attrValue);
     const fn = (event: Event) => {
         scope.$event = event;
-        parsed[0](scopeProxy(controller, scope));
+        parsed[0]([scope, controller]);
     };
     const options: AddEventListenerOptions = {};
     const modifierSet = new Set(modifiers);

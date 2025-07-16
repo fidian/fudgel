@@ -1,5 +1,5 @@
 import { memoize, toString, uniqueListJoin } from './util.js';
-import { parse } from './jsep.js';
+import { parse, ValueProviderRoot } from './jsep.js';
 
 const splitText = (text: string): null | [any[], string[]] => {
     const textChunks = text.split(/{{(.*?)}}/);
@@ -27,12 +27,12 @@ const splitText = (text: string): null | [any[], string[]] => {
     return [result, binds];
 };
 
-const assembleCall = (splitResult: null | [any[], string[]]) =>
+const assembleCall = (splitResult: null | [any[], string[]]): ValueProviderRoot | null =>
     splitResult
         ? [
-              (root: Object) => {
+              (roots: object[]) => {
                   return splitResult[0]
-                      .map(x => toString(x?.call ? x(root) : x))
+                      .map(x => toString(x?.call ? x(roots) : x))
                       .join('');
               },
               splitResult[1],
@@ -41,7 +41,7 @@ const assembleCall = (splitResult: null | [any[], string[]]) =>
 
 // Same as parseText, but allows boolean values to be returned.
 // See parseText
-export const parseTextAllowBoolean = memoize((text: string) => {
+export const parseTextAllowBoolean = memoize((text: string): ValueProviderRoot | null => {
     const splitResult = splitText(text);
     const first = splitResult?.[0];
 
@@ -51,8 +51,8 @@ export const parseTextAllowBoolean = memoize((text: string) => {
         first[2] === ''
     ) {
         return [
-            (root: Object) => {
-                const x = first[1](root);
+            (roots: object[]) => {
+                const x = first[1](roots);
 
                 return typeof x === 'boolean' ? x : toString(x);
             },
@@ -66,6 +66,6 @@ export const parseTextAllowBoolean = memoize((text: string) => {
 // Parses a string containing expressions wrapped in braces
 // Produces an array. [0] is a function that takes a root object and returns
 // the generated string. [1] is the list of bindings as an array of strings.
-export const parseText = memoize((text: string) =>
+export const parseText = memoize((text: string): ValueProviderRoot | null =>
     assembleCall(splitText(text))
 );

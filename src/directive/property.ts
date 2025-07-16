@@ -2,7 +2,7 @@ import { addBindings } from '../bindings.js';
 import { Controller } from '../controller.js';
 import { dashToCamel, setAttribute } from '../util.js';
 import { GeneralDirective } from './types.js';
-import { getScope, scopeProxy } from '../scope.js';
+import { getScope } from '../scope.js';
 import { parse } from '../jsep.js';
 
 export const propertyDirective: GeneralDirective = (
@@ -15,7 +15,7 @@ export const propertyDirective: GeneralDirective = (
     const prop = dashToCamel(attrName.slice(1));
     const scope = getScope(node);
     const update = (thisRef: Controller) => {
-        const value = parsed[0](scopeProxy(thisRef, scope));
+        const value = parsed[0]([scope, thisRef]);
         (node as any)[prop] = value;
     };
     addBindings(controller, node, update, parsed[1], scope);
