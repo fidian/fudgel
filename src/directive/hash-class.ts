@@ -16,7 +16,10 @@ export const hashClassDirective: GeneralDirective = (
     const scope = getScope(node);
     const update = (thisRef: Controller) => {
         for (const [key, value] of Object.entries(parsed[0]([scope, thisRef]))) {
-            toggleClass(node, key, value as boolean);
+            // value can be undefined, but in this context it should be forced
+            // to be a boolean. An undefined value here means to remove the
+            // class.
+            toggleClass(node, key, !!value);
         }
     };
     addBindings(controller, node, update, parsed[1], scope);
