@@ -2,7 +2,7 @@ import { memoize, toString, uniqueListJoin } from './util.js';
 import { parse, ValueProviderRoot } from './jsep.js';
 
 const splitText = (text: string): null | [any[], string[]] => {
-    const textChunks = text.split(/{{(.*?)}}/);
+    const textChunks = text.split(/{{(.*?)}}/s);
 
     if (textChunks.length < 2) {
         return null;

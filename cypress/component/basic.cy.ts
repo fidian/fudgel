@@ -79,3 +79,25 @@ describe('with a list', () => {
         cy.get('#change').should('not.exist');
     });
 });
+
+component(
+    'interpolation-test',
+    {
+        // This is intentionally split on multiple lines
+        template: html`
+            {{
+                message
+            }}
+        `,
+    },
+    class {
+        message = 'correct'
+    }
+);
+
+describe('interpolation', () => {
+    it('displays the right message', () => {
+        cy.mount('<interpolation-test></interpolation-test>');
+        cy.get('interpolation-test').should('contain.text', 'correct');
+    });
+});
