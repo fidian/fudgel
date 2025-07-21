@@ -501,23 +501,23 @@ describe('jsep', () => {
             expect(errorCalled).to.equal(
                 !!scenario.fails,
                 scenario.fails
-                    ? 'Expected an error to be thrown'
-                    : 'Did not expect an error to be thrown'
+                    ? 'An error should be thrown'
+                    : 'No error is expected to be thrown'
             );
             bindings.sort();
             scenario.bindings?.sort();
             expect(bindings).to.deep.equal(
                 scenario.bindings || [],
-                'Bindings do not match'
+                'Bindings must match'
             );
             expect(fn).to.be.a(
                 'function',
-                'A function to generate a value was not returned'
+                'A generator function needs to be returned'
             );
             const output = fn([scenario.scope || {}]);
             expect(output).to.deep.equal(
                 scenario.output,
-                'Output does not match expected value'
+                'Output needs to match the expected value'
             );
         });
     });

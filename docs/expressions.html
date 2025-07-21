@@ -289,14 +289,17 @@
                 </li>
                 <li>
                     Creation of new functions: <code>function test() {}</code>,
-                    <code>() =&gt; {}</code>
+                    <code>() =&gt; {}</code> due to difficulty implementing
+                    under strict Content-Security-Policy
                 </li>
                 <li>
                     Async, await: <code>async</code>, <code>await</code> -
                     requires function creation
                 </li>
                 <li>
-                    Spread operator: <code>...</code> - no easy way to implement
+                    Spread operator: <code>...</code> - no easy way to
+                    implement while also avoiding Content-Security-Policy
+                    issues
                 </li>
                 <li>
                     Assignments: <code>=</code>, <code>+=</code>,

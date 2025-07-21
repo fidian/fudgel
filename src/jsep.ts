@@ -21,25 +21,6 @@ type ValueProvider = [ValueProviderFunction, string[]];
 // This is passed back to the caller of parse()
 export type ValueProviderRoot = [(roots: object[]) => any, string[]];
 
-// Wrap an object in a Proxy to allow for layered scopes. Values returned must
-// be enclosed in an array to match ValueProvider.
-export const valueProvider = (
-    priority: object,
-    fallback?: object
-): RootValueProvider =>
-    new Proxy(
-        {},
-        {
-            get(_ignoreTarget: any, prop: string | symbol) {
-                return prop in priority
-                    ? [(priority as any)[prop], priority]
-                    : fallback
-                      ? (fallback as any)[prop]
-                      : [];
-            },
-        }
-    );
-
 // Global variables used during synchronous parsing.
 let expr = ''; // The expression to parse
 let index = 0; // Current index
@@ -159,9 +140,19 @@ export const parse = (exprToParse: string): ValueProviderRoot => {
     return [
         (roots: object[]) =>
             result[0](
-                [...roots, valueProvider(win)].reduceRight((acc, next) =>
-                    valueProvider(next, acc)
-                ) as RootValueProvider
+                // Wrap all values provided from the root objects (or the
+                // window fallback) in arrays to preserve their context. All
+                // calls to any getter will produce a ProvidedValue.
+                new Proxy({}, {
+                    get(_ignoreTarget: any, prop: string | symbol) {
+                        for (const root of roots) {
+                            if (prop in root) {
+                                return [(root as any)[prop],root];
+                            }
+                        }
+                        return [(win as any)[prop], win];
+                    }
+                })
             )[0],
         result[1],
     ];

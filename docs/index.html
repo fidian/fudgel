@@ -123,9 +123,7 @@
                     Automatic updates when properties change, and only updating
                     affected DOM nodes
                 </li>
-                <li>
-                    Property update detection and two-way attribute bindings
-                </li>
+                <li>Two-way property and attribute bindings</li>
                 <li>Ability to add code during different lifecycle events</li>
                 <li>
                     Event handlers, tying events to your controller's methods
@@ -136,6 +134,9 @@
                 </li>
                 <li>Iterate over objects, arrays, maps, and other iterables</li>
                 <li>Conditionally remove elements</li>
+                <li>
+                    Dynamically apply or remove classes when properties change
+                </li>
                 <li>Child element references</li>
                 <li>
                     No build system or compilation needed; you can just use
@@ -143,7 +144,8 @@
                 </li>
                 <li>
                     Works with even the most restrictive Content-Security-Policy
-                    directives (JavaScript only, not inline styles).
+                    directives (JavaScript will work, however inline styles
+                    could break with a really strict policy).
                 </li>
                 <li>
                     Includes support for slots in Shadow DOM, and our custom
@@ -152,8 +154,12 @@
                 <li>Full TypeScript support</li>
                 <li>Published as both UMD and a module</li>
                 <li>
+                    Dependency injection for services, with the ability to
+                    override the container for tests.
+                </li>
+                <li>
                     Darn small, coming in at about 5k compressed for the Web
-                    Component; about 6.5k if you include everything else
+                    Component; about 7k if you include everything else
                 </li>
                 <li>
                     Fully tree-shakeable, reducing your bundle size when you
@@ -289,6 +295,13 @@
                     that's similar to Slim.js, but it's not as feature-rich.
                     It's the inspiration for the CSS scoping that Fudgel
                     currently uses.
+                </li>
+                <li>
+                    <a href="https://github.com/EricSmekens/jsep">jsep</a> is
+                    the source for the extremely small JavaScript expression
+                    parser. There's been many changes, but this is what allows
+                    the templates to run while a strict Context-Security-Policy
+                    prevents "new Function()" and "eval()".
                 </li>
             </ul>
             <h2>Best Practices</h2>

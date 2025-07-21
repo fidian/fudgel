@@ -4,7 +4,6 @@ import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
 import { parseTextAllowBoolean } from '../parse.js';
 import { setAttribute } from '../util.js';
-import { win } from '../elements.js';
 
 export const attributeDirective: GeneralDirective = (
     controller: Controller,

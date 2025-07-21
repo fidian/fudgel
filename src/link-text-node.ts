@@ -1,7 +1,6 @@
 import { addBindings } from './bindings.js';
 import { getScope } from './scope.js';
 import { parseText } from './parse.js';
-import { win } from './elements.js';
 
 export function linkTextNode(controller: Object, currentNode: Text): void | number {
     // Node.TEXT_NODE === 3
