@@ -71,8 +71,10 @@ export class CustomElement extends HTMLElement {
             linkNodes(template.content, controller);
 
             // Remove all existing content when not using a shadow DOM to simulate
-            // the same behavior shown when using a shadow DOM.
-            root.innerHTML = '';
+            // the same behavior shown when using a shadow DOM. This also wipes
+            // prior content if the element is removed and added back to the
+            // DOM.
+            (this.shadowRoot ?? this).innerHTML = '';
 
             // With a shadow DOM, append styling within the element.
             // Add styling to either the parent document or the parent shadow root.
@@ -100,7 +102,6 @@ export class CustomElement extends HTMLElement {
         // Need to eliminate the hard reference to the element.
         // Everything else should be able to be garbage collected.
         metadataControllerElement.delete(controller);
-        (this.shadowRoot ?? this).innerHTML = '';
     }
 
     private _bindings(
