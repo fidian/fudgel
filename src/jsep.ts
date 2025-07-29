@@ -143,16 +143,19 @@ export const parse = (exprToParse: string): ValueProviderRoot => {
                 // Wrap all values provided from the root objects (or the
                 // window fallback) in arrays to preserve their context. All
                 // calls to any getter will produce a ProvidedValue.
-                new Proxy({}, {
-                    get(_ignoreTarget: any, prop: string | symbol) {
-                        for (const root of roots) {
-                            if (prop in root) {
-                                return [(root as any)[prop],root];
+                new Proxy(
+                    {},
+                    {
+                        get(_ignoreTarget: any, prop: string | symbol) {
+                            for (const root of roots) {
+                                if (prop in root) {
+                                    return [(root as any)[prop], root];
+                                }
                             }
-                        }
-                        return [(win as any)[prop], win];
+                            return [(win as any)[prop], win];
+                        },
                     }
-                })
+                )
             )[0],
         result[1],
     ];
@@ -399,7 +402,11 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             ? [
                   root => {
                       const value = prevNode[0](root);
-                      return value[0] === undefined
+
+                      // This returns true for undefined and null, false
+                      // otherwise for everything else (including false, 0,
+                      // and empty string).
+                      return value[0] == null
                           ? ([] as any)
                           : action(value, root);
                   },

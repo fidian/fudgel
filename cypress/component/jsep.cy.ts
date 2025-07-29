@@ -334,6 +334,12 @@ describe('jsep', () => {
             scope: {},
         },
         {
+            bindings: [],
+            input: 'null?.propName',
+            output: undefined,
+            scope: {},
+        },
+        {
             // Missing dot for optional chaining
             fails: true,
             input: 'a?bb',
