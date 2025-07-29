@@ -110,3 +110,70 @@ describe('removal and addition', () => {
         verifyText();
     });
 });
+
+component('click-increment', {
+    template: `<div @click="increment()" id="click-count">{{count}}</div>`
+}, class {
+    count = 0;
+
+    increment() {
+        this.count += 1;
+    }
+});
+
+component('show-attr', {
+    attr: ['value'],
+    template: `<div>attr:{{value}}</div>`
+});
+
+component('show-prop', {
+    prop: ['value'],
+    template: `<div>prop:{{value}}</div>`
+});
+
+component('add-remove-attributes', {
+    template: `
+    <button @click="hideShow()">Hide and Show Counter</button>
+    <div #ref="parent">
+        <div #ref="child">
+            <click-increment></click-increment>
+            <show-attr value="ok"></show-attr>
+            <show-prop .value="'ok'"></show-prop>
+        </div>
+    </div>
+    <div *if="childElement">HIDDEN</div>
+    `
+}, class {
+    child?: HTMLElement;
+    childElement?: HTMLElement;
+    parent!: HTMLElement;
+
+    hideShow() {
+        if (this.childElement) {
+            this.parent.appendChild(this.childElement);
+            this.childElement = null;
+        } else {
+            this.childElement = this.child;
+            this.child.remove();
+        }
+    }
+});
+
+describe('adding and removing attributes', () => {
+    it('preserves attribute bindings', () => {
+        cy.mount('<add-remove-attributes></add-remove-attributes>');
+        cy.get('click-increment').should('have.text', '0');
+        cy.get('click-increment').click();
+        cy.get('click-increment').should('have.text', '1');
+        cy.get('show-attr').should('have.text', 'attr:ok');
+        cy.get('show-prop').should('have.text', 'prop:ok');
+        cy.get('button').click();
+        cy.get('click-increment').should('not.exist');
+        cy.get('button').click();
+        cy.get('click-increment').should('have.text', '0');
+        cy.get('click-increment').click();
+        cy.get('click-increment').should('have.text', '1');
+        cy.get('show-attr').should('have.text', 'attr:ok');
+        cy.get('show-prop').should('have.text', 'prop:ok');
+    });
+});

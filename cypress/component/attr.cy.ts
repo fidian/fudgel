@@ -1,39 +1,63 @@
-import { component } from '../../src/fudgel.js';
+import { component, html } from '../../src/fudgel.js';
 
-component('custom-element', {
-    template: '<span id="test" class="a {{internalValue}} c"><button @click="buttonClicked($event)">Change</button>'
-}, class {
-    internalValue = 'b';
+component(
+    'custom-element',
+    {
+        template: html`
+            <span id="test" class="a {{internalValue}} c"
+                ><button @click="buttonClicked($event)">Change</button></span
+            >
+        `,
+    },
+    class {
+        internalValue = 'b';
 
-    buttonClicked(event: Event) {
-        this.internalValue = `BBB`;
+        buttonClicked(event: Event) {
+            this.internalValue = `BBB`;
+        }
     }
-});
+);
 
-component('test-true', {
-    template: '<input id="test" type="text" disabled="{{disabled}}">'
-}, class {
-    disabled = true;
-});
-
-component('test-false', {
-    template: '<input id="test" type="text" disabled="{{disabled}}">'
-}, class {
-    disabled = false;
-});
-
-component('the-child', {
-    attr: ['test', 'childValue'],
-    template: '<div id="test">{{test}}</div><div id="childValue">{{childValue}}</div><button @click="buttonClicked()">Update</button>'
-}, class {
-    test = 'value before init';
-    childValue = 'value before attr';
-
-    buttonClicked() {
-        this.test = 'test-update';
-        this.childValue = 'child-value-update';
+component(
+    'test-true',
+    {
+        template: '<input id="test" type="text" disabled="{{disabled}}">',
+    },
+    class {
+        disabled = true;
     }
-});
+);
+
+component(
+    'test-false',
+    {
+        template: '<input id="test" type="text" disabled="{{disabled}}">',
+    },
+    class {
+        disabled = false;
+    }
+);
+
+component(
+    'the-child',
+    {
+        attr: ['test', 'childValue'],
+        template: html`
+            <div id="test">{{test}}</div>
+            <div id="childValue">{{childValue}}</div>
+            <button @click="buttonClicked()">Update</button>
+        `,
+    },
+    class {
+        test = 'value before init';
+        childValue = 'value before attr';
+
+        buttonClicked() {
+            this.test = 'test-update';
+            this.childValue = 'child-value-update';
+        }
+    }
+);
 
 describe('attr', () => {
     it('replaces text in mustache-like syntax for attributes', () => {
@@ -51,7 +75,11 @@ describe('attr', () => {
         cy.get('#test').should('have.text', 'test-update');
         cy.get('#childValue').should('have.text', 'child-value-update');
         cy.get('the-child').should('have.attr', 'test', 'test-update');
-        cy.get('the-child').should('have.attr', 'child-value', 'child-value-update');
+        cy.get('the-child').should(
+            'have.attr',
+            'child-value',
+            'child-value-update'
+        );
     });
 
     it('sets true as empty string for attributes', () => {

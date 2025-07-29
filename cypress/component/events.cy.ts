@@ -116,9 +116,9 @@ component(
     class TestChildOnchange extends LogEvents {}
 );
 
-describe('event order', () => {
+describe('with light dom', () => {
     it('is in the correct order', () => {
-        console.log('Starting test run');
+        cy.log('Starting test run');
         events.splice(0, events.length);
         cy.mount('<test-parent></test-parent>');
         cy.get('test-child')
@@ -141,7 +141,7 @@ describe('event order', () => {
     });
 
     it('triggers only one onChange when attr and prop changes', () => {
-        console.log('Starting test run');
+        cy.log('Starting test run');
         events.splice(0, events.length);
         cy.mount('<test-parent-onchange></test-parent-onchange>');
         cy.get('#childA').should('have.text', '0');

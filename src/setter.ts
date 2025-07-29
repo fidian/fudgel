@@ -10,7 +10,7 @@ export const patchSetter = <T extends Object>(
     property: string,
     callback: SetterCallback<T>
 ) => {
-    const trackingObject = metadataPatchedSetter(obj, {});
+    const trackingObject = metadataPatchedSetter(obj) || metadataPatchedSetter(obj, {});
     let callbacks = trackingObject[property] as SetterCallback<T>[];
 
     if (!callbacks) {

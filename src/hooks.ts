@@ -72,7 +72,7 @@ export const hookOn = (
     name: string,
     cb: HookCallback
 ) => {
-    const hooks = hooksForTarget(target, {});
+    const hooks = hooksForTarget(target) || hooksForTarget(target, {});
 
     if (!hooks[name]) {
         hooks[name] = [cb];

@@ -14,7 +14,7 @@ export interface MetadataMap<K extends WeakKey, V> {
 export const makeMap = <K extends WeakKey, V>() => {
     const map = new WeakMap<K, V>();
     const fn = (key: K, value?: V) =>
-        map.get(key) || (value && map.set(key, value).get(key)!);
+        (value ? map.set(key, value) : map).get(key);
 
     return fn as MetadataMap<K, V>;
 };

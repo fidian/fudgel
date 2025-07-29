@@ -184,17 +184,19 @@ export const defineSlotComponent = (name = 'slot-like') => {
 }
 
 function patch(proto: Controller) {
-    const onChildren = proto.onChildren;
+    const onParse = proto.onParse;
     let root: ShadowRoot | HTMLElement;
+    let content = '';
 
     // When children are done being added, move them to slotInfo so
     // <slot-like> can find the content.
     proto.onParse = function (this: Controller) {
         root = rootElement(this)!;
+        content = root.innerHTML;
 
         // Set up the basic info. The outer element's scope is used in
         // order to support Fudgel bindings.
-        metadataElementSlotContent(root, {
+        const slotInfo = metadataElementSlotContent(root, {
             e: new Emitter(),
             n: {
                 '': createFragment(),
@@ -205,8 +207,6 @@ function patch(proto: Controller) {
                 ) as Node
             ),
         });
-
-        const slotInfo = metadataElementSlotContent(root)!;
 
         // Grab all content for named slots
         for (const child of [...root.querySelectorAll('[slot]')]) {
@@ -220,6 +220,14 @@ function patch(proto: Controller) {
             slotInfo.n[''].append(child);
         }
 
-        onChildren?.call(this);
+        onParse?.call(this);
+    };
+
+    const onDestroy = proto.onDestroy;
+
+    proto.onDestroy = function (this: Controller)  {
+        root = rootElement(this)!;
+        root.innerHTML = content;
+        onDestroy?.call(this);
     };
 };

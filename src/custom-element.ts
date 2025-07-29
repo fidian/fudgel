@@ -20,6 +20,7 @@ import {
     metadataControllerConfig,
     metadataControllerElement,
     metadataElementController,
+    metadataPatchedSetter,
 } from './metadata.js';
 import { patchSetter } from './setter.js';
 import { whenParsed } from './when-parsed.js';
@@ -31,13 +32,13 @@ export class CustomElement extends HTMLElement {
 
     attributeChangedCallback(
         attributeName: string,
-        _oldValue: string,
+        oldValue: string,
         newValue: string
     ) {
         const propertyName = dashToCamel(attributeName);
         const controller = metadataElementController(this);
 
-        if (controller) {
+        if (controller && oldValue !== newValue) {
             this._changeControllerProperty(controller, propertyName, newValue);
         }
     }
@@ -93,14 +94,23 @@ export class CustomElement extends HTMLElement {
     }
 
     disconnectedCallback() {
+        // Everything not listed here should be able to be garbage collected.
         const controller = metadataElementController(this)!;
         controller?.onDestroy?.();
         hooksOff(this);
 
-        // Need to eliminate the hard reference to the element.
-        // Everything else should be able to be garbage collected.
+        // Eliminate the hard reference to the element.
         metadataControllerElement.delete(controller);
-        (this.shadowRoot ?? this).innerHTML = '';
+
+        // Remove callbacks added to the element.
+        // The controller is garbage collected, so those callbacks can remain.
+        const trackingObject = metadataPatchedSetter(this);
+
+        if (trackingObject) {
+            for (const key of Object.keys(trackingObject)) {
+                trackingObject[key] = [];
+            }
+        }
     }
 
     private _bindings(
