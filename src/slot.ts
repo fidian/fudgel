@@ -44,7 +44,7 @@ import { Controller } from './controller';
 import { CustomElement } from './custom-element';
 import { CustomElementConfig } from './custom-element-config';
 import { Emitter } from './emitter';
-import { getAttribute, iterate, setAttribute } from './util.js';
+import { getAttribute, setAttribute } from './util.js';
 import { getScope, Scope } from './scope';
 import { hookOnGlobal } from './hooks';
 import {
@@ -162,9 +162,11 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     if (currentNode.nodeName === 'SLOT') {
                         usesSlotLike = true;
                         const slotLike = createElement(name);
-                        iterate(currentNode.attributes, attr =>
+
+                        for (const attr of currentNode.attributes) {
                             setAttribute(slotLike, attr.name, attr.value)
-                        );
+                        }
+
                         treeWalker.previousNode() as HTMLElement;
                         slotLike.append(...currentNode.childNodes);
                         currentNode.replaceWith(slotLike);
@@ -205,14 +207,16 @@ function patch(proto: Controller) {
         });
 
         // Grab all content for named slots
-        iterate(root.querySelectorAll('[slot]'), child =>
+        for (const child of [...root.querySelectorAll('[slot]')]) {
             getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
                 child
             )
-        );
+        }
 
         // Now collect everything else and add it to the default slot
-        iterate(root.childNodes, child => slotInfo.n[''].append(child));
+        for (const child of [...root.childNodes]) {
+            slotInfo.n[''].append(child);
+        }
 
         onParse?.call(this);
     };

@@ -3,7 +3,7 @@ import { childScope, getScope } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller.js';
 import { hooksOff } from '../hooks.js';
-import { iterate } from '../util.js';
+import { entries } from '../util.js';
 import { linkNodesWrapped } from '../link-nodes.js';
 import { parse } from '../jsep.js';
 import { StructuralDirective } from './types.js';
@@ -36,7 +36,7 @@ export const starForDirective: StructuralDirective = (
         let lastNode: HTMLElement | Comment = anchor;
 
         // Attempt to reuse nodes based on the key of the iterable
-        iterate(iterable, (value, key) => {
+        for (const [key, value] of entries(iterable)) {
             // Attempt to find the old node
             let copy = oldNodes.get(key);
             oldNodes.delete(key);
@@ -64,13 +64,13 @@ export const starForDirective: StructuralDirective = (
 
             lastNode = copy;
             activeNodes.set(key, lastNode);
-        });
+        }
 
         // Clean up any remaining nodes.
-        iterate(oldNodes, (old) => {
+        for (const old of oldNodes.values()) {
             hooksOff(old);
             old.remove();
-        });
+        }
     };
     addBindings(controller, anchor, update, parsed[1], anchorScope);
     update(controller);

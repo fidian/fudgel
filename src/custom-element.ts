@@ -2,7 +2,6 @@ import {
     camelToDash,
     dashToCamel,
     getAttribute,
-    iterate,
     setAttribute,
 } from './util.js';
 import {
@@ -113,7 +112,7 @@ export class CustomElement extends HTMLElement {
         config: CustomElementConfig,
         controllerInternal: Controller
     ) {
-        iterate(config.attr, (propertyName) => {
+        for (const propertyName of config.attr ?? []) {
             const attributeName = camelToDash(propertyName);
 
             // Set initial value - updates are tracked with
@@ -147,9 +146,9 @@ export class CustomElement extends HTMLElement {
                     }
                 );
             }
-        });
+        }
 
-        iterate(config.prop, (propertyName) => {
+        for (const propertyName of config.prop ?? []) {
             const updateController = (
                 thisRef: CustomElement,
                 newValue: any
@@ -181,7 +180,7 @@ export class CustomElement extends HTMLElement {
             };
             patchSetter(controllerInternal, propertyName, updateElement);
             updateElement(controllerInternal, controllerInternal[propertyName]);
-        });
+        }
     }
 
     private _changeControllerProperty(

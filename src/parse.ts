@@ -1,4 +1,4 @@
-import { iterate, memoize, toString, uniqueListJoin } from './util.js';
+import { memoize, toString, uniqueListJoin } from './util.js';
 import { parse, ValueProviderRoot } from './jsep.js';
 
 const splitText = (text: string): null | [any[], string[]] => {
@@ -12,7 +12,7 @@ const splitText = (text: string): null | [any[], string[]] => {
     let isJs = false;
     let binds: string[] = [];
 
-    iterate(textChunks, (textChunk) => {
+    for (const textChunk of textChunks) {
         if (isJs) {
             const parsed = parse(textChunk);
             result.push(parsed[0]);
@@ -22,7 +22,7 @@ const splitText = (text: string): null | [any[], string[]] => {
         }
 
         isJs = !isJs;
-    });
+    }
 
     return [result, binds];
 };

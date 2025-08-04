@@ -1,29 +1,29 @@
-import { iterate } from './util.js';
-
 export type EmitterCallback = (...args: any[]) => void;
 export type EmitterUnsubscribe = () => void;
 
 export class Emitter<T = string> {
     private _m = new Map<T, EmitterCallback[]>();
 
+    // Emits a value to all event listeners. If one listener removes a later
+    // listener from the list, the later listener will still be called.
     emit(name: T, ...data: any[]) {
-        iterate(this._c(name), (cb) => cb(...data));
-    }
-
-    off(name: T, callback: EmitterCallback) {
-        const list = this._c(name);
-
-        for (let i = list.length - 1; i >= 0; i -= 1) {
-            if (list[i] === callback) {
-                list.splice(i, 1);
-            }
+        for (const cb of [...(this._m.get(name) ?? [])]) {
+            cb(...data);
         }
     }
 
-    on = (name: T, callback: EmitterCallback): (() => void) =>
-        (this._c(name).push(callback) as unknown as true) &&
-        (() => this.off(name, callback));
+    off(name: T, callback: EmitterCallback) {
+        const list = this._m.get(name)?.filter(item => item !== callback);
 
-    private _c = (name: T) =>
-        this._m.get(name) || this._m.set(name, []).get(name)!;
+        if (list) {
+            this._m.set(name, list);
+        } else {
+            this._m.delete(name);
+        }
+    }
+
+    on(name: T, callback: EmitterCallback) {
+        (this._m.get(name) ?? this._m.set(name, []).get(name)!).push(callback);
+        return () => this.off(name, callback);
+    }
 }

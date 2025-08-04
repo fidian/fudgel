@@ -1,7 +1,7 @@
 /**
  * Set up config and define a custom element.
  */
-import { camelToDash, iterate } from './util.js';
+import { camelToDash } from './util.js';
 import { Constructor } from './constructor.js';
 import { Controller } from './controller.js';
 import {
@@ -104,7 +104,9 @@ export const scopeStyle = (
             tagForScope = ''; // Don't need to scope children selectors
         }
 
-        iterate((rule as CSSGroupingRule).cssRules, (childRule) => scopeStyleRule(childRule, tagForScope));
+        for (const childRule of (rule as CSSGroupingRule).cssRules ?? []) {
+            scopeStyleRule(childRule, tagForScope);
+        }
 
         return rule.cssText;
     };

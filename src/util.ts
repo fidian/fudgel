@@ -71,11 +71,7 @@ export const uniqueListJoin = (a: string[], b: string[]) => [
 export const appendChild = (parent: Node, child: Node) =>
     parent.appendChild(child);
 
+// Return the entries of an Iterable or fall back on Object.entries for
+// normal objects and arrays.
 export const entries = (iterable: any) =>
-    iterable.entries ? iterable.entries() : Object.entries(iterable);
-
-// Iterate over anything. Objects, arrays, query selector results, iterables, etc.
-// Because the array can change during iteration, a copy is made.
-export const iterate = (over: any, cb: (value: any, key: any) => void) => {
-    for (const [k, v] of [...entries(over ?? [])]) cb(v, k);
-};
+    iterable.entries?.() ?? Object.entries(iterable);

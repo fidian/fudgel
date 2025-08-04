@@ -7,7 +7,7 @@ import {
     win,
 } from './elements.js';
 import { dispatchCustomEvent } from './actions.js';
-import { isString, iterate } from './util.js';
+import { isString } from './util.js';
 
 interface MatchedRoute {
     e: HTMLElement;
@@ -82,9 +82,9 @@ export class RouterComponent extends HTMLElement {
         const e = this._lastMatched[1];
 
         // Careful - iterating over an array of entries
-        iterate(matchedRoute.g, ([key, value]) =>
+        for (const [key, value] of matchedRoute.g) {
             setAttribute(e, camelToDash(key), value)
-        );
+        }
 
         if (append) {
             this.append(e);

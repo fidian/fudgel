@@ -7,7 +7,6 @@
  * run.
  */
 import { Controller } from './controller.js';
-import { iterate } from './util.js';
 import { makeMap } from './metadata.js';
 import { patchSetter } from './setter.js';
 import { Scope } from './scope.js';
@@ -46,15 +45,15 @@ const hooksRunInternal = (
     name: string,
     ...args: any[]
 ) => {
-    iterate(
-        hooks[name],
-        hook =>
+    for (const hook of hooks[name] ?? []) {
             // A hook that is slated to be executed (a future callback that will be
             // ran soon) could be removed during execution of hooks. In this
             // situation, we want to make sure the removed hooks are not called
             // even if they were in the original list.
-            hooks[name].includes(hook) && hook(...args)
-    );
+        if (hooks[name].includes(hook)) {
+            hook(...args);
+        }
+    }
 };
 
 /**
@@ -68,9 +67,13 @@ export const hooksOff = (node: Node) => {
     let target;
 
     while ((target = queue.shift())) {
-        iterate(hooksRemoversForNode(target), remover => remover());
+        for (const remover of hooksRemoversForNode(target) ?? []) {
+            remover();
+        }
 
-        iterate(target.childNodes, node => queue.push(node));
+        for (const node of target.childNodes) {
+            queue.push(node);
+        }
     }
 };
 

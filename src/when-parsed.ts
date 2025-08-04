@@ -1,5 +1,4 @@
 import { CustomElement } from './custom-element';
-import { iterate } from './util.js';
 import { metadataMutationObserver } from './metadata';
 
 export interface MutationObserverInfo {
@@ -97,7 +96,11 @@ const observe = (
     info.s.add(onMutation);
 
     if (!info.o) {
-        info.o = new MutationObserver(() => iterate(info.s, (cb) => cb()));
+        info.o = new MutationObserver(() => {
+            for (const cb of [...info.s]) {
+                cb();
+            }
+        });
         info.o.observe(mutationRoot, {
             childList: true,
             subtree: true,
