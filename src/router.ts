@@ -1,7 +1,13 @@
 import { camelToDash, getAttribute, setAttribute } from './util.js';
-import { cloneNode, createElement, createFragment, doc, win } from './elements.js';
+import {
+    cloneNode,
+    createElement,
+    createFragment,
+    doc,
+    win,
+} from './elements.js';
 import { dispatchCustomEvent } from './actions.js';
-import { isString } from './util.js';
+import { isString, iterate } from './util.js';
 
 interface MatchedRoute {
     e: HTMLElement;
@@ -21,7 +27,9 @@ export class RouterComponent extends HTMLElement {
 
         if (firstChild.nodeName === 'TEMPLATE') {
             // Use the children within the template
-            this._routeElements = Array.from((firstChild as HTMLTemplateElement).content.children) as HTMLElement[];
+            this._routeElements = Array.from(
+                (firstChild as HTMLTemplateElement).content.children
+            ) as HTMLElement[];
         } else {
             // Use direct children and move elements to a document fragment
             while (children.length > 0) {
@@ -64,17 +72,19 @@ export class RouterComponent extends HTMLElement {
 
             this._lastMatched = [
                 matchedRoute.e,
-            component
-                ? createElement(component)
-                : cloneNode(matchedRoute.e)];
+                component
+                    ? createElement(component)
+                    : cloneNode(matchedRoute.e),
+            ];
             append = true;
         }
 
         const e = this._lastMatched[1];
 
-        for (const [key, value] of matchedRoute.g) {
-            setAttribute(e, camelToDash(key), value);
-        }
+        // Careful - iterating over an array of entries
+        iterate(matchedRoute.g, ([key, value]) =>
+            setAttribute(e, camelToDash(key), value)
+        );
 
         if (append) {
             this.append(e);
@@ -90,7 +100,11 @@ export class RouterComponent extends HTMLElement {
                 | undefined;
 
             if (link) {
-                if (link.href && link.origin === win.location.origin && !link.href.startsWith('blob:')) {
+                if (
+                    link.href &&
+                    link.origin === win.location.origin &&
+                    !link.href.startsWith('blob:')
+                ) {
                     e.preventDefault();
                     this.go(`${link.pathname}${link.search}${link.hash}`);
                 }
@@ -118,10 +132,13 @@ export class RouterComponent extends HTMLElement {
 
             if (!isString(regexpAttr)) {
                 regexpStr = path
-                    .replace(/\*+/g, (match) =>
+                    .replace(/\*+/g, match =>
                         match.length > 1 ? '.*' : '[^/]*'
                     )
-                    .replace(/:[^:\/]+/g, (match) => `(?<${match.slice(1)}>[^/]+)`);
+                    .replace(
+                        /:[^:\/]+/g,
+                        match => `(?<${match.slice(1)}>[^/]+)`
+                    );
             }
 
             const regexp = new RegExp(`^${regexpStr}(/.*)?$`);

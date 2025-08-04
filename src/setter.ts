@@ -1,3 +1,4 @@
+import { iterate } from './util.js';
 import { metadataPatchedSetter } from './metadata.js';
 
 export type SetterCallback<T extends Object> = (thisRef: T, newValue: any, oldValue: any) => void;
@@ -11,9 +12,7 @@ export const removeSetters = <T extends Object>(
     const trackingObject = metadataPatchedSetter(obj);
 
     if (trackingObject) {
-        for (const key of Object.keys(trackingObject)) {
-            trackingObject[key].length = 0;
-        }
+        iterate(trackingObject, (_v, k) => trackingObject[k].length = 0);
     }
 }
 
@@ -38,10 +37,7 @@ export const patchSetter = <T extends Object>(
                 if (!Object.is(newValue, oldValue)) {
                     desc.set?.(newValue);
                     value = newValue;
-
-                    for (const cb of callbacks) {
-                        cb(this, newValue, oldValue);
-                    }
+                    iterate(callbacks, (cb) => cb(this, newValue, oldValue));
                 }
             },
         });

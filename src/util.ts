@@ -1,8 +1,6 @@
 import { Controller } from './controller.js';
 import { metadataControllerElement } from './metadata.js';
 
-export const entries = (iterable: any) =>
-    iterable.entries ? iterable.entries() : Object.entries(iterable);
 export const stringify = (x: any) => JSON.stringify(x);
 
 export const memoize = <FN extends (arg: any) => any>(fn: FN) => {
@@ -72,3 +70,12 @@ export const uniqueListJoin = (a: string[], b: string[]) => [
 
 export const appendChild = (parent: Node, child: Node) =>
     parent.appendChild(child);
+
+export const entries = (iterable: any) =>
+    iterable.entries ? iterable.entries() : Object.entries(iterable);
+
+// Iterate over anything. Objects, arrays, query selector results, iterables, etc.
+// Because the array can change during iteration, a copy is made.
+export const iterate = (over: any, cb: (value: any, key: any) => void) => {
+    for (const [k, v] of [...entries(over ?? [])]) cb(v, k);
+};

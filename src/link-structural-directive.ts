@@ -1,6 +1,6 @@
 import { createComment } from './elements.js';
 import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index.js';
-import { entries, setAttribute, stringify } from './util.js';
+import { iterate, setAttribute, stringify } from './util.js';
 import { StructuralDirective } from './directive/types.js';
 
 export const linkStructuralDirective = (
@@ -14,9 +14,7 @@ export const linkStructuralDirective = (
     if (currentNode.nodeType === 1 && attrs) {
         let directive: [string, StructuralDirective, string] | undefined;
 
-        for (const [k, v] of entries(
-            directives[STRUCTURAL_DIRECTIVE_INDEX]
-        )) {
+        iterate(directives[STRUCTURAL_DIRECTIVE_INDEX], (v, k) => {
             const attr = attrs.getNamedItem(k);
 
             if (attr) {
@@ -27,7 +25,7 @@ export const linkStructuralDirective = (
 
                 directive = [k, v, attr.nodeValue || ''];
             }
-        }
+        });
 
         if (directive) {
             // Create a comment anchor and insert before current node.

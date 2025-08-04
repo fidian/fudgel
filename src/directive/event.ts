@@ -1,12 +1,9 @@
 import { Controller } from '../controller.js';
-import {
-    dashToCamel,
-    pascalToDash,
-    setAttribute,
-} from '../util.js';
+import { dashToCamel, pascalToDash, setAttribute } from '../util.js';
 import { doc, win } from '../elements.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
+import { iterate } from '../util.js';
 import { parse } from '../jsep.js';
 
 // The guards come from Vue.js, an excellent framework.
@@ -61,15 +58,11 @@ export const eventDirective: GeneralDirective = (
     const modifierSet = new Set(modifiers);
     let eventTarget: Node | Window | Document = node;
 
-    for (const item of [
-        'passive',
-        'capture',
-        'once',
-    ] as (keyof AddEventListenerOptions)[]) {
-        if (modifierSet.has(item)) {
-            (options[item] as any) = true;
-        }
-    }
+    iterate(
+        ['passive', 'capture', 'once'],
+        (item: keyof AddEventListenerOptions) =>
+            modifierSet.has(item) && ((options[item] as any) = true)
+    );
 
     if (modifierSet.has('window')) {
         eventTarget = win;

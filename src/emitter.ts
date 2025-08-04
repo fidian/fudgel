@@ -1,3 +1,5 @@
+import { iterate } from './util.js';
+
 export type EmitterCallback = (...args: any[]) => void;
 export type EmitterUnsubscribe = () => void;
 
@@ -5,9 +7,7 @@ export class Emitter<T = string> {
     private _m = new Map<T, EmitterCallback[]>();
 
     emit(name: T, ...data: any[]) {
-        for (const cb of [...this._c(name)]) {
-            cb(...data);
-        }
+        iterate(this._c(name), (cb) => cb(...data));
     }
 
     off(name: T, callback: EmitterCallback) {

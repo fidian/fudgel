@@ -3,11 +3,12 @@
  * maintaining separate lists in each area. The hooks are associated with a
  * Node and a controller. The Nodes are used to remove unnecessary callbacks
  * when each Node is removed. The controller is used to track which collection
- * of hooks to run (regardless of Node).
+ * of hooks to run (regardless of Node) and is used to signal when hooks should
+ * run.
  */
 import { Controller } from './controller.js';
+import { iterate } from './util.js';
 import { makeMap } from './metadata.js';
-import { metadataElementController } from './metadata';
 import { patchSetter } from './setter.js';
 import { Scope } from './scope.js';
 
@@ -16,8 +17,12 @@ export type HookCallback = (...args: any[]) => void;
 // Hooks that are applied to every object
 const globalHooks: Record<string, HookCallback[]> = {};
 
-const hooksForTarget = makeMap<Object, { [key: string]: HookCallback[] }>();
-const hooksRemove = makeMap<Object, (() => void)[]>();
+// This is only exported for tests
+export const hooksForWatchedObj = makeMap<
+    Object,
+    { [key: string]: HookCallback[] }
+>();
+const hooksRemoversForNode = makeMap<Object, (() => void)[]>();
 const metadataHookOnSet = makeMap<Controller | Scope, Record<string, number>>();
 
 // Known hooks and their arguments
@@ -33,7 +38,7 @@ const metadataHookOnSet = makeMap<Controller | Scope, Record<string, number>>();
 //   args: controller
 export const hooksRun = (name: string, target: Object, ...args: any[]) => {
     hooksRunInternal(globalHooks, name, ...args);
-    hooksRunInternal(hooksForTarget(target) || {}, name, ...args);
+    hooksRunInternal(hooksForWatchedObj(target) || {}, name, ...args);
 };
 
 const hooksRunInternal = (
@@ -41,15 +46,15 @@ const hooksRunInternal = (
     name: string,
     ...args: any[]
 ) => {
-    for (const hook of hooks[name] || []) {
-        // A hook can be removed during execution of hooks, and the
-        // `hooks[name]` array will be recreated. In this situation, we
-        // want to make sure the removed hooks are not called even if they
-        // were in the original list.
-        if (hooks[name].includes(hook)) {
-            hook(...args);
-        }
-    }
+    iterate(
+        hooks[name],
+        hook =>
+            // A hook that is slated to be executed (a future callback that will be
+            // ran soon) could be removed during execution of hooks. In this
+            // situation, we want to make sure the removed hooks are not called
+            // even if they were in the original list.
+            hooks[name].includes(hook) && hook(...args)
+    );
 };
 
 /**
@@ -63,30 +68,25 @@ export const hooksOff = (node: Node) => {
     let target;
 
     while ((target = queue.shift())) {
-        for (const remover of hooksRemove(
-            metadataElementController(target as HTMLElement) as Object
-        ) || []) {
-            remover();
-        }
+        iterate(hooksRemoversForNode(target), remover => remover());
 
-        for (const node of target.childNodes) {
-            queue.push(node);
-        }
+        iterate(target.childNodes, node => queue.push(node));
     }
 };
 
 /**
  * When a hook fires on the target that matches the name, also call this callback.
  *
- * Hooks are placed on controllers and scopes.
+ * Hooks are placed on controllers and scopes. They will update the affected node somehow.
  */
 export const hookOn = (
-    target: Object,
-    node: Node,
+    watchedObj: Object,
+    affectedNode: Node,
     name: string,
     cb: HookCallback
 ) => {
-    const hooks = hooksForTarget(target) || hooksForTarget(target, {});
+    const hooks =
+        hooksForWatchedObj(watchedObj) || hooksForWatchedObj(watchedObj, {});
 
     if (!hooks[name]) {
         hooks[name] = [cb];
@@ -94,9 +94,11 @@ export const hookOn = (
         hooks[name].push(cb);
     }
 
-    const remove = hooksRemove(node, []);
+    const remove =
+        hooksRemoversForNode(affectedNode) ||
+        hooksRemoversForNode(affectedNode, []);
     remove.push(() => {
-        const hookCollection = hooksForTarget(target);
+        const hookCollection = hooksForWatchedObj(watchedObj);
 
         if (hookCollection?.[name]) {
             hookCollection[name] = hookCollection[name].filter(

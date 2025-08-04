@@ -44,7 +44,7 @@ import { Controller } from './controller';
 import { CustomElement } from './custom-element';
 import { CustomElementConfig } from './custom-element-config';
 import { Emitter } from './emitter';
-import { getAttribute, setAttribute } from './util.js';
+import { getAttribute, iterate, setAttribute } from './util.js';
 import { getScope, Scope } from './scope';
 import { hookOnGlobal } from './hooks';
 import {
@@ -162,11 +162,9 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     if (currentNode.nodeName === 'SLOT') {
                         usesSlotLike = true;
                         const slotLike = createElement(name);
-
-                        for (const attr of currentNode.attributes) {
-                            setAttribute(slotLike, attr.name, attr.value);
-                        }
-
+                        iterate(currentNode.attributes, attr =>
+                            setAttribute(slotLike, attr.name, attr.value)
+                        );
                         treeWalker.previousNode() as HTMLElement;
                         slotLike.append(...currentNode.childNodes);
                         currentNode.replaceWith(slotLike);
@@ -181,7 +179,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
             }
         }
     );
-}
+};
 
 function patch(proto: Controller) {
     const onParse = proto.onParse;
@@ -202,32 +200,28 @@ function patch(proto: Controller) {
                 '': createFragment(),
             },
             s: getScope(
-                getParent(
-                    metadataControllerElement.get(this)!
-                ) as Node
+                getParent(metadataControllerElement.get(this)!) as Node
             ),
         });
 
         // Grab all content for named slots
-        for (const child of [...root.querySelectorAll('[slot]')]) {
+        iterate(root.querySelectorAll('[slot]'), child =>
             getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
                 child
-            );
-        }
+            )
+        );
 
         // Now collect everything else and add it to the default slot
-        for (const child of [...root.childNodes]) {
-            slotInfo.n[''].append(child);
-        }
+        iterate(root.childNodes, child => slotInfo.n[''].append(child));
 
         onParse?.call(this);
     };
 
     const onDestroy = proto.onDestroy;
 
-    proto.onDestroy = function (this: Controller)  {
+    proto.onDestroy = function (this: Controller) {
         root = rootElement(this)!;
         root.innerHTML = content;
         onDestroy?.call(this);
     };
-};
+}

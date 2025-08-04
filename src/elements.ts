@@ -23,7 +23,8 @@ export const createTemplate = () => createElement('template');
 // NodeFilter.SHOW_ELEMENT = 0x01
 // NodeFilter.SHOW_TEXT = 0x04
 // NodeFilter.SHOW_COMMENT = 0x80 - necessary for structural directives
-export const createTreeWalker = (root: Node, filter: number) => doc.createTreeWalker(root, filter);
+export const createTreeWalker = (root: Node, filter: number) =>
+    doc.createTreeWalker(root, filter);
 
 export const sandboxStyleRules = (css: string) => {
     const sandbox = doc.implementation.createHTMLDocument('');
@@ -32,17 +33,21 @@ export const sandboxStyleRules = (css: string) => {
     sandbox.body.append(style);
 
     return style.sheet!.cssRules || [];
-}
+};
 
 export const testCssSelector = (selector: string) => {
+    var result = false;
     try {
         doc.querySelector(selector);
-        return true;
+        result = true;
     } catch (ignore) {
-        return false;
     }
-}
 
-export const toggleClass = (node: HTMLElement, className: string, force: boolean) => {
-    node.classList.toggle(className, force);
-}
+    return result;
+};
+
+export const toggleClass = (
+    node: HTMLElement,
+    className: string,
+    force: boolean
+) => node.classList.toggle(className, force);

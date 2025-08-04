@@ -1,4 +1,5 @@
 import { directives, GENERAL_DIRECTIVE_INDEX } from './directive/index.js';
+import { iterate } from './util.js';
 
 export function linkElementNode(
     controller: Object,
@@ -6,7 +7,7 @@ export function linkElementNode(
 ): void {
     // Node.ELEMENT_NODE === 1
     if (currentNode.nodeType === 1) {
-        for (const attr of [...currentNode.attributes]) {
+        iterate(currentNode.attributes, (attr) => {
             const attrName = attr.nodeName;
             const firstChar = attrName.charAt(0);
 
@@ -19,6 +20,6 @@ export function linkElementNode(
                 directiveList[''];
 
             applyDirective?.(controller, currentNode, attr.nodeValue || '', attrName);
-        }
+        });
     }
 }
