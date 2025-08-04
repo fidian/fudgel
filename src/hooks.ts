@@ -7,6 +7,7 @@
  */
 import { Controller } from './controller.js';
 import { makeMap } from './metadata.js';
+import { metadataElementController } from './metadata';
 import { patchSetter } from './setter.js';
 import { Scope } from './scope.js';
 
@@ -51,12 +52,20 @@ const hooksRunInternal = (
     }
 };
 
+/**
+ * Remove all hooks from a node. First, get the controller because hooks are
+ * only added to controllers and scopes. Removing hooks from the controller
+ * should allow scopes to be garbage collected and their hooks won't need
+ * manual cleanup.
+ */
 export const hooksOff = (node: Node) => {
     const queue = [node];
     let target;
 
     while ((target = queue.shift())) {
-        for (const remover of hooksRemove(target, [])) {
+        for (const remover of hooksRemove(
+            metadataElementController(target as HTMLElement) as Object
+        ) || []) {
             remover();
         }
 
@@ -66,6 +75,11 @@ export const hooksOff = (node: Node) => {
     }
 };
 
+/**
+ * When a hook fires on the target that matches the name, also call this callback.
+ *
+ * Hooks are placed on controllers and scopes.
+ */
 export const hookOn = (
     target: Object,
     node: Node,
@@ -103,6 +117,15 @@ export const hookOnGlobal = (name: string, cb: HookCallback) => {
     };
 };
 
+/**
+ * Set up a hook to be called automatically when a property changes.
+ *     controller - the base controller
+ *     obj - the object containing the property to monitor
+ *     property - the property name
+ *
+ * Patches obj[property] to have a setter that calls hooks when it changes.
+ * Only applies the patch once.
+ */
 export const hookWhenSet = (
     controller: Controller,
     obj: Scope | Controller,

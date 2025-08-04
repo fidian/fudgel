@@ -13,13 +13,8 @@ export function addBindings(
 
     for (const binding of bindingList) {
         const hookName = `set:${binding}`;
-
-        if (binding in scope) {
-            hookWhenSet(controller, scope, binding);
-            hookOn(scope, node, hookName, callback);
-        } else {
-            hookWhenSet(controller, controller, binding);
-            hookOn(controller, node, hookName, callback);
-        }
+        const target = binding in scope ? scope : controller;
+        hookWhenSet(controller, target, binding);
+        hookOn(target, node, hookName, callback);
     }
 }

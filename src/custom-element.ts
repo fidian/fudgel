@@ -20,9 +20,8 @@ import {
     metadataControllerConfig,
     metadataControllerElement,
     metadataElementController,
-    metadataPatchedSetter,
 } from './metadata.js';
-import { patchSetter } from './setter.js';
+import { patchSetter, removeSetters } from './setter.js';
 import { whenParsed } from './when-parsed.js';
 
 export class CustomElement extends HTMLElement {
@@ -102,15 +101,11 @@ export class CustomElement extends HTMLElement {
         // Eliminate the hard reference to the element.
         metadataControllerElement.delete(controller);
 
-        // Remove callbacks added to the element.
-        // The controller is garbage collected, so those callbacks can remain.
-        const trackingObject = metadataPatchedSetter(this);
-
-        if (trackingObject) {
-            for (const key of Object.keys(trackingObject)) {
-                trackingObject[key] = [];
-            }
-        }
+        // Remove callbacks added to the element and controller. Technically
+        // the setter callbacks added to the element will be garbage collected,
+        // but they should not fire after the element is removed from the DOM.
+        removeSetters(this);
+        removeSetters(controller);
     }
 
     private _bindings(

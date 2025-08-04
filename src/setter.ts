@@ -5,6 +5,18 @@ export interface TrackedSetters<T extends Object> {
     [key: string]: SetterCallback<T>[];
 }
 
+export const removeSetters = <T extends Object>(
+    obj: T
+) => {
+    const trackingObject = metadataPatchedSetter(obj);
+
+    if (trackingObject) {
+        for (const key of Object.keys(trackingObject)) {
+            trackingObject[key].length = 0;
+        }
+    }
+}
+
 export const patchSetter = <T extends Object>(
     obj: T,
     property: string,
