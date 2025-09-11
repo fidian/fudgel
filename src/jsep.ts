@@ -1,4 +1,4 @@
-import { uniqueListJoin } from './util.js';
+import { memoize, uniqueListJoin } from './util.js';
 import { win } from './elements.js';
 
 // JavaScript Expression Parser (JSEP)
@@ -112,7 +112,7 @@ const defaultValueProvider = [() => [] as any, []] as ValueProvider;
 // [function, string[]].  The function takes a list of objects that are
 // searched for root values and returns a value. The returned string[] is a
 // list of bound properties that the function uses.
-export const parse = (exprToParse: string): ValueProviderRoot => {
+export const parse = memoize((exprToParse: string): ValueProviderRoot => {
     // Assign to a global variable
     expr = exprToParse;
 
@@ -159,7 +159,7 @@ export const parse = (exprToParse: string): ValueProviderRoot => {
             )[0],
         result[1],
     ];
-};
+});
 
 // Move to the next character in the expression.
 const advance = (n = 1) => {

@@ -52,7 +52,7 @@ component(
             ><button id="updateName" @click="updateName()">updateName</button
             ><button id="updateAll" @click="updateAll()">updateAll</button>`,
     },
-    class {
+    class TestScope {
         list = [];
         name = 'test-scope';
 

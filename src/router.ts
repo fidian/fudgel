@@ -1,4 +1,10 @@
-import { camelToDash, getAttribute, setAttribute } from './util.js';
+import {
+    camelToDash,
+    entries,
+    getAttribute,
+    isString,
+    setAttribute,
+} from './util.js';
 import {
     cloneNode,
     createElement,
@@ -7,7 +13,6 @@ import {
     win,
 } from './elements.js';
 import { dispatchCustomEvent } from './actions.js';
-import { isString } from './util.js';
 
 interface MatchedRoute {
     e: HTMLElement;
@@ -83,7 +88,7 @@ export class RouterComponent extends HTMLElement {
 
         // Careful - iterating over an array of entries
         for (const [key, value] of matchedRoute.g) {
-            setAttribute(e, camelToDash(key), value)
+            setAttribute(e, camelToDash(key), value);
         }
 
         if (append) {
@@ -147,7 +152,7 @@ export class RouterComponent extends HTMLElement {
             if (match) {
                 return {
                     e: routeElement,
-                    g: Object.entries(match.groups || {}),
+                    g: entries(match.groups || {}),
                 };
             }
         }

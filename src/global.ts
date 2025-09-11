@@ -7,7 +7,7 @@ type GLOBAL_KEYS = 'n';
 let global: Map<GLOBAL_KEYS, any> = new Map();
 
 export let bootstrap = () => {
-    ((key) => global = (win as any)[key] || ((win as any)[key] = global))('__fudgel');
+    ((key) => global = (win as any)[key] ?? ((win as any)[key] = global))('__fudgel');
     bootstrap = () => {};
 };
 

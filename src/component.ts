@@ -86,19 +86,13 @@ export const scopeStyle = (
     className: string,
     useShadow?: boolean
 ) => {
-    const scopeStyleRule = (
-        rule: CSSRule,
-        tagForScope: string
-    ) => {
+    const scopeStyleRule = (rule: CSSRule, tagForScope: string) => {
         if ((rule as CSSStyleRule)[SELECTOR_TEXT]) {
             (rule as CSSStyleRule)[SELECTOR_TEXT] = (rule as CSSStyleRule)[
                 SELECTOR_TEXT
             ].split(',')
                 .map((selectorText: string) =>
-                    updateSelectorText(
-                        selectorText,
-                        tagForScope
-                    )
+                    updateSelectorText(selectorText, tagForScope)
                 )
                 .join(',');
             tagForScope = ''; // Don't need to scope children selectors
@@ -111,10 +105,7 @@ export const scopeStyle = (
         return rule.cssText;
     };
 
-    const updateSelectorText = (
-        selector: string,
-        tagForScope: string
-    ) => {
+    const updateSelectorText = (selector: string, tagForScope: string) => {
         selector = selector.trim();
         const addSuffix = (x: string) => `${x}.${className}`;
         const replaceScope = (x: string, withThis: string) =>

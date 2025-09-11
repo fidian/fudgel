@@ -362,9 +362,11 @@
             </p>
             <p>
                 It is possible for this to return <code>null</code> when the DOM
-                element is deleted. Because JavaScript doesn't support
+                element is removed. Because JavaScript doesn't support
                 destroying objects, the controller instance might persist long
-                after the DOM element is gone.
+                after the DOM element is gone, though the map will be updated
+                immediately. This is the only strong reference between the
+                controller and the element.
             </p>
             <p>
                 Look this value up every time you need it. Do not cache the
@@ -479,6 +481,76 @@
                     });
                 </template>
             </code-sample>
+            <h2><code>parse</code> - Change a string into executable code</h2>
+            <p>
+                Internally, Fudgel uses <code>parse</code> to detect bindings to
+                properties and to compute the resulting value. It's also used by
+                <a href="directives.html">directives</a> to send values, such as
+                with event emitters.
+            </p>
+            <p>
+                The result is an array, with <code>[0]</code> being the function
+                to call with an array of objects to search for properties, and
+                <code>[1]</code> is the list of properties that are being bound.
+                Internally, Fudgel uses the list of properties to set up proxies
+                to detect when the value changes.
+            </p>
+            <p>
+                This example adds a new directive that will send an update every
+                second.
+            </p>
+            <code-sample
+                type="js"
+                live="true"
+                html="<parent-element></parent-element>"
+            >
+                <!-- prettier-ignore -->
+                <template>
+                    import { addDirective, component, getScope, parse } from './fudgel.min.js';
+
+                    addDirective('#tick', (controller, node, attrValue) =&gt; {
+                        const parsed = parse(attrValue);
+                        const scope = Object.create(getScope(node));
+                        const updateFn = (tickValue) =&gt; {
+                            scope.$event = tickValue;
+                            parsed[0]([scope, controller]);
+                        };
+                        setInterval(() =&gt; updateFn(Date.now()), 1000);
+                    });
+
+                    component('parent-element', {
+                        template: `
+                            <div #tick="updateTick($event)">
+                                Last tick: {{tickValue}}
+                            </div>
+                        `
+                    }, class {
+                        tickValue = -1;
+
+                        updateTick(tickValue) {
+                            this.tickValue = tickValue;
+                        }
+                    });
+                </template>
+            </code-sample>
+            <h2>
+                <code>getScope(node)</code> - Get a scope object associated to a
+                node or a node's ancestor
+            </h2>
+            <p>
+                Fudgel's <a href="expressions.html">expressions</a> and bindings
+                work within scopes. A controller creates a scope when it is
+                bound to an element. Similarly, directives are able to create
+                child scopes that have changes but don't overwrite a parent
+                scope's values. This is how <code>*for</code> works when it
+                iterates. You may have need to create your own scope, especially
+                if you are creating a new directive.
+            </p>
+            <p>
+                This works in conjunction with <code>parse()</code>. Please see
+                the example there for how to create a child scope and how to
+                assign properties to the child scope.
+            </p>
         </page-wrapper>
     </body>
     <script src="js.js" type="module"></script>

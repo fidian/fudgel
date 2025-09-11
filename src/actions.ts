@@ -40,7 +40,7 @@ export const update = (controller?: Object, propertyName?: string) => {
         updateController(controller, propertyName);
     } else {
         for (const registeredController of metadataControllerElement) {
-            updateController(registeredController);
+            updateController(registeredController[0]);
         }
     }
 };
@@ -49,7 +49,9 @@ export const updateController = (
     controller: Controller,
     propertyName?: string
 ) => {
-    // Mark all attributes and properties as being changed so internals get updated
+    // Mark all attributes and properties as being changed so internals get
+    // updated. Necessary when deeply nested objects are passed as input
+    // properties to directives and are updated in scopes.
     if (controller.onChange) {
         const config = metadataControllerConfig(controller)!;
 
