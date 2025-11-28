@@ -1,5 +1,5 @@
-import { CustomElement } from './custom-element';
-import { metadataMutationObserver } from './metadata';
+import { CustomElement } from './custom-element.js';
+import { metadataMutationObserver } from './metadata.js';
 
 export interface MutationObserverInfo {
     o?: MutationObserver;

@@ -40,13 +40,13 @@ import {
     createTemplate,
     createTreeWalker,
 } from './elements.js';
-import { Controller } from './controller';
-import { CustomElement } from './custom-element';
-import { CustomElementConfig } from './custom-element-config';
-import { Emitter } from './emitter';
+import { Controller } from './controller.js';
+import { CustomElement } from './custom-element.js';
+import { CustomElementConfig } from './custom-element-config.js';
+import { Emitter } from './emitter.js';
 import { getAttribute, setAttribute } from './util.js';
-import { getScope, Scope } from './scope';
-import { hookOnGlobal } from './hooks';
+import { getScope, Scope } from './scope.js';
+import { hookOnGlobal } from './hooks.js';
 import {
     metadataComponentController,
     metadataControllerElement,
