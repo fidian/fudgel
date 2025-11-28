@@ -24,9 +24,7 @@ import { bootstrap, nextN } from './global.js';
 
 // Decorator to wire a class as a custom component
 export const Component = (tag: string, config: CustomElementConfig) => {
-    return (target: Constructor) => {
-        component(tag, config, target);
-    };
+    return (target: Constructor) => component(tag, config, target);
 };
 
 const ce = customElements;
@@ -35,7 +33,7 @@ export const component = (
     tag: string,
     configInitial: CustomElementConfig,
     constructor?: Constructor
-) => {
+): CustomElementConstructor => {
     bootstrap();
     const className = `fudgel-${nextN()}`;
     const style = scopeStyle(
@@ -65,6 +63,8 @@ export const component = (
     config.template = template.innerHTML;
     hooksRun('component', Base, Base, config);
     ce.get(tag) || ce.define(tag, Base);
+
+    return Base;
 };
 
 const updateClasses = (templateNode: HTMLTemplateElement, id: string) => {
