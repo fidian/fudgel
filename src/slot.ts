@@ -74,7 +74,7 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
 
 export const defineSlotComponent = (name = 'slot-like') => {
     class SlotComponent extends HTMLElement {
-        private _eventRemover?: () => void;
+        private _eventRemover?: VoidFunction;
         private _slotInfo?: SlotInfo;
 
         constructor() {

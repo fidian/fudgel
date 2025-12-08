@@ -41,7 +41,7 @@
             </p>
             <p>
                 <code>onParse()</code> is fired when all child nodes are parsed
-                for light DOM elements and is fired immediately after
+                for light DOM elements and is asynchronously fired just after
                 <code>onInit()</code> for shadow DOM elements. If you are doing
                 your own light DOM
                 <a href="content-projection.html">content projection</a>, this
@@ -50,14 +50,17 @@
                 custom element. This method is called after all of them are
                 added, using a technique of watching for the document's content
                 to be loaded and using a mutation observer to see if any parents
-                have next siblings.
+                have next siblings. A parent's <code>onParse()</code> will be
+                called before a child's.
             </p>
             <p>
-                <code>onViewInit()</code> will be executed at the very end after
-                the custom element is connected to the DOM and the template has
-                also been attached and processed. At this point, all children
+                <code>onViewInit()</code> will be executed asynchronously at the
+                very end after the custom element is connected to the DOM and
+                the template has also been attached and processed. It will
+                always be executed asynchronously. At this point, all children
                 are in the DOM, <code>#ref</code> directives are set up, and
-                your element is basically live.
+                your element is basically live. A parent's
+                <code>onViewInit()</code> will be called before a child's.
             </p>
             <p>
                 <code>onChange(propertyName, oldValue, newValue)</code> will be

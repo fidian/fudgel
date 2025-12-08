@@ -1,5 +1,5 @@
 export type EmitterCallback = (...args: any[]) => void;
-export type EmitterUnsubscribe = () => void;
+export type EmitterUnsubscribe = VoidFunction;
 
 export class Emitter<T = string> {
     private _m = new Map<T, EmitterCallback[]>();

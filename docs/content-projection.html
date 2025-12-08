@@ -104,13 +104,14 @@
             <h2>Slots and Light DOM</h2>
             <p>
                 There is no browser-native support for slots in the light DOM,
-                however Fudgel can provide similar functionality! First, you
+                however Fudgel can provide similar functionality. First, you
                 need to define the custom slot-like element, and after that
                 point all components will have <code>&lt;slot&gt;</code>
                 elements rewritten automatically to work as expected. This means
                 you can keep your template looking the same whether using light
                 DOM or shadow DOM.
             </p>
+            <p>This slot substitute doesn't work well for changing content.</p>
             <p>
                 This even works when parsing large amounts of HTML, thanks to
                 the <code>.onParse()</code>
@@ -159,13 +160,13 @@
                 <code>slot-like</code>, which you can change by using
                 <code>defineSlotComponent('custom-element-name')</code>. Please
                 make sure you do this right away, before your custom elements
-                get created. This function also adds a <a
-                href="hooks.html">hook</a> to Fudgel for component creation so
-                all light DOM components will have their template rewritten,
-                changing <code>slot</code> elements into <code>slot-like</code>
-                elements. This template change happens once during each
-                components initial definition. If the template is rewritten,
-                the controller's <code>.onInit()</code> and
+                get created. This function also adds a
+                <a href="hooks.html">hook</a> to Fudgel for component creation
+                so all light DOM components will have their template rewritten,
+                changing <code>slot</code> elements into
+                <code>slot-like</code> elements. This template change happens
+                once during each components initial definition. If the template
+                is rewritten, the controller's <code>.onInit()</code> and
                 <code>.onParse()</code> methods will be patched to push content
                 into the slots.
             </p>

@@ -481,6 +481,7 @@
                     });
                 </template>
             </code-sample>
+
             <h2><code>parse</code> - Change a string into executable code</h2>
             <p>
                 Internally, Fudgel uses <code>parse</code> to detect bindings to
@@ -533,6 +534,7 @@
                     });
                 </template>
             </code-sample>
+
             <h2>
                 <code>getScope(node)</code> - Get a scope object associated to a
                 node or a node's ancestor
@@ -551,6 +553,32 @@
                 the example there for how to create a child scope and how to
                 assign properties to the child scope.
             </p>
+
+            <h2>
+                <code>nextTick(callback)</code> - Run code asynchronously, but
+                soon
+            </h2>
+            <p>
+                <code>setTimeout(callback, 0)</code> is a common way to run code
+                asynchronously, but it has a minimum delay even though it was
+                supposed to use zero milliseconds. This function uses either
+                <code>queueMicrotask()</code> or
+                <code>Promise.resolve().then()</code>
+                to run code as soon as possible after the current execution
+                context.
+            </p>
+            <code-sample type="js">
+                <!-- prettier-ignore -->
+                <template>
+                    // After someone clicks, set the state to "LOADING"
+                    // but do not do it in the current call stack
+                    onClick() {
+                        nextTick(() =&gt; {
+                            this.state = 'LOADING';
+                        });
+                    }
+                </template>
+            </code-sample>
         </page-wrapper>
     </body>
     <script src="js.js" type="module"></script>

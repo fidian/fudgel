@@ -19,4 +19,4 @@ export { getScope } from './scope.js';
 export { defineSlotComponent } from './slot.js';
 export type * from './slot.js';
 export * from './tag-functions.js';
-export { getAttribute, setAttribute, rootElement } from './util.js';
+export { getAttribute, nextTick, setAttribute, rootElement } from './util.js';

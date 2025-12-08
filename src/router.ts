@@ -23,7 +23,7 @@ export class RouterComponent extends HTMLElement {
     private _fragment = createFragment();
     private _lastMatched: HTMLElement[] = [];
     private _routeElements: HTMLElement[] = [];
-    private _undo: (() => void)[] = [];
+    private _undo: VoidFunction[] = [];
 
     constructor() {
         super();

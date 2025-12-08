@@ -75,3 +75,6 @@ export const appendChild = (parent: Node, child: Node) =>
 // normal objects and arrays.
 export const entries = (iterable: any) =>
     iterable.entries?.() ?? Object.entries(iterable);
+
+export const nextTick: (cb: VoidFunction) => void =
+    queueMicrotask || (cb => Promise.resolve().then(cb));

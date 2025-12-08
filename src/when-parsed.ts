@@ -1,9 +1,10 @@
 import { CustomElement } from './custom-element.js';
 import { metadataMutationObserver } from './metadata.js';
+import { nextTick } from './util.js';
 
 export interface MutationObserverInfo {
     o?: MutationObserver;
-    s: Set<() => void>;
+    s: Set<VoidFunction>;
 }
 
 const DOMContentLoaded = 'DOMContentLoaded';
@@ -18,7 +19,7 @@ const DOMContentLoaded = 'DOMContentLoaded';
 export const whenParsed = (
     element: CustomElement,
     root: CustomElement | ShadowRoot,
-    callback: () => void
+    callback: VoidFunction
 ) => {
     const ownerDocument = element.ownerDocument;
     const isReady = () => {
@@ -41,7 +42,7 @@ export const whenParsed = (
         ownerDocument.readyState !== 'loading' ||
         isReady()
     ) {
-        callback();
+        nextTick(callback);
     } else {
         // Watch the document or document fragment for changes.
         const unobserve = observe(
@@ -88,7 +89,7 @@ const observe = (
     const info =
         metadataMutationObserver(mutationRoot) ||
         metadataMutationObserver(mutationRoot, {
-            s: new Set<() => void>(),
+            s: new Set<VoidFunction>(),
         });
     const onMutation = () => {
         callback(false);

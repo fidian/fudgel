@@ -21,7 +21,7 @@ export const hooksForWatchedObj = makeMap<
     Object,
     { [key: string]: HookCallback[] }
 >();
-const hooksRemoversForNode = makeMap<Object, (() => void)[]>();
+const hooksRemoversForNode = makeMap<Object, VoidFunction[]>();
 const metadataHookOnSet = makeMap<Controller | Scope, Record<string, number>>();
 
 // Known hooks and their arguments
@@ -46,10 +46,10 @@ const hooksRunInternal = (
     ...args: any[]
 ) => {
     for (const hook of hooks[name] ?? []) {
-            // A hook that is slated to be executed (a future callback that will be
-            // ran soon) could be removed during execution of hooks. In this
-            // situation, we want to make sure the removed hooks are not called
-            // even if they were in the original list.
+        // A hook that is slated to be executed (a future callback that will be
+        // ran soon) could be removed during execution of hooks. In this
+        // situation, we want to make sure the removed hooks are not called
+        // even if they were in the original list.
         if (hooks[name].includes(hook)) {
             hook(...args);
         }

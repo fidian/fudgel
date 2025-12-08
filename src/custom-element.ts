@@ -63,32 +63,37 @@ export class CustomElement extends HTMLElement {
         // Need to wait until child nodes are ready for light DOM elements that
         // use slots.
         whenParsed(this, root, () => {
-            controller.onParse?.();
+            // Verify that the controller is still bound to an element. Avoids
+            // a race condition where an element is added but not "parsed"
+            // immediately, then removed before this callback can fire.
+            if (metadataControllerElement.has(controller)) {
+                controller.onParse?.();
 
-            // Create initial child elements from the template.
-            const template = createTemplate();
-            template.innerHTML = config.template;
-            linkNodes(template.content, controller);
+                // Create initial child elements from the template.
+                const template = createTemplate();
+                template.innerHTML = config.template;
+                linkNodes(template.content, controller);
 
-            // Remove all existing content when not using a shadow DOM to simulate
-            // the same behavior shown when using a shadow DOM.
-            root.innerHTML = '';
+                // Remove all existing content when not using a shadow DOM to simulate
+                // the same behavior shown when using a shadow DOM.
+                root.innerHTML = '';
 
-            // With a shadow DOM, append styling within the element.
-            // Add styling to either the parent document or the parent shadow root.
-            if (
-                config.style &&
-                !styleParent.querySelector('style.' + config.className)
-            ) {
-                const s = createElement('style');
-                toggleClass(s, config.className, true);
-                s.prepend(createTextNode(config.style));
-                ((styleParent as any).body || styleParent).prepend(s);
+                // With a shadow DOM, append styling within the element.
+                // Add styling to either the parent document or the parent shadow root.
+                if (
+                    config.style &&
+                    !styleParent.querySelector('style.' + config.className)
+                ) {
+                    const s = createElement('style');
+                    toggleClass(s, config.className, true);
+                    s.prepend(createTextNode(config.style));
+                    ((styleParent as any).body || styleParent).prepend(s);
+                }
+
+                // Finally, add the processed nodes
+                root.append(template.content);
+                controller.onViewInit?.();
             }
-
-            // Finally, add the processed nodes
-            root.append(template.content);
-            controller.onViewInit?.();
         });
     }
 
