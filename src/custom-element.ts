@@ -31,13 +31,13 @@ export class CustomElement extends HTMLElement {
 
     attributeChangedCallback(
         attributeName: string,
-        oldValue: string,
+        _oldValue: string,
         newValue: string
     ) {
         const propertyName = dashToCamel(attributeName);
         const controller = metadataElementController(this);
 
-        if (controller && oldValue !== newValue) {
+        if (controller) {
             this._changeControllerProperty(controller, propertyName, newValue);
         }
     }
@@ -194,7 +194,10 @@ export class CustomElement extends HTMLElement {
         newValue: any
     ) {
         const oldValue = (controller as any)[propertyName];
-        (controller as any)[propertyName] = newValue;
-        controller.onChange?.(propertyName, oldValue, newValue);
+
+        if (oldValue !== newValue) {
+            (controller as any)[propertyName] = newValue;
+            controller.onChange?.(propertyName, oldValue, newValue);
+        }
     }
 }
