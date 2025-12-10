@@ -1,6 +1,8 @@
 import { Controller } from './controller.js';
 import { metadataControllerElement } from './metadata.js';
 
+export const Obj = Object;
+
 export const stringify = (x: any) => JSON.stringify(x);
 
 export const memoize = <FN extends (arg: any) => any>(fn: FN) => {
@@ -40,7 +42,10 @@ export const isString = (x: any) => typeof x === 'string';
 export const getAttribute = (node: Element | HTMLElement, name: string) =>
     node.getAttribute(name);
 
-export const getPrototypeOf = (x: Object) => Object.getPrototypeOf(x);
+export const getPrototypeOf = (x: Object) => Obj.getPrototypeOf(x);
+
+export const hasOwnProperty = (obj: Object, prop: string | symbol) =>
+    Obj.prototype.hasOwnProperty.call(obj, prop);
 
 export const rootElement = (controller: Controller) => {
     const element = metadataControllerElement.get(controller);
@@ -74,7 +79,7 @@ export const appendChild = (parent: Node, child: Node) =>
 // Return the entries of an Iterable or fall back on Object.entries for
 // normal objects and arrays.
 export const entries = (iterable: any) =>
-    iterable.entries?.() ?? Object.entries(iterable);
+    iterable.entries?.() ?? Obj.entries(iterable);
 
 export const nextTick: (cb: VoidFunction) => void =
     queueMicrotask || (cb => Promise.resolve().then(cb));

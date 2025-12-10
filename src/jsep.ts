@@ -1,4 +1,4 @@
-import { memoize, uniqueListJoin } from './util.js';
+import { memoize, Obj, uniqueListJoin } from './util.js';
 import { win } from './elements.js';
 
 // JavaScript Expression Parser (JSEP)
@@ -277,7 +277,7 @@ const gobbleExpression = (): ValueProvider => {
 // There's a check to make sure that tokens comprised of alphabetic characters
 // are not followed by an alphabetic character.
 const gobbleTokenFromList = (tokenList: Record<string, any>) => {
-    for (const item of Object.keys(tokenList)) {
+    for (const item of Obj.keys(tokenList)) {
         // If the token matches exactly
         if (expr.substr(index, item.length) == item) {
             // If the first character is NOT a letter, then it's just symbols

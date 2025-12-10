@@ -1,19 +1,33 @@
 import { Controller } from './controller.js';
 import { hookOn, hookWhenSet } from './hooks.js';
-import { Scope } from './scope.js';
+import { GlobalScope, Scope } from './scope.js';
+import { getPrototypeOf, hasOwnProperty } from './util.js';
 
-export function addBindings(
+export const addBindings = (
     controller: Controller,
     node: Node,
     callback: (thisRef: Object) => void,
     bindingList: string[],
     scope: Scope
-) {
+) => {
     hookOn(controller, node, 'set:', callback);
 
     for (const binding of bindingList) {
-        const target = binding in scope ? scope : controller;
+        const target = findBindingTarget(controller, scope, binding);
         hookWhenSet(controller, target, binding);
-        hookOn(target, node, `set:${binding}`, callback);
+        hookOn(target, node, `set:${binding}`, x => {
+            return callback(x);
+        });
     }
-}
+};
+
+const findBindingTarget = (
+    controller: Controller,
+    scope: object,
+    binding: string
+): object =>
+    hasOwnProperty(scope, binding)
+        ? scope
+        : hasOwnProperty(scope, GlobalScope)
+          ? controller
+          : findBindingTarget(controller, getPrototypeOf(scope), binding);

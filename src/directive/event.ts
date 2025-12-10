@@ -1,5 +1,5 @@
 import { Controller } from '../controller.js';
-import { dashToCamel, pascalToDash, setAttribute } from '../util.js';
+import { dashToCamel, pascalToDash, setAttribute, Obj } from '../util.js';
 import { doc, win } from '../elements.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
@@ -47,7 +47,7 @@ export const eventDirective: GeneralDirective = (
     attrName: string
 ) => {
     const [eventName, ...modifiers] = dashToCamel(attrName.slice(1)).split('.');
-    const scope = Object.create(getScope(node));
+    const scope = Obj.create(getScope(node));
     const parsed = parse(attrValue);
     const fn = (event: Event) => {
         scope.$event = event;

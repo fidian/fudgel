@@ -53,7 +53,7 @@ import {
     metadataElementSlotContent,
     metadataScope,
 } from './metadata.js';
-import { rootElement } from './util.js';
+import { getPrototypeOf, rootElement } from './util.js';
 
 export interface SlotInfo {
     e: Emitter; // Notifications of slot removals
@@ -177,7 +177,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     config.template = template.innerHTML;
                 }
 
-                patch(metadataComponentController(baseClass)?.prototype!);
+                patch(getPrototypeOf(metadataComponentController(baseClass)!));
             }
         }
     );

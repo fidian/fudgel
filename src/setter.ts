@@ -1,4 +1,4 @@
-import { entries } from './util.js';
+import { entries, Obj } from './util.js';
 import { metadataPatchedSetter } from './metadata.js';
 
 export type SetterCallback<T extends Object> = (thisRef: T, newValue: any, oldValue: any) => void;
@@ -28,15 +28,15 @@ export const patchSetter = <T extends Object>(
 
     if (!callbacks) {
         let value: any = (obj as any)[property];
-        const desc = Object.getOwnPropertyDescriptor(obj, property) || {};
+        const desc = Obj.getOwnPropertyDescriptor(obj, property) || {};
         callbacks = [];
         (trackingObject as any)[property] = callbacks;
-        Object.defineProperty(obj, property, {
+        Obj.defineProperty(obj, property, {
             get: desc.get || (() => value),
             set: function (newValue: any) {
                 const oldValue = value;
 
-                if (!Object.is(newValue, oldValue)) {
+                if (!Obj.is(newValue, oldValue)) {
                     desc.set?.(newValue);
                     value = newValue;
                     for (const cb of callbacks) {
