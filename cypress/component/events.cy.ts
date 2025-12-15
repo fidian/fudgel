@@ -1,4 +1,4 @@
-import { component, Controller, elementToController, html } from '../../src/fudgel.js';
+import { component, Controller, elementToController, html, nextTick } from '../../src/fudgel.js';
 
 const events = [];
 const trigger = (obj: Controller, event: string) => {
@@ -233,23 +233,24 @@ component(
     class ParentElController {
         changes?: number;
         child: HTMLElement;
+        controller: Controller;
         element: HTMLElement;
         hidden = false;
         x = 'one';
 
         onViewInit() {
-            // Keep a reference to the element even if the child changes or is removed.
-            this.element = this.child;
+            this.update();
         }
 
         getCount() {
-            this.changes = (elementToController(this.element) as any).changeCount;
+            this.changes = this.controller.changeCount;
         }
 
         reset() {
             this.changes = null;
             this.hidden = false;
             this.x = 'one';
+            this.update();
         }
 
         makeChange() {
@@ -259,17 +260,30 @@ component(
 
         hide() {
             this.changes = null;
-            // Remove the element, which removes event listeners
+            // Remove the element, which removes event listeners and removes
+            // the controller
             this.hidden = true;
             this.x = 'test1';
         }
 
         remove() {
             this.changes = null;
-            // Remove the element, which removes event listeners
+            // Remove the element, which removes event listeners and removes
+            // the controller
             const e = this.child;
             e.remove();
             (e as any).x = 'test2'
+        }
+
+        update() {
+            // Keep references to the element and controller even if the child
+            // changes or is removed.
+            //
+            // Elements under *if are created as a microtask.
+            nextTick(() => {
+                this.element = this.child;
+                this.controller = elementToController(this.child) as any;
+            });
         }
     }
 );

@@ -42,8 +42,6 @@ export const isString = (x: any) => typeof x === 'string';
 export const getAttribute = (node: Element | HTMLElement, name: string) =>
     node.getAttribute(name);
 
-export const getPrototypeOf = (x: Object) => Obj.getPrototypeOf(x);
-
 export const hasOwnProperty = (obj: Object, prop: string | symbol) =>
     Obj.prototype.hasOwnProperty.call(obj, prop);
 

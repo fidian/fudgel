@@ -1,6 +1,6 @@
 import { createComment } from './elements.js';
 import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index.js';
-import { entries, setAttribute, stringify } from './util.js';
+import { entries, nextTick, setAttribute, stringify } from './util.js';
 import { StructuralDirective } from './directive/types.js';
 
 export const linkStructuralDirective = (
@@ -29,7 +29,9 @@ export const linkStructuralDirective = (
 
         if (directive) {
             // Create a comment anchor and insert before current node.
-            const anchor = createComment(`${directive[0]}=${stringify(directive[2])}`);
+            const anchor = createComment(
+                `${directive[0]}=${stringify(directive[2])}`
+            );
             currentNode.before(anchor);
 
             // Move tree walker to the anchor, then pull currentNode out of
@@ -41,7 +43,15 @@ export const linkStructuralDirective = (
             setAttribute(currentNode, directive[0]);
 
             // Applying the directive may automatically append elements after the anchor.
-            directive[1](controller, anchor, currentNode, directive[2], directive[0]);
+            nextTick(() =>
+                directive[1](
+                    controller,
+                    anchor,
+                    currentNode,
+                    directive[2],
+                    directive[0]
+                )
+            );
 
             return 1;
         }

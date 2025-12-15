@@ -53,9 +53,10 @@ import {
     metadataElementSlotContent,
     metadataScope,
 } from './metadata.js';
-import { getPrototypeOf, rootElement } from './util.js';
+import { rootElement } from './util.js';
 
 export interface SlotInfo {
+    c: string; // Original content HTML
     e: Emitter; // Notifications of slot removals
     n: Record<string, DocumentFragment>; // Named content
     s: Scope; // Outer element's scope for Fudgel bindings
@@ -150,7 +151,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
         'component',
         (baseClass: CustomElement, config: CustomElementConfig) => {
             if (!config.useShadow) {
-                let usesSlotLike = false;
+                let rewrittenSlotElement = false;
                 const template = createTemplate();
                 template.innerHTML = config.template;
                 const treeWalker = createTreeWalker(template.content, 0x01);
@@ -160,7 +161,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     // Change DOM elements in the template from <slot> to the
                     // <slot-like>
                     if (currentNode.nodeName === 'SLOT') {
-                        usesSlotLike = true;
+                        rewrittenSlotElement = true;
                         const slotLike = createElement(name);
 
                         for (const attr of currentNode.attributes) {
@@ -173,30 +174,29 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     }
                 }
 
-                if (usesSlotLike) {
+                if (rewrittenSlotElement) {
                     config.template = template.innerHTML;
                 }
 
-                patch(getPrototypeOf(metadataComponentController(baseClass)!));
+                patch(metadataComponentController(baseClass)!.prototype);
             }
         }
     );
 };
 
 function patch(proto: Controller) {
+    const onDestroy = proto.onDestroy;
     const onParse = proto.onParse;
-    let root: ShadowRoot | HTMLElement;
-    let content = '';
 
     // When children are done being added, move them to slotInfo so
     // <slot-like> can find the content.
     proto.onParse = function (this: Controller) {
-        root = rootElement(this)!;
-        content = root.innerHTML;
+        const root = rootElement(this)!;
 
         // Set up the basic info. The outer element's scope is used in
         // order to support Fudgel bindings.
         const slotInfo = metadataElementSlotContent(root, {
+            c: root.innerHTML,
             e: new Emitter(),
             n: {
                 '': createFragment(),
@@ -221,11 +221,10 @@ function patch(proto: Controller) {
         onParse?.call(this);
     };
 
-    const onDestroy = proto.onDestroy;
-
     proto.onDestroy = function (this: Controller) {
-        root = rootElement(this)!;
-        root.innerHTML = content;
+        const root = rootElement(this)!;
+        const slotInfo = metadataElementSlotContent(root)!;
+        root.innerHTML = slotInfo.c;
         onDestroy?.call(this);
     };
 }

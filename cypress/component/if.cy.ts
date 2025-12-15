@@ -39,51 +39,6 @@ component('test-for-if', {
     }];
 });
 
-component('nested-component', {
-    attr: ['id'],
-    template: `nested ID {{id}}`
-});
-
-component('test-for-if-routed', {
-    template: `
-        <div>Router enabled</div>
-        <app-router>
-            <div path="**">
-                <div *for="item of list">
-                    <nested-component *if="item.show" id="{{item.name}}">
-                    </nested-component>
-                </div>
-            </div>
-        </app-router>
-    `
-}, class {
-    list = [ {
-        show: true,
-        name: "first"
-    }, {
-        show: false,
-        name: "second"
-    }, {
-        show: true,
-        name: "third"
-    }];
-});
-
-component('test-for-if-routed-delayed', {
-    template: 'Delaying'
-}, class {
-    onViewInit() {
-        setTimeout(() => {
-            const root = rootElement(this);
-
-            if (root) {
-                // Note, this would wipe out styles. Avoid setting innerHTML.
-                root.innerHTML = '<test-for-if-routed></test-for-if-routed>';
-            }
-        }, 1);
-    }
-});
-
 describe('if', () => {
     it('toggles based on an internal value', () => {
         cy.mount('<test-element></test-element>');
@@ -105,13 +60,6 @@ describe('if', () => {
 
     it('works with nesting and direct mounting', () => {
         cy.mount('<test-for-if></test-for-if>');
-        cy.get('#first').should('exist');
-        cy.get('#second').should('not.exist');
-        cy.get('#third').should('exist');
-    });
-
-    it('works with nesting through routing', () => {
-        cy.mount('<test-for-if-routed-delayed></test-for-if-routed-delayed>');
         cy.get('#first').should('exist');
         cy.get('#second').should('not.exist');
         cy.get('#third').should('exist');

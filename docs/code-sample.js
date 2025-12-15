@@ -5,37 +5,15 @@
 
 // This odd syntax is to allow more browsers to be able to use this
 // file. It would be better to use "import" statements instead.
-Promise.all([
-    import('./fudgel.min.js'),
-    import('./hljs.js'),
-]).then(
+Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
     ([
-        { component, css, html, controllerToElement, rootElement },
+        { component, css, emit, html },
         { hljs },
     ]) => {
-        const cleanText = (str) => {
-            // Handle unescaping escaped text.
-            const textarea = document.createElement('textarea');
-            textarea.innerHTML = str;
-            str = textarea.value;
-
-            // Clean leading spaces using first line's indentation as our key.
-            const pattern = str.match(/\s*\n[\t\s]*/);
-
-            if (pattern && pattern[0].match(/[^\n]/)) {
-                str = str.replace(new RegExp(pattern, 'g'), '\n');
-            }
-
-            // Remove blank lines at the beginning and end
-            str = str.trim();
-
-            return str;
-        };
-
         component(
             'code-sample',
             {
-                attr: ['type', 'live', 'html'],
+                prop: ['type', 'live', 'code'],
                 style: css`
                     :host {
                         display: block;

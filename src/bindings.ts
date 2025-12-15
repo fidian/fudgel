@@ -1,7 +1,7 @@
 import { Controller } from './controller.js';
 import { hookOn, hookWhenSet } from './hooks.js';
 import { GlobalScope, Scope } from './scope.js';
-import { getPrototypeOf, hasOwnProperty } from './util.js';
+import { Obj, hasOwnProperty } from './util.js';
 
 export const addBindings = (
     controller: Controller,
@@ -30,4 +30,4 @@ const findBindingTarget = (
         ? scope
         : hasOwnProperty(scope, GlobalScope)
           ? controller
-          : findBindingTarget(controller, getPrototypeOf(scope), binding);
+          : findBindingTarget(controller, Obj.getPrototypeOf(scope), binding);

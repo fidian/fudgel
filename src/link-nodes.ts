@@ -17,9 +17,6 @@ export const linkNodes = (
     controller: Object
 ) => {
     const treeWalker = createTreeWalker(root, 0x85);
-
-    // true is a special flag where a controller advanced the pointer but there
-    // is no next node.
     let currentNode;
 
     while (currentNode = treeWalker.nextNode()) {
