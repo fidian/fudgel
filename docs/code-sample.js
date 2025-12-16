@@ -7,7 +7,7 @@
 // file. It would be better to use "import" statements instead.
 Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
     ([
-        { component, css, emit, html },
+        { component, controllerToElement, css, emit, html },
         { hljs },
     ]) => {
         component(
