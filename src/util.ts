@@ -79,5 +79,4 @@ export const appendChild = (parent: Node, child: Node) =>
 export const entries = (iterable: any) =>
     iterable.entries?.() ?? Obj.entries(iterable);
 
-export const nextTick: (cb: VoidFunction) => void =
-    queueMicrotask || (cb => Promise.resolve().then(cb));
+export const nextTick: (cb: VoidFunction) => void = queueMicrotask;

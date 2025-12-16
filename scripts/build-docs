@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+import { cwd, chdir } from 'node:process';
+import { promises as fsPromises } from 'node:fs';
+import { dirname, extname, resolve } from 'node:path';
+import { marked } from 'marked';
+import { parse } from 'ultramatter';
+import { render } from 'micromustache';
+
+async function main() {
+    chdir('docs');
+    const templateFile = '_template.html';
+    console.log(`Reading template: ${templateFile}`);
+    const templateContent = await fsPromises.readFile(templateFile, 'utf-8');
+    const configFile = '_config.json';
+    console.log(`Reading config: ${configFile}`);
+    const configContent = await fsPromises.readFile(configFile, 'utf-8');
+    const config = JSON.parse(configContent);
+    const [headerContent, footerContent] = templateContent.split(/\{\{\s*\}\}/);
+
+    for await (const entry of fsPromises.glob('*.md')) {
+        processMarkdown(config, entry, headerContent, footerContent);
+    }
+}
+
+async function processMarkdown(config, filename, headerContent, footerContent) {
+    console.log(`Processing file: ${filename}`);
+    const markdownContent = await fsPromises.readFile(filename, 'utf-8');
+    const fm = parse(markdownContent);
+    const htmlContent = marked(fm.content);
+    const finalHtml = render(
+        `${headerContent}
+${htmlContent}
+${footerContent}`,
+        {
+            config,
+            ...fm.frontmatter,
+        }
+    );
+    const outFilename = filename.replace(/\.md$/, '.html');
+    console.log(`Writing file: ${outFilename}`);
+    await fsPromises.writeFile(outFilename, finalHtml, 'utf-8');
+}
+
+marked.setOptions({
+    renderer: new marked.Renderer(),
+    pedantic: false,
+    gfm: true,
+    breaks: false,
+});
+
+main();
