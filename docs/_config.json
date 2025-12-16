@@ -1,0 +1,58 @@
+{
+    "title": "Fudgel - A Lightweight Web Component Library",
+    "pages": [
+        {
+            "label": "Welcome",
+            "url": "index.html",
+            "aliasUrl": ""
+        },
+        {
+            "label": "Getting Started",
+            "url": "getting-started.html"
+        },
+        {
+            "label": "Component Basics",
+            "url": "component-basics.html"
+        },
+        {
+            "label": "Attr and Prop",
+            "url": "attr-and-prop.html"
+        },
+        {
+            "label": "Directives",
+            "url": "directives.html"
+        },
+        {
+            "label": "Expressions",
+            "url": "expressions.html"
+        },
+        {
+            "label": "Lifecycle Methods",
+            "url": "lifecycle-methods.html"
+        },
+        {
+            "label": "Content Projection",
+            "url": "content-projection.html"
+        },
+        {
+            "label": "Routing",
+            "url": "routing.html"
+        },
+        {
+            "label": "Hooks",
+            "url": "hooks.html"
+        },
+        {
+            "label": "Utilities",
+            "url": "utilities.html"
+        },
+        {
+            "label": "Examples",
+            "url": "examples.html"
+        },
+        {
+            "label": "GitHub",
+            "url": "https://github.com/fidian/fudgel"
+        }
+    ]
+}

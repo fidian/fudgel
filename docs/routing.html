@@ -444,6 +444,16 @@
                 </template>
             </code-sample>
 
+            <h2>Watch Out For Problems</h2>
+            <p>
+                Because this is a simplistic router, there is the caveat that
+                elements within need to be static. Do not add or remove
+                elements, which means avoiding the use of structural directives
+                within the router element and its children. If you need to do
+                this, consider making the route into a component and let the
+                router initialize the component.
+            </p>
+
             <h2>What About Using Hashes?</h2>
             <p>
                 This router manipulates the History API for the following

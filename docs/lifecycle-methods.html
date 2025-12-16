@@ -60,7 +60,7 @@
                 always be executed asynchronously. At this point, all children
                 are in the DOM, <code>#ref</code> directives are set up, and
                 your element is basically live. A parent's
-                <code>onViewInit()</code> will be called before a child's.
+                <code>onViewInit()</code> will be called before a child's. This method is also called before structural directives are applied.
             </p>
             <p>
                 <code>onChange(propertyName, oldValue, newValue)</code> will be

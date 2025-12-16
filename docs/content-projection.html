@@ -111,7 +111,11 @@
                 you can keep your template looking the same whether using light
                 DOM or shadow DOM.
             </p>
-            <p>This slot substitute doesn't work well for changing content.</p>
+            <p>
+                This slot substitute doesn't work well for changing content.
+                Avoid using this when your content uses structural directives or
+                otherwise adds/removes elements.
+            </p>
             <p>
                 This even works when parsing large amounts of HTML, thanks to
                 the <code>.onParse()</code>
