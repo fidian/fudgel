@@ -6,7 +6,18 @@
 // This odd syntax is to allow more browsers to be able to use this
 // file. It would be better to use "import" statements instead.
 Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
-    ([{ component, controllerToElement, css, emit, html }, { hljs }]) => {
+    ([
+        {
+            component,
+            controllerToElement,
+            css,
+            emit,
+            html,
+            nextTick,
+            rootElement,
+        },
+        { hljs },
+    ]) => {
         const cleanText = str => {
             // Handle unescaping escaped text.
             const textarea = document.createElement('textarea');
@@ -29,6 +40,7 @@ Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
         component(
             'code-sample',
             {
+                attr: ['type', 'live', 'html'],
                 prop: ['type', 'live', 'html'],
                 style: css`
                     :host {
@@ -193,6 +205,10 @@ Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
                     this.label = 'Copy';
                 }
 
+                onChange(x) {
+                    console.log('Changed:', x);
+                }
+
                 onParse() {
                     const elem = controllerToElement(this);
                     const template = elem.querySelector('template');
@@ -225,8 +241,12 @@ Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
                 }
 
                 onViewInit() {
-                    this.pre.appendChild(this.codeElement);
-                    hljs.highlightElement(this.codeElement);
+                    // the "pre" element is behind *if, so we need to delay here.
+                    nextTick(() => {
+                        this.pre.appendChild(this.codeElement);
+                        hljs.highlightElement(this.codeElement);
+                    });
+                    console.log(this.live);
                 }
 
                 copyToClipboard() {
