@@ -205,10 +205,6 @@ Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
                     this.label = 'Copy';
                 }
 
-                onChange(x) {
-                    console.log('Changed:', x);
-                }
-
                 onParse() {
                     const elem = controllerToElement(this);
                     const template = elem.querySelector('template');
@@ -246,7 +242,6 @@ Promise.all([import('./fudgel.min.js'), import('./hljs.js')]).then(
                         this.pre.appendChild(this.codeElement);
                         hljs.highlightElement(this.codeElement);
                     });
-                    console.log(this.live);
                 }
 
                 copyToClipboard() {
