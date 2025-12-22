@@ -1,6 +1,3 @@
-import { Controller } from './controller.js';
-import { metadataControllerElement } from './metadata.js';
-
 export const Obj = Object;
 
 export const stringify = (x: any) => JSON.stringify(x);
@@ -42,14 +39,8 @@ export const isString = (x: any) => typeof x === 'string';
 export const getAttribute = (node: Element | HTMLElement, name: string) =>
     node.getAttribute(name);
 
-export const hasOwnProperty = (obj: Object, prop: string | symbol) =>
-    Obj.prototype.hasOwnProperty.call(obj, prop);
-
-export const rootElement = (controller: Controller) => {
-    const element = metadataControllerElement.get(controller);
-
-    return element?.shadowRoot ?? element ?? null;
-};
+export const hasOwn = (obj: Object, prop: string | symbol) =>
+    Obj.hasOwn(obj, prop);
 
 export const setAttribute = (
     node: HTMLElement,

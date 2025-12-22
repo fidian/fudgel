@@ -1,7 +1,4 @@
-import { Constructor } from './constructor.js';
-import { Controller } from './controller.js';
-import { CustomElement } from './custom-element.js';
-import { CustomElementConfigInternal } from './custom-element-config.js';
+import { Controller } from './controller-types.js';
 import { MutationObserverInfo } from './when-parsed.js';
 import { SlotInfo } from './slot.js';
 import { TrackedSetters } from './setter.js';
@@ -19,18 +16,6 @@ export const makeMap = <K extends WeakKey, V>() => {
     return fn as MetadataMap<K, V>;
 };
 
-export const metadataComponentConfig = makeMap<
-    Object,
-    CustomElementConfigInternal
->();
-export const metadataComponentController = makeMap<Object, Constructor>();
-export const metadataControllerConfig = makeMap<
-    Controller,
-    CustomElementConfigInternal
->();
-export const metadataControllerElement = new Map<Controller, CustomElement>();
-export const controllerToElement = (controller: Controller) =>
-    metadataControllerElement.get(controller);
 export const metadataElementController = makeMap<HTMLElement, Controller>();
 export const elementToController = (element: HTMLElement) =>
     metadataElementController(element);

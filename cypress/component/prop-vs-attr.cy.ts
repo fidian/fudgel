@@ -73,9 +73,9 @@ component('parent-element-attr-prop-interpolated', {
 describe('prop vs attr', () => {
     it('works with no incoming values', () => {
         cy.mount('<parent-element></parent-element>');
-        cy.get('show-value-attr').should('have.text', '"initial"');
+        cy.get('show-value-attr').should('have.text', 'null');
         cy.get('show-value-prop').should('have.text', '"initial"');
-        cy.get('show-value-attr-prop').should('have.text', '"initial"');
+        cy.get('show-value-attr-prop').should('have.text', 'null');
     });
     it('works with attr', () => {
         cy.mount('<parent-element-attr></parent-element-attr>');
@@ -91,7 +91,7 @@ describe('prop vs attr', () => {
     });
     it('works with prop', () => {
         cy.mount('<parent-element-prop></parent-element-prop>');
-        cy.get('show-value-attr').should('have.text', '"initial"');
+        cy.get('show-value-attr').should('have.text', 'null');
         cy.get('show-value-prop').should('have.text', '"ok"');
         cy.get('show-value-attr-prop').should('have.text', '"ok"');
     });

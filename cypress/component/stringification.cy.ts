@@ -1,4 +1,4 @@
-import { Component, controllerToElement } from '../../src/fudgel.js';
+import { Component, metadata } from '../../src/fudgel.js';
 
 const date = new Date();
 
@@ -24,7 +24,7 @@ class CustomElement {
     zero = 0;
 
     onInit() {
-        const desired = controllerToElement(this)!.attributes.getNamedItem('property').value;
+        const desired = this[metadata]!.host.attributes.getNamedItem('property').value;
         this.output = this[desired];
     }
 }

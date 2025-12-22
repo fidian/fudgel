@@ -41,5 +41,7 @@ export interface CustomElementConfig {
 }
 
 export interface CustomElementConfigInternal extends CustomElementConfig {
-    className: string;
+    attr: string[];
+    cssClassName: string;
+    prop: string[];
 }

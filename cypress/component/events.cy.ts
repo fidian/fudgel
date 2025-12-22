@@ -1,4 +1,4 @@
-import { component, Controller, elementToController, html, nextTick } from '../../src/fudgel.js';
+import { component, Controller, elementToController, emit, html, metadata, nextTick } from '../../src/fudgel.js';
 
 const events = [];
 const trigger = (obj: Controller, event: string) => {
@@ -207,6 +207,11 @@ component(
     { prop: ['x'], template: 'Child' },
     class ChildElController {
         changeCount = 0;
+
+        onInit() {
+            emit(this, 'onInit', this);
+        }
+
         onChange() {
             this.changeCount += 1;
         }
@@ -227,30 +232,30 @@ component(
                 <button @click="reset()">Reset</button>
             </div>
             <div *if="changes != null">Change Count: <span id="changes">{{changes}}</span></div>
-            <child-el #ref="child" *if="!hidden" .x="x" @on-change="onChange()"></child-el>
+            <child-el #ref="child" *if="!hidden" .x="x" @on-init="childInit($event)" @on-change="onChange()"></child-el>
         `,
     },
     class ParentElController {
         changes?: number;
         child: HTMLElement;
         controller: Controller;
-        element: HTMLElement;
         hidden = false;
         x = 'one';
 
-        onViewInit() {
-            this.update();
+        getCount() {
+            console.log(this.controller);
+            this.changes = this.controller.changeCount;
         }
 
-        getCount() {
-            this.changes = this.controller.changeCount;
+        childInit(event: CustomEvent<Controller>) {
+            console.log('Child initialized', event.detail);
+            this.controller = event.detail;
         }
 
         reset() {
             this.changes = null;
             this.hidden = false;
             this.x = 'one';
-            this.update();
         }
 
         makeChange() {
@@ -273,17 +278,6 @@ component(
             const e = this.child;
             e.remove();
             (e as any).x = 'test2'
-        }
-
-        update() {
-            // Keep references to the element and controller even if the child
-            // changes or is removed.
-            //
-            // Elements under *if are created as a microtask.
-            nextTick(() => {
-                this.element = this.child;
-                this.controller = elementToController(this.child) as any;
-            });
         }
     }
 );

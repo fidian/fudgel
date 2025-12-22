@@ -1,4 +1,4 @@
-import { Controller } from '../controller.js';
+import { Controller } from '../controller-types.js';
 import { dashToCamel, setAttribute } from '../util.js';
 import { GeneralDirective } from './types.js';
 import { hookWhenSet } from '../hooks.js';

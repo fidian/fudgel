@@ -1,4 +1,4 @@
-import { Controller } from './controller.js';
+import { Controller } from './controller-types.js';
 import { createFragment, createTreeWalker } from './elements.js';
 import { linkElementNode } from './link-element-node.js';
 import { linkStructuralDirective } from './link-structural-directive.js';

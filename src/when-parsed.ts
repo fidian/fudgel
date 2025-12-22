@@ -1,4 +1,3 @@
-import { CustomElement } from './custom-element.js';
 import { metadataMutationObserver } from './metadata.js';
 import { nextTick } from './util.js';
 
@@ -17,8 +16,8 @@ const DOMContentLoaded = 'DOMContentLoaded';
 // Elements using a shadow DOM are always considered ready because they don't
 // need or can't really access projected content from slots.
 export const whenParsed = (
-    element: CustomElement,
-    root: CustomElement | ShadowRoot,
+    element: HTMLElement,
+    root: HTMLElement | ShadowRoot,
     callback: VoidFunction
 ) => {
     const ownerDocument = element.ownerDocument;
@@ -58,19 +57,6 @@ export const whenParsed = (
     }
 };
 
-// Get the root element to watch for mutations. Stops just short of a document
-// or document fragment.
-const getMutationRoot = (element: Node) => {
-    let p: Node | null = element;
-
-    do {
-        element = p;
-        p = element.parentNode;
-    } while (p && p.nodeType === 1);
-
-    return element;
-};
-
 // Watch the root of a document for node changes anywhere in the tree. Also,
 // fire the callback when the document loads.
 const observe = (
@@ -85,7 +71,7 @@ const observe = (
     doc.addEventListener(DOMContentLoaded, onLoad);
 
     // Watch the DOM for any changes
-    const mutationRoot = getMutationRoot(element);
+    const mutationRoot = element.getRootNode();
     const info =
         metadataMutationObserver(mutationRoot) ||
         metadataMutationObserver(mutationRoot, {

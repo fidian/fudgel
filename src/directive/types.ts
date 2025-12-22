@@ -1,4 +1,4 @@
-import type { Controller } from '../controller.js';
+import type { Controller } from '../controller-types.js';
 
 // Anything not starting with a star. A default directive must have the key
 // of '' in directives. The return value indicates if the attribute should

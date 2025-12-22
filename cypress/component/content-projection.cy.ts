@@ -1,8 +1,8 @@
 import {
     component,
-    controllerToElement,
     defineSlotComponent,
     html,
+    metadata,
 } from '../../src/fudgel.js';
 
 defineSlotComponent();
@@ -30,7 +30,7 @@ component(
         slot: HTMLSlotElement;
 
         onViewInit() {
-            const element = controllerToElement(this);
+            const element = this[metadata]!.host;
 
             for (const childNode of element.childNodes as unknown as ChildNode[]) {
                 this.slot.append(childNode.cloneNode(true));

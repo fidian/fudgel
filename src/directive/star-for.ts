@@ -1,7 +1,7 @@
 import { addBindings } from '../bindings.js';
 import { childScope, getScope } from '../scope.js';
 import { cloneNode } from '../elements.js';
-import { Controller } from '../controller.js';
+import { Controller } from '../controller-types.js';
 import { hooksOff } from '../hooks.js';
 import { entries } from '../util.js';
 import { linkNodesWrapped } from '../link-nodes.js';

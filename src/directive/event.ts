@@ -1,4 +1,4 @@
-import { Controller } from '../controller.js';
+import { Controller } from '../controller-types.js';
 import { dashToCamel, pascalToDash, setAttribute, Obj } from '../util.js';
 import { doc, win } from '../elements.js';
 import { GeneralDirective } from './types.js';

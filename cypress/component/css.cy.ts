@@ -97,6 +97,7 @@ component(
         useShadow: string;
 
         onChange() {
+            console.log({ text: this.text, useShadow: this.useShadow });
             this.style = scopeStyle(
                 this.text,
                 'custom-element',

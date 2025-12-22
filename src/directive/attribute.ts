@@ -1,5 +1,5 @@
 import { addBindings } from '../bindings.js';
-import { Controller } from '../controller.js';
+import { Controller } from '../controller-types.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
 import { parseTextAllowBoolean } from '../parse.js';

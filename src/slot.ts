@@ -40,20 +40,17 @@ import {
     createTemplate,
     createTreeWalker,
 } from './elements.js';
-import { Controller } from './controller.js';
-import { CustomElement } from './custom-element.js';
+import { Controller, ControllerConstructor } from './controller-types.js';
 import { CustomElementConfig } from './custom-element-config.js';
 import { Emitter } from './emitter.js';
 import { getAttribute, setAttribute } from './util.js';
 import { getScope, Scope } from './scope.js';
 import { hookOnGlobal } from './hooks.js';
+import { metadata } from './symbols.js';
 import {
-    metadataComponentController,
-    metadataControllerElement,
     metadataElementSlotContent,
     metadataScope,
 } from './metadata.js';
-import { rootElement } from './util.js';
 
 export interface SlotInfo {
     c: string; // Original content HTML
@@ -149,7 +146,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
     // Rewrite templates for custom elements that use slots in light DOM.
     hookOnGlobal(
         'component',
-        (baseClass: CustomElement, config: CustomElementConfig) => {
+        (_baseClass: new () => HTMLElement, controllerConstructor: ControllerConstructor, config: CustomElementConfig) => {
             if (!config.useShadow) {
                 let rewrittenSlotElement = false;
                 const template = createTemplate();
@@ -178,7 +175,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     config.template = template.innerHTML;
                 }
 
-                patch(metadataComponentController(baseClass)!.prototype);
+                patch(controllerConstructor.prototype);
             }
         }
     );
@@ -191,7 +188,7 @@ function patch(proto: Controller) {
     // When children are done being added, move them to slotInfo so
     // <slot-like> can find the content.
     proto.onParse = function (this: Controller) {
-        const root = rootElement(this)!;
+        const root = this[metadata]!.root;
 
         // Set up the basic info. The outer element's scope is used in
         // order to support Fudgel bindings.
@@ -202,7 +199,7 @@ function patch(proto: Controller) {
                 '': createFragment(),
             },
             s: getScope(
-                getParent(metadataControllerElement.get(this)!) as Node
+                getParent(this[metadata]!.host) as Node
             ),
         });
 
@@ -222,7 +219,7 @@ function patch(proto: Controller) {
     };
 
     proto.onDestroy = function (this: Controller) {
-        const root = rootElement(this)!;
+        const root = this[metadata]!.root;
         const slotInfo = metadataElementSlotContent(root)!;
         root.innerHTML = slotInfo.c;
         onDestroy?.call(this);

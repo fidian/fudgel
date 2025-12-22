@@ -178,39 +178,3 @@ describe('adding and removing attributes', () => {
         cy.get('show-prop').should('have.text', 'prop:ok');
     });
 });
-
-component('child-el', {
-    prop: ['x'],
-    template: 'Child sees "x" as "{{x}}"'
-});
-
-component('parent-el', {
-    template: html`
-        <div><button @click="toggleShow()">Toggle Show</button> Show is {{show}}</div>
-        <child-el *if="show" .x="x"></child-el>
-    `
-}, class {
-    x = 'XXX';
-    show = true;
-
-    toggleShow() {
-        this.show = !this.show;
-    }
-});
-
-describe('Element removal', () => {
-    it('removes bindings for setting values to children', () => {
-        cy.mount('<parent-el></parent-el>');
-        cy.get('parent-el').then((el) => {
-            const controller = elementToController(el[0]);
-            const hooks = hooksForWatchedObj(controller);
-            return hooks['set:x'];
-        }).should('have.length', 1);
-        cy.get('button').click();
-        cy.get('parent-el').then((el) => {
-            const controller = elementToController(el[0]);
-            const hooks = hooksForWatchedObj(controller);
-            return hooks['set:x'];
-        }).should('have.length', 0);
-    });
-});

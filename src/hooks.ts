@@ -6,7 +6,7 @@
  * of hooks to run (regardless of Node) and is used to signal when hooks should
  * run.
  */
-import { Controller } from './controller.js';
+import { Controller } from './controller-types.js';
 import { makeMap } from './metadata.js';
 import { patchSetter } from './setter.js';
 import { Scope } from './scope.js';

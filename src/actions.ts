@@ -1,9 +1,7 @@
-import { Controller } from './controller.js';
+import { allControllers } from './all-controllers.js';
+import { Controller } from './controller-types.js';
 import { hooksRun } from './hooks.js';
-import {
-    metadataControllerConfig,
-    metadataControllerElement,
-} from './metadata.js';
+import { metadata } from './symbols.js';
 
 export const dispatchCustomEvent = (
     e: Element,
@@ -28,7 +26,7 @@ export const emit = (
     detail?: any,
     customEventInit: CustomEventInit = {}
 ) => {
-    const e = metadataControllerElement.get(controller);
+    const e = controller[metadata]?.host;
 
     if (e) {
         dispatchCustomEvent(e, eventName, detail, customEventInit);
@@ -39,8 +37,8 @@ export const update = (controller?: Object, propertyName?: string) => {
     if (controller) {
         updateController(controller, propertyName);
     } else {
-        for (const registeredController of metadataControllerElement) {
-            updateController(registeredController[0]);
+        for (const registeredController of allControllers) {
+            updateController(registeredController);
         }
     }
 };
@@ -53,13 +51,14 @@ export const updateController = (
     // updated. Necessary when deeply nested objects are passed as input
     // properties to directives and are updated in scopes.
     if (controller.onChange) {
-        const config = metadataControllerConfig(controller)!;
+        const { attr, prop } = controller[metadata]!;
 
         // Only trigger updates once per property, so deduplicate names here
         for (const name of new Set([
-            ...(config.prop || []),
-            ...(config.attr || []),
+            ...prop,
+            ...attr,
         ])) {
+            // FIXME also trigger events
             controller.onChange!(
                 name,
                 (controller as any)[name],
@@ -69,5 +68,6 @@ export const updateController = (
     }
 
     // Update all bound functions
+    // FIXME use events
     hooksRun(`set:${propertyName || ''}`, controller, controller);
 };
