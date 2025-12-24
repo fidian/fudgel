@@ -36,7 +36,7 @@ const modifierGuards: Record<
     right: e => (e as MouseEvent).button !== 2,
     exact: (e, _node, modifierSet) =>
         ['ctrl', 'shift', 'alt', 'meta'].some(
-            m => (e as any)[`${m}Key`] && !modifierSet.has(m)
+            m => (e as any)[`${m}Key`] && !modifierSet.has(m),
         ),
 };
 
@@ -44,7 +44,7 @@ export const eventDirective: GeneralDirective = (
     controller: Controller,
     node: HTMLElement,
     attrValue: string,
-    attrName: string
+    attrName: string,
 ) => {
     const [eventName, ...modifiers] = dashToCamel(attrName.slice(1)).split('.');
     const scope = Obj.create(getScope(node));
@@ -64,6 +64,7 @@ export const eventDirective: GeneralDirective = (
     ] as (keyof AddEventListenerOptions)[]) {
         if (modifierSet.has(item)) {
             (options[item] as any) = true;
+            modifierSet.delete(item);
         }
     }
 
@@ -79,21 +80,25 @@ export const eventDirective: GeneralDirective = (
         eventName,
         event => {
             if (
-                !modifiers.some(modifier =>
-                    (
-                        modifierGuards[modifier] ||
-                        ((e: Event) =>
-                            pascalToDash((e as KeyboardEvent).key) !==
-                            (modifier.match(/^code-\d+$/)
-                                ? String.fromCodePoint(+modifier.split('-')[1])
-                                : modifier))
-                    )(event, node, modifierSet)
-                )
+                !modifierSet
+                    .keys()
+                    .some(modifier =>
+                        (
+                            modifierGuards[modifier] ||
+                            ((e: Event) =>
+                                pascalToDash((e as KeyboardEvent).key) !==
+                                (modifier.match(/^code-\d+$/)
+                                    ? String.fromCodePoint(
+                                          +modifier.split('-')[1],
+                                      )
+                                    : modifier))
+                        )(event, node, modifierSet),
+                    )
             ) {
                 fn(event);
             }
         },
-        options
+        options,
     );
     setAttribute(node, attrName);
 };
