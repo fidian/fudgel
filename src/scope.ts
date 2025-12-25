@@ -21,13 +21,10 @@ export const getScope = (node: Node): Scope => {
         }
     }
 
-    if (!scope) {
-        scope = metadataScope(doc.body, {});
-        (scope as Scope)[GlobalScope] = scope;
-    }
-
-    return scope;
-};
+    return scope || metadataScope(doc.body) || metadataScope(doc.body, {
+        [GlobalScope]: true,
+    });
+}
 
 export const childScope = (parentScope: Scope, childNode: Node): Scope => {
     const scope = Obj.create(parentScope);

@@ -34,6 +34,8 @@
  *     </inner-element>
  * </outer-element>
  */
+import { allComponents } from './all-components.js';
+import { events } from './events.js';
 import {
     createElement,
     createFragment,
@@ -45,12 +47,8 @@ import { CustomElementConfig } from './custom-element-config.js';
 import { Emitter } from './emitter.js';
 import { getAttribute, setAttribute } from './util.js';
 import { getScope, Scope } from './scope.js';
-import { hookOnGlobal } from './hooks.js';
 import { metadata } from './symbols.js';
-import {
-    metadataElementSlotContent,
-    metadataScope,
-} from './metadata.js';
+import { metadataElementSlotContent, metadataScope } from './metadata.js';
 
 export interface SlotInfo {
     c: string; // Original content HTML
@@ -144,70 +142,77 @@ export const defineSlotComponent = (name = 'slot-like') => {
     customElements.define(name, SlotComponent);
 
     // Rewrite templates for custom elements that use slots in light DOM.
-    hookOnGlobal(
-        'component',
-        (_baseClass: new () => HTMLElement, controllerConstructor: ControllerConstructor, config: CustomElementConfig) => {
-            if (!config.useShadow) {
-                let rewrittenSlotElement = false;
-                const template = createTemplate();
-                template.innerHTML = config.template;
-                const treeWalker = createTreeWalker(template.content, 0x01);
-                let currentNode: HTMLElement | null;
+    const rewrite = (
+        _baseClass: new () => HTMLElement,
+        controllerConstructor: ControllerConstructor,
+        config: CustomElementConfig
+    ) => {
+        if (!config.useShadow) {
+            let rewrittenSlotElement = false;
+            const template = createTemplate();
+            template.innerHTML = config.template;
+            const treeWalker = createTreeWalker(template.content, 0x01);
+            let currentNode: HTMLElement | null;
 
-                while ((currentNode = treeWalker.nextNode() as HTMLElement)) {
-                    // Change DOM elements in the template from <slot> to the
-                    // <slot-like>
-                    if (currentNode.nodeName === 'SLOT') {
-                        rewrittenSlotElement = true;
-                        const slotLike = createElement(name);
+            while ((currentNode = treeWalker.nextNode() as HTMLElement)) {
+                // Change DOM elements in the template from <slot> to the
+                // <slot-like>
+                if (currentNode.nodeName === 'SLOT') {
+                    rewrittenSlotElement = true;
+                    const slotLike = createElement(name);
 
-                        for (const attr of currentNode.attributes) {
-                            setAttribute(slotLike, attr.name, attr.value)
-                        }
-
-                        treeWalker.previousNode() as HTMLElement;
-                        slotLike.append(...currentNode.childNodes);
-                        currentNode.replaceWith(slotLike);
+                    for (const attr of currentNode.attributes) {
+                        setAttribute(slotLike, attr.name, attr.value);
                     }
-                }
 
-                if (rewrittenSlotElement) {
-                    config.template = template.innerHTML;
+                    treeWalker.previousNode() as HTMLElement;
+                    slotLike.append(...currentNode.childNodes);
+                    currentNode.replaceWith(slotLike);
                 }
-
-                patch(controllerConstructor.prototype);
             }
+
+            if (rewrittenSlotElement) {
+                config.template = template.innerHTML;
+            }
+
+            patch(controllerConstructor.prototype);
         }
-    );
+    };
+    for (const info of allComponents) {
+        rewrite(...info);
+    }
+    events.on('component', rewrite);
 };
 
 function patch(proto: Controller) {
-    const onDestroy = proto.onDestroy;
     const onParse = proto.onParse;
+    const onDestroy = proto.onDestroy;
 
-    // When children are done being added, move them to slotInfo so
-    // <slot-like> can find the content.
     proto.onParse = function (this: Controller) {
-        const root = this[metadata]!.root;
-
-        // Set up the basic info. The outer element's scope is used in
-        // order to support Fudgel bindings.
+        const controllerMetadata = this[metadata]!;
+        const root = controllerMetadata.root;
         const slotInfo = metadataElementSlotContent(root, {
+            // Original content for restoring the DOM on disconnect
             c: root.innerHTML,
+
+            // Event emitter
             e: new Emitter(),
+
+            // Slots - named ones are set as additional properties. Unnamed
+            // slot content is combined into the '' fragment.
             n: {
                 '': createFragment(),
             },
-            s: getScope(
-                getParent(this[metadata]!.host) as Node
-            ),
+
+            // Scope for the <slot-like> element.
+            s: getScope(getParent(controllerMetadata.host) as Node),
         });
 
         // Grab all content for named slots
         for (const child of [...root.querySelectorAll('[slot]')]) {
             getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
                 child
-            )
+            );
         }
 
         // Now collect everything else and add it to the default slot
@@ -217,7 +222,6 @@ function patch(proto: Controller) {
 
         onParse?.call(this);
     };
-
     proto.onDestroy = function (this: Controller) {
         const root = this[metadata]!.root;
         const slotInfo = metadataElementSlotContent(root)!;

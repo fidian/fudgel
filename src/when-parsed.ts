@@ -1,5 +1,4 @@
 import { metadataMutationObserver } from './metadata.js';
-import { nextTick } from './util.js';
 
 export interface MutationObserverInfo {
     o?: MutationObserver;
@@ -41,7 +40,7 @@ export const whenParsed = (
         ownerDocument.readyState !== 'loading' ||
         isReady()
     ) {
-        nextTick(callback);
+        callback();
     } else {
         // Watch the document or document fragment for changes.
         const unobserve = observe(

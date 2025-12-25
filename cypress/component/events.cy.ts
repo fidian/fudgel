@@ -134,8 +134,8 @@ describe('with light dom', () => {
                     'TestParent onInit',
                     'TestChild constructor',
                     'TestChild onInit',
-                    'TestParent onViewInit',
                     'TestChild onViewInit',
+                    'TestParent onViewInit',
                 ]);
             });
     });
@@ -163,8 +163,8 @@ describe('with light dom', () => {
                 'TestChildOnchange onChange a',
                 'TestChildOnchange onChange p',
                 'TestChildOnchange onInit',
-                'TestParentOnchange onViewInit',
                 'TestChildOnchange onViewInit',
+                'TestParentOnchange onViewInit',
                 'TestChildOnchange onChange a',
                 'TestChildOnchange onChange p',
             ]);
@@ -195,8 +195,8 @@ describe('with shadow DOM', () => {
                     'TestParentShadow onInit',
                     'TestChildShadow constructor',
                     'TestChildShadow onInit',
-                    'TestParentShadow onViewInit',
                     'TestChildShadow onViewInit',
+                    'TestParentShadow onViewInit',
                 ]);
             });
     });

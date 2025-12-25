@@ -1,30 +1,28 @@
 import { entries, Obj } from './util.js';
-import { metadataPatchedSetter } from './metadata.js';
+import { makeWeakMapWithDefault } from './maps.js'
 
-export type SetterCallback<T extends Object> = (thisRef: T, newValue: any, oldValue: any) => void;
-export interface TrackedSetters<T extends Object> {
-    [key: string]: SetterCallback<T>[];
+export type SetterCallback = (newValue: any, oldValue: any) => void;
+export interface TrackedSetters<> {
+    [key: string]: SetterCallback[];
 }
+
+const patchedSetters = makeWeakMapWithDefault<Object, TrackedSetters>(() => ({}));
 
 export const removeSetters = <T extends Object>(
     obj: T
 ) => {
-    const trackingObject = metadataPatchedSetter(obj);
-
-    if (trackingObject) {
-        for (const [_, v] of entries(trackingObject)) {
-            v.length = 0;
-        }
+    for (const [_, callbacks] of entries(patchedSetters(obj))) {
+        callbacks.length = 0;
     }
 }
 
 export const patchSetter = <T extends Object>(
     obj: T,
     property: string,
-    callback: SetterCallback<T>
+    callback: SetterCallback
 ) => {
-    const trackingObject = metadataPatchedSetter(obj) || metadataPatchedSetter(obj, {});
-    let callbacks = trackingObject[property] as SetterCallback<T>[];
+    const trackingObject = patchedSetters(obj);
+    let callbacks = trackingObject[property];
 
     if (!callbacks) {
         let value: any = (obj as any)[property];
@@ -39,8 +37,9 @@ export const patchSetter = <T extends Object>(
                 if (!Obj.is(newValue, oldValue)) {
                     desc.set?.(newValue);
                     value = newValue;
+
                     for (const cb of callbacks) {
-                        cb(this, newValue, oldValue);
+                        cb(newValue, oldValue);
                     }
                 }
             },

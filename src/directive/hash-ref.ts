@@ -1,7 +1,7 @@
 import { Controller } from '../controller-types.js';
 import { dashToCamel, setAttribute } from '../util.js';
 import { GeneralDirective } from './types.js';
-import { hookWhenSet } from '../hooks.js';
+import { change } from '../change.js';
 
 export const hashRefDirective: GeneralDirective = (
     controller: Controller,
@@ -10,7 +10,6 @@ export const hashRefDirective: GeneralDirective = (
     attrName: string
 ) => {
     const prop = dashToCamel(attrValue);
-    hookWhenSet(controller, controller, prop);
-    controller[prop] = node;
+    change(controller, prop, node);
     setAttribute(node, attrName);
 };

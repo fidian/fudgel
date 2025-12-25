@@ -1,7 +1,6 @@
 import { Controller } from './controller-types.js';
 import { MutationObserverInfo } from './when-parsed.js';
 import { SlotInfo } from './slot.js';
-import { TrackedSetters } from './setter.js';
 
 export interface MetadataMap<K extends WeakKey, V> {
     (key: K): V | undefined;
@@ -24,5 +23,4 @@ export const metadataElementSlotContent = makeMap<
     SlotInfo
 >();
 export const metadataMutationObserver = makeMap<Node, MutationObserverInfo>();
-export const metadataPatchedSetter = makeMap<Object, TrackedSetters<Object>>();
 export const metadataScope = makeMap<Node, Object>();

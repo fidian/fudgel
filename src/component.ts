@@ -1,6 +1,8 @@
 /**
  * Set up config and define a custom element.
  */
+import { events } from './events.js';
+import { Emitter } from './emitter.js';
 import { allControllers } from './all-controllers.js';
 import { ComponentInfo, allComponents } from './all-components.js';
 import {
@@ -27,12 +29,12 @@ import {
     CustomElementConfig,
     CustomElementConfigInternal,
 } from './custom-element-config.js';
-import { hooksRun } from './hooks.js';
 import { bootstrap, nextN } from './global.js';
 import { metadata } from './symbols.js';
 import { linkNodes } from './link-nodes.js';
 import { patchSetter, removeSetters } from './setter.js';
 import { whenParsed } from './when-parsed.js';
+import { change } from './change.js';
 
 // Decorator to wire a class as a custom component
 export const Component = (tag: string, config: CustomElementConfig) => (
@@ -59,19 +61,6 @@ export const component = (
         prop: configInitial.prop || [],
         style,
     } as CustomElementConfigInternal;
-    const updateControllerProperty = (
-        controller: Controller,
-        propertyName: string,
-        newValue: any
-    ) => {
-        const oldValue = controller[propertyName];
-
-        if (oldValue !== newValue) {
-            console.log(`setting ${propertyName} to`, newValue);
-            controller[propertyName] = newValue;
-            controller.onChange?.(propertyName, oldValue, newValue);
-        }
-    };
     constructor = constructor || class implements Controller {};
     const template = createTemplate();
     const updateClasses = (templateNode: HTMLTemplateElement) => {
@@ -99,13 +88,7 @@ export const component = (
             _oldValue: string,
             newValue: string
         ) {
-            if (this[metadata]) {
-                updateControllerProperty(
-                    this[metadata],
-                    dashToCamel(attributeName),
-                    newValue
-                );
-            }
+            change(this[metadata], dashToCamel(attributeName), newValue);
         }
 
         connectedCallback() {
@@ -117,6 +100,7 @@ export const component = (
             // Create the controller and set up links between element and controller
             const controllerMetadata: ControllerMetadata = {
                 ...config,
+                change: new Emitter<string>(),
                 host: this,
                 root,
             };
@@ -135,18 +119,14 @@ export const component = (
 
                 // Set initial value - updates are tracked with
                 // attributeChangedCallback.
-                updateControllerProperty(
-                    controller,
-                    propertyName,
-                    getAttribute(this, attributeName)
-                );
+                change(controller, propertyName, getAttribute(this, attributeName));
 
                 // When the internal property changes, update the attribute but only
                 // if it is a string or null.
                 patchSetter(
                     controller,
                     propertyName,
-                    (controller: Controller, newValue: any) => {
+                    (newValue: any) => {
                         if (
                             (typeof newValue === 'string' ||
                                 newValue === null) &&
@@ -160,33 +140,22 @@ export const component = (
 
             for (const propertyName of config.prop) {
                 if (hasOwn(this, propertyName)) {
-                    updateControllerProperty(
-                        controller,
-                        propertyName,
-                        (this as any)[propertyName]
-                    );
+                    change(controller, propertyName, (this as any)[propertyName]);
                 }
 
                 // When element changes, update controller
                 patchSetter(
                     this,
                     propertyName,
-                    (_thisRef: HTMLElement, newValue: any) => {
-                        updateControllerProperty(
-                            controller,
-                            propertyName,
-                            newValue
-                        );
-                    }
+                    (newValue: any) => change(controller, propertyName, newValue)
                 );
 
                 // When controller changes, update element
                 patchSetter(
                     controller,
                     propertyName,
-                    (_thisRef: Controller, newValue: any) => {
-                        (this as any)[propertyName] = newValue;
-                    }
+                    (newValue: any) =>
+                        (this as any)[propertyName] = newValue
                 );
 
                 // Assign the property back to the element in case it was
@@ -237,6 +206,8 @@ export const component = (
         }
 
         disconnectedCallback() {
+            this[metadata]?.onDestroy?.();
+
             // Remove the controller from the global list
             allControllers.delete(this[metadata]!);
 
@@ -261,13 +232,13 @@ export const component = (
             config,
         ];
         allComponents.add(componentInfo);
-        // FIXME change hooks to events
-        hooksRun('component', CustomElement, ...componentInfo);
+        events.emit('component', ...componentInfo);
     } catch (_) {}
 
     return CustomElement;
 };
 
+// Exported for easier testing
 export const scopeStyle = (
     style: string,
     tag: string,

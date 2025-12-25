@@ -1,10 +1,10 @@
 export * from './actions.js';
+export * from './events.js';
 export { Component, component } from './component.js';
 export * from './controller-types.js';
 export * from './di.js';
 export { addDirective } from './directive/index.js';
 export * from './emitter.js';
-export { hookOnGlobal } from './hooks.js';
 export * from './jsep.js';
 export {
     elementToController,
@@ -16,5 +16,5 @@ export { getScope } from './scope.js';
 export { defineSlotComponent } from './slot.js';
 export type * from './slot.js';
 export * from './tag-functions.js';
-export { getAttribute, nextTick, setAttribute } from './util.js';
+export { getAttribute, setAttribute } from './util.js';
 export * from './symbols.js';

@@ -143,12 +143,12 @@ export const hookWhenSet = (
         patchSetter(
             obj,
             property,
-            (thisRef: Controller | Scope, newValue, oldValue) => {
+            (newValue, oldValue) => {
                 hooksRun(
                     `set:${property}`,
-                    thisRef,
+                    obj,
                     controller,
-                    thisRef,
+                    obj,
                     newValue,
                     oldValue
                 );

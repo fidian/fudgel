@@ -18,7 +18,7 @@ component(
     },
     class {
         items = [];
-        onChange(propName, oldValue, newValue) {
+        onChange(propName, newValue, oldValue) {
             this.items.push(`${propName}: ${oldValue} -> ${newValue}`);
         }
     }
