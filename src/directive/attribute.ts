@@ -2,7 +2,7 @@ import { addBindings } from '../bindings.js';
 import { Controller } from '../controller-types.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
-import { parseTextAllowBoolean } from '../parse.js';
+import { parse } from '../parse.js';
 import { setAttribute } from '../util.js';
 
 export const attributeDirective: GeneralDirective = (
@@ -11,18 +11,18 @@ export const attributeDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const result = parseTextAllowBoolean(attrValue);
+    const result = parse.attr(attrValue);
 
     if (result) {
         const scope = getScope(node);
-        const update = (thisRef: Controller) => {
+        const update = () => {
             setAttribute(
                 node,
                 attrName,
-                result[0]([scope, thisRef])
+                result[0](scope, controller)
             );
         };
         addBindings(controller, node, update, result[1], scope);
-        update(controller);
+        update();
     }
 };

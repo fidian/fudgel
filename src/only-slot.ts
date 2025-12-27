@@ -1,1 +1,1 @@
-export { defineSlotComponent } from './slot.js';
+export { defineSlotComponent } from './custom-elements/slot-like.js';

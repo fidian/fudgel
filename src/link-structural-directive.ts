@@ -1,7 +1,8 @@
 import { createComment } from './elements.js';
-import { directives, STRUCTURAL_DIRECTIVE_INDEX } from './directive/index.js';
+import { structuralDirectives } from './directive/index.js';
 import { entries, setAttribute, stringify } from './util.js';
 import { StructuralDirective } from './directive/types.js';
+import { throwError } from './errors.js';
 
 export const linkStructuralDirective = (
     controller: Object,
@@ -10,17 +11,16 @@ export const linkStructuralDirective = (
 ): Node | null | void | 1 => {
     const attrs = currentNode.attributes;
 
-    // Node.ELEMENT_NODE === 1
-    if (currentNode.nodeType === 1 && attrs) {
+    if (attrs) {
         let directive: [string, StructuralDirective, string] | undefined;
 
-        for (const [k, v] of entries(directives[STRUCTURAL_DIRECTIVE_INDEX])) {
+        for (const [k, v] of entries(structuralDirectives)) {
             const attr = attrs.getNamedItem(k);
 
             if (attr) {
                 // Only allow one structural directive on an element
                 if (directive) {
-                    throw new Error(`${directive[0]} breaks ${k}`);
+                    throwError(`${directive[0]} breaks ${k}`);
                 }
 
                 directive = [k, v, attr.nodeValue || ''];
@@ -39,6 +39,10 @@ export const linkStructuralDirective = (
             treeWalker.previousNode();
             currentNode.remove();
 
+            // Move tree walker to the next node. Processing the directive will
+            // modify the DOM between the anchor and the current tree walker node.
+            treeWalker.nextNode();
+
             // Remove star directives here so infinite loops are avoided.
             setAttribute(currentNode, directive[0]);
 
@@ -50,6 +54,10 @@ export const linkStructuralDirective = (
                 directive[2],
                 directive[0]
             );
+
+            // Move back one node so the next loop will process the node we're
+            // currently pointing at.
+            treeWalker.previousNode();
 
             return 1;
         }

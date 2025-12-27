@@ -1,6 +1,7 @@
 /**
  * Set up config and define a custom element.
  */
+import { newSet } from './sets.js';
 import { events } from './events.js';
 import { Emitter } from './emitter.js';
 import { allControllers } from './all-controllers.js';
@@ -11,6 +12,8 @@ import {
     getAttribute,
     hasOwn,
     setAttribute,
+    isTemplate,
+    isString,
 } from './util.js';
 import {
     Controller,
@@ -29,38 +32,30 @@ import {
     CustomElementConfig,
     CustomElementConfigInternal,
 } from './custom-element-config.js';
-import { bootstrap, nextN } from './global.js';
 import { metadata } from './symbols.js';
-import { linkNodes } from './link-nodes.js';
+import { linkNodes } from './link-unlink.js';
 import { patchSetter, removeSetters } from './setter.js';
 import { whenParsed } from './when-parsed.js';
 import { change } from './change.js';
 
 // Decorator to wire a class as a custom component
-export const Component = (tag: string, config: CustomElementConfig) => (
-    (target: ControllerConstructor) => component(tag, config, target)
-);
+export const Component =
+    (tag: string, config: CustomElementConfig) =>
+    (target: ControllerConstructor) =>
+        component(tag, config, target);
 
 export const component = (
     tag: string,
     configInitial: CustomElementConfig,
     constructor?: ControllerConstructor
 ): CustomElementConstructor => {
-    bootstrap();
-    const cssClassName = `fudgel-${nextN()}`;
+    const cssClassName = `fudgel_${tag}`;
     const style = scopeStyle(
         configInitial.style || '',
         tag,
         cssClassName,
         configInitial.useShadow
     );
-    const config = {
-        ...configInitial,
-        attr: configInitial.attr || [],
-        cssClassName,
-        prop: configInitial.prop || [],
-        style,
-    } as CustomElementConfigInternal;
     constructor = constructor || class implements Controller {};
     const template = createTemplate();
     const updateClasses = (templateNode: HTMLTemplateElement) => {
@@ -68,20 +63,27 @@ export const component = (
         let currentNode;
 
         while ((currentNode = treeWalker.nextNode())) {
-            if (currentNode.nodeName === 'TEMPLATE') {
+            if (isTemplate(currentNode)) {
                 updateClasses(currentNode as HTMLTemplateElement);
             }
 
             toggleClass(currentNode as HTMLElement, cssClassName, true);
         }
     };
-    template.innerHTML = config.template;
+    template.innerHTML = configInitial.template || '';
     updateClasses(template);
-    config.template = template.innerHTML;
+    const config = {
+        ...configInitial,
+        attr: newSet(configInitial.attr || []),
+        cssClassName,
+        prop: newSet(configInitial.prop || []),
+        style,
+        template: template.innerHTML,
+    } as CustomElementConfigInternal;
 
     class CustomElement extends HTMLElement {
         [metadata]?: Controller;
-        static observedAttributes: string[] = config.attr.map(camelToDash);
+        static observedAttributes: string[] = [...config.attr].map(camelToDash);
 
         attributeChangedCallback(
             attributeName: string,
@@ -100,7 +102,7 @@ export const component = (
             // Create the controller and set up links between element and controller
             const controllerMetadata: ControllerMetadata = {
                 ...config,
-                change: new Emitter<string>(),
+                events: new Emitter<string>(),
                 host: this,
                 root,
             };
@@ -119,43 +121,43 @@ export const component = (
 
                 // Set initial value - updates are tracked with
                 // attributeChangedCallback.
-                change(controller, propertyName, getAttribute(this, attributeName));
+                change(
+                    controller,
+                    propertyName,
+                    getAttribute(this, attributeName)
+                );
 
                 // When the internal property changes, update the attribute but only
                 // if it is a string or null.
-                patchSetter(
-                    controller,
-                    propertyName,
-                    (newValue: any) => {
-                        if (
-                            (typeof newValue === 'string' ||
-                                newValue === null) &&
-                            controller[metadata]
-                        ) {
-                            setAttribute(this, attributeName, newValue);
-                        }
+                patchSetter(controller, propertyName, (newValue: any) => {
+                    if (
+                        (isString(newValue) || newValue === null) &&
+                        controller[metadata]
+                    ) {
+                        setAttribute(this, attributeName, newValue);
                     }
-                );
+                });
             }
 
             for (const propertyName of config.prop) {
                 if (hasOwn(this, propertyName)) {
-                    change(controller, propertyName, (this as any)[propertyName]);
+                    change(
+                        controller,
+                        propertyName,
+                        (this as any)[propertyName]
+                    );
                 }
 
                 // When element changes, update controller
-                patchSetter(
-                    this,
-                    propertyName,
-                    (newValue: any) => change(controller, propertyName, newValue)
+                patchSetter(this, propertyName, (newValue: any) =>
+                    change(controller, propertyName, newValue)
                 );
 
                 // When controller changes, update element
                 patchSetter(
                     controller,
                     propertyName,
-                    (newValue: any) =>
-                        (this as any)[propertyName] = newValue
+                    (newValue: any) => ((this as any)[propertyName] = newValue)
                 );
 
                 // Assign the property back to the element in case it was
@@ -173,10 +175,11 @@ export const component = (
                 if (controller[metadata]) {
                     controller.onParse?.();
 
-                    // Create initial child elements from the template.
+                    // Create initial child elements from the template. This creates them
+                    // and adds them to the DOM, so do not use `link()`.
                     const template = createTemplate();
                     template.innerHTML = config.template;
-                    linkNodes(template.content, controller);
+                    linkNodes(controller, template.content);
 
                     // Remove all existing content when not using a shadow DOM to simulate
                     // the same behavior shown when using a shadow DOM.
@@ -206,10 +209,12 @@ export const component = (
         }
 
         disconnectedCallback() {
-            this[metadata]?.onDestroy?.();
+            const controller = this[metadata]!;
+            controller.onDestroy?.();
+            controller[metadata]!.events.emit('destroy');
 
             // Remove the controller from the global list
-            allControllers.delete(this[metadata]!);
+            allControllers.delete(controller);
 
             // Remove setters on the element.
             // It is not necessary to remove setters on the controller because
@@ -217,7 +222,7 @@ export const component = (
             removeSetters(this);
 
             // Remove the controller's metadata
-            delete this[metadata]?.[metadata];
+            delete controller[metadata];
 
             // Remove the link to the controller
             delete this[metadata];
@@ -238,57 +243,57 @@ export const component = (
     return CustomElement;
 };
 
+const scopeStyleRule = (
+    rule: CSSRule,
+    tagForScope: string,
+    className: string,
+    useShadow?: boolean
+) => {
+    if ((rule as CSSStyleRule).selectorText) {
+        (rule as CSSStyleRule).selectorText = (
+            rule as CSSStyleRule
+        ).selectorText
+            .split(',')
+            .map((selector: string) => {
+                selector = selector.trim();
+                const addSuffix = (x: string) => `${x}.${className}`;
+                const replaceScope = (x: string, withThis: string) =>
+                    x.replace(/:host/, withThis);
+                const doesNotHaveScope = replaceScope(selector, '') == selector;
+
+                if (useShadow) {
+                    if (doesNotHaveScope || selector.includes(' ')) {
+                        selector = addSuffix(selector);
+                    }
+                } else {
+                    selector = replaceScope(selector, tagForScope);
+
+                    if (doesNotHaveScope) {
+                        selector = `${tagForScope} ${addSuffix(selector)}`;
+                    }
+                }
+
+                return selector;
+            })
+            .join(',');
+        tagForScope = ''; // Don't need to scope children selectors
+    }
+
+    for (const childRule of (rule as CSSGroupingRule).cssRules ?? []) {
+        scopeStyleRule(childRule, tagForScope, className, useShadow);
+    }
+
+    return rule.cssText;
+};
+
+// 6725
 // Exported for easier testing
 export const scopeStyle = (
     style: string,
     tag: string,
     className: string,
     useShadow?: boolean
-) => {
-    const selectorText = 'selectorText';
-    const scopeStyleRule = (rule: CSSRule, tagForScope: string) => {
-        if ((rule as CSSStyleRule)[selectorText]) {
-            (rule as CSSStyleRule)[selectorText] = (rule as CSSStyleRule)[
-                selectorText
-            ]
-                .split(',')
-                .map((selectorText: string) =>
-                    updateSelectorText(selectorText, tagForScope)
-                )
-                .join(',');
-            tagForScope = ''; // Don't need to scope children selectors
-        }
-
-        for (const childRule of (rule as CSSGroupingRule).cssRules ?? []) {
-            scopeStyleRule(childRule, tagForScope);
-        }
-
-        return rule.cssText;
-    };
-
-    const updateSelectorText = (selector: string, tagForScope: string) => {
-        selector = selector.trim();
-        const addSuffix = (x: string) => `${x}.${className}`;
-        const replaceScope = (x: string, withThis: string) =>
-            x.replace(/:host/, withThis);
-        const doesNotHaveScope = replaceScope(selector, '') === selector;
-
-        if (useShadow) {
-            if (doesNotHaveScope || selector.includes(' ')) {
-                selector = addSuffix(selector);
-            }
-        } else {
-            selector = replaceScope(selector, tagForScope);
-
-            if (doesNotHaveScope) {
-                selector = `${tagForScope} ${addSuffix(selector)}`;
-            }
-        }
-
-        return selector;
-    };
-
-    return [...sandboxStyleRules(style)]
-        .map(rule => scopeStyleRule(rule, tag))
+) =>
+    [...sandboxStyleRules(style)]
+        .map(rule => scopeStyleRule(rule, tag, className, useShadow))
         .join('');
-};

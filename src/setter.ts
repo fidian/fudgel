@@ -1,17 +1,17 @@
 import { entries, Obj } from './util.js';
-import { makeWeakMapWithDefault } from './maps.js'
+import { shorthandWeakMap } from './maps.js'
 
 export type SetterCallback = (newValue: any, oldValue: any) => void;
 export interface TrackedSetters<> {
     [key: string]: SetterCallback[];
 }
 
-const patchedSetters = makeWeakMapWithDefault<Object, TrackedSetters>(() => ({}));
+const patchedSetters = shorthandWeakMap<Object, TrackedSetters>();
 
 export const removeSetters = <T extends Object>(
     obj: T
 ) => {
-    for (const [_, callbacks] of entries(patchedSetters(obj))) {
+    for (const [_, callbacks] of entries(patchedSetters(obj) || {})) {
         callbacks.length = 0;
     }
 }
@@ -21,7 +21,7 @@ export const patchSetter = <T extends Object>(
     property: string,
     callback: SetterCallback
 ) => {
-    const trackingObject = patchedSetters(obj);
+    const trackingObject = patchedSetters(obj) || patchedSetters(obj, {});
     let callbacks = trackingObject[property];
 
     if (!callbacks) {
@@ -34,6 +34,7 @@ export const patchSetter = <T extends Object>(
             set: function (newValue: any) {
                 const oldValue = value;
 
+                // Distinguish between different NaN values or +0 and -0.
                 if (!Obj.is(newValue, oldValue)) {
                     desc.set?.(newValue);
                     value = newValue;

@@ -34,21 +34,21 @@
  *     </inner-element>
  * </outer-element>
  */
-import { allComponents } from './all-components.js';
-import { events } from './events.js';
+import { allComponents } from '../all-components.js';
+import { events } from '../events.js';
 import {
     createElement,
     createFragment,
     createTemplate,
     createTreeWalker,
-} from './elements.js';
-import { Controller, ControllerConstructor } from './controller-types.js';
-import { CustomElementConfig } from './custom-element-config.js';
-import { Emitter } from './emitter.js';
-import { getAttribute, setAttribute } from './util.js';
-import { getScope, Scope } from './scope.js';
-import { metadata } from './symbols.js';
-import { metadataElementSlotContent, metadataScope } from './metadata.js';
+} from '../elements.js';
+import { Controller, ControllerConstructor } from '../controller-types.js';
+import { CustomElementConfigInternal } from '../custom-element-config.js';
+import { Emitter } from '../emitter.js';
+import { getAttribute, setAttribute } from '../util.js';
+import { childScope, getScope, Scope } from '../scope.js';
+import { metadata } from '../symbols.js';
+import { shorthandWeakMap } from '../maps.js';
 
 export interface SlotInfo {
     c: string; // Original content HTML
@@ -56,6 +56,11 @@ export interface SlotInfo {
     n: Record<string, DocumentFragment>; // Named content
     s: Scope; // Outer element's scope for Fudgel bindings
 }
+
+const metadataElementSlotContent = shorthandWeakMap<
+    ShadowRoot | HTMLElement,
+    SlotInfo
+>();
 
 const getFragment = (slotInfo: SlotInfo, name: string) =>
     slotInfo.n[name] || (slotInfo.n[name] = createFragment());
@@ -107,8 +112,9 @@ export const defineSlotComponent = (name = 'slot-like') => {
             const slotInfo = this._slotInfo;
 
             if (slotInfo) {
-                // Set the scope of this element to match the outer element's scope.
-                metadataScope(this, slotInfo.s);
+                // Set the scope of this element to be a child of the outer
+                // element's scope.
+                childScope(slotInfo.s, this);
                 this._addContent(slotInfo);
             }
         }
@@ -145,7 +151,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
     const rewrite = (
         _baseClass: new () => HTMLElement,
         controllerConstructor: ControllerConstructor,
-        config: CustomElementConfig
+        config: CustomElementConfigInternal
     ) => {
         if (!config.useShadow) {
             let rewrittenSlotElement = false;
@@ -157,7 +163,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
             while ((currentNode = treeWalker.nextNode() as HTMLElement)) {
                 // Change DOM elements in the template from <slot> to the
                 // <slot-like>
-                if (currentNode.nodeName === 'SLOT') {
+                if (currentNode.nodeName == 'SLOT') {
                     rewrittenSlotElement = true;
                     const slotLike = createElement(name);
 
@@ -175,7 +181,51 @@ export const defineSlotComponent = (name = 'slot-like') => {
                 config.template = template.innerHTML;
             }
 
-            patch(controllerConstructor.prototype);
+            const proto = controllerConstructor.prototype;
+            const onParse = proto.onParse;
+            const onDestroy = proto.onDestroy;
+
+            proto.onParse = function (this: Controller) {
+                const controllerMetadata = this[metadata]!;
+                const root = controllerMetadata.root;
+                const slotInfo = metadataElementSlotContent(root, {
+                    // Original content for restoring the DOM on disconnect
+                    c: root.innerHTML,
+
+                    // Event emitter
+                    e: new Emitter(),
+
+                    // Slots - named ones are set as additional properties. Unnamed
+                    // slot content is combined into the '' fragment.
+                    n: {
+                        '': createFragment(),
+                    },
+
+                    // Scope for the <slot-like> element.
+                    s: getScope(getParent(controllerMetadata.host) as Node),
+                });
+
+                // Grab all content for named slots
+                for (const child of [...root.querySelectorAll('[slot]')]) {
+                    getFragment(
+                        slotInfo,
+                        getAttribute(child, 'slot') || ''
+                    ).append(child);
+                }
+
+                // Now collect everything else and add it to the default slot
+                for (const child of [...root.childNodes]) {
+                    slotInfo.n[''].append(child);
+                }
+
+                onParse?.call(this);
+            };
+            proto.onDestroy = function (this: Controller) {
+                const root = this[metadata]!.root;
+                const slotInfo = metadataElementSlotContent(root)!;
+                root.innerHTML = slotInfo.c;
+                onDestroy?.call(this);
+            };
         }
     };
     for (const info of allComponents) {
@@ -183,49 +233,3 @@ export const defineSlotComponent = (name = 'slot-like') => {
     }
     events.on('component', rewrite);
 };
-
-function patch(proto: Controller) {
-    const onParse = proto.onParse;
-    const onDestroy = proto.onDestroy;
-
-    proto.onParse = function (this: Controller) {
-        const controllerMetadata = this[metadata]!;
-        const root = controllerMetadata.root;
-        const slotInfo = metadataElementSlotContent(root, {
-            // Original content for restoring the DOM on disconnect
-            c: root.innerHTML,
-
-            // Event emitter
-            e: new Emitter(),
-
-            // Slots - named ones are set as additional properties. Unnamed
-            // slot content is combined into the '' fragment.
-            n: {
-                '': createFragment(),
-            },
-
-            // Scope for the <slot-like> element.
-            s: getScope(getParent(controllerMetadata.host) as Node),
-        });
-
-        // Grab all content for named slots
-        for (const child of [...root.querySelectorAll('[slot]')]) {
-            getFragment(slotInfo, getAttribute(child, 'slot') || '').append(
-                child
-            );
-        }
-
-        // Now collect everything else and add it to the default slot
-        for (const child of [...root.childNodes]) {
-            slotInfo.n[''].append(child);
-        }
-
-        onParse?.call(this);
-    };
-    proto.onDestroy = function (this: Controller) {
-        const root = this[metadata]!.root;
-        const slotInfo = metadataElementSlotContent(root)!;
-        root.innerHTML = slotInfo.c;
-        onDestroy?.call(this);
-    };
-}

@@ -2,10 +2,9 @@ import { addBindings } from '../bindings.js';
 import { childScope, getScope } from '../scope.js';
 import { cloneNode } from '../elements.js';
 import { Controller } from '../controller-types.js';
-import { hooksOff } from '../hooks.js';
 import { entries } from '../util.js';
-import { linkNodesWrapped } from '../link-nodes.js';
-import { parse } from '../jsep.js';
+import { link, unlink } from '../link-unlink.js';
+import { parse } from '../parse.js';
 import { StructuralDirective } from './types.js';
 
 export const starForDirective: StructuralDirective = (
@@ -26,11 +25,11 @@ export const starForDirective: StructuralDirective = (
         attrValue = matches[3];
     }
 
-    const parsed = parse(attrValue);
+    const parsed = parse.js(attrValue);
     const anchorScope = getScope(anchor);
     let activeNodes = new Map<any, HTMLElement>();
-    const update = (thisRef: Controller) => {
-        const iterable = parsed[0]([anchorScope, thisRef]) || [];
+    const update = () => {
+        const iterable = parsed[0](anchorScope, controller) || [];
         let oldNodes = activeNodes;
         activeNodes = new Map();
         let lastNode: HTMLElement | Comment = anchor;
@@ -49,7 +48,7 @@ export const starForDirective: StructuralDirective = (
             } else {
                 // Delete the old node if it exists
                 if (copy) {
-                    hooksOff(copy);
+                    unlink(controller, copy);
                     copy.remove();
                 }
 
@@ -58,7 +57,7 @@ export const starForDirective: StructuralDirective = (
                 const scope = childScope(anchorScope, copy);
                 (scope as any)[keyName] = key;
                 (scope as any)[valueName] = value;
-                linkNodesWrapped(copy, thisRef);
+                link(controller, copy);
                 lastNode.after(copy);
             }
 
@@ -68,10 +67,10 @@ export const starForDirective: StructuralDirective = (
 
         // Clean up any remaining nodes.
         for (const old of oldNodes.values()) {
-            hooksOff(old);
+            unlink(controller, old);
             old.remove();
         }
     };
     addBindings(controller, anchor, update, parsed[1], anchorScope);
-    update(controller);
+    update();
 };

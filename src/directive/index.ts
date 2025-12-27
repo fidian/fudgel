@@ -16,32 +16,24 @@ export interface StructuralDirectiveRegistry {
     [key: string]: StructuralDirective;
 }
 
-export const STRUCTURAL_DIRECTIVE_INDEX = 0;
-export const GENERAL_DIRECTIVE_INDEX = 1;
-export const directives: [
-    StructuralDirectiveRegistry,
-    GeneralDirectiveRegistry,
-] = [
-    {
-        '*for': starForDirective,
-        '*if': starIfDirective,
-        '*repeat': starRepeatDirective,
-    },
-    {
-        '': attributeDirective,
-        '@': eventDirective,
-        '#class': hashClassDirective,
-        '#ref': hashRefDirective,
-        '.': propertyDirective,
-    },
-];
+export const structuralDirectives: StructuralDirectiveRegistry = {
+    '*for': starForDirective,
+    '*if': starIfDirective,
+    '*repeat': starRepeatDirective,
+};
+
+export const generalDirectives: GeneralDirectiveRegistry = {
+    '': attributeDirective,
+    '@': eventDirective,
+    '#class': hashClassDirective,
+    '#ref': hashRefDirective,
+    '.': propertyDirective,
+};
 
 export const addDirective = (
     name: string,
     directive: GeneralDirective | StructuralDirective
 ) =>
-    (directives[
-        name.charAt(0) === '*'
-            ? STRUCTURAL_DIRECTIVE_INDEX
-            : GENERAL_DIRECTIVE_INDEX
-    ][name] = directive);
+    (name.charAt(0) == '*'
+        ? structuralDirectives
+        : generalDirectives)[name] = directive;

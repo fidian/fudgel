@@ -37,6 +37,7 @@ export const sandboxStyleRules = (css: string) => {
 
 export const testCssSelector = (selector: string) => {
     var result = false;
+
     try {
         doc.querySelector(selector);
         result = true;

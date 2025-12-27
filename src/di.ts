@@ -1,3 +1,5 @@
+import { throwError } from './errors.js';
+
 type Constructor<T extends Object> = new () => T;
 
 const registered = new Map<Object, Object>();
@@ -7,7 +9,7 @@ const circular: Object[] = [];
 export const di = <T extends Object>(Key: Constructor<T>): T => {
     if (circular.includes(Key)) {
         circular.push(Key);
-        throw new Error(
+        throwError(
             `Circular dependency: ${circular
                 .map((Key) => `${(Key as any).name}`)
                 .join(' -> ')}`

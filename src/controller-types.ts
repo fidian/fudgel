@@ -15,7 +15,7 @@ export interface Controller {
 export type ControllerConstructor = new (controllerMetadata: ControllerMetadata) => Controller;
 
 export interface ControllerMetadata extends CustomElementConfigInternal {
-    change: Emitter<string>;
+    events: Emitter<string>;
     host: HTMLElement;
     root: ShadowRoot | HTMLElement;
 }

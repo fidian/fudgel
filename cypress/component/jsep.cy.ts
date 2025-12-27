@@ -1,5 +1,5 @@
 import { Component, html } from '../../src/fudgel.js';
-import { parse } from '../../src/jsep.js';
+import { jsep } from '../../src/jsep.js';
 
 const date = new Date();
 
@@ -502,7 +502,7 @@ describe('jsep', () => {
                 errorCalled = true;
                 error.apply(console, args);
             };
-            const [fn, bindings] = parse(scenario.input);
+            const [fn, bindings] = jsep(scenario.input);
             console.error = error;
             expect(errorCalled).to.equal(
                 !!scenario.fails,
@@ -510,17 +510,15 @@ describe('jsep', () => {
                     ? 'An error should be thrown'
                     : 'No error is expected to be thrown'
             );
-            bindings.sort();
-            scenario.bindings?.sort();
-            expect(bindings).to.deep.equal(
-                scenario.bindings || [],
+            expect([...bindings].sort()).to.deep.equal(
+                [...(scenario.bindings || [])].sort(),
                 'Bindings must match'
             );
             expect(fn).to.be.a(
                 'function',
                 'A generator function needs to be returned'
             );
-            const output = fn([scenario.scope || {}]);
+            const output = fn(scenario.scope || {});
             expect(output).to.deep.equal(
                 scenario.output,
                 'Output needs to match the expected value'

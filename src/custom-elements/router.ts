@@ -4,15 +4,16 @@ import {
     getAttribute,
     isString,
     setAttribute,
-} from './util.js';
+    isTemplate,
+} from '../util.js';
 import {
     cloneNode,
     createElement,
     createFragment,
     doc,
     win,
-} from './elements.js';
-import { dispatchCustomEvent } from './actions.js';
+} from '../elements.js';
+import { dispatchCustomEvent } from '../actions.js';
 
 interface MatchedRoute {
     e: HTMLElement;
@@ -30,7 +31,7 @@ export class RouterComponent extends HTMLElement {
         let children = this.children;
         let firstChild = children[0];
 
-        if (firstChild.nodeName === 'TEMPLATE') {
+        if (isTemplate(firstChild)) {
             // Use the children within the template
             this._routeElements = Array.from(
                 (firstChild as HTMLTemplateElement).content.children
@@ -100,14 +101,14 @@ export class RouterComponent extends HTMLElement {
         if (!e.defaultPrevented) {
             const link = e
                 .composedPath()
-                .filter((n: any) => (n as HTMLElement).tagName === 'A')[0] as
+                .filter((n: any) => (n as HTMLElement).tagName == 'A')[0] as
                 | HTMLAnchorElement
                 | undefined;
 
             if (link) {
                 if (
                     link.href &&
-                    link.origin === win.location.origin &&
+                    link.origin == win.location.origin &&
                     !link.href.startsWith('blob:')
                 ) {
                     e.preventDefault();
@@ -129,7 +130,7 @@ export class RouterComponent extends HTMLElement {
         );
     }
 
-    private _match(url: string): MatchedRoute | null {
+    private _match(url: string): MatchedRoute | undefined {
         for (const routeElement of this._routeElements) {
             const path = getAttribute(routeElement, 'path') || '**';
             const regexpAttr = getAttribute(routeElement, 'regexp');
@@ -157,7 +158,7 @@ export class RouterComponent extends HTMLElement {
             }
         }
 
-        return null;
+        // Returning undefined is falsy
     }
 
     private _modifyStateGenerator(

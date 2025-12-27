@@ -3,7 +3,7 @@ import { Controller } from '../controller-types.js';
 import { entries, setAttribute } from '../util.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
-import { parse } from '../jsep.js';
+import { parse } from '../parse.js';
 import { toggleClass } from '../elements.js';
 
 export const hashClassDirective: GeneralDirective = (
@@ -12,10 +12,10 @@ export const hashClassDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const parsed = parse(attrValue);
+    const parsed = parse.js(attrValue);
     const scope = getScope(node);
-    const update = (thisRef: Controller) => {
-        for (const [key, value] of entries(parsed[0]([scope, thisRef]))) {
+    const update = () => {
+        for (const [key, value] of entries(parsed[0](scope, controller))) {
             // value can be undefined, but in this context it should be forced
             // to be a boolean. An undefined value here means to remove the
             // class, not toggle the class.
@@ -23,6 +23,6 @@ export const hashClassDirective: GeneralDirective = (
         }
     };
     addBindings(controller, node, update, parsed[1], scope);
-    update(controller);
+    update();
     setAttribute(node, attrName);
 };

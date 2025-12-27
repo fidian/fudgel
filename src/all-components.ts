@@ -1,5 +1,5 @@
 import { ControllerConstructor } from './controller-types.js';
-import { CustomElementConfig } from './custom-element-config.js';
+import { CustomElementConfigInternal } from './custom-element-config.js';
 
 // [0] = Custom element contstructor
 // [1] = Controller constructor
@@ -7,7 +7,7 @@ import { CustomElementConfig } from './custom-element-config.js';
 export type ComponentInfo = [
     new () => HTMLElement,
     ControllerConstructor,
-    CustomElementConfig,
+    CustomElementConfigInternal,
 ];
 
 export const allComponents = new Set<ComponentInfo>();

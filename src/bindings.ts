@@ -1,23 +1,34 @@
 import { Controller } from './controller-types.js';
-import { hookOn, hookWhenSet } from './hooks.js';
-import { GlobalScope, Scope } from './scope.js';
+import { Scope } from './scope.js';
 import { Obj, hasOwn } from './util.js';
+import { patchSetter } from './setter.js';
+import { metadata } from './symbols.js';
 
 export const addBindings = (
     controller: Controller,
     node: Node,
     callback: (thisRef: Object) => void,
-    bindingList: string[],
+    bindingList: Iterable<string>,
     scope: Scope
 ) => {
-    hookOn(controller, node, 'set:', callback);
-
     for (const binding of bindingList) {
         const target = findBindingTarget(controller, scope, binding);
-        hookWhenSet(controller, target, binding);
-        hookOn(target, node, `set:${binding}`, x => {
-            return callback(x);
-        });
+        patchSetter(target, binding, callback);
+        const onDestroy = () => {
+            for (const remover of removers) {
+                remover?.();
+            }
+        };
+        const onRemove = (removedNode: Node) => {
+            if (removedNode.contains(node)) {
+                onDestroy();
+            }
+        };
+        const removers = [
+            controller[metadata]?.events.on('update', callback),
+            controller[metadata]?.events.on('unlink', onRemove),
+            controller[metadata]?.events.on('destroy', onDestroy)
+        ];
     }
 };
 
@@ -28,6 +39,6 @@ const findBindingTarget = (
 ): object =>
     hasOwn(scope, binding)
         ? scope
-        : hasOwn(scope, GlobalScope)
+        : hasOwn(scope, metadata)
           ? controller
           : findBindingTarget(controller, Obj.getPrototypeOf(scope), binding);

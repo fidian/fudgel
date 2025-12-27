@@ -1,5 +1,7 @@
-import { memoize, Obj, uniqueListJoin } from './util.js';
+import { Obj } from './util.js';
 import { win } from './elements.js';
+import { throwError } from './errors.js';
+import { newSet } from './sets.js';
 
 // JavaScript Expression Parser (JSEP)
 // Based on the NPM package `jsep` by Stephen Oney
@@ -16,10 +18,10 @@ type RootValueProvider = { [key: string | symbol]: ProvidedValue };
 type ValueProviderFunction = (root: RootValueProvider) => ProvidedValue;
 
 // This is used internally
-type ValueProvider = [ValueProviderFunction, string[]];
+type ValueProvider = [ValueProviderFunction, Set<string>];
 
 // This is passed back to the caller of parse()
-export type ValueProviderRoot = [(roots: object[]) => any, string[]];
+export type ValueProviderRoot = [(...roots: object[]) => any, Set<string>];
 
 // Global variables used during synchronous parsing.
 let expr = ''; // The expression to parse
@@ -106,13 +108,13 @@ const literals: { [key: string]: any } = {
     undefined: undefined,
 };
 
-const defaultValueProvider = [() => [] as any, []] as ValueProvider;
+const defaultValueProvider = () => [() => [] as any, newSet()] as ValueProvider;
 
 // Parses an expression. Always returns a ValueProviderRoot, which is a tuple:
 // [function, string[]].  The function takes a list of objects that are
 // searched for root values and returns a value. The returned string[] is a
 // list of bound properties that the function uses.
-export const parse = memoize((exprToParse: string): ValueProviderRoot => {
+export const jsep = (exprToParse: string): ValueProviderRoot => {
     // Assign to a global variable
     expr = exprToParse;
 
@@ -121,16 +123,16 @@ export const parse = memoize((exprToParse: string): ValueProviderRoot => {
     gobbleSpaces(1);
 
     // Use a default return value
-    let result: ValueProvider = defaultValueProvider;
+    let result: ValueProvider = defaultValueProvider();
 
     try {
         if (moreToParse) {
-            result = gobbleExpression() || throwError();
+            result = gobbleExpression() || throwJsepError();
         }
 
         if (moreToParse) {
-            result = defaultValueProvider;
-            throwError();
+            result = defaultValueProvider();
+            throwJsepError();
         }
     } catch (ignore) {}
 
@@ -138,7 +140,7 @@ export const parse = memoize((exprToParse: string): ValueProviderRoot => {
     // When calling result[0], the root object needs to wrap the values in an array
     // to produce ProvidedValue results;
     return [
-        (roots: object[]) =>
+        (...roots: object[]) =>
             result[0](
                 // Wrap all values provided from the root objects (or the
                 // window fallback) in arrays to preserve their context. All
@@ -148,6 +150,7 @@ export const parse = memoize((exprToParse: string): ValueProviderRoot => {
                     {
                         get(_ignoreTarget: any, prop: string | symbol) {
                             for (const root of roots) {
+                                // "in" searches the object and its prototype chain
                                 if (prop in root) {
                                     return [(root as any)[prop], root];
                                 }
@@ -159,7 +162,7 @@ export const parse = memoize((exprToParse: string): ValueProviderRoot => {
             )[0],
         result[1],
     ];
-});
+};
 
 // Move to the next character in the expression.
 const advance = (n = 1) => {
@@ -179,11 +182,8 @@ const isIdentifierStart = (charCode = code) =>
     /* _ */ charCode == 95;
 const isIdentifierPart = (charCode?: number) =>
     isIdentifierStart(charCode) || isDecimalDigit(charCode);
-const throwError = () => {
-    const err = `Parse error at index ${index}: ${expr}`;
-    console.error(err);
-
-    throw new Error(err);
+const throwJsepError = () => {
+    throwError(`Parse error at index ${index}: ${expr}`);
 };
 
 // Consume whitespace in the expression.
@@ -207,7 +207,7 @@ const gobbleExpression = (): ValueProvider => {
         const r = stack.pop() as ValueProvider,
             op = stack.pop() as BinaryOp,
             l = stack.pop() as ValueProvider;
-        stack.push([op[1](l[0], r[0]), uniqueListJoin(l[1], r[1])]);
+        stack.push([op[1](l[0], r[0]), newSet(l[1], r[1])]);
     };
 
     // First, try to get the leftmost thing
@@ -229,7 +229,7 @@ const gobbleExpression = (): ValueProvider => {
     const stack: (ValueProvider | BinaryOp)[] = [
         left,
         biop,
-        gobbleToken() || throwError(),
+        gobbleToken() || throwJsepError(),
     ];
 
     // Compare the previous binary operator against the newly found one.
@@ -253,7 +253,7 @@ const gobbleExpression = (): ValueProvider => {
             combineLast();
         }
 
-        stack.push(biop, gobbleToken() || throwError());
+        stack.push(biop, gobbleToken() || throwJsepError());
     }
 
     while (stack.length > 1) {
@@ -307,7 +307,7 @@ const gobbleToken = (): ValueProvider => {
         // 34 = '"', 39 = "'"
         // Single or double quotes
         const str = gobbleStringLiteral();
-        node = [() => [str], []];
+        node = [() => [str], newSet()];
     } else if (code === 91) {
         // 91 is '['
         // Array literal
@@ -321,7 +321,7 @@ const gobbleToken = (): ValueProvider => {
         const op = gobbleTokenFromList(unaryOps);
 
         if (op) {
-            const argument = gobbleToken() || throwError();
+            const argument = gobbleToken() || throwJsepError();
             return [op(argument[0]), argument[1]];
         }
 
@@ -331,8 +331,8 @@ const gobbleToken = (): ValueProvider => {
         // an array with the context.
         node =
             identifier in literals
-                ? [() => [literals[identifier]], []]
-                : [root => root[identifier], [identifier]];
+                ? [() => [literals[identifier]], newSet()]
+                : [root => root[identifier], newSet([identifier])];
     }
 
     return gobbleTokenProperty(node);
@@ -351,7 +351,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             value: ProvidedValue,
             root: RootValueProvider
         ) => ProvidedValue;
-        let bindings: string[] = [];
+        let bindings: Set<string> = newSet();
         let prevNode: ValueProvider = node;
         // '?'
         if (code == 63) {
@@ -368,7 +368,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
         // '['
         if (code == 91) {
             gobbleSpaces(1);
-            const expression = gobbleExpression() || throwError();
+            const expression = gobbleExpression() || throwJsepError();
             action = (value, root) => [
                 value[0][expression[0](root)[0]],
                 value[0],
@@ -376,7 +376,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             bindings = expression[1];
             // ']'
             if ((code as number) !== 93) {
-                throwError();
+                throwJsepError();
             }
             gobbleSpaces(1);
         } else if (code == 40) {
@@ -395,7 +395,7 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
             const identifier = gobbleIdentifier();
             action = value => [value[0][identifier], value[0]];
         } else {
-            throwError();
+            throwJsepError();
         }
 
         node = optional
@@ -410,11 +410,11 @@ const gobbleTokenProperty = (node: ValueProvider): ValueProvider => {
                           ? ([] as any)
                           : action(value, root);
                   },
-                  uniqueListJoin(prevNode[1], bindings),
+                  newSet(prevNode[1], bindings),
               ]
             : [
                   root => action(prevNode[0](root), root),
-                  uniqueListJoin(prevNode[1], bindings),
+                  newSet(prevNode[1], bindings),
               ];
 
         gobbleSpaces();
@@ -457,7 +457,7 @@ const gobbleNumericLiteral = (): ValueProvider => {
         }
 
         if (!isDecimalDigit()) {
-            throwError();
+            throwJsepError();
         }
 
         do {
@@ -469,16 +469,16 @@ const gobbleNumericLiteral = (): ValueProvider => {
     // Check to make sure this isn't a variable name that starts with a number
     // (123abc)
     if (isIdentifierStart()) {
-        throwError();
+        throwJsepError();
     } else if (code == 46 || number == '.') {
         // 46 is '.'
         // Error with "1.." and "."
-        throwError();
+        throwJsepError();
     }
 
     gobbleSpaces();
     const value = parseFloat(number);
-    return [() => [value], []];
+    return [() => [value], newSet()];
 };
 
 const gobbleStringLiteral = (): string => {
@@ -505,7 +505,7 @@ const gobbleStringLiteral = (): string => {
     }
 
     if (!moreToParse) {
-        throwError();
+        throwJsepError();
     }
 
     gobbleSpaces(1);
@@ -517,7 +517,7 @@ const gobbleIdentifier = (): string => {
     let start = index;
 
     if (!isIdentifierStart()) {
-        throwError();
+        throwJsepError();
     }
 
     advance();
@@ -545,18 +545,18 @@ const gobbleArguments = (
 
     while (code !== terminator) {
         if (!moreToParse) {
-            throwError();
+            throwJsepError();
         }
 
         args.push(
-            allowEmpty && code == 44 ? defaultValueProvider : gobbleExpression()
+            allowEmpty && code == 44 ? defaultValueProvider() : gobbleExpression()
         );
 
         if (code == 44) {
             // 44 is ','
             gobbleSpaces(1);
         } else if (code !== terminator) {
-            throwError();
+            throwJsepError();
         }
     }
 
@@ -564,7 +564,7 @@ const gobbleArguments = (
 
     return [
         root => [args.map(arg => arg[0](root)[0])],
-        args.reduce((acc: string[], arg) => uniqueListJoin(acc, arg[1]), []),
+        newSet(...args.map((arg) => arg[1])),
     ];
 };
 
@@ -578,7 +578,7 @@ const gobbleObjectLiteral = (): ValueProvider => {
         let propNameProvider!: ValueProvider;
 
         if (!moreToParse) {
-            throwError();
+            throwJsepError();
         }
 
         // 46 is '.'
@@ -597,7 +597,7 @@ const gobbleObjectLiteral = (): ValueProvider => {
 
             if ((code as number) != 93) {
                 // 93 is ']'
-                throwError();
+                throwJsepError();
             }
 
             gobbleSpaces(1);
@@ -606,7 +606,7 @@ const gobbleObjectLiteral = (): ValueProvider => {
         }
 
         if (propName) {
-            propNameProvider = [() => [propName], []];
+            propNameProvider = [() => [propName], newSet()];
         }
 
         // 58 is ':'
@@ -615,11 +615,11 @@ const gobbleObjectLiteral = (): ValueProvider => {
             props.push([propNameProvider, gobbleExpression()]);
         } else if (!propName) {
             // If there was a property name provider, then it must be followed by a colon
-            throwError();
+            throwJsepError();
         } else {
             props.push([
                 propNameProvider,
-                [root => [root[propName][0]], [propName]],
+                [root => [root[propName][0]], newSet([propName])],
             ]);
         }
 
@@ -627,7 +627,7 @@ const gobbleObjectLiteral = (): ValueProvider => {
             // 44 is ','
             gobbleSpaces(1);
         } else if (code !== 125) {
-            throwError();
+            throwJsepError();
         }
     }
 
@@ -643,10 +643,6 @@ const gobbleObjectLiteral = (): ValueProvider => {
 
             return [obj];
         },
-        props.reduce(
-            (acc: string[], prop) =>
-                uniqueListJoin(acc, [...prop[0][1], ...prop[1][1]]),
-            []
-        ),
+        newSet(...(props.map(prop => [prop[0][1], prop[1][1]]).flat()))
     ];
 };

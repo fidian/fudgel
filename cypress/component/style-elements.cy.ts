@@ -2,7 +2,7 @@ import { component, css, html } from '../../src/fudgel.js';
 import { scopeStyle } from '../../src/component.js';
 import { sandboxStyleRules } from '../../src/elements.js';
 
-// fudgel-0
+// fudgel_shadow-root
 component('shadow-root', {
     style: css`
         :host {
@@ -18,7 +18,7 @@ component('shadow-root', {
     useShadow: true
 });
 
-// fudgel-1
+// fudgel_parent-element
 component(
     'parent-element',
     {
@@ -39,7 +39,7 @@ component(
     }
 );
 
-// fudgel-2
+// fudgel_child-element
 component('child-element', {
     attr: ['item'],
     style: css`
@@ -60,9 +60,9 @@ describe('style-elements', () => {
     });
 
     it('only adds style rules once for each element', () => {
-        cy.get('body > style.fudgel-0').should('have.length', 0);
-        cy.get('body > style.fudgel-1').should('have.length', 1);
-        cy.get('body > style.fudgel-2').should('have.length', 1);
+        cy.get('body > style.fudgel_shadow-root').should('have.length', 0);
+        cy.get('body > style.fudgel_parent-element').should('have.length', 1);
+        cy.get('body > style.fudgel_child-element').should('have.length', 1);
         cy.get('shadow-root').shadow().find('style').should('have.length', 3);
 
         // 2 in main document

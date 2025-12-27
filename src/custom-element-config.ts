@@ -7,7 +7,7 @@ export interface CustomElementConfig {
      *
      * Values in here should be property names in camelCase, without hyphens.
      */
-    attr?: string[];
+    attr?: Iterable<string>;
 
     /**
      * Normally, content within the custom element is wiped out after onInit()
@@ -22,7 +22,7 @@ export interface CustomElementConfig {
      *
      * Values in here should be property names in camelCase, without hyphens.
      */
-    prop?: string[];
+    prop?: Iterable<string>;
 
     /**
      * Content to add inside of a <style> element.
@@ -32,7 +32,7 @@ export interface CustomElementConfig {
     /**
      * HTML template.
      */
-    template: string;
+    template?: string;
 
     /**
      * Whether or not the shadow DOM should be used.
@@ -40,8 +40,12 @@ export interface CustomElementConfig {
     useShadow?: boolean;
 }
 
-export interface CustomElementConfigInternal extends CustomElementConfig {
-    attr: string[];
+export interface CustomElementConfigInternal {
+    attr: Set<string>;
     cssClassName: string;
-    prop: string[];
+    preserveContent?: boolean;
+    prop: Set<string>;
+    style: string;
+    template: string;
+    useShadow?: boolean;
 }

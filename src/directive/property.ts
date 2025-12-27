@@ -3,7 +3,7 @@ import { Controller } from '../controller-types.js';
 import { dashToCamel, setAttribute } from '../util.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
-import { parse } from '../jsep.js';
+import { parse } from '../parse.js';
 
 export const propertyDirective: GeneralDirective = (
     controller: Controller,
@@ -11,14 +11,14 @@ export const propertyDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const parsed = parse(attrValue);
+    const parsed = parse.js(attrValue);
     const prop = dashToCamel(attrName.slice(1));
     const scope = getScope(node);
-    const update = (thisRef: Controller) => {
-        const value = parsed[0]([scope, thisRef]);
+    const update = () => {
+        const value = parsed[0](scope, controller);
         (node as any)[prop] = value;
     };
     addBindings(controller, node, update, parsed[1], scope);
-    update(controller);
+    update();
     setAttribute(node, attrName);
 };

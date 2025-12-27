@@ -1,10 +1,12 @@
-import { metadataMutationObserver } from './metadata.js';
+import { shorthandWeakMap } from './maps.js';
+import { newSet } from './sets.js';
 
 export interface MutationObserverInfo {
     o?: MutationObserver;
     s: Set<VoidFunction>;
 }
 
+const metadataMutationObserver = shorthandWeakMap<Node, MutationObserverInfo>();
 const DOMContentLoaded = 'DOMContentLoaded';
 
 // When web components are added dynamically, they are automatically ready.
@@ -23,13 +25,14 @@ export const whenParsed = (
     const isReady = () => {
         let node: Node | null = element;
 
+        // FIXME - is there another way to detect? isConnected might work.
         do {
             if (node.nextSibling) {
                 return true;
             }
         } while ((node = node.parentNode));
 
-        return false;
+        // Returns undefined, which is falsy
     };
 
     // If the document is already loaded or any parent has a next sibling,
@@ -74,7 +77,7 @@ const observe = (
     const info =
         metadataMutationObserver(mutationRoot) ||
         metadataMutationObserver(mutationRoot, {
-            s: new Set<VoidFunction>(),
+            s: newSet<VoidFunction>(),
         });
     const onMutation = () => {
         callback(false);

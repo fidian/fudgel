@@ -1,8 +1,9 @@
 import { allControllers } from './all-controllers.js';
 import { Controller } from './controller-types.js';
-import { hooksRun } from './hooks.js';
 import { metadata } from './symbols.js';
+import { newSet } from './sets.js';
 
+// FIXME do not export
 export const dispatchCustomEvent = (
     e: Element,
     eventName: string,
@@ -33,9 +34,9 @@ export const emit = (
     }
 };
 
-export const update = (controller?: Object, propertyName?: string) => {
+export const update = (controller?: Object) => {
     if (controller) {
-        updateController(controller, propertyName);
+        updateController(controller);
     } else {
         for (const registeredController of allControllers) {
             updateController(registeredController);
@@ -45,7 +46,6 @@ export const update = (controller?: Object, propertyName?: string) => {
 
 export const updateController = (
     controller: Controller,
-    propertyName?: string
 ) => {
     // Mark all attributes and properties as being changed so internals get
     // updated. Necessary when deeply nested objects are passed as input
@@ -54,11 +54,10 @@ export const updateController = (
         const { attr, prop } = controller[metadata]!;
 
         // Only trigger updates once per property, so deduplicate names here
-        for (const name of new Set([
-            ...prop,
-            ...attr,
-        ])) {
-            // FIXME also trigger events
+        for (const name of newSet(
+            prop,
+            attr,
+        )) {
             controller.onChange!(
                 name,
                 (controller as any)[name],
@@ -68,6 +67,5 @@ export const updateController = (
     }
 
     // Update all bound functions
-    // FIXME use events
-    hooksRun(`set:${propertyName || ''}`, controller, controller);
+    controller[metadata]?.events.emit('update');
 };

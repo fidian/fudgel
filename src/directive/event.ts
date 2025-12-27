@@ -3,7 +3,8 @@ import { dashToCamel, pascalToDash, setAttribute, Obj } from '../util.js';
 import { doc, win } from '../elements.js';
 import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
-import { parse } from '../jsep.js';
+import { parse } from '../parse.js';
+import { newSet } from '../sets.js';
 
 // The guards come from Vue.js, an excellent framework.
 type KeyedEvent = KeyboardEvent | MouseEvent | TouchEvent;
@@ -48,13 +49,13 @@ export const eventDirective: GeneralDirective = (
 ) => {
     const [eventName, ...modifiers] = dashToCamel(attrName.slice(1)).split('.');
     const scope = Obj.create(getScope(node));
-    const parsed = parse(attrValue);
+    const parsed = parse.js(attrValue);
     const fn = (event: Event) => {
         scope.$event = event;
-        parsed[0]([scope, controller]);
+        parsed[0](scope, controller);
     };
     const options: AddEventListenerOptions = {};
-    const modifierSet = new Set(modifiers);
+    const modifierSet = newSet(modifiers);
     let eventTarget: Node | Window | Document = node;
 
     for (const item of [
