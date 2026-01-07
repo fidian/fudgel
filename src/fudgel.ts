@@ -1,11 +1,10 @@
-export * from './actions.js';
+export { emit, update } from './actions.js';
 export * from './events.js';
 export { Component, component } from './component.js';
 export * from './controller-types.js';
 export * from './di.js';
 export { addDirective } from './directive/index.js';
 export * from './emitter.js';
-export * from './jsep.js';
 export * from './parse.js';
 export * from './custom-elements/router.js';
 export { getScope } from './scope.js';

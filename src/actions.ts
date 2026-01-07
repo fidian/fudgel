@@ -44,7 +44,7 @@ export const update = (controller?: Object) => {
     }
 };
 
-export const updateController = (
+const updateController = (
     controller: Controller,
 ) => {
     // Mark all attributes and properties as being changed so internals get

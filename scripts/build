@@ -14,7 +14,7 @@ sizeAsJson() {
 }
 
 runTerser() {
-    terser --mangle-props regex=/^_/ --ecma 6 --compress --mangle --module ${@+"$@"}
+    terser --mangle-props regex=/^_/ --ecma 6 --compress --mangle ${@+"$@"}
 }
 
 status "Clean"

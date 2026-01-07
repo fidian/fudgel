@@ -10,4 +10,5 @@ export type ComponentInfo = [
     CustomElementConfigInternal,
 ];
 
+// FIXME: agadoo flags this as not tree-shakeable when using newSet()
 export const allComponents = new Set<ComponentInfo>();

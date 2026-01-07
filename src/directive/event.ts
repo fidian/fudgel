@@ -10,15 +10,14 @@ import { newSet } from '../sets.js';
 type KeyedEvent = KeyboardEvent | MouseEvent | TouchEvent;
 
 // When these return truthy values, the guard will STOP and not call the callback.
+//
+// Not all modifiers make it to the modifier set. Some are entirely handled before the event handler is fired, thus those are removed. The following event modifiers are handled before the event listener is added: 'passive', 'capture', 'once', 'window', and 'document'.
+//
+// Some modifiers are processed before the event listener is set up but are still needed as a guard. These are: 'self' and 'outside'.
 const modifierGuards: Record<
     string,
     (e: Event, node: HTMLElement, modifierSet: Set<string>) => void | boolean
 > = {
-    // These are handled before the event handler is created, but are added
-    // here so we don't mistake them as key values.
-    window: () => {},
-    document: () => {},
-
     // Actions
     stop: e => e.stopPropagation(),
     prevent: e => e.preventDefault(),
@@ -56,6 +55,8 @@ export const eventDirective: GeneralDirective = (
     };
     const options: AddEventListenerOptions = {};
     const modifierSet = newSet(modifiers);
+    const checkModifier = (key: string) =>
+        modifierSet.has(key) && (modifierSet.delete(key), 1);
     let eventTarget: Node | Window | Document = node;
 
     for (const item of [
@@ -63,16 +64,21 @@ export const eventDirective: GeneralDirective = (
         'capture',
         'once',
     ] as (keyof AddEventListenerOptions)[]) {
-        if (modifierSet.has(item)) {
+        if (checkModifier(item)) {
             (options[item] as any) = true;
         }
     }
 
-    if (modifierSet.has('window')) {
+    if (checkModifier('window')) {
         eventTarget = win;
     }
 
-    if (modifierSet.has('document') || modifierSet.has('outside')) {
+    // Do not use 'checkModifier' for 'outside' because the modifierGuards handles it
+    // during event processing.
+    //
+    // Be careful with this logic. We are intentionally removing 'document' if
+    // it exists in the set, but preserving 'outside'.
+    if (checkModifier('document') || modifierSet.has('outside')) {
         eventTarget = doc;
     }
 
@@ -80,7 +86,7 @@ export const eventDirective: GeneralDirective = (
         eventName,
         event => {
             if (
-                !modifiers.some(modifier =>
+                ![...modifierSet].some(modifier =>
                     (
                         modifierGuards[modifier] ||
                         ((e: Event) =>
