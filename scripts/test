@@ -12,8 +12,6 @@ npm run build
 status "Tree shaking"
 agadoo dist/fudgel.mjs
 
-status "Cypress (Electron)"
+status "Cypress"
 cypress run --component
-
-status "Cypress (Chrome)"
-cypress run --component --browser chrome
+start-server-and-test start http://localhost:8080 'cypress run --e2e'

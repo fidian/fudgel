@@ -1,9 +1,9 @@
 import { Controller } from './controller-types.js';
 import { createFragment, createTreeWalker } from './elements.js';
+import { lifecycle } from './lifecycle.js';
 import { linkElementNode } from './link-element-node.js';
 import { linkStructuralDirective } from './link-structural-directive.js';
 import { linkTextNode } from './link-text-node.js';
-import { metadata } from './symbols.js';
 import { isTemplate } from './util.js';
 
 /**
@@ -62,5 +62,5 @@ export const linkNodes = (
  * Issue an unlink event on the controller.
  */
 export const unlink = (controller: Controller, root: Node) => {
-    controller[metadata]?.events.emit('unlink', root);
+    lifecycle(controller, 'unlink', root);
 };

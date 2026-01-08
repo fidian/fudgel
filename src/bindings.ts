@@ -19,15 +19,15 @@ export const addBindings = (
                 remover?.();
             }
         };
-        const onRemove = (removedNode: Node) => {
-            if (removedNode.contains(node)) {
-                onDestroy();
-            }
-        };
+        const events = controller[metadata]?.events;
         const removers = [
-            controller[metadata]?.events.on('update', callback),
-            controller[metadata]?.events.on('unlink', onRemove),
-            controller[metadata]?.events.on('destroy', onDestroy)
+            events?.on('update', callback),
+            events?.on('unlink', (removedNode: Node) => {
+                if (removedNode.contains(node)) {
+                    onDestroy();
+                }
+            }),
+            events?.on('destroy', onDestroy)
         ];
     }
 };

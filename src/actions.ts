@@ -2,6 +2,7 @@ import { allControllers } from './all-controllers.js';
 import { Controller } from './controller-types.js';
 import { metadata } from './symbols.js';
 import { newSet } from './sets.js';
+import { lifecycle } from './lifecycle.js';
 
 // FIXME do not export
 export const dispatchCustomEvent = (
@@ -50,20 +51,18 @@ const updateController = (
     // Mark all attributes and properties as being changed so internals get
     // updated. Necessary when deeply nested objects are passed as input
     // properties to directives and are updated in scopes.
-    if (controller.onChange) {
-        const { attr, prop } = controller[metadata]!;
+    const { attr, prop } = controller[metadata]!;
 
-        // Only trigger updates once per property, so deduplicate names here
-        for (const name of newSet(
-            prop,
-            attr,
-        )) {
-            controller.onChange!(
-                name,
-                (controller as any)[name],
-                (controller as any)[name]
-            );
-        }
+    // Only trigger updates once per property, so deduplicate names here
+    for (const name of newSet(
+        prop,
+        attr,
+    )) {
+        lifecycle(controller, 'change',
+            name,
+            (controller as any)[name],
+            (controller as any)[name]
+        );
     }
 
     // Update all bound functions

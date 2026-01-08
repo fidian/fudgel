@@ -5,6 +5,7 @@ import { newSet } from './sets.js';
 import { events } from './events.js';
 import { Emitter } from './emitter.js';
 import { allControllers } from './all-controllers.js';
+import { lifecycle } from './lifecycle.js';
 import { ComponentInfo, allComponents } from './all-components.js';
 import {
     camelToDash,
@@ -166,14 +167,14 @@ export const component = (
             }
 
             // Initialize before adding child nodes
-            controller.onInit?.();
+            lifecycle(controller, 'init');
 
             whenParsed(this, root, (wasAsync) => {
                 // Verify that the controller is still bound to an element. Avoids
                 // a race condition where an element is added but not "parsed"
                 // immediately, then removed before this callback can fire.
                 if (controller[metadata]) {
-                    controller.onParse?.(wasAsync);
+                    lifecycle(controller, 'parse', wasAsync);
 
                     // Create initial child elements from the template. This creates them
                     // and adds them to the DOM, so do not use `link()`.
@@ -203,15 +204,14 @@ export const component = (
 
                     // Finally, add the processed nodes
                     root.append(template.content);
-                    controller.onViewInit?.(wasAsync);
+                    lifecycle(controller, 'viewInit', wasAsync);
                 }
             });
         }
 
         disconnectedCallback() {
             const controller = this[metadata]!;
-            controller.onDestroy?.();
-            controller[metadata]!.events.emit('destroy');
+            lifecycle(controller, 'destroy');
 
             // Remove the controller from the global list
             allControllers.delete(controller);

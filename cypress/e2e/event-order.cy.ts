@@ -570,15 +570,15 @@ describe('Event order is correct', () => {
         cy.get('#childA').should('have.text', '1');
         cy.get('#childP').should('have.text', '6');
         cy.get('#events').should('have.text', `TestParentOnchange [undefined] constructor
-TestParentOnchange [] onInit
-TestParentOnchange [] onParse async
+TestParentOnchange [parent-onchange] onInit
+TestParentOnchange [parent-onchange] onParse async
 TestChildOnchange [undefined] constructor
 TestChildOnchange [child-onchange] onChange a
 TestChildOnchange [child-onchange] onChange p
 TestChildOnchange [child-onchange] onInit
 TestChildOnchange [child-onchange] onParse sync
 TestChildOnchange [child-onchange] onViewInit sync
-TestParentOnchange [] onViewInit async
+TestParentOnchange [parent-onchange] onViewInit async
 TestChildOnchange [child-onchange] onChange a
 TestChildOnchange [child-onchange] onChange p
 `);
