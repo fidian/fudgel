@@ -155,6 +155,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
     ) => {
         if (!config.useShadow) {
             let rewrittenSlotElement = false;
+            let foundSlotLikeElement = false;
             const template = createTemplate();
             template.innerHTML = config.template;
             const treeWalker = createTreeWalker(template.content, 0x01);
@@ -174,6 +175,8 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     treeWalker.previousNode() as HTMLElement;
                     slotLike.append(...currentNode.childNodes);
                     currentNode.replaceWith(slotLike);
+                } else if (currentNode.nodeName == 'SLOT-LIKE') {
+                    foundSlotLikeElement = true;
                 }
             }
 
@@ -181,51 +184,53 @@ export const defineSlotComponent = (name = 'slot-like') => {
                 config.template = template.innerHTML;
             }
 
-            const proto = controllerConstructor.prototype;
-            const onParse = proto.onParse;
-            const onDestroy = proto.onDestroy;
+            if (rewrittenSlotElement || foundSlotLikeElement) {
+                const proto = controllerConstructor.prototype;
+                const onParse = proto.onParse;
+                const onDestroy = proto.onDestroy;
 
-            proto.onParse = function (this: Controller) {
-                const controllerMetadata = this[metadata]!;
-                const root = controllerMetadata.root;
-                const slotInfo = metadataElementSlotContent(root, {
-                    // Original content for restoring the DOM on disconnect
-                    c: root.innerHTML,
+                proto.onParse = function (this: Controller) {
+                    const controllerMetadata = this[metadata]!;
+                    const root = controllerMetadata.root;
+                    const slotInfo = metadataElementSlotContent(root, {
+                        // Original content for restoring the DOM on disconnect
+                        c: root.innerHTML,
 
-                    // Event emitter
-                    e: new Emitter(),
+                        // Event emitter
+                        e: new Emitter(),
 
-                    // Slots - named ones are set as additional properties. Unnamed
-                    // slot content is combined into the '' fragment.
-                    n: {
-                        '': createFragment(),
-                    },
+                        // Slots - named ones are set as additional properties. Unnamed
+                        // slot content is combined into the '' fragment.
+                        n: {
+                            '': createFragment(),
+                        },
 
-                    // Scope for the <slot-like> element.
-                    s: getScope(getParent(controllerMetadata.host) as Node),
-                });
+                        // Scope for the <slot-like> element.
+                        s: getScope(getParent(controllerMetadata.host) as Node),
+                    });
 
-                // Grab all content for named slots
-                for (const child of [...root.querySelectorAll('[slot]')]) {
-                    getFragment(
-                        slotInfo,
-                        getAttribute(child, 'slot') || ''
-                    ).append(child);
-                }
+                    // Grab all content for named slots
+                    for (const child of [...root.querySelectorAll('[slot]')]) {
+                        getFragment(
+                            slotInfo,
+                            getAttribute(child, 'slot') || ''
+                        ).append(child);
+                    }
 
-                // Now collect everything else and add it to the default slot
-                for (const child of [...root.childNodes]) {
-                    slotInfo.n[''].append(child);
-                }
+                    // Now collect everything else and add it to the default slot
+                    for (const child of [...root.childNodes]) {
+                        slotInfo.n[''].append(child);
+                    }
 
-                onParse?.call(this);
-            };
-            proto.onDestroy = function (this: Controller) {
-                const root = this[metadata]!.root;
-                const slotInfo = metadataElementSlotContent(root)!;
-                root.innerHTML = slotInfo.c;
-                onDestroy?.call(this);
-            };
+                    onParse?.call(this);
+                };
+                proto.onDestroy = function (this: Controller) {
+                    const root = this[metadata]!.root;
+                    const slotInfo = metadataElementSlotContent(root)!;
+                    root.innerHTML = slotInfo.c;
+                    onDestroy?.call(this);
+                };
+            }
         }
     };
     for (const info of allComponents) {

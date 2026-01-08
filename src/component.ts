@@ -70,7 +70,7 @@ export const component = (
             toggleClass(currentNode as HTMLElement, cssClassName, true);
         }
     };
-    template.innerHTML = configInitial.template || '';
+    template.innerHTML = configInitial.template;
     updateClasses(template);
     const config = {
         ...configInitial,
@@ -168,12 +168,12 @@ export const component = (
             // Initialize before adding child nodes
             controller.onInit?.();
 
-            whenParsed(this, root, () => {
+            whenParsed(this, root, (wasAsync) => {
                 // Verify that the controller is still bound to an element. Avoids
                 // a race condition where an element is added but not "parsed"
                 // immediately, then removed before this callback can fire.
                 if (controller[metadata]) {
-                    controller.onParse?.();
+                    controller.onParse?.(wasAsync);
 
                     // Create initial child elements from the template. This creates them
                     // and adds them to the DOM, so do not use `link()`.
@@ -203,7 +203,7 @@ export const component = (
 
                     // Finally, add the processed nodes
                     root.append(template.content);
-                    controller.onViewInit?.();
+                    controller.onViewInit?.(wasAsync);
                 }
             });
         }

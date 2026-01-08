@@ -7,8 +7,8 @@ export interface Controller {
     [metadata]?: ControllerMetadata;
     onChange?: (propName: string, oldValue: any, newValue: any) => void;
     onInit?: VoidFunction;
-    onParse?: VoidFunction;
-    onViewInit?: VoidFunction;
+    onParse?: (wasAsync?: boolean) => void;
+    onViewInit?: (wasAsync?: boolean) => void;
     onDestroy?: VoidFunction;
 };
 

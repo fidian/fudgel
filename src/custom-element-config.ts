@@ -30,9 +30,9 @@ export interface CustomElementConfig {
     style?: string;
 
     /**
-     * HTML template.
+     * HTML template. Required.
      */
-    template?: string;
+    template: string;
 
     /**
      * Whether or not the shadow DOM should be used.

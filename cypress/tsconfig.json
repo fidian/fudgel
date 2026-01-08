@@ -2,6 +2,7 @@
     "compilerOptions": {
         "experimentalDecorators": true,
         "lib": ["dom", "es2019"],
+        "module": "nodenext",
         "moduleResolution": "nodenext",
         "target": "esNext",
         "types": ["cypress", "node"]

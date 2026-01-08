@@ -1,0 +1,15 @@
+<html>
+    <body>
+        <script src="fudgel.umd.js"></script>
+        <script src="event-base.js"></script>
+        <div>
+            <test-grandparent id="test-grandparent-sync">
+                <test-parent id="test-parent-sync">
+                    <test-child-slot id="test-child-slot"></test-child-slot>
+                    SEES-CONTENT
+                </test-parent>
+            </test-grandparent>
+        </div>
+        <script src="remove-after-load.js"></script>
+    </body>
+</html>

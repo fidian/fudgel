@@ -9,4 +9,7 @@ export default defineConfig({
         },
         includeShadowDom: true,
     },
+    e2e: {
+        baseUrl: 'http://localhost:8080',
+    },
 });

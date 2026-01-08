@@ -19,7 +19,7 @@ const DOMContentLoaded = 'DOMContentLoaded';
 export const whenParsed = (
     element: HTMLElement,
     root: HTMLElement | ShadowRoot,
-    callback: VoidFunction
+    callback: (wasAsync?: boolean) => void
 ) => {
     const ownerDocument = element.ownerDocument;
     const isReady = () => {
@@ -35,12 +35,16 @@ export const whenParsed = (
         // Returns undefined, which is falsy
     };
 
-    // If the document is already loaded or any parent has a next sibling,
-    // we're done. "loading" means the document is still loading. "interactive"
-    // and "complete" are both good enough for DOM manipulation.
+    // Check if enough of the document is already loaded/parsed.
+    // 1. If using a shadow root, we are always ready.
+    // 2. If the document is not "loading", then it is ready enough. "loading"
+    // means content is still being added. "interactive" and "complete" are
+    // both good enough for DOM manipulation.
+    // 3. If any parent of the element has a next sibling, then the element
+    // must have been parsed already.
     if (
-        root === element ||
-        ownerDocument.readyState !== 'loading' ||
+        root != element ||
+        ownerDocument.readyState != 'loading' ||
         isReady()
     ) {
         callback();
@@ -52,7 +56,7 @@ export const whenParsed = (
             (isLoaded: boolean) => {
                 if (isLoaded || isReady()) {
                     unobserve();
-                    callback();
+                    callback(true);
                 }
             }
         );

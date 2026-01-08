@@ -33,7 +33,7 @@ rollup dist/fudgel.js --file dist/fudgel.umd.js --format umd --name Fudgel
 runTerser -o dist/fudgel.umd.min.js dist/fudgel.umd.js
 gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
 
-for NAME in component di emitter router slot; do
+for NAME in component; do
     status "Extracting just $NAME"
     rollup dist/only-$NAME.js --file dist/only-$NAME.mjs --format esm
     runTerser --module -o dist/only-$NAME.min.mjs dist/only-$NAME.mjs
@@ -41,6 +41,7 @@ for NAME in component di emitter router slot; do
 done
 
 status "Update docs"
+cp dist/fudgel.umd.js docs/e2e/fudgel.umd.js
 if [[ -z "${UNMINIFIED-}" ]]; then
     cp dist/fudgel.min.mjs docs/fudgel.min.js
 else
@@ -51,10 +52,6 @@ fi
     echo "$(sizeAsJson "Everything (ESM)" fudgel.min.mjs),"
     echo "$(sizeAsJson "Everything (UMD)" fudgel.umd.min.js),"
     echo "$(sizeAsJson "component()" only-component.min.mjs),"
-    echo "$(sizeAsJson "di()" only-di.min.mjs),"
-    echo "$(sizeAsJson "new Emitter()" only-emitter.min.mjs),"
-    echo "$(sizeAsJson "RouterComponent" only-router.min.mjs),"
-    sizeAsJson "SlotComponent" only-slot.min.mjs
     echo ']'
 ) > docs/fudgel-sizes.json
 git diff docs/fudgel-sizes.json
