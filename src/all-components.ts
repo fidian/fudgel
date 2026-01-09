@@ -1,5 +1,6 @@
 import { ControllerConstructor } from './controller-types.js';
 import { CustomElementConfigInternal } from './custom-element-config.js';
+import { newSet } from './sets.js';
 
 // [0] = Custom element contstructor
 // [1] = Controller constructor
@@ -10,5 +11,4 @@ export type ComponentInfo = [
     CustomElementConfigInternal,
 ];
 
-// FIXME: agadoo flags this as not tree-shakeable when using newSet()
-export const allComponents = new Set<ComponentInfo>();
+export const allComponents = /*@__PURE__*/ newSet<ComponentInfo>();

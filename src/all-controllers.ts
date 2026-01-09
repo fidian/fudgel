@@ -1,4 +1,4 @@
 import { Controller } from './controller-types.js';
+import { newSet } from './sets.js';
 
-// FIXME: agadoo flags this as not tree-shakeable when using newSet()
-export const allControllers = new Set<Controller>();
+export const allControllers = /*@__PURE__*/ newSet<Controller>();

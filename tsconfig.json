@@ -19,7 +19,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "outDir": "dist",
-        "removeComments": true,
+        "removeComments": false,
         "sourceMap": true,
         "strict": true,
         "target": "esNext",
