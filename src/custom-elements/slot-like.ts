@@ -42,16 +42,16 @@ import {
     createTemplate,
     createTreeWalker,
 } from '../elements.js';
-import { Controller, ControllerConstructor } from '../controller-types.js';
+import { ControllerConstructor } from '../controller-types.js';
 import { CustomElementConfigInternal } from '../custom-element-config.js';
 import { Emitter } from '../emitter.js';
 import { getAttribute, setAttribute } from '../util.js';
 import { childScope, getScope, Scope } from '../scope.js';
 import { metadata } from '../symbols.js';
+import { newSet } from '../sets.js';
 import { shorthandWeakMap } from '../maps.js';
 
 export interface SlotInfo {
-    c: string; // Original content HTML
     e: Emitter; // Notifications of slot removals
     n: Record<string, DocumentFragment>; // Named content
     s: Scope; // Outer element's scope for Fudgel bindings
@@ -72,6 +72,8 @@ const getParent = (element: HTMLElement): HTMLElement | undefined =>
     (((element.getRootNode() as ShadowRoot) || {}).host as
         | HTMLElement
         | undefined);
+
+const needsSlotPolyfill = /*@__PURE__*/ newSet<ControllerConstructor>();
 
 export const defineSlotComponent = (name = 'slot-like') => {
     class SlotComponent extends HTMLElement {
@@ -147,6 +149,55 @@ export const defineSlotComponent = (name = 'slot-like') => {
     (SlotComponent as any).observedAttributes = ['name'];
     customElements.define(name, SlotComponent);
 
+    events.on('init', controller => {
+        if (needsSlotPolyfill.has(controller.constructor)) {
+            const {
+                root: controllerRoot,
+                host: controllerHost,
+                events: controllerEvents,
+            } = controller[metadata]!;
+            controllerEvents.on('parse', () => {
+                // When the controller is destroyed, restore the original HTML
+                // content back to the element.
+                const originalHTML = controllerRoot.innerHTML;
+                controllerEvents.on(
+                    'destroy',
+                    () => (controllerRoot.innerHTML = originalHTML)
+                );
+
+                // Track information necessary for the slot-like custom element
+                const slotInfo = metadataElementSlotContent(controllerRoot, {
+                    // Event emitter
+                    e: new Emitter(),
+
+                    // Slots - named ones are set as additional properties. Unnamed
+                    // slot content is combined into the '' fragment.
+                    n: {
+                        '': createFragment(),
+                    },
+
+                    // Scope for the <slot-like> element.
+                    s: getScope(getParent(controllerHost) as Node),
+                });
+
+                // Grab all content for named slots
+                for (const child of [
+                    ...controllerRoot.querySelectorAll('[slot]'),
+                ]) {
+                    getFragment(
+                        slotInfo,
+                        getAttribute(child, 'slot') || ''
+                    ).append(child);
+                }
+
+                // Now collect everything else and add it to the default slot
+                for (const child of [...controllerRoot.childNodes]) {
+                    slotInfo.n[''].append(child);
+                }
+            });
+        }
+    });
+
     // Rewrite templates for custom elements that use slots in light DOM.
     const rewrite = (
         _baseClass: new () => HTMLElement,
@@ -185,51 +236,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
             }
 
             if (rewrittenSlotElement || foundSlotLikeElement) {
-                const proto = controllerConstructor.prototype;
-                const onParse = proto.onParse;
-                const onDestroy = proto.onDestroy;
-
-                proto.onParse = function (this: Controller) {
-                    const controllerMetadata = this[metadata]!;
-                    const root = controllerMetadata.root;
-                    const slotInfo = metadataElementSlotContent(root, {
-                        // Original content for restoring the DOM on disconnect
-                        c: root.innerHTML,
-
-                        // Event emitter
-                        e: new Emitter(),
-
-                        // Slots - named ones are set as additional properties. Unnamed
-                        // slot content is combined into the '' fragment.
-                        n: {
-                            '': createFragment(),
-                        },
-
-                        // Scope for the <slot-like> element.
-                        s: getScope(getParent(controllerMetadata.host) as Node),
-                    });
-
-                    // Grab all content for named slots
-                    for (const child of [...root.querySelectorAll('[slot]')]) {
-                        getFragment(
-                            slotInfo,
-                            getAttribute(child, 'slot') || ''
-                        ).append(child);
-                    }
-
-                    // Now collect everything else and add it to the default slot
-                    for (const child of [...root.childNodes]) {
-                        slotInfo.n[''].append(child);
-                    }
-
-                    onParse?.call(this);
-                };
-                proto.onDestroy = function (this: Controller) {
-                    const root = this[metadata]!.root;
-                    const slotInfo = metadataElementSlotContent(root)!;
-                    root.innerHTML = slotInfo.c;
-                    onDestroy?.call(this);
-                };
+                needsSlotPolyfill.add(controllerConstructor);
             }
         }
     };
