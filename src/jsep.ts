@@ -134,7 +134,7 @@ export const jsep = (exprToParse: string): ValueProviderRoot => {
             result = defaultValueProvider();
             throwJsepError();
         }
-    } catch (ignore) {}
+    } catch (_ignore) {}
 
     // Unwrap the result - change it from a ValueProvider result to a ValueProviderRoot.
     // When calling result[0], the root object needs to wrap the values in an array

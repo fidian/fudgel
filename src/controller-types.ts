@@ -18,4 +18,5 @@ export interface ControllerMetadata extends CustomElementConfigInternal {
     events: Emitter<string>;
     host: HTMLElement;
     root: ShadowRoot | HTMLElement;
+    tagName: string;
 }

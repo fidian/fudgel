@@ -41,7 +41,7 @@ export const testCssSelector = (selector: string) => {
     try {
         doc.querySelector(selector);
         result = true;
-    } catch (ignore) {
+    } catch (_ignore) {
     }
 
     return result;

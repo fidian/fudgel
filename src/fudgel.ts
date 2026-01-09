@@ -1,3 +1,4 @@
+export * from './all-components.js';
 export { emit, update } from './actions.js';
 export * from './events.js';
 export { Component, component } from './component.js';

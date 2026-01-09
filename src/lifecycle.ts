@@ -62,7 +62,7 @@ export const lifecycle = (
     phase: ControllerLifecycleEvents,
     ...args: any[]
 ) => {
-    events.emit(`controller:${phase}`, controller, ...args);
+    events.emit(phase, controller, ...args);
     controller[metadata]?.events.emit(phase, ...args);
     controller[`on${phase[0].toUpperCase()}${phase.slice(1)}`]?.(...args);
 };

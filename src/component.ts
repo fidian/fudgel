@@ -79,6 +79,7 @@ export const component = (
         cssClassName,
         prop: newSet(configInitial.prop || []),
         style,
+        tag,
         template: template.innerHTML,
     } as CustomElementConfigInternal;
 
@@ -106,6 +107,7 @@ export const component = (
                 events: new Emitter<string>(),
                 host: this,
                 root,
+                tagName: tag,
             };
             const controller = new constructor!(controllerMetadata);
             this[metadata] = controller;
@@ -238,7 +240,7 @@ export const component = (
         ];
         allComponents.add(componentInfo);
         events.emit('component', ...componentInfo);
-    } catch (_) {}
+    } catch (_ignore) {}
 
     return CustomElement;
 };

@@ -3,6 +3,6 @@ import { Emitter } from './emitter.js';
 
 export type EventType =
     | 'component' // See ComponentInfo
-    | `controller:${ControllerLifecycleEvents}`;
+    | ControllerLifecycleEvents;
 
 export const events = new Emitter<EventType>();
