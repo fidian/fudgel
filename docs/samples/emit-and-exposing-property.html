@@ -1,0 +1,51 @@
+<script type="module">
+    import { component, emit } from '/fudgel.min.js';
+
+    const items = ['Item 1', 'Item 2', 'Item 3'];
+
+    component(
+        'my-element',
+        {
+            prop: ['currentSelection'],
+            style: `
+            .selected {
+                background-color: green;
+                color: white
+            }
+        `,
+            template: `
+            <p>Select an item:</p>
+            <ul>
+                <li
+                    *for="item of items"
+                    @click="selectItem(item)"
+                    #class="{ selected: item === currentSelection }"
+                >{{item}}</li>
+            </ul>
+        `,
+        },
+        class {
+            items = items;
+            currentSelection = items[0];
+
+            selectItem(item) {
+                this.currentSelection = item;
+                emit(this, 'itemSelected', item);
+            }
+        }
+    );
+</script>
+<my-element id="el"></my-element>
+<script>
+    const el = document.getElementById('el');
+    el.addEventListener('itemSelected', event => {
+        // event is a CustomEvent instance
+        console.log('Item selected:', event.detail);
+        this.currentSelection = event.detail;
+    });
+
+    setInterval(() => {
+        // Access a property
+        console.log('Current selection:', el.currentSelection);
+    }, 1000);
+</script>

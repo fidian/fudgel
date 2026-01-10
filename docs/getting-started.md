@@ -4,7 +4,7 @@ title: Getting Started (Fudgel.js)
 
 # Getting Started
 
-Step 1: Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.
+<u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.
 
 <code-sample sample="samples/umd-from-cdn.json"></code-sample>
 
@@ -17,7 +17,7 @@ Installing locally as a package is simple.
 * `bower install fudgel`
 
 
-Step 2: At this point you have access to the `Fudgel` object or the module's exports. It's time to write your first controller. Select the chunk of code that best fits your needs.
+<u>Step 2:</u> At this point you have access to the `Fudgel` object or the module's exports. It's time to write your first controller. Select the chunk of code that best fits your needs.
 
 <code-sample sample="samples/hello-world-module.json"></code-sample>
 
@@ -25,7 +25,7 @@ Step 2: At this point you have access to the `Fudgel` object or the module's exp
 
 <code-sample sample="samples/hello-world-typescript.json"></code-sample>
 
-Step 3: You've made a custom element. For more fun, take a look at the rest of the things Fudgel can do to save you time.
+<u>Step 3:</u> You've already made a custom element at this point. What's left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel's features.
 
 
 ## Best Practices

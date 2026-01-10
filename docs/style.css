@@ -23,6 +23,8 @@ body {
     flex-direction: row;
     position: relative;
     padding: 0.5em;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 textarea,

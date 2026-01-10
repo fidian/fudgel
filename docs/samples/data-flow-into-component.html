@@ -1,0 +1,20 @@
+<!-- Accept data through attributes and properties -->
+<my-element title="Hello"></my-element>
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component('my-element', {
+        attr: ['title'],
+        prop: ['items'],
+        template: `
+            <h1>{{ title }}</h1>
+            <ul>
+                <li *for="item of items">{{ item }}</li>
+            </ul>
+        `,
+    });
+
+    // Set a property to illustrate data bindings
+    const el = document.querySelector('my-element');
+    el.items = [1, 2, 3];
+</script>

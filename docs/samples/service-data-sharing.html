@@ -1,0 +1,85 @@
+<shared-data-example></shared-data-example>
+
+<script type="module">
+    import { component, di, Emitter } from '/fudgel.min.js';
+
+    // This shared data service illustrates Emitter and sharing data
+    class SharedDataService {
+        constructor() {
+            this.emitter = new Emitter();
+            this.value = '?';
+        }
+
+        getValue() {
+            return this.value;
+        }
+
+        setValue(value) {
+            this.value = value;
+            this.emitter.emit('valueChanged', value);
+        }
+
+        onValueChanged(callback) {
+            return this.emitter.on('valueChanged', callback);
+        }
+
+        offValueChanged(callback) {
+            this.emitter.off('valueChanged', callback);
+        }
+    }
+
+    component(
+        'shared-data-example',
+        {
+            template: `
+            <p>
+                Component count:
+                <input type="number" @change="updateCount($event)" value="1" />
+            </p>
+            <shared-data-display *repeat="componentCount"></shared-data-display>
+        `,
+        },
+        class {
+            componentCount = 1;
+
+            updateCount(event) {
+                this.componentCount =
+                    Math.abs(parseInt(event.target.value)) || 1;
+            }
+        }
+    );
+
+    component(
+        'shared-data-display',
+        {
+            template: `
+            <p>
+                This is {{random}}. Shared value is {{value}}.
+                <button @click="setSharedValue()">
+                    Set value to {{random}}
+                </button>
+            </p>
+        `,
+        },
+        class {
+            random = Math.random().toString().substr(2, 4);
+            sharedDataService = di(SharedDataService);
+
+            onInit() {
+                this.value = this.sharedDataService.getValue();
+                this.removeEventListener =
+                    this.sharedDataService.onValueChanged(
+                        newValue => (this.value = newValue)
+                    );
+            }
+
+            onDestroy() {
+                this.removeEventListener?.();
+            }
+
+            setSharedValue() {
+                this.sharedDataService.setValue(this.random);
+            }
+        }
+    );
+</script>

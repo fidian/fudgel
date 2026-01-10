@@ -29,7 +29,9 @@
         <div class="page-wrapper">
             <div class="sidebar">
                 {{ for page of pages }}
-                <a href="{{ page.url }}" class="sidebar-link">{{ page.label }}</a>
+                <a href="{{ page.url }}" class="sidebar-link"
+                    >{{ page.label }}</a
+                >
                 {{ /for }}
             </div>
             <div class="content">
@@ -39,7 +41,9 @@
                 <menu-handle></menu-handle>
                 <div class="menu-links">
                     {{ for page of pages }}
-                    <a href="{{ page.url }}" class="flyout-link">{{ page.label }}</a>
+                    <a href="{{ page.url }}" class="flyout-link"
+                        >{{ page.label }}</a
+                    >
                     {{ /for }}
                 </div>
             </div>

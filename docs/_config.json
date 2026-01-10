@@ -15,6 +15,10 @@
             "url": "component-basics.html"
         },
         {
+            "label": "Best Practices",
+            "url": "best-practices.html"
+        },
+        {
             "label": "Attr and Prop",
             "url": "attr-and-prop.html"
         },

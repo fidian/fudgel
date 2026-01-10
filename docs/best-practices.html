@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>404 Not Found</title>
+        <title>Best Practices (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
         <link
@@ -60,7 +60,21 @@
             </div>
             <div class="content">
                 <div class="limit-width">
-<p>Sorry, the page you are looking for does not exist. Try starting at the <a href="/">home page</a> or navigate by using the menu.</p>
+<h1>Best Practices</h1>
+<p>Using Fudgel to create custom elements is straightforward. To help ensure maximum compatibility and performance, here are some best practices to follow when writing your components.</p>
+<h2>Performance</h2>
+<p>For performance, do not reassign to a bound property. Modify a local variable and only assign it back to the bound property when all changes are complete. This prevents multiple updates to the DOM.</p>
+<p><code-sample sample="samples/assign-only-once.json"></code-sample></p>
+<h2>Compatibility</h2>
+<p>When building a library, do not automatically register your custom elements in your exported module. This won&#39;t allow developers to resolve name conflicts. Instead, export a function that allows a prefix or a custom name to be provided, similar to how <code>defineRouterElement</code> and <code>defineSlotComponent()</code> work for Fudgel&#39;s built-in elements.</p>
+<p><code-sample sample="samples/export-component-function.json"></code-sample></p>
+<h2>Data Flow</h2>
+<p>In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties.</p>
+<p><code-sample sample="samples/data-flow-into-component.json"></code-sample></p>
+<p>When you need to send data out of your controller, send an event. If you need data to be visible and retrievable from the outside, expose it through a property.</p>
+<p><code-sample sample="samples/emit-and-exposing-property.json"></code-sample></p>
+<p>Alternately, you can use a service to share data between components. This example uses the built-in <code>Emitter</code> class.</p>
+<p><code-sample sample="samples/service-data-sharing.json"></code-sample></p>
 
 </div>
             </div>
