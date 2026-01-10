@@ -63,15 +63,7 @@ ${meta.html || ''}
 
         async loadJs(url) {
             const content = await this.cachingFetchService.fetchText(url);
-            const match = content.match(/playground-html: (.*)/);
-            const html = match ? match[1] : '';
-
-            this.content = `<script type="module">
-${content.replace(/.*playground-html: .*/g, '').trim()}
-</script>
-
-${html}`.trim();
-
+            this.content = this.playgroundDataService.jsToPlayground(content);
             this.setEncoded();
         }
 

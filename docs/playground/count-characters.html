@@ -1,0 +1,34 @@
+<script src="../e2e/fudgel.umd.js"></script>
+<script>
+    Fudgel.component(
+        'sample-component',
+        {
+            template: `
+                <input
+                    @change="recalc($event)"
+                    @keypress="recalc($event)"
+                    @keyup="recalc($event)"
+                    placeholder="Type something..."
+                    type="text"
+                />
+            <p>You typed {{ characterCount }} {{ letterOrLetters }}</p>
+            `,
+        },
+        class {
+            characterCount = 0;
+            letterOrLetters = 'letters';
+
+            recalc(event) {
+                this.characterCount = event.target.value.length;
+
+                if (this.characterCount === 1) {
+                    this.letterOrLetters = 'letter';
+                } else {
+                    this.letterOrLetters = 'letters';
+                }
+            }
+        }
+    );
+</script>
+
+<sample-component></sample-component>

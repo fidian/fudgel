@@ -1,0 +1,42 @@
+<script type="module">
+    // Import using the minified version of Fudgel.
+    // Also uses the shadow DOM to illustrate content projection.
+    import { component, css, html } from '../fudgel.min.js';
+
+    component(
+        'sample-component',
+        {
+            style: css`
+                .hoverable {
+                    transition: all 0.3s ease;
+                }
+                .hoverable:hover {
+                    color: red;
+                }
+            `,
+            template: html`
+                <slot></slot>
+                <div class="hoverable" #ref="typing"></div>
+            `,
+            useShadow: true,
+        },
+        class {
+            onViewInit() {
+                const text = 'Hover over this text to make it turn red!'.split(
+                    ''
+                );
+                const type = () => {
+                    const letter = text.shift();
+
+                    if (letter) {
+                        this.typing.textContent += letter;
+                        setTimeout(type, Math.random() * 300);
+                    }
+                };
+                type();
+            }
+        }
+    );
+</script>
+
+<sample-component>Hello, world!</sample-component>

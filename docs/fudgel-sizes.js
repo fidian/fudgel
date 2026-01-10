@@ -1,4 +1,3 @@
-// playground-html: <fudgel-sizes></fudgel-sizes>
 import { component, css, html } from '/fudgel.min.js';
 
 component(

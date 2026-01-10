@@ -1,4 +1,4 @@
-import { component, css, di, emit, html } from './fudgel.js';
+import { component, css, di, html } from './fudgel.js';
 import { PlaygroundDataService } from '../playground-data-service.js';
 
 component(
@@ -41,8 +41,9 @@ component(
             }
 
             .action-buttons {
+                align-items: center;
                 display: flex;
-                justify-content: space-evenly;
+                justify-content: space-between;
                 flex-shrink: 0;
             }
 
@@ -69,12 +70,14 @@ component(
             <div class="wrapper">
                 <div class="pane working-area">
                     <div class="action-buttons">
+                        <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel</a>
                         <button title="Saves the HTML to your computer" @click="download()">Download</button>
-                        <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel Docs</a>
                         <button title="Updates the URL and copies it to your clipboard for easy sharing" @click="share()">{{ shareLabel }}</button>
+                        <use-template @content-change="contentChange($event)"></use-template>
                     </div>
                     <textarea
                         #ref="code"
+                        @keydown.tab.prevent="tabPressed()"
                         class="code"
                         spellcheck="false"
                     ></textarea>
@@ -95,25 +98,23 @@ component(
             this.code.value = this.playgroundStr;
             this.code.onchange = () => this.scheduleUpdate();
             this.code.onkeyup = () => this.scheduleUpdate();
-            this.update();
+            this._update();
         }
 
-        update() {
-            if (this.oldValue === this.code.value) {
-                return;
-            }
+        tabPressed() {
+            const start = this.code.selectionStart;
+            const end = this.code.selectionEnd;
 
-            this.oldValue = this.code.value;
-            // Wipe any old iFrame and replace it entirely because
-            // custom elements can't be redefined.
-            const iframe = document.createElement('iframe');
-            iframe.classList.add('livePlayground');
-            this.demo.innerHTML = '';
-            this.demo.append(iframe);
-            const iframeDocument = iframe.contentWindow.document;
-            iframeDocument.open();
-            iframeDocument.writeln(this.code.value);
-            iframeDocument.close();
+            // Set textarea value to: text before caret + tab + text after caret
+            this.code.value =
+                this.code.value.substring(0, start) +
+                '\t' +
+                this.code.value.substring(end);
+
+            // Put caret at right position again
+            this.code.selectionStart = this.code.selectionEnd = start + 1;
+
+            this.scheduleUpdate();
         }
 
         scheduleUpdate() {
@@ -121,7 +122,7 @@ component(
                 clearTimeout(this.timeout);
             }
 
-            this.timeout = setTimeout(() => this.update(), 1000);
+            this.timeout = setTimeout(() => this._update(), 1000);
         }
 
         download() {
@@ -159,6 +160,29 @@ component(
                 this.shareLabel = 'Share';
                 this.shareBusy = false;
             }, 1000);
+        }
+
+        contentChange(event) {
+            this.code.value = event.detail;
+            this._update();
+        }
+
+        _update() {
+            if (this.oldValue === this.code.value) {
+                return;
+            }
+
+            this.oldValue = this.code.value;
+            // Wipe any old iFrame and replace it entirely because
+            // custom elements can't be redefined.
+            const iframe = document.createElement('iframe');
+            iframe.classList.add('livePlayground');
+            this.demo.innerHTML = '';
+            this.demo.append(iframe);
+            const iframeDocument = iframe.contentWindow.document;
+            iframeDocument.open();
+            iframeDocument.writeln(this.code.value);
+            iframeDocument.close();
         }
     }
 );

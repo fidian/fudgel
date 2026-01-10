@@ -1,4 +1,18 @@
 export class PlaygroundDataService {
+    jsToPlayground(content) {
+        const match = content.match(/component\([\s\S]*?['"]([-a-z]+)['"],/m);
+
+        if (match) {
+            return `<script type="module">
+${content.trim()}
+</script>
+
+<${match[1]}></${match[1]}>`;
+        }
+
+        return content.trim();
+    }
+
     // Returns a Promise
     fromUriString(uriString) {
         if (uriString[0] === '0') {

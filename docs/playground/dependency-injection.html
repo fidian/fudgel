@@ -1,0 +1,55 @@
+<script type="module">
+    // Import using the unminified version of Fudgel.
+    // Also uses slot-like to illustrate content projection.
+    import { component, css, defineSlotComponent, di, html } from './fudgel.js';
+
+    // Enable slot-like.
+    defineSlotComponent();
+
+    class ClickTracker {
+        count = 0;
+
+        trackClick() {
+            this.count++;
+            console.log(`Button clicked ${this.count} times.`);
+        }
+    }
+
+    component(
+        'sample-component',
+        {
+            // Like how shadow DOM works, :host is rewritten automatically for
+            // light DOM components.
+            style: css`
+                :host {
+                    display: inline-block;
+                }
+
+                button {
+                    padding: 10px 20px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    inset: 0;
+                }
+            `,
+
+            // The <slot> element is rewritten automatically to use slot-like.
+            template: html`
+                <button *if="show" @click="trackClick()"><slot></slot></button>
+            `,
+        },
+        class {
+            // Dependency injection of ClickTracker service.
+            clickTracker = di(ClickTracker);
+            show = true;
+
+            trackClick() {
+                this.clickTracker.trackClick();
+                this.show = false;
+                setTimeout(() => (this.show = true), 1000);
+            }
+        }
+    );
+</script>
+
+<sample-component>Try Clicking Here</sample-component>
