@@ -4,51 +4,23 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Fudgel = {}));
 })(this, (function (exports) { 'use strict';
 
-    const allControllers = new Set();
-
-    const metadata = Symbol();
-
     const newSet = (...iterables) => new Set(iterables.flatMap(list => [...list]));
 
-    const dispatchCustomEvent = (e, eventName, detail, customEventInit = {}) => {
-        e.dispatchEvent(new CustomEvent(eventName, {
-            bubbles: true,
-            cancelable: false,
-            composed: true,
-            detail,
-            ...customEventInit,
-        }));
-    };
-    const emit = (controller, eventName, detail, customEventInit = {}) => {
-        const e = controller[metadata]?.host;
-        if (e) {
-            dispatchCustomEvent(e, eventName, detail, customEventInit);
-        }
-    };
-    const update = (controller) => {
-        if (controller) {
-            updateController(controller);
-        }
-        else {
-            for (const registeredController of allControllers) {
-                updateController(registeredController);
-            }
-        }
-    };
-    const updateController = (controller) => {
-        if (controller.onChange) {
-            const { attr, prop } = controller[metadata];
-            for (const name of newSet(prop, attr)) {
-                controller.onChange(name, controller[name], controller[name]);
-            }
-        }
-        controller[metadata]?.events.emit('update');
-    };
+    const allComponents = /*@__PURE__*/ newSet();
+
+    const allControllers = /*@__PURE__*/ newSet();
+
+    // CustomElement[metadata] -> Controller
+    // Controller[metadata] -> ControllerMetadata (events, host, root)
+    // Scope[metadata] -> true if global scope
+    const metadata = Symbol();
 
     class Emitter {
         constructor() {
             this._m = new Map();
         }
+        // Emits a value to all event listeners. If one listener removes a later
+        // listener from the list, the later listener will still be called.
         emit(name, ...data) {
             for (const cb of [...(this._m.get(name) ?? [])]) {
                 cb(...data);
@@ -71,10 +43,54 @@
 
     const events = new Emitter();
 
-    const allComponents = new Set();
+    const lifecycle = (controller, phase, ...args) => {
+        events.emit(phase, controller, ...args);
+        controller[metadata]?.events.emit(phase, ...args);
+        controller[`on${phase[0].toUpperCase()}${phase.slice(1)}`]?.(...args);
+    };
+
+    // FIXME do not export
+    const dispatchCustomEvent = (e, eventName, detail, customEventInit = {}) => {
+        e.dispatchEvent(new CustomEvent(eventName, {
+            bubbles: true,
+            cancelable: false,
+            composed: true, // To go outside a shadow root
+            detail,
+            ...customEventInit,
+        }));
+    };
+    const emit = (controller, eventName, detail, customEventInit = {}) => {
+        const e = controller[metadata]?.host;
+        if (e) {
+            dispatchCustomEvent(e, eventName, detail, customEventInit);
+        }
+    };
+    const update = (controller) => {
+        if (controller) {
+            updateController(controller);
+        }
+        else {
+            for (const registeredController of allControllers) {
+                updateController(registeredController);
+            }
+        }
+    };
+    const updateController = (controller) => {
+        // Mark all attributes and properties as being changed so internals get
+        // updated. Necessary when deeply nested objects are passed as input
+        // properties to directives and are updated in scopes.
+        const { attr, prop } = controller[metadata];
+        // Only trigger updates once per property, so deduplicate names here
+        for (const name of newSet(prop, attr)) {
+            lifecycle(controller, 'change', name, controller[name], controller[name]);
+        }
+        // Update all bound functions
+        controller[metadata]?.events.emit('update');
+    };
 
     const Obj = Object;
     const stringify = (x) => JSON.stringify(x);
+    // Memoizing reduces repeats by a factor of ~200.
     const dashToCamel = (dashed) => dashed.replace(/-(\p{Ll})/gu, match => match[1].toUpperCase());
     const camelToDash = (camel) => camel.replace(/\p{Lu}/gu, match => `-${match[0]}`.toLowerCase());
     const pascalToDash = (pascal) => camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
@@ -93,9 +109,17 @@
             node.removeAttribute(name);
         }
     };
+    // Return the entries of an Iterable or fall back on Object.entries for
+    // normal objects and arrays.
     const entries = (iterable) => iterable.entries?.() ?? Obj.entries(iterable);
     const isTemplate = (node) => node.nodeName == 'TEMPLATE';
 
+    /**
+     * Shorthands for creating elements. Using these is better for minification.
+     *
+     * Both `doc` and `win` have a fallback to an object to support unit testing of
+     * some things in a non-browser environment, such as `di()`.
+     */
     const doc = document;
     const win = window;
     const cloneNode = (node) => node.cloneNode(true);
@@ -104,6 +128,9 @@
     const createComment = (content) => doc.createComment(content);
     const createFragment = () => doc.createDocumentFragment();
     const createTemplate = () => createElement('template');
+    // NodeFilter.SHOW_ELEMENT = 0x01
+    // NodeFilter.SHOW_TEXT = 0x04
+    // NodeFilter.SHOW_COMMENT = 0x80 - necessary for structural directives
     const createTreeWalker = (root, filter) => doc.createTreeWalker(root, filter);
     const sandboxStyleRules = (css) => {
         const sandbox = doc.implementation.createHTMLDocument('');
@@ -138,6 +165,7 @@
                 get: desc.get || (() => value),
                 set: function (newValue) {
                     const oldValue = value;
+                    // Distinguish between different NaN values or +0 and -0.
                     if (!Obj.is(newValue, oldValue)) {
                         desc.set?.(newValue);
                         value = newValue;
@@ -160,15 +188,15 @@
                     remover?.();
                 }
             };
-            const onRemove = (removedNode) => {
-                if (removedNode.contains(node)) {
-                    onDestroy();
-                }
-            };
+            const events = controller[metadata]?.events;
             const removers = [
-                controller[metadata]?.events.on('update', callback),
-                controller[metadata]?.events.on('unlink', onRemove),
-                controller[metadata]?.events.on('destroy', onDestroy)
+                events?.on('update', callback),
+                events?.on('unlink', (removedNode) => {
+                    if (removedNode.contains(node)) {
+                        onDestroy();
+                    }
+                }),
+                events?.on('destroy', onDestroy)
             ];
         }
     };
@@ -179,6 +207,9 @@
             : findBindingTarget(controller, Obj.getPrototypeOf(scope), binding);
 
     const elementToScope = shorthandWeakMap();
+    // When running getScope during initial node linking, the node is not yet
+    // attached to a parent, so it will not accidentally pick up the parent's
+    // scope.
     const getScope = (node) => {
         let scope = elementToScope(node);
         if (node) {
@@ -200,10 +231,13 @@
         throw error;
     };
 
-    let expr = '';
-    let index = 0;
-    let code = 0;
-    let moreToParse = false;
+    // Global variables used during synchronous parsing.
+    let expr = ''; // The expression to parse
+    let index = 0; // Current index
+    let code = 0; // Char code at the current index
+    let moreToParse = false; // If we are at the end of the expression
+    // String literal escape codes that do not map to the same character.
+    // Eg. "\z" maps to "z" - those don't need to be listed.
     const escapeCodes = {
         b: '\b',
         f: '\f',
@@ -212,6 +246,7 @@
         t: '\t',
         v: '\v',
     };
+    // Unary operators that take a single argument to the right of the operator
     const unaryOps = {
         '-': arg => root => [-arg(root)[0]],
         '!': arg => root => [!arg(root)[0]],
@@ -220,35 +255,42 @@
         typeof: arg => root => [typeof arg(root)[0]],
     };
     const binaryOps = {
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence
+        // 1 Skip: , (comma)
+        // 2 Skip: ...x, yield, =>, x?y:z, assignments
         '||': [3, (left, right) => root => [left(root)[0] || right(root)[0]]],
         '??': [3, (left, right) => root => [left(root)[0] ?? right(root)[0]]],
         '&&': [4, (left, right) => root => [left(root)[0] && right(root)[0]]],
-        '|': [5, (left, right) => root => [left(root)[0] | right(root)[0]]],
+        '|': [5, (left, right) => root => [left(root)[0] | right(root)[0]]], // After ||
         '^': [6, (left, right) => root => [left(root)[0] ^ right(root)[0]]],
-        '&': [7, (left, right) => root => [left(root)[0] & right(root)[0]]],
+        '&': [7, (left, right) => root => [left(root)[0] & right(root)[0]]], // After &&
         '===': [8, (left, right) => root => [left(root)[0] === right(root)[0]]],
-        '==': [8, (left, right) => root => [left(root)[0] == right(root)[0]]],
+        '==': [8, (left, right) => root => [left(root)[0] == right(root)[0]]], // After ===
         '!==': [8, (left, right) => root => [left(root)[0] !== right(root)[0]]],
-        '!=': [8, (left, right) => root => [left(root)[0] != right(root)[0]]],
-        '<<': [10, (left, right) => root => [left(root)[0] << right(root)[0]]],
-        '>>>': [10, (left, right) => root => [left(root)[0] >>> right(root)[0]]],
-        '>>': [10, (left, right) => root => [left(root)[0] >> right(root)[0]]],
-        '<=': [9, (left, right) => root => [left(root)[0] <= right(root)[0]]],
-        '<': [9, (left, right) => root => [left(root)[0] < right(root)[0]]],
-        '>=': [9, (left, right) => root => [left(root)[0] >= right(root)[0]]],
-        '>': [9, (left, right) => root => [left(root)[0] > right(root)[0]]],
+        '!=': [8, (left, right) => root => [left(root)[0] != right(root)[0]]], // After !==
+        '<<': [10, (left, right) => root => [left(root)[0] << right(root)[0]]], // Forced earlier
+        '>>>': [10, (left, right) => root => [left(root)[0] >>> right(root)[0]]], // Forced earlier
+        '>>': [10, (left, right) => root => [left(root)[0] >> right(root)[0]]], // After >>>
+        '<=': [9, (left, right) => root => [left(root)[0] <= right(root)[0]]], // After <<
+        '<': [9, (left, right) => root => [left(root)[0] < right(root)[0]]], // After <=
+        '>=': [9, (left, right) => root => [left(root)[0] >= right(root)[0]]], // After >>
+        '>': [9, (left, right) => root => [left(root)[0] > right(root)[0]]], // After >
         instanceof: [
             9,
             (left, right) => root => [left(root)[0] instanceof right(root)[0]],
         ],
-        in: [9, (left, right) => root => [left(root)[0] in right(root)[0]]],
+        in: [9, (left, right) => root => [left(root)[0] in right(root)[0]]], // After instanceof
         '+': [11, (left, right) => root => [left(root)[0] + right(root)[0]]],
         '-': [11, (left, right) => root => [left(root)[0] - right(root)[0]]],
-        '**': [13, (left, right) => root => [left(root)[0] ** right(root)[0]], 1],
-        '*': [12, (left, right) => root => [left(root)[0] * right(root)[0]]],
+        '**': [13, (left, right) => root => [left(root)[0] ** right(root)[0]], 1], // right-to-left, forced earlier
+        '*': [12, (left, right) => root => [left(root)[0] * right(root)[0]]], // After *
         '/': [12, (left, right) => root => [left(root)[0] / right(root)[0]]],
         '%': [12, (left, right) => root => [left(root)[0] % right(root)[0]]],
+        // 14 Skip: these are unary
+        // 15 Skip: these are unary
+        // 16 Skip: new
     };
+    // Literals - when encountered, they are replaced with their value.
     const literals = {
         true: true,
         false: false,
@@ -256,10 +298,17 @@
         undefined: undefined,
     };
     const defaultValueProvider = () => [() => [], newSet()];
+    // Parses an expression. Always returns a ValueProviderRoot, which is a tuple:
+    // [function, string[]].  The function takes a list of objects that are
+    // searched for root values and returns a value. The returned string[] is a
+    // list of bound properties that the function uses.
     const jsep = (exprToParse) => {
+        // Assign to a global variable
         expr = exprToParse;
+        // Set up index and code (global variables)
         index = -1;
         gobbleSpaces(1);
+        // Use a default return value
         let result = defaultValueProvider();
         try {
             if (moreToParse) {
@@ -270,11 +319,19 @@
                 throwJsepError();
             }
         }
-        catch (ignore) { }
+        catch (_ignore) { }
+        // Unwrap the result - change it from a ValueProvider result to a ValueProviderRoot.
+        // When calling result[0], the root object needs to wrap the values in an array
+        // to produce ProvidedValue results;
         return [
-            (...roots) => result[0](new Proxy({}, {
+            (...roots) => result[0](
+            // Wrap all values provided from the root objects (or the
+            // window fallback) in arrays to preserve their context. All
+            // calls to any getter will produce a ProvidedValue.
+            new Proxy({}, {
                 get(_ignoreTarget, prop) {
                     for (const root of roots) {
+                        // "in" searches the object and its prototype chain
                         if (prop in root) {
                             return [root[prop], root];
                         }
@@ -285,30 +342,35 @@
             result[1],
         ];
     };
+    // Move to the next character in the expression.
     const advance = (n = 1) => {
         index += n;
         code = expr.charCodeAt(index);
-        moreToParse = code >= 0;
+        moreToParse = code >= 0; // NaN fails this check
     };
+    // Trivial functions for minification
     const char = () => expr.charAt(index);
-    const isDecimalDigit = (charCode = code) => charCode > 47 && charCode < 58;
-    const isIdentifierStart = (charCode = code) => (charCode > 64 && charCode < 91) ||
-        (charCode > 96 && charCode < 123) ||
-        charCode > 127 ||
-        charCode == 36 ||
-        charCode == 95;
+    const isDecimalDigit = (charCode = code) => charCode > 47 && charCode < 58; // 0...9
+    const isIdentifierStart = (charCode = code) => 
+    /* A-Z */ (charCode > 64 && charCode < 91) ||
+        /* a-z */ (charCode > 96 && charCode < 123) ||
+        /* extended */ charCode > 127 ||
+        /* $ */ charCode == 36 ||
+        /* _ */ charCode == 95;
     const isIdentifierPart = (charCode) => isIdentifierStart(charCode) || isDecimalDigit(charCode);
     const throwJsepError = () => {
         throwError(`Parse error at index ${index}: ${expr}`);
     };
+    // Consume whitespace in the expression.
     const gobbleSpaces = (advanceChars = 0) => {
         if (advanceChars) {
             advance(advanceChars);
         }
-        while (code == 32 ||
-            code == 9 ||
-            code == 10 ||
-            code == 13) {
+        while (
+        /* space */ code == 32 ||
+            /* tab */ code == 9 ||
+            /* newline */ code == 10 ||
+            /* carriage return */ code == 13) {
             advance();
         }
     };
@@ -317,11 +379,15 @@
             const r = stack.pop(), op = stack.pop(), l = stack.pop();
             stack.push([op[1](l[0], r[0]), newSet(l[1], r[1])]);
         };
+        // First, try to get the leftmost thing
+        // Then, check to see if there's a binary operator operating on that leftmost thing
+        // Don't gobble a binary operator without a left-hand-side
         const left = gobbleToken();
         if (!left) {
             return left;
         }
         let biop = gobbleTokenFromList(binaryOps);
+        // If there wasn't a binary operator, just return the leftmost node
         if (!biop) {
             return left;
         }
@@ -330,8 +396,18 @@
             biop,
             gobbleToken() || throwJsepError(),
         ];
+        // Compare the previous binary operator against the newly found one.
+        // Previous = stack[stack.length-2], newly found one = biop
+        //
+        // The comparison will check the precedence of the two operators,
+        // preferring to combine the operations when the current one is less than
+        // or equal to the previous. This logic is flipped when the previous one is
+        // a right-to-left operation.
         const comparePrev = (prev) => prev[2] ^ (biop[0] <= prev[0]);
+        // Properly deal with precedence using
+        // [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
         while ((biop = gobbleTokenFromList(binaryOps))) {
+            // Reduce: make a binary expression from the three topmost entries.
             while (stack.length > 2 &&
                 comparePrev(stack[stack.length - 2])) {
                 combineLast();
@@ -343,9 +419,26 @@
         }
         return stack[0];
     };
+    // Objects passed into here must have keys that are sorted so longer keys are first.
+    //
+    // Example:
+    // {
+    //   'instanceof': 1,
+    //   'in': 2,
+    // }
+    //
+    // This checks each of the keys in the object against the current position in
+    // expr. The first one that matches will have its value returned.
+    //
+    // There's a check to make sure that tokens comprised of alphabetic characters
+    // are not followed by an alphabetic character.
     const gobbleTokenFromList = (tokenList) => {
         for (const item of Obj.keys(tokenList)) {
+            // If the token matches exactly
             if (expr.substr(index, item.length) == item) {
+                // If the first character is NOT a letter, then it's just symbols
+                // and we're good. Otherwise, if it is a letter, then a
+                // non-identifier character must trail the token.
                 if (!isIdentifierStart() ||
                     !isIdentifierPart(expr.charCodeAt(index + item.length))) {
                     gobbleSpaces(item.length);
@@ -356,18 +449,26 @@
     };
     const gobbleToken = () => {
         let node;
+        // 46 is '.'
         if (isDecimalDigit() || code == 46) {
+            // Char code 46 is a dot `.`, which can start off a numeric literal
             return gobbleNumericLiteral();
         }
         if (code == 34 || code == 39) {
+            // 34 = '"', 39 = "'"
+            // Single or double quotes
             const str = gobbleStringLiteral();
             node = [() => [str], newSet()];
         }
         else if (code === 91) {
+            // 91 is '['
+            // Array literal
             gobbleSpaces(1);
+            // 93 is ']'
             node = gobbleArguments(93, true);
         }
         else if (code === 123) {
+            // 123 is '{'
             node = gobbleObjectLiteral();
         }
         else {
@@ -377,6 +478,8 @@
                 return [op(argument[0]), argument[1]];
             }
             const identifier = gobbleIdentifier();
+            // Careful - "root" is a Proxy that already returns a value wrapped in
+            // an array with the context.
             node =
                 identifier in literals
                     ? [() => [literals[identifier]], newSet()]
@@ -385,22 +488,28 @@
         return gobbleTokenProperty(node);
     };
     const gobbleTokenProperty = (node) => {
-        while (code == 46 ||
-            code == 91 ||
-            code == 40 ||
-            code == 63) {
+        // '.', '[', '(', '?'
+        while (
+        /* . */ code == 46 ||
+            /* [ */ code == 91 ||
+            /* ( */ code == 40 ||
+            /* ? */ code == 63) {
             let optional;
             let action;
             let bindings = newSet();
             let prevNode = node;
+            // '?'
             if (code == 63) {
+                // Checking for optional chaining
                 advance();
+                // '.'
                 if (code !== 46) {
                     advance(-1);
                     return node;
                 }
                 optional = true;
             }
+            // '['
             if (code == 91) {
                 gobbleSpaces(1);
                 const expression = gobbleExpression() || throwJsepError();
@@ -409,13 +518,17 @@
                     value[0],
                 ];
                 bindings = expression[1];
+                // ']'
                 if (code !== 93) {
                     throwJsepError();
                 }
                 gobbleSpaces(1);
             }
             else if (code == 40) {
+                // '('
                 gobbleSpaces(1);
+                // A function call is being made; gobble all the arguments
+                // 41 is ')'
                 const args = gobbleArguments(41);
                 action = (value, root) => [
                     value[0].apply(value[1], args[0](root)[0]),
@@ -423,6 +536,7 @@
                 bindings = args[1];
             }
             else if (code == 46) {
+                // '.'
                 gobbleSpaces(1);
                 const identifier = gobbleIdentifier();
                 action = value => [value[0][identifier], value[0]];
@@ -434,6 +548,9 @@
                 ? [
                     root => {
                         const value = prevNode[0](root);
+                        // This returns true for undefined and null, false
+                        // otherwise for everything else (including false, 0,
+                        // and empty string).
                         return value[0] == null
                             ? []
                             : action(value, root);
@@ -454,7 +571,9 @@
             number += char();
             advance();
         }
+        // '.'
         if (code == 46) {
+            // can start with a decimal marker
             number += '.';
             advance();
             while (isDecimalDigit()) {
@@ -462,10 +581,14 @@
                 advance();
             }
         }
+        // e or E
         if (code == 101 || code == 69) {
+            // exponent marker
             number += char();
             advance();
+            // '+', '-'
             if (code == 43 || code == 45) {
+                // exponent sign
                 number += char();
                 advance();
             }
@@ -477,10 +600,14 @@
                 advance();
             } while (isDecimalDigit());
         }
+        // Check to make sure this isn't a variable name that starts with a number
+        // (123abc)
         if (isIdentifierStart()) {
             throwJsepError();
         }
         else if (code == 46 || number == '.') {
+            // 46 is '.'
+            // Error with "1.." and "."
             throwJsepError();
         }
         gobbleSpaces();
@@ -496,7 +623,9 @@
                 break;
             }
             if (code == 92) {
+                // 92 is '\\'
                 advance();
+                // Check for all of the common escape codes
                 const c = char();
                 str += escapeCodes[c] || c;
             }
@@ -527,6 +656,7 @@
         gobbleSpaces();
         return identifier;
     };
+    // This doesn't return the typical ValueProvider.
     const gobbleArguments = (terminator, allowEmpty) => {
         const args = [];
         while (code !== terminator) {
@@ -535,6 +665,7 @@
             }
             args.push(allowEmpty && code == 44 ? defaultValueProvider() : gobbleExpression());
             if (code == 44) {
+                // 44 is ','
                 gobbleSpaces(1);
             }
             else if (code !== terminator) {
@@ -550,22 +681,30 @@
     const gobbleObjectLiteral = () => {
         gobbleSpaces(1);
         const props = [];
+        // 125 is '}'
         while (code !== 125) {
             let propName;
             let propNameProvider;
             if (!moreToParse) {
                 throwJsepError();
             }
+            // 46 is '.'
             if (isDecimalDigit() || code == 46) {
+                // Numeric literal or dot notation
                 propNameProvider = gobbleNumericLiteral();
             }
             else if (code == 34 || code == 39) {
+                // 34 = '"', 39 = "'"
+                // String literal
                 propName = gobbleStringLiteral();
             }
             else if (code == 91) {
+                // 91 is '['
+                // The array syntax can be used to specify a property name
                 gobbleSpaces(1);
                 propNameProvider = gobbleExpression();
                 if (code != 93) {
+                    // 93 is ']'
                     throwJsepError();
                 }
                 gobbleSpaces(1);
@@ -576,11 +715,13 @@
             if (propName) {
                 propNameProvider = [() => [propName], newSet()];
             }
+            // 58 is ':'
             if (code == 58) {
                 gobbleSpaces(1);
                 props.push([propNameProvider, gobbleExpression()]);
             }
             else if (!propName) {
+                // If there was a property name provider, then it must be followed by a colon
                 throwJsepError();
             }
             else {
@@ -590,6 +731,7 @@
                 ]);
             }
             if (code == 44) {
+                // 44 is ','
                 gobbleSpaces(1);
             }
             else if (code !== 125) {
@@ -609,10 +751,22 @@
         ];
     };
 
+    /**
+     * Simplistic memoize for single-argument functions.
+     */
     const memoize = (fn) => {
         const cache = new Map();
         return (arg) => cache.has(arg) ? cache.get(arg) : cache.set(arg, fn(arg)).get(arg);
     };
+    /**
+     * Split text with embedded expressions wrapped in {{ and }}.
+     *
+     * Returns null if no expressions found.
+     *
+     * Returns an array of two elements otherwise.
+     * [0] is an array that alternates between strings and functions to generate content.
+     * [1] is a set of binding strings.
+     */
     const splitText = (text) => {
         const textChunks = text.split(/{{(.*?)}}/s);
         if (textChunks.length < 2) {
@@ -642,6 +796,8 @@
             splitResult[1],
         ]
         : null;
+    // Same as parseText, but allows boolean values to be returned.
+    // See parseText
     const parseAttr = (text) => {
         const splitResult = splitText(text);
         const first = splitResult?.[0];
@@ -656,11 +812,18 @@
         }
         return assembleCall(splitResult);
     };
+    // Parses a string containing expressions wrapped in braces
+    // Produces an array. [0] is a function that takes a root object and returns
+    // the generated string. [1] is the list of bindings as an array of strings.
     const parseText = (text) => assembleCall(splitText(text));
+    // Parsing functions with memoization for speed.
+    // Either returns null for an unparsable string or a ValueProviderRoot.
+    // ValueProviderRoot is an array where [0] is a function that takes a root object
+    // and returns a value, and [1] is an array of binding strings.
     const parse = {
-        attr: memoize(parseAttr),
-        js: memoize(jsep),
-        text: memoize(parseText),
+        attr: memoize(parseAttr), // Like .text() but can also return booleans
+        js: memoize(jsep), // Parses JavaScript and returns any value
+        text: memoize(parseText), // Returns string values
     };
 
     const attributeDirective = (controller, node, attrValue, attrName) => {
@@ -675,11 +838,19 @@
         }
     };
 
+    // When these return truthy values, the guard will STOP and not call the callback.
+    //
+    // Not all modifiers make it to the modifier set. Some are entirely handled before the event handler is fired, thus those are removed. The following event modifiers are handled before the event listener is added: 'passive', 'capture', 'once', 'window', and 'document'.
+    //
+    // Some modifiers are processed before the event listener is set up but are still needed as a guard. These are: 'self' and 'outside'.
     const modifierGuards = {
+        // Actions
         stop: e => e.stopPropagation(),
         prevent: e => e.preventDefault(),
+        // Targeting
         self: (e, node) => e.target !== node,
         outside: (e, node) => node.contains(e.target),
+        // Key modifiers
         ctrl: e => !e.ctrlKey,
         shift: e => !e.shiftKey,
         alt: e => !e.altKey,
@@ -713,6 +884,11 @@
         if (checkModifier('window')) {
             eventTarget = win;
         }
+        // Do not use 'checkModifier' for 'outside' because the modifierGuards handles it
+        // during event processing.
+        //
+        // Be careful with this logic. We are intentionally removing 'document' if
+        // it exists in the set, but preserving 'outside'.
         if (checkModifier('document') || modifierSet.has('outside')) {
             eventTarget = doc;
         }
@@ -733,6 +909,9 @@
         const scope = getScope(node);
         const update = () => {
             for (const [key, value] of entries(parsed[0](scope, controller))) {
+                // value can be undefined, but in this context it should be forced
+                // to be a boolean. An undefined value here means to remove the
+                // class, not toggle the class.
                 toggleClass(node, key, !!value);
             }
         };
@@ -742,12 +921,12 @@
     };
 
     const change = (controller, propertyName, newValue) => {
+        // Only allow the change if the controller is still active
         if (controller?.[metadata]) {
             const oldValue = controller[propertyName];
             if (oldValue !== newValue) {
                 controller[propertyName] = newValue;
-                controller.onChange?.(propertyName, newValue, oldValue);
-                controller[metadata]?.events.emit('change', propertyName);
+                lifecycle(controller, 'change', propertyName, oldValue, newValue);
             }
         }
     };
@@ -788,18 +967,24 @@
             let oldNodes = activeNodes;
             activeNodes = new Map();
             let lastNode = anchor;
+            // Attempt to reuse nodes based on the key of the iterable
             for (const [key, value] of entries(iterable)) {
+                // Attempt to find the old node
                 let copy = oldNodes.get(key);
                 oldNodes.delete(key);
                 if (copy === lastNode.nextSibling) {
+                    // Next node is in the right position. Update the value in
+                    // scope, which should trigger bindings.
                     const scope = getScope(copy);
                     scope[valueName] = value;
                 }
                 else {
+                    // Delete the old node if it exists
                     if (copy) {
                         unlink(controller, copy);
                         copy.remove();
                     }
+                    // Create a new node and set its scope
                     copy = cloneNode(source);
                     const scope = childScope(anchorScope, copy);
                     scope[keyName] = key;
@@ -810,6 +995,7 @@
                 lastNode = copy;
                 activeNodes.set(key, lastNode);
             }
+            // Clean up any remaining nodes.
             for (const old of oldNodes.values()) {
                 unlink(controller, old);
                 old.remove();
@@ -826,6 +1012,7 @@
         const update = () => {
             if (parsed[0](scope, controller)) {
                 if (!activeNode) {
+                    // Add
                     activeNode = cloneNode(source);
                     childScope(scope, activeNode);
                     link(controller, activeNode);
@@ -834,6 +1021,7 @@
             }
             else {
                 if (activeNode) {
+                    // Remove
                     unlink(controller, activeNode);
                     activeNode.remove();
                     activeNode = null;
@@ -897,6 +1085,8 @@
         for (const attr of [...currentNode.attributes]) {
             const attrName = attr.nodeName;
             const firstChar = attrName.charAt(0);
+            // Structural directives (those starting with '*') are applied
+            // earlier and have been removed by this point.
             const applyDirective = generalDirectives[attrName] ||
                 generalDirectives[firstChar] ||
                 generalDirectives[''];
@@ -911,6 +1101,7 @@
             for (const [k, v] of entries(structuralDirectives)) {
                 const attr = attrs.getNamedItem(k);
                 if (attr) {
+                    // Only allow one structural directive on an element
                     if (directive) {
                         throwError(`${directive[0]} breaks ${k}`);
                     }
@@ -918,13 +1109,22 @@
                 }
             }
             if (directive) {
+                // Create a comment anchor and insert before current node.
                 const anchor = createComment(`${directive[0]}=${stringify(directive[2])}`);
                 currentNode.before(anchor);
+                // Move tree walker to the anchor, then pull currentNode out of
+                // DOM.
                 treeWalker.previousNode();
                 currentNode.remove();
+                // Move tree walker to the next node. Processing the directive will
+                // modify the DOM between the anchor and the current tree walker node.
                 treeWalker.nextNode();
+                // Remove star directives here so infinite loops are avoided.
                 setAttribute(currentNode, directive[0]);
+                // Applying the directive may automatically append elements after the anchor.
                 directive[1](controller, anchor, currentNode, directive[2], directive[0]);
+                // Move back one node so the next loop will process the node we're
+                // currently pointing at.
                 treeWalker.previousNode();
                 return 1;
             }
@@ -944,19 +1144,39 @@
         }
     };
 
+    /**
+     * Link unattached nodes by first putting them into a fragment, then linking
+     * them to the controller and child scopes. The DOM structure will change. When
+     * everything is done, the node is ready to be appended into the live document.
+     *
+     * Use this function when a node is not yet attached to the document.
+     */
     const link = (controller, node) => {
         const fragment = createFragment();
         fragment.append(node);
         linkNodes(controller, fragment);
     };
+    /**
+     * Link elements and nodes to functions and the controller.
+     *
+     * The resulting "resultQueue"'s first element is based on processQueue's
+     * first element. The second element for each item is the altered node,
+     * comment anchor, or similar. No action is taken here to append to the
+     * parent or insert after the previous sibling.
+     *
+     * Only use this function when the node is attached to a parent, such as the
+     * document, a fragment, or template.
+     */
     const linkNodes = (controller, root) => {
         const treeWalker = createTreeWalker(root, 0x85);
         let currentNode;
         while (currentNode = treeWalker.nextNode()) {
             if (isTemplate(currentNode)) {
+                // Recurse into the template
                 linkNodes(controller, currentNode.content);
             }
             const type = currentNode.nodeType;
+            // Node.TEXT_NODE === 3
             if (type == 3) {
                 linkTextNode(controller, currentNode);
             }
@@ -966,28 +1186,48 @@
             }
         }
     };
+    /**
+     * Issue an unlink event on the controller.
+     */
     const unlink = (controller, root) => {
-        controller[metadata]?.events.emit('unlink', root);
+        lifecycle(controller, 'unlink', root);
     };
 
     const metadataMutationObserver = shorthandWeakMap();
     const DOMContentLoaded = 'DOMContentLoaded';
+    // When web components are added dynamically, they are automatically ready.
+    // However, when they are added during initial HTML load, the web component's
+    // child elements may not be added or may be added in phases. This function
+    // waits and determines when the child nodes are ready.
+    //
+    // Elements using a shadow DOM are always considered ready because they don't
+    // need or can't really access projected content from slots.
     const whenParsed = (element, root, callback) => {
         const ownerDocument = element.ownerDocument;
         const isReady = () => {
             let node = element;
+            // FIXME - is there another way to detect? isConnected might work.
             do {
                 if (node.nextSibling) {
                     return true;
                 }
             } while ((node = node.parentNode));
+            // Returns undefined, which is falsy
         };
+        // Check if enough of the document is already loaded/parsed.
+        // 1. If using a shadow root, we are always ready.
+        // 2. If the document is not "loading", then it is ready enough. "loading"
+        // means content is still being added. "interactive" and "complete" are
+        // both good enough for DOM manipulation.
+        // 3. If any parent of the element has a next sibling, then the element
+        // must have been parsed already.
         if (root != element ||
             ownerDocument.readyState != 'loading' ||
             isReady()) {
             callback();
         }
         else {
+            // Watch the document or document fragment for changes.
             const unobserve = observe(ownerDocument, element, (isLoaded) => {
                 if (isLoaded || isReady()) {
                     unobserve();
@@ -996,11 +1236,15 @@
             });
         }
     };
+    // Watch the root of a document for node changes anywhere in the tree. Also,
+    // fire the callback when the document loads.
     const observe = (doc, element, callback) => {
+        // When the document loads, the element is ready
         const onLoad = () => {
             callback(true);
         };
         doc.addEventListener(DOMContentLoaded, onLoad);
+        // Watch the DOM for any changes
         const mutationRoot = element.getRootNode();
         const info = metadataMutationObserver(mutationRoot) ||
             metadataMutationObserver(mutationRoot, {
@@ -1031,6 +1275,10 @@
         };
     };
 
+    /**
+     * Set up config and define a custom element.
+     */
+    // Decorator to wire a class as a custom component
     const Component = (tag, config) => (target) => component(tag, config, target);
     const component = (tag, configInitial, constructor) => {
         const cssClassName = `fudgel_${tag}`;
@@ -1056,6 +1304,7 @@
             cssClassName,
             prop: newSet(configInitial.prop || []),
             style,
+            tag,
             template: template.innerHTML,
         };
         class CustomElement extends HTMLElement {
@@ -1064,23 +1313,33 @@
                 change(this[metadata], dashToCamel(attributeName), newValue);
             }
             connectedCallback() {
+                // The root is the element where our template content will be placed.
                 const root = config.useShadow
                     ? this.shadowRoot || this.attachShadow({ mode: 'open' })
                     : this;
+                // Create the controller and set up links between element and controller
                 const controllerMetadata = {
                     ...config,
                     events: new Emitter(),
                     host: this,
                     root,
+                    tagName: tag,
                 };
                 const controller = new constructor(controllerMetadata);
                 this[metadata] = controller;
                 controller[metadata] = controllerMetadata;
                 allControllers.add(controller);
+                // Set the class on the host element. Child elements will have
+                // it set through the preprocessed template string.
                 toggleClass(this, cssClassName, true);
+                // Set up bindings before adding child nodes
                 for (const propertyName of config.attr) {
                     const attributeName = camelToDash(propertyName);
+                    // Set initial value - updates are tracked with
+                    // attributeChangedCallback.
                     change(controller, propertyName, getAttribute(this, attributeName));
+                    // When the internal property changes, update the attribute but only
+                    // if it is a string or null.
                     patchSetter(controller, propertyName, (newValue) => {
                         if ((isString(newValue) || newValue === null) &&
                             controller[metadata]) {
@@ -1092,18 +1351,32 @@
                     if (hasOwn(this, propertyName)) {
                         change(controller, propertyName, this[propertyName]);
                     }
+                    // When element changes, update controller
                     patchSetter(this, propertyName, (newValue) => change(controller, propertyName, newValue));
+                    // When controller changes, update element
                     patchSetter(controller, propertyName, (newValue) => (this[propertyName] = newValue));
+                    // Assign the property back to the element in case it was
+                    // listed as both a property and an attribute.
                     this[propertyName] = controller[propertyName];
                 }
-                controller.onInit?.();
+                // Initialize before adding child nodes
+                lifecycle(controller, 'init');
                 whenParsed(this, root, (wasAsync) => {
+                    // Verify that the controller is still bound to an element. Avoids
+                    // a race condition where an element is added but not "parsed"
+                    // immediately, then removed before this callback can fire.
                     if (controller[metadata]) {
-                        controller.onParse?.(wasAsync);
+                        lifecycle(controller, 'parse', wasAsync);
+                        // Create initial child elements from the template. This creates them
+                        // and adds them to the DOM, so do not use `link()`.
                         const template = createTemplate();
                         template.innerHTML = config.template;
                         linkNodes(controller, template.content);
+                        // Remove all existing content when not using a shadow DOM to simulate
+                        // the same behavior shown when using a shadow DOM.
                         root.innerHTML = '';
+                        // With a shadow DOM, append styling within the element.
+                        // Add styling to either the parent document or the parent shadow root.
                         const styleParent = root.getRootNode();
                         if (config.style &&
                             !styleParent.querySelector('style.' + cssClassName)) {
@@ -1112,18 +1385,24 @@
                             s.prepend(createTextNode(config.style));
                             (styleParent.body || styleParent).prepend(s);
                         }
+                        // Finally, add the processed nodes
                         root.append(template.content);
-                        controller.onViewInit?.(wasAsync);
+                        lifecycle(controller, 'viewInit', wasAsync);
                     }
                 });
             }
             disconnectedCallback() {
                 const controller = this[metadata];
-                controller.onDestroy?.();
-                controller[metadata].events.emit('destroy');
+                lifecycle(controller, 'destroy');
+                // Remove the controller from the global list
                 allControllers.delete(controller);
+                // Remove setters on the element.
+                // It is not necessary to remove setters on the controller because
+                // all references will be lost.
                 removeSetters(this);
+                // Remove the controller's metadata
                 delete controller[metadata];
+                // Remove the link to the controller
                 delete this[metadata];
             }
         }
@@ -1137,7 +1416,7 @@
             allComponents.add(componentInfo);
             events.emit('component', ...componentInfo);
         }
-        catch (_) { }
+        catch (_ignore) { }
         return CustomElement;
     };
     const scopeStyleRule = (rule, tagForScope, className, useShadow) => {
@@ -1163,13 +1442,15 @@
                 return selector;
             })
                 .join(',');
-            tagForScope = '';
+            tagForScope = ''; // Don't need to scope children selectors
         }
         for (const childRule of rule.cssRules ?? []) {
             scopeStyleRule(childRule, tagForScope, className, useShadow);
         }
         return rule.cssText;
     };
+    // 6725
+    // Exported for easier testing
     const scopeStyle = (style, tag, className, useShadow) => [...sandboxStyleRules(style)]
         .map(rule => scopeStyleRule(rule, tag, className, useShadow))
         .join('');
@@ -1203,9 +1484,11 @@
             let children = this.children;
             let firstChild = children[0];
             if (isTemplate(firstChild)) {
+                // Use the children within the template
                 this._routeElements = Array.from(firstChild.content.children);
             }
             else {
+                // Use direct children and move elements to a document fragment
                 while (children.length > 0) {
                     const element = children[0];
                     this._routeElements.push(element);
@@ -1246,6 +1529,7 @@
                 append = true;
             }
             const e = this._lastMatched[1];
+            // Careful - iterating over an array of entries
             for (const [key, value] of matchedRoute.g) {
                 setAttribute(e, camelToDash(key), value);
             }
@@ -1292,6 +1576,7 @@
                     };
                 }
             }
+            // Returning undefined is falsy
         }
         _modifyStateGenerator(target, original) {
             return (state, title, url) => {
@@ -1319,14 +1604,57 @@
         customElements.define(name, RouterComponent);
     };
 
+    /* Slot-like component to enable slots in light DOM.
+     *
+     * Usage:
+     *
+     * <outer-element> <!-- a custom element; either shadow or light DOM -->
+     *     <inner-element> <!-- another custom element; this one uses light DOM -->
+     *         <div slot="title">
+     *             <!-- named slot content -->
+     *             Title
+     *         </div>
+     *         <!-- default slot content -->
+     *         Other content
+     *     </inner-element>
+     * </outer-element>
+     *
+     * The inner element has a template similar to this and correctly uses these
+     * slot-like components:
+     *
+     * <h1><slot-like name="title"></slot-like></h1>
+     * <slot-like></slot-lik>
+     *
+     * The resulting DOM will be:
+     *
+     * <outer-element>
+     *     <inner-element>
+     *         <h1><slot-like name="title"><div slot="title">
+     *             <!-- named slot content -->
+     *             Title
+     *         </div></slot-like></h1> <!-- named slot content -->
+     *         <slot-like><div>
+     *             <!-- default slot content -->
+     *             Other content
+     *         </div></slot-like>
+     *     </inner-element>
+     * </outer-element>
+     */
     const metadataElementSlotContent = shorthandWeakMap();
     const getFragment = (slotInfo, name) => slotInfo.n[name] || (slotInfo.n[name] = createFragment());
+    // Given an element, find its parent element. The parent element may be outside
+    // of a shadow root.
     const getParent = (element) => element.parentElement ||
         (element.getRootNode() || {}).host;
+    const needsSlotPolyfill = /*@__PURE__*/ newSet();
     const defineSlotComponent = (name = 'slot-like') => {
         class SlotComponent extends HTMLElement {
             constructor() {
                 super();
+                // Find the parent custom element that is using this component.
+                // The parent must not change even if this element is later relocated
+                // elsewhere (eg. deeper via content projection into content
+                // projection) in the DOM.
                 let parent = getParent(this);
                 while (parent &&
                     !(this._slotInfo = metadataElementSlotContent(parent))) {
@@ -1343,6 +1671,8 @@
             connectedCallback() {
                 const slotInfo = this._slotInfo;
                 if (slotInfo) {
+                    // Set the scope of this element to be a child of the outer
+                    // element's scope.
                     childScope(slotInfo.s, this);
                     this._addContent(slotInfo);
                 }
@@ -1368,6 +1698,40 @@
         }
         SlotComponent.observedAttributes = ['name'];
         customElements.define(name, SlotComponent);
+        events.on('init', controller => {
+            if (needsSlotPolyfill.has(controller.constructor)) {
+                const { root: controllerRoot, host: controllerHost, events: controllerEvents, } = controller[metadata];
+                controllerEvents.on('parse', () => {
+                    // When the controller is destroyed, restore the original HTML
+                    // content back to the element.
+                    const originalHTML = controllerRoot.innerHTML;
+                    controllerEvents.on('destroy', () => (controllerRoot.innerHTML = originalHTML));
+                    // Track information necessary for the slot-like custom element
+                    const slotInfo = metadataElementSlotContent(controllerRoot, {
+                        // Event emitter
+                        e: new Emitter(),
+                        // Slots - named ones are set as additional properties. Unnamed
+                        // slot content is combined into the '' fragment.
+                        n: {
+                            '': createFragment(),
+                        },
+                        // Scope for the <slot-like> element.
+                        s: getScope(getParent(controllerHost)),
+                    });
+                    // Grab all content for named slots
+                    for (const child of [
+                        ...controllerRoot.querySelectorAll('[slot]'),
+                    ]) {
+                        getFragment(slotInfo, getAttribute(child, 'slot') || '').append(child);
+                    }
+                    // Now collect everything else and add it to the default slot
+                    for (const child of [...controllerRoot.childNodes]) {
+                        slotInfo.n[''].append(child);
+                    }
+                });
+            }
+        });
+        // Rewrite templates for custom elements that use slots in light DOM.
         const rewrite = (_baseClass, controllerConstructor, config) => {
             if (!config.useShadow) {
                 let rewrittenSlotElement = false;
@@ -1377,6 +1741,8 @@
                 const treeWalker = createTreeWalker(template.content, 0x01);
                 let currentNode;
                 while ((currentNode = treeWalker.nextNode())) {
+                    // Change DOM elements in the template from <slot> to the
+                    // <slot-like>
                     if (currentNode.nodeName == 'SLOT') {
                         rewrittenSlotElement = true;
                         const slotLike = createElement(name);
@@ -1395,34 +1761,7 @@
                     config.template = template.innerHTML;
                 }
                 if (rewrittenSlotElement || foundSlotLikeElement) {
-                    const proto = controllerConstructor.prototype;
-                    const onParse = proto.onParse;
-                    const onDestroy = proto.onDestroy;
-                    proto.onParse = function () {
-                        const controllerMetadata = this[metadata];
-                        const root = controllerMetadata.root;
-                        const slotInfo = metadataElementSlotContent(root, {
-                            c: root.innerHTML,
-                            e: new Emitter(),
-                            n: {
-                                '': createFragment(),
-                            },
-                            s: getScope(getParent(controllerMetadata.host)),
-                        });
-                        for (const child of [...root.querySelectorAll('[slot]')]) {
-                            getFragment(slotInfo, getAttribute(child, 'slot') || '').append(child);
-                        }
-                        for (const child of [...root.childNodes]) {
-                            slotInfo.n[''].append(child);
-                        }
-                        onParse?.call(this);
-                    };
-                    proto.onDestroy = function () {
-                        const root = this[metadata].root;
-                        const slotInfo = metadataElementSlotContent(root);
-                        root.innerHTML = slotInfo.c;
-                        onDestroy?.call(this);
-                    };
+                    needsSlotPolyfill.add(controllerConstructor);
                 }
             }
         };
@@ -1439,6 +1778,7 @@
     exports.Emitter = Emitter;
     exports.RouterComponent = RouterComponent;
     exports.addDirective = addDirective;
+    exports.allComponents = allComponents;
     exports.component = component;
     exports.css = css;
     exports.defineRouterComponent = defineRouterComponent;

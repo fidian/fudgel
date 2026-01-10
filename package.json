@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "2.6.3",
+    "version": "3.0.0",
     "description": "Minimalist web component library to take the pain out of bindings and content updates.",
     "keywords": [
         "lightweight",
@@ -25,9 +25,9 @@
         "url": "https://github.com/fidian/fudgel/issues"
     },
     "scripts": {
-        "build": "scripts/build",
-        "build-docs": "scripts/build-docs",
-        "build:unminified": "scripts/build-unminified",
+        "build": "npm run build:docs && npm run build:lib",
+        "build:docs": "scripts/build-docs",
+        "build:lib": "scripts/build",
         "reinstall": "rm -rf node_modules/ package-lock.json && npm install",
         "start": "light-server -s docs/ -p 8080",
         "test": "scripts/test",
@@ -45,12 +45,12 @@
         "cypress-vite": "^1.8.0",
         "light-server": "^2.9.1",
         "marked": "^17.0.1",
-        "micromustache": "^8.0.3",
         "rollup": "^4.53.3",
         "start-server-and-test": "^2.1.3",
         "terser": "^5.44.1",
         "typescript": "^5.9.3",
         "ultramatter": "^0.0.4",
+        "ventojs": "^2.3.0",
         "vite": "^7.2.7"
     }
 }

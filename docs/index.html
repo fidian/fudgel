@@ -26,7 +26,38 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <page-wrapper> 
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link">Welcome</a>
+                
+                <a href="getting-started.html" class="sidebar-link">Getting Started</a>
+                
+                <a href="component-basics.html" class="sidebar-link">Component Basics</a>
+                
+                <a href="attr-and-prop.html" class="sidebar-link">Attr and Prop</a>
+                
+                <a href="directives.html" class="sidebar-link">Directives</a>
+                
+                <a href="expressions.html" class="sidebar-link">Expressions</a>
+                
+                <a href="lifecycle-methods.html" class="sidebar-link">Lifecycle Methods</a>
+                
+                <a href="content-projection.html" class="sidebar-link">Content Projection</a>
+                
+                <a href="routing.html" class="sidebar-link">Routing</a>
+                
+                <a href="hooks.html" class="sidebar-link">Hooks</a>
+                
+                <a href="utilities.html" class="sidebar-link">Utilities</a>
+                
+                <a href="examples.html" class="sidebar-link">Examples</a>
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link">GitHub</a>
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
 <style>
     .topContent {
         display: flex;
@@ -92,106 +123,141 @@
     </div>
 </div>
 
-
-<h3>A lightweight web component library that eliminates pain and boilerplate.</h3>
-<p>Learning new technologies, tooling, and techniques constantly is an annoyance. Staying on the bleeding edge of technology can be painful. Why keep learning new things? Can&#39;t new things look and feel like traditional JavaScript and HTML? Yes, it absolutely can. Fudgel lets you write an HTML template and associate it with a JavaScript class. You call methods from the HTML to do things in the class. Likewise, changes in the class are automatically reflected in the HTML. You don&#39;t have to manually redraw or worry about the magic; it just works.</p>
-<p>When given a class as a controller, Fudgel will automatically parse the HTML template and set up bindings to your controller&#39;s properties. When they change, the HTML is also updated. Fudgel also handles events, passes data as attributes and properties, and fully supports TypeScript. All of this is done while allowing you, the developer, to maintain control; add additional directives, hook into the component&#39;s lifecycle, and even handle content projection using slots.</p>
-<p>What do you get by using Fudgel?</p>
+<h3>Easy and Lightweight Web Components</h3>
+<p>Do you miss working with plain JavaScript and HTML? Are other frameworks causing pain or bloating your project? Tired of a slow transpile step? Fudgel allows you to write web components easily using familiar JavaScript classes and HTML, staying out of your way and making your life more effortless.</p>
+<p>Event bindings are added automatically, calling methods in your controller class. Property changes in your controller automatically update the HTML. Integrates seamlessly with Angular, React, and other frameworks. All of this is done while keeping the bundle size very small, so your users aren&#39;t waiting for a massive download just to see your content.</p>
+<p>Fudgel uses about <span style="font-size: 1.2em">7k</span> to provide:</p>
 <ul>
-<li>One-way data binding (controller to HTML)</li>
-<li>Mustache-like syntax for text and attributes</li>
-<li>Automatic updates when properties change, and only updating affected DOM nodes</li>
-<li>Two-way property and attribute bindings</li>
-<li>Ability to add code during different lifecycle events</li>
-<li>Event handlers, tying events to your controller&#39;s methods</li>
-<li>Support for styles, either automatically scoped or within a shadow DOM</li>
-<li>Iterate over objects, arrays, maps, and other iterables</li>
-<li>Conditionally add or remove elements</li>
-<li>Dynamically apply or remove classes when properties change</li>
-<li>Child element references</li>
-<li>No build system or compilation needed; you can just use vanilla JavaScript</li>
-<li>JavaScript works with even the most restrictive Content-Security-Policy directives (inline styles could break with a <em>really strict</em> policy)</li>
-<li>Includes support for slots in Shadow DOM, and our custom <code>&lt;slot-like&gt;</code> element for the Light DOM</li>
-<li>Full TypeScript support</li>
-<li>Published as both UMD and a module</li>
-<li>Dependency injection for services, with the ability to override the container for tests</li>
-<li>Darn small, coming in at about 5k compressed for the Web Component; about 7k if you include everything else</li>
-<li>Fully tree-shakeable, reducing your bundle size when you don&#39;t use all of the features</li>
+<li>Automatic DOM updates when properties change<ul>
+<li>Add and remove elements, classes, loop over data, events, and more</li>
+<li>Lifecycle triggers exposed as events and controller methods</li>
 </ul>
-<p><show-sample src="samples/welcome-to-fudgel.json"></show-sample></p>
+</li>
+<li>Creates a custom element using standard Web Component APIs<ul>
+<li>Two-way property and attribute bindings, plus events for passing data</li>
+<li>Works with all major frameworks (eg. Angular, React, Vue, Svelte, etc.)</li>
+</ul>
+</li>
+<li>Supports both Shadow DOM and Light DOM rendering<ul>
+<li>Styles scoped to your component automatically, even when not using Shadow DOM</li>
+<li>A simplistic <code>&lt;slot-like&gt;</code> element for content projection in the Light DOM</li>
+</ul>
+</li>
+<li>Building is optional; works with vanilla JavaScript<ul>
+<li>Can use the library directly in the browser</li>
+<li>Fully tree-shakeable for smaller bundle sizes</li>
+<li>Published as both UMD and a module</li>
+</ul>
+</li>
+<li>Taking care of developers and security-conscious teams<ul>
+<li>Works even with &quot;Content-Security-Policy&quot; directives (inline styles could break with a <em>really strict</em> policy)</li>
+<li>Full TypeScript support</li>
+<li>Dependency injection for services, with overrides for testing</li>
+</ul>
+</li>
+</ul>
+<p><code-sample sample="samples/welcome-to-fudgel.json"></code-sample></p>
 <p>In the above example, a new custom element is defined. Whenever you use the new HTML element <code>&lt;my‑custom‑element&gt;</code>, it will automatically insert &quot;Hello Developer, welcome to Fudgel!&quot; as text. Because of the timeout set up in <code>onInit</code> (a lifecycle method), in five seconds the text automatically changes to &quot;Hello Super Developer, welcome to Fudgel!&quot;</p>
-<p>Web components make great additions to your browser-based UI because they basically work everywhere. Self-contained chunks of functionality that can eliminate lots of work on your side. Also, upgrading them or upgrading your existing framework is easier because their dependencies are built into the custom element. The downside is a bit of extra size from the wiring that has to take place, but Fudgel limits that to just the necessities.</p>
-<p>Is this a framework? Perhaps, depending on your definition. This provides the structure and removes a lot of hassle when trying to wire up custom elements in order to make web components. It does this by providing many of the features you could see in other frameworks, while keeping the bundle size small. Fudgel only adds a few kilobytes (the complete bundle, minified and compressed) to your assets that need to be delivered.</p>
-<p><fudgel-sizes></fudgel-sizes></p>
-<p>Yes, those numbers are in bytes. As a comparison, your browser requested just this HTML, consuming about 740 bytes. The response headers and HTML were compressed and consumed about 5.2k. The entire framework is equivalent to loading <em>just the HTML</em> for this page! Put another way, this framework is about 1/2 the size of a font used on this site or 1/30 of the logo&#39;s download size. It&#39;s almost unfair to compare this miniscule framework to other frameworks.</p>
-<p>This is extraordinarily small when compared to some of the more popular frameworks like Angular or React. The minimal size for a standard &quot;Hello, world!&quot; style project using Angular is reported at 35k and React is about 46k - however, both project sizes vary immensely based on what features or workarounds you employ. A minimal &quot;Hello, world!&quot; application in Fudgel is barely larger than the library itself, only adding under 100 bytes beyond the library.</p>
+<p>Web components make great additions to your browser-based UI because they work everywhere. Self-contained chunks of functionality that can eliminate lots of work on your side. Also, upgrading them or upgrading your existing framework is easier because their dependencies are built into the custom element. The downside is a bit of extra size from the wiring that has to take place, but Fudgel limits that to just the necessities.</p>
+<div style="display: flex; flex-direction: column; align-items: center">
+<fudgel-sizes></fudgel-sizes>
+<playground-button js="fudgel-sizes.js"></playground-button>
+</div>
+
+<p>As a comparison, just the HTML for this page is about the same size (excluding JavaScript, CSS, images, and fonts). A standard &quot;Hello, world!&quot; style project using Angular is reported at 35k and React is about 46k; however, both project sizes can vary immensely. With Fudgel, you&#39;re looking at adding under 100 bytes to the library size.</p>
 <h2>Browser Support</h2>
-<p>98% of traffic from current browsers work with this library. Basically any common browser since 2020. Here is a list of the minimum supported browser versions:</p>
+<p>98% of browser traffic work with Fudgel. Here is a list of the minimum supported browser versions:</p>
 <table>
 <thead>
 <tr>
-<th>Browser</th>
+<th align="center">Browser</th>
 <th align="center">Version</th>
-<th>Released</th>
+<th align="center">Released</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Chrome</td>
+<td align="center">Chrome</td>
 <td align="center">71</td>
-<td>Dec 2018</td>
+<td align="center">Dec 2018</td>
 </tr>
 <tr>
-<td>Edge</td>
+<td align="center">Edge</td>
 <td align="center">79</td>
-<td>Jan 2020</td>
+<td align="center">Jan 2020</td>
 </tr>
 <tr>
-<td>Safari</td>
+<td align="center">Safari</td>
 <td align="center">12.1</td>
-<td>Mar 2019</td>
+<td align="center">Mar 2019</td>
 </tr>
 <tr>
-<td>Firefox</td>
+<td align="center">Firefox</td>
 <td align="center">69</td>
-<td>Sep 2019</td>
+<td align="center">Sep 2019</td>
 </tr>
 <tr>
-<td>iOS Safari</td>
+<td align="center">iOS Safari</td>
 <td align="center">12.2</td>
-<td>Mar 2019</td>
+<td align="center">Mar 2019</td>
 </tr>
 <tr>
-<td>Samsung Internet</td>
+<td align="center">Samsung Internet</td>
 <td align="center">10.1</td>
-<td>Sep 2019</td>
+<td align="center">Sep 2019</td>
 </tr>
 </tbody></table>
 <p>If you need to support slightly older versions, look at Fudgel 2.x.</p>
-<p>See the details on the most restrictive browser features required to run Fudgel using <a href="https://caniuse.com/?feats=mdn-html_elements_slot,template,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_getprototypeof,proxy,wf-queuemicrotask">CanIUse.com feature list</a>. Scroll down to the bottom and click &quot;Show Summary&quot;. From there, make sure to select the summary type button labeled &quot;Intersection&quot; and change the usage drop-down in the upper right to &quot;all tracked&quot; to see the overall support.</p>
+<p>See the details on the most restrictive browser features required to run Fudgel using <a href="https://caniuse.com/?feats=mdn-html_elements_slot,template,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_getprototypeof,proxy,wf-queuemicrotask">CanIUse.com feature list</a>. At the bottom, click &quot;Show Summary&quot;, &quot;Intersection&quot; and change usage to &quot;all tracked&quot;.</p>
 <h2>Goals and Prior Work</h2>
-<p>Fudgel was designed to make a JavaScript and HTML developer feel comfortable quickly. It does the heavy lifting via automatic bindings and updates while the developer focuses entirely on the interactions. The focus is to create self-contained web components using <code>window.customElements</code>, suitable for inclusion on any project, regardless of other frameworks being used.</p>
-<p>This project has received the benefit of having others blaze trails in this area. There&#39;s ideas from many other projects as well.</p>
+<p>This project has received the benefit of having others blaze trails in related areas. Thanks to the following projects for their inspiration:</p>
 <ul>
-<li><p><a href="https://slimjs.com/">Slim.js</a> provided the starting point that a lightweight library can contain lots of functionality, such as the automatic bindings and text parser.</p>
-</li>
-<li><p><a href="https://angular.io/">Angular</a> lifecycle hooks and structural directives were useful to mimic.</p>
-</li>
-<li><p><a href="https://alpinejs.dev/">Alpine.js</a> has event handlers using <code>@</code> prefixes and modifiers.</p>
-</li>
-<li><p><a href="https://vuejs.org/">Vue.js</a> is big into using slots for content projection, plus they also have event handlers with modifiers.</p>
-</li>
-<li><p><a href="https://skruv.io/">Skruv</a> is a small library that&#39;s similar to Slim.js and is the inspiration for the CSS scoping.</p>
-</li>
-<li><p><a href="https://github.com/EricSmekens/jsep">jsep</a> is how the basis for how expressions are parsed within templates without using &quot;eval()&quot; or &quot;new Function()&quot;.</p>
-</li>
-<li><p><a href="https://github.com/colscott/a-wc-router">a-wc-router</a> inspired the <code>&lt;slot-like&gt;</code> element for <a href="content-projection.html">content projection</a> in the light DOM.</p>
-</li>
+<li><a href="https://slimjs.com/">Slim.js</a> provided the starting point that a lightweight library can contain lots of functionality, such as the automatic bindings and text parser.</li>
+<li><a href="https://angular.io/">Angular</a> lifecycle hooks and structural directives were useful to mimic.</li>
+<li><a href="https://alpinejs.dev/">Alpine.js</a> has event handlers using <code>@</code> prefixes and modifiers.</li>
+<li><a href="https://vuejs.org/">Vue.js</a> is big into using slots for content projection, plus they also have event handlers with modifiers.</li>
+<li><a href="https://skruv.io/">Skruv</a> is a small library that&#39;s similar to Slim.js and is the inspiration for the CSS scoping.</li>
+<li><a href="https://github.com/EricSmekens/jsep">jsep</a> is how the basis for how expressions are parsed within templates without using &quot;eval()&quot; or &quot;new Function()&quot;.</li>
+<li><a href="https://github.com/colscott/a-wc-router">a-wc-router</a> inspired the <code>&lt;slot-like&gt;</code> element for <a href="content-projection.html">content projection</a> in the light DOM.</li>
 </ul>
 <h2>Best Practices</h2>
 <p>Do not register your custom element in your exported module. That does not allow other developers to resolve conflicts. If your custom element is named &quot;heading-bar&quot; and another library uses the same named element, the conflict is unable to be worked around. Instead, export a function that allows another developer to prefix your element and any other custom elements you require.</p>
 <p>In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties. When you need to send data out of your controller, send an event.</p>
 
- </page-wrapper>
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link">Welcome</a>
+                    
+                    <a href="getting-started.html" class="flyout-link">Getting Started</a>
+                    
+                    <a href="component-basics.html" class="flyout-link">Component Basics</a>
+                    
+                    <a href="attr-and-prop.html" class="flyout-link">Attr and Prop</a>
+                    
+                    <a href="directives.html" class="flyout-link">Directives</a>
+                    
+                    <a href="expressions.html" class="flyout-link">Expressions</a>
+                    
+                    <a href="lifecycle-methods.html" class="flyout-link">Lifecycle Methods</a>
+                    
+                    <a href="content-projection.html" class="flyout-link">Content Projection</a>
+                    
+                    <a href="routing.html" class="flyout-link">Routing</a>
+                    
+                    <a href="hooks.html" class="flyout-link">Hooks</a>
+                    
+                    <a href="utilities.html" class="flyout-link">Utilities</a>
+                    
+                    <a href="examples.html" class="flyout-link">Examples</a>
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link">GitHub</a>
+                    
+                </div>
+            </div>
+        </div>
     </body>
     <script src="js.js" type="module"></script>
 </html>

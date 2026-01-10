@@ -1,8 +1,7 @@
 <html>
     <head>
-        <title>{{title}}</title>
-        <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="../fonts/fonts.css" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,24 +25,7 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <div class="page-wrapper">
-            <div class="sidebar">
-                {{ for page of pages }}
-                <a href="{{ page.url }}" class="sidebar-link">{{ page.label }}</a>
-                {{ /for }}
-            </div>
-            <div class="content">
-                <div class="limit-width">{{}}</div>
-            </div>
-            <div class="menu">
-                <menu-handle></menu-handle>
-                <div class="menu-links">
-                    {{ for page of pages }}
-                    <a href="{{ page.url }}" class="flyout-link">{{ page.label }}</a>
-                    {{ /for }}
-                </div>
-            </div>
-        </div>
+        <live-playground></live-playground>
     </body>
     <script src="js.js" type="module"></script>
 </html>

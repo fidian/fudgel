@@ -41,17 +41,21 @@ for NAME in component; do
 done
 
 status "Update docs"
+
+# UMD to force sync/async element loading easier
 cp dist/fudgel.umd.js docs/e2e/fudgel.umd.js
-if [[ -z "${UNMINIFIED-}" ]]; then
-    cp dist/fudgel.min.mjs docs/fudgel.min.js
-else
-    cp dist/fudgel.mjs docs/fudgel.min.js
-fi
+
+# ESM for playground - easier to debug
+cp dist/fudgel.mjs docs/playground/fudgel.js
+
+# ESM minified for CDN usage
+cp dist/fudgel.min.mjs docs/fudgel.min.js
+
 (
     echo '['
     echo "$(sizeAsJson "Everything (ESM)" fudgel.min.mjs),"
     echo "$(sizeAsJson "Everything (UMD)" fudgel.umd.min.js),"
-    echo "$(sizeAsJson "component()" only-component.min.mjs),"
+    echo "$(sizeAsJson "component()" only-component.min.mjs)"
     echo ']'
 ) > docs/fudgel-sizes.json
 git diff docs/fudgel-sizes.json

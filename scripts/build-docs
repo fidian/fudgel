@@ -5,7 +5,9 @@ import { promises as fsPromises } from 'node:fs';
 import { dirname, extname, resolve } from 'node:path';
 import { marked } from 'marked';
 import { parse } from 'ultramatter';
-import { render } from 'micromustache';
+import { default as vento } from 'ventojs';
+
+const env = vento();
 
 async function main() {
     chdir('docs');
@@ -28,18 +30,18 @@ async function processMarkdown(config, filename, headerContent, footerContent) {
     const markdownContent = await fsPromises.readFile(filename, 'utf-8');
     const fm = parse(markdownContent);
     const htmlContent = marked(fm.content);
-    const finalHtml = render(
+    const finalHtml = await env.runString(
         `${headerContent}
 ${htmlContent}
 ${footerContent}`,
         {
-            config,
+            ...config,
             ...fm.frontmatter,
         }
     );
     const outFilename = filename.replace(/\.md$/, '.html');
     console.log(`Writing file: ${outFilename}`);
-    await fsPromises.writeFile(outFilename, finalHtml, 'utf-8');
+    await fsPromises.writeFile(outFilename, finalHtml.content, 'utf-8');
 }
 
 marked.setOptions({
