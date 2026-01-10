@@ -1,6 +1,6 @@
 {
     "type": "js",
-    "live": true,
+    "playground": true,
     "html": "<welcome-to-fudgel></welcome-to-fudgel>",
     "source": "welcome-to-fudgel.js"
 }

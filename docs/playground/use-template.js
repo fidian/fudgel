@@ -3,6 +3,8 @@ import { PlaygroundDataService } from '../playground-data-service.js';
 
 const templates = {
     'basic.html': 'Basic Template',
+    'basic-cdn-module.html': 'Basic Template (Module from CDN)',
+    'basic-cdn-umd.html': 'Basic Template (UMD from CDN)',
     'count-characters.html': 'Count characters',
     'dependency-injection.html': 'Dependency injection',
     '../fudgel-sizes.js': 'Load JSON into Table',

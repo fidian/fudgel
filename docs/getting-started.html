@@ -1,8 +1,8 @@
 <html>
     <head>
-        <title>Fudgel - Lightweight Web Component Library</title>
+        <title>Getting Started (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
-        <link rel="stylesheet" href="./style.css" />
+        <link rel="stylesheet" href="style.css" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,117 +26,93 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <page-wrapper>
-            <h1>Getting Started</h1>
-            <p>
-                Step 1: Install Fudgel or include it into your project. This can
-                take several forms, depending on your needs.
-            </p>
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link">Welcome</a>
+                
+                <a href="getting-started.html" class="sidebar-link">Getting Started</a>
+                
+                <a href="component-basics.html" class="sidebar-link">Component Basics</a>
+                
+                <a href="attr-and-prop.html" class="sidebar-link">Attr and Prop</a>
+                
+                <a href="directives.html" class="sidebar-link">Directives</a>
+                
+                <a href="expressions.html" class="sidebar-link">Expressions</a>
+                
+                <a href="lifecycle-methods.html" class="sidebar-link">Lifecycle Methods</a>
+                
+                <a href="content-projection.html" class="sidebar-link">Content Projection</a>
+                
+                <a href="routing.html" class="sidebar-link">Routing</a>
+                
+                <a href="hooks.html" class="sidebar-link">Hooks</a>
+                
+                <a href="utilities.html" class="sidebar-link">Utilities</a>
+                
+                <a href="examples.html" class="sidebar-link">Examples</a>
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link">GitHub</a>
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Getting Started</h1>
+<p>Step 1: Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.</p>
+<p><code-sample sample="samples/umd-from-cdn.json"></code-sample></p>
+<p><code-sample sample="samples/module-from-cdn.json"></code-sample></p>
+<p>Installing locally as a package is simple.</p>
+<ul>
+<li><code>npm install fudgel</code></li>
+<li><code>yarn add fudgel</code></li>
+<li><code>bower install fudgel</code></li>
+</ul>
+<p>Step 2: At this point you have access to the <code>Fudgel</code> object or the module&#39;s exports. It&#39;s time to write your first controller. Select the chunk of code that best fits your needs.</p>
+<p><code-sample sample="samples/hello-world-module.json"></code-sample></p>
+<p><code-sample sample="samples/hello-world-umd.json"></code-sample></p>
+<p><code-sample sample="samples/hello-world-typescript.json"></code-sample></p>
+<p>Step 3: You&#39;ve made a custom element. For more fun, take a look at the rest of the things Fudgel can do to save you time.</p>
+<h2>Best Practices</h2>
+<p>For performance, do not reassign to a bound property. Modify a local variable and only assign it back to the bound property when all changes are complete. This prevents multiple updates to the DOM.</p>
+<p>When building a library, do not automatically register your custom elements in your exported module. This won&#39;t allow developers to resolve name conflicts. Instead, export a function that allows a prefix or a custom name to be provided, similar to how <code>defineRouterElement</code> and <code>defineSlotComponent()</code> work for Fudgel&#39;s built-in elements.</p>
+<p>In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties. When you need to send data out of your controller, send an event. If you need data to be visible and retrievable from the outside, expose it through a property.</p>
 
-            <ul>
-                <li>
-                    IIFE / global, available as <code>window.Fudgel</code>:
-                    <code-sample type="html">
-                        <!-- prettier-ignore -->
-                        <template>
-                            <script src="https://unpkg.com/fudgel"></script>
-                        </template>
-                    </code-sample>
-                </li>
-                <li>
-                    Module in browser either as a standalone tag or perhaps
-                    loaded through an import:
-                    <code-sample type="html">
-                        <!-- prettier-ignore -->
-                        <template>
-                            <script src="https://unpkg.com/fudgel"></script>
-                        </template>
-                    </code-sample>
-                    <code-sample type="html">
-                        <!-- prettier-ignore -->
-                        <template>
-                            <script type="module">
-                                import { ... } from 'https://unpkg.com/fudgel?module';
-                                // ... do stuff with imports here
-                            </script>
-                        </template>
-                    </code-sample>
-                </li>
-                <li>
-                    Locally as a package or module using your favorite tools:
-                    <code-sample type="shell">
-                        <!-- prettier-ignore -->
-                        <template>
-                            npm install fudgel
-                        </template>
-                    </code-sample>
-                    <code-sample type="shell">
-                        <!-- prettier-ignore -->
-                        <template>
-                            yarn add fudgel
-                        </template>
-                    </code-sample>
-                    <code-sample type="shell">
-                        <!-- prettier-ignore -->
-                        <template>
-                            bower install fudgel
-                        </template>
-                    </code-sample>
-                </li>
-            </ul>
-            <p>
-                Step 2: At this point you have access to the
-                <code>Fudgel</code> object or the module's exports. It's time to
-                write your first controller. Select the chunk of code that best
-                fits your needs.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<my-custom-component></my-custom-component>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    // Module
-                    import { component } from './fudgel.min.js';
-
-                    component('my-custom-component', {
-                        template: `Hello {{audience}}`
-                    }, class {
-                        audience = 'world';
-                    });
-                </template>
-            </code-sample>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    // Vanilla JavaScript using window.Fudgel
-                    window.Fudgel.component('my-custom-component', {
-                        template: `Hello {{audience}}`
-                    }, class {
-                        audience = 'world';
-                    });
-                </template>
-            </code-sample>
-            <code-sample type="ts">
-                <!-- prettier-ignore -->
-                <template>
-                    // TypeScript with decorators
-                    import { Component } from 'fudgel';
-
-                    @Component('my-custom-component', {
-                        template: `Hello {{audience}}`
-                    })
-                    export class MyCustomComponent {
-                        audience = 'world';
-                    }
-                </template>
-            </code-sample>
-            <p>
-                Step 3: You've made a custom element. For more fun, take a look
-                at the rest of the things Fudgel can do to save you time.
-            </p>
-        </page-wrapper>
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link">Welcome</a>
+                    
+                    <a href="getting-started.html" class="flyout-link">Getting Started</a>
+                    
+                    <a href="component-basics.html" class="flyout-link">Component Basics</a>
+                    
+                    <a href="attr-and-prop.html" class="flyout-link">Attr and Prop</a>
+                    
+                    <a href="directives.html" class="flyout-link">Directives</a>
+                    
+                    <a href="expressions.html" class="flyout-link">Expressions</a>
+                    
+                    <a href="lifecycle-methods.html" class="flyout-link">Lifecycle Methods</a>
+                    
+                    <a href="content-projection.html" class="flyout-link">Content Projection</a>
+                    
+                    <a href="routing.html" class="flyout-link">Routing</a>
+                    
+                    <a href="hooks.html" class="flyout-link">Hooks</a>
+                    
+                    <a href="utilities.html" class="flyout-link">Utilities</a>
+                    
+                    <a href="examples.html" class="flyout-link">Examples</a>
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link">GitHub</a>
+                    
+                </div>
+            </div>
+        </div>
     </body>
     <script src="js.js" type="module"></script>
 </html>

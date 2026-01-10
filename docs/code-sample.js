@@ -81,7 +81,7 @@ component(
                     {{label}}
                 </button>
                 <playground-button
-                    *if="meta.live"
+                    *if="meta.playground"
                     sample="{{sample}}"
                 ></playground-button>
             </div>
@@ -111,7 +111,7 @@ component(
                 this.playgroundStr =
                     `<script type="module">\n${content}\n</script>\n\n${meta.html}`.trim();
             } else {
-                this.playgroundStr = result.content;
+                this.playgroundStr = content;
             }
 
             this.loaded = true;

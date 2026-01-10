@@ -134,9 +134,3 @@ This project has received the benefit of having others blaze trails in related a
 -   [Skruv](https://skruv.io/) is a small library that's similar to Slim.js and is the inspiration for the CSS scoping.
 -   [jsep](https://github.com/EricSmekens/jsep) is how the basis for how expressions are parsed within templates without using "eval()" or "new Function()".
 -   [a-wc-router](https://github.com/colscott/a-wc-router) inspired the `<slot-like>` element for [content projection](content-projection.html) in the light DOM.
-
-## Best Practices
-
-Do not register your custom element in your exported module. That does not allow other developers to resolve conflicts. If your custom element is named "heading-bar" and another library uses the same named element, the conflict is unable to be worked around. Instead, export a function that allows another developer to prefix your element and any other custom elements you require.
-
-In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties. When you need to send data out of your controller, send an event.

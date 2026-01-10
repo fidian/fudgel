@@ -219,9 +219,6 @@
 <li><a href="https://github.com/EricSmekens/jsep">jsep</a> is how the basis for how expressions are parsed within templates without using &quot;eval()&quot; or &quot;new Function()&quot;.</li>
 <li><a href="https://github.com/colscott/a-wc-router">a-wc-router</a> inspired the <code>&lt;slot-like&gt;</code> element for <a href="content-projection.html">content projection</a> in the light DOM.</li>
 </ul>
-<h2>Best Practices</h2>
-<p>Do not register your custom element in your exported module. That does not allow other developers to resolve conflicts. If your custom element is named &quot;heading-bar&quot; and another library uses the same named element, the conflict is unable to be worked around. Instead, export a function that allows another developer to prefix your element and any other custom elements you require.</p>
-<p>In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties. When you need to send data out of your controller, send an event.</p>
 
 </div>
             </div>
