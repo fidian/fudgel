@@ -1,0 +1,27 @@
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component(
+        'my-element',
+        {
+            attr: ['title', 'dataCount', 'disabled'],
+            template: `
+                <h1>{{title}}</h1>
+                <p>Count: {{dataCount}}</p>
+                <p>Disabled: {{typeof disabled === 'string'}}</p>
+            `,
+        }
+    );
+</script>
+
+<!-- attribute values can be defined directly in the HTML -->
+<my-element title="Hello World" data-count="5" disabled></my-element>
+
+<script>
+    // or modified later via JavaScript
+    const element = document.querySelector('my-element');
+    setTimeout(() => {
+        element.setAttribute('data-count', '10');
+        element.removeAttribute('disabled');
+    }, 1000);
+</script>

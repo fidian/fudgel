@@ -1,0 +1,14 @@
+<script src="/e2e/fudgel.umd.js"></script>
+<script>
+    // Vanilla JavaScript using window.Fudgel
+    Fudgel.component(
+        'my-custom-component',
+        {
+            template: `Hello {{audience}}!`,
+        },
+        class {
+            audience = 'world';
+        }
+    );
+</script>
+<my-custom-component></my-custom-component>

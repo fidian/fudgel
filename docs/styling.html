@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Getting Started (Fudgel.js)</title>
+        <title>Styling Components (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
         <link
@@ -100,27 +100,28 @@
             </div>
             <div class="content">
                 <div class="limit-width">
-<h1>Getting Started</h1>
-<p><u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.</p>
-<p><code-sample sample="samples/umd-from-cdn.json"></code-sample></p>
-<p><code-sample sample="samples/module-from-cdn.json"></code-sample></p>
-<p>Installing locally as a package is simple.</p>
-<ul>
-<li><code>npm install fudgel</code></li>
-<li><code>yarn add fudgel</code></li>
-<li><code>bower install fudgel</code></li>
-</ul>
-<p><u>Step 2:</u> At this point you have access to the <code>Fudgel</code> object or the module&#39;s exports. It&#39;s time to write your first controller. Select the chunk of code that best fits your needs.</p>
-<p><code-sample sample="samples/hello-world-module.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-umd.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-typescript.json"></code-sample></p>
-<p><u>Step 3:</u> You&#39;ve already made a custom element at this point. What&#39;s left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel&#39;s features.</p>
-<ul>
-<li><a href="bindings.html">Bindings</a> - Connect the template to a controller.</li>
-<li><a href="events.html">Events</a> - Respond to user actions.</li>
-<li><a href="input.html">Input</a> - Receive information from outside.</li>
-<li><a href="styling.html">Styling</a> - Style using either Light DOM or Shadow DOM.</li>
-</ul>
+<h1>Styling Components</h1>
+<p>Web components need styling in order to look good. Fudgel helps with styling by scoping your styles so they don&#39;t automatically affect the rest of the page. This is done using a few different techniques, based on what the browser supports. Before we dive into those more complicated questions, let&#39;s look at one example.</p>
+<p><code-sample sample="samples/basic-styling.json"></code-sample></p>
+<p>This styles the host element to have a light yellow background, a border, and some padding. The paragraph inside has blue text.</p>
+<p>The <code>css</code> template function does not do anything special. It&#39;s only there as a flag to outside build tools to indicate that this string contains CSS. It&#39;s detailed more in the <a href="utilities.html">utilities</a> section.</p>
+<h2>Styling the Host Element</h2>
+<p>The above example used the <code>:host</code> pseudo-class to style the host element itself. This works in both Light DOM and Shadow DOM, thanks to Fudgel&#39;s CSS rewriting. One less thing to remember and your component could switch between Light DOM and Shadow DOM without changing your styles.</p>
+<h2>Avoiding Style Scoping</h2>
+<p>When your custom element needs to inject other DOM elements, they will not have the generated class name applied automatically. This will affect your CSS. For instance, the code samples seen on this page leverage <a href="https://highlightjs.org/">Highlight.js</a> to colorize the code. These elements are dynamically added to the DOM and need to be styled, so the component needs to inject the styles itself.</p>
+<p>Fudgel will not modify any styles that are in a <code>&lt;style&gt;</code> tag in your template.</p>
+<p><code-sample sample="samples/avoid-style-scoping.json"></code-sample></p>
+<h2>Light DOM</h2>
+<p><code-sample sample="samples/styling-example-light-dom.json"></code-sample></p>
+<p>If you go into the playground and try it out, you&#39;ll see a regular button and a larger, styled button. The larger button is styled through <code>:host</code> in the component&#39;s <code>style</code> configuration. Normally that only works for Shadow DOM, but Fudgel rewrites it so there&#39;s one syntax for both Shadow DOM and Light DOM.</p>
+<p>You might now wonder about the styling for <code>button</code> and why both buttons aren&#39;t extra large. Keen observation!  Fudgel automatically scopes your styles so they don&#39;t leak out to the rest of the page. This is done by rewriting your CSS to target only your component. Your component&#39;s HTML template is also rewritten to include the necessary classes for scoping.</p>
+<p>This is effectively what Fudgel would generate for the above component.</p>
+<p><code-sample sample="samples/styling-example-light-dom-generated.json"></code-sample></p>
+<h2>Shadow DOM</h2>
+<p>Things are slightly different for Shadow DOM. This next example simply changes <code>useShadow: true</code> to leverage Shadow DOM.</p>
+<p><code-sample sample="samples/styling-example-shadow-dom.json"></code-sample></p>
+<p>Because of the encapsulation provided by Shadow DOM, Fudgel doesn&#39;t need to do as much to rewrite your CSS for scoping. Here would be what Fudgel generates for the above example component.</p>
+<p><code-sample sample="samples/styling-example-shadow-dom-generated.json"></code-sample></p>
 
 </div>
             </div>

@@ -27,11 +27,7 @@ Installing locally as a package is simple.
 
 <u>Step 3:</u> You've already made a custom element at this point. What's left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel's features.
 
-
-## Best Practices
-
-For performance, do not reassign to a bound property. Modify a local variable and only assign it back to the bound property when all changes are complete. This prevents multiple updates to the DOM.
-
-When building a library, do not automatically register your custom elements in your exported module. This won't allow developers to resolve name conflicts. Instead, export a function that allows a prefix or a custom name to be provided, similar to how `defineRouterElement` and `defineSlotComponent()` work for Fudgel's built-in elements.
-
-In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties. When you need to send data out of your controller, send an event. If you need data to be visible and retrievable from the outside, expose it through a property.
+* [Bindings](bindings.html) - Connect the template to a controller.
+* [Events](events.html) - Respond to user actions.
+* [Input](input.html) - Receive information from outside.
+* [Styling](styling.html) - Style using either Light DOM or Shadow DOM.

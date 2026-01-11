@@ -48,12 +48,7 @@ component(
             const { meta, content } = await this.sampleService.getSample(url);
 
             if (meta.type === 'js') {
-                this.content = `<script type="module">
-${content.trim()}
-</script>
-
-${meta.html || ''}
-`.trim();
+                this.content = this.playgroundDataService.jsToPlayground(content);
             } else {
                 this.content = content;
             }

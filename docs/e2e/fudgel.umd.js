@@ -804,8 +804,8 @@
         if (first?.length == 3 && first[0] == '' && first[2] == '') {
             return [
                 (...roots) => {
-                    const x = first[1](...roots);
-                    return typeof x == 'boolean' ? x : toString(x);
+                    const x = first[1](...roots) ?? false;
+                    return x === !!x ? x : toString(x);
                 },
                 splitResult[1],
             ];

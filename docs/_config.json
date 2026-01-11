@@ -3,25 +3,33 @@
     "pages": [
         {
             "label": "Welcome",
-            "url": "index.html",
-            "aliasUrl": ""
+            "url": "index.html"
         },
         {
             "label": "Getting Started",
             "url": "getting-started.html"
         },
         {
-            "label": "Component Basics",
-            "url": "component-basics.html"
+            "label": "Component Config",
+            "url": "component-config.html"
+        },
+        {
+            "label": "Bindings",
+            "url": "bindings.html"
+        },
+        {
+            "label": "Input",
+            "url": "input.html"
+        },
+        {
+            "label": "Styling",
+            "url": "styling.html"
         },
         {
             "label": "Best Practices",
             "url": "best-practices.html"
         },
-        {
-            "label": "Attr and Prop",
-            "url": "attr-and-prop.html"
-        },
+
         {
             "label": "Directives",
             "url": "directives.html"
@@ -53,6 +61,10 @@
         {
             "label": "Examples",
             "url": "examples.html"
+        },
+        {
+            "label": "Playground",
+            "url": "playground/"
         },
         {
             "label": "GitHub",

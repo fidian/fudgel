@@ -1,0 +1,21 @@
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component('styled-button', {
+        style: `
+            :host {
+                display: block;
+                background-color: green;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 2em;
+            }
+        `,
+        template: `<button>Styled Button</button>`,
+    });
+</script>
+
+<p><styled-button></styled-button></p>
+<p><button>Regular Button</button></p>

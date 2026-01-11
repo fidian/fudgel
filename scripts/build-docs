@@ -35,6 +35,8 @@ async function processMarkdown(config, filename, headerContent, footerContent) {
 ${htmlContent}
 ${footerContent}`,
         {
+            'openBrace': '{{',
+            'closeBrace': '}}',
             ...config,
             ...fm.frontmatter,
         }

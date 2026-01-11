@@ -106,14 +106,6 @@ component(
             const { meta, content } = await this.sampleService.getSample(this.sample);
             this.meta = meta;
             this.code = content;
-
-            if (this.meta.type === 'js') {
-                this.playgroundStr =
-                    `<script type="module">\n${content}\n</script>\n\n${meta.html}`.trim();
-            } else {
-                this.playgroundStr = content;
-            }
-
             this.loaded = true;
             const codeElement = document.createElement('code');
 
@@ -152,10 +144,6 @@ component(
             setTimeout(() => {
                 this.label = oldLabel;
             }, 1000);
-        }
-
-        livePlayground() {
-            console.log('pending');
         }
     }
 );

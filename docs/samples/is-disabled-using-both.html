@@ -1,0 +1,32 @@
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component(
+        'my-element',
+        {
+            attr: ['disabled'],
+            prop: ['disabled'],
+            template: `
+                <p>
+                    Disabled value is {{ stringify(disabled) }} - test here
+                    <input type="text" disabled="{{ disabled }}" />
+                </p>
+            `,
+        }, class {
+            stringify(value) {
+                return JSON.stringify(value);
+            }
+        }
+    );
+</script>
+
+<my-element></my-element>
+<my-element disabled></my-element>
+<my-element disabled="disabled"></my-element>
+<my-element id="useFalse"></my-element>
+<my-element id="useTrue"></my-element>
+
+<script>
+    document.getElementById('useFalse').disabled = false;
+    document.getElementById('useTrue').disabled = true;
+</script>

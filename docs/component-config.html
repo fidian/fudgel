@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Getting Started (Fudgel.js)</title>
+        <title>Component Config (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
         <link
@@ -100,27 +100,47 @@
             </div>
             <div class="content">
                 <div class="limit-width">
-<h1>Getting Started</h1>
-<p><u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.</p>
-<p><code-sample sample="samples/umd-from-cdn.json"></code-sample></p>
-<p><code-sample sample="samples/module-from-cdn.json"></code-sample></p>
-<p>Installing locally as a package is simple.</p>
-<ul>
-<li><code>npm install fudgel</code></li>
-<li><code>yarn add fudgel</code></li>
-<li><code>bower install fudgel</code></li>
-</ul>
-<p><u>Step 2:</u> At this point you have access to the <code>Fudgel</code> object or the module&#39;s exports. It&#39;s time to write your first controller. Select the chunk of code that best fits your needs.</p>
+<h1>Component Config</h1>
+<p>The <code>component()</code> function will create a new element and register it with
+<code>window.customElements</code> as long as the element was not yet defined. The newly
+defined custom element will be assigned a constructor of <code>FudgelElement</code>, not
+your class. This is done to allow you to utilize any property in your class
+without fear of overwriting something important to <code>HTMLElement</code>.</p>
+<p>The call to <code>component()</code> accepts three parameters:</p>
+<ol>
+<li>The name of the custom element, which must contain a hyphen and be a valid
+custom element name.</li>
+<li>An object containing configuration to define for the new element.</li>
+<li>An optional class to instantiate as the controller.</li>
+</ol>
 <p><code-sample sample="samples/hello-world-module.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-umd.json"></code-sample></p>
+<p>If you use TypeScript, you can also use the <code>@Component()</code> decorator, which takes only the first two parameters; the element name and the object of static values.</p>
 <p><code-sample sample="samples/hello-world-typescript.json"></code-sample></p>
-<p><u>Step 3:</u> You&#39;ve already made a custom element at this point. What&#39;s left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel&#39;s features.</p>
-<ul>
-<li><a href="bindings.html">Bindings</a> - Connect the template to a controller.</li>
-<li><a href="events.html">Events</a> - Respond to user actions.</li>
-<li><a href="input.html">Input</a> - Receive information from outside.</li>
-<li><a href="styling.html">Styling</a> - Style using either Light DOM or Shadow DOM.</li>
-</ul>
+<h2>Configuration</h2>
+<p>The configuration supplied as the second parameter will define the template,
+styles, and if the Shadow DOM will be used. This is done by setting the
+following properties in the object.</p>
+<h3><code>attr</code> (optional, array of strings)</h3>
+<p>Monitor these attributes on the element for changes. When a listed attribute is changed, the controller&#39;s matching property name will be updated to match the new value, the <code>change</code> event will be fired, <code>onChange()</code> will be called, and any bindings using that property will be updated.</p>
+<p>Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the <code>data-value</code> attribute, you would add <code>&quot;dataValue&quot;</code> to this list and the controller&#39;s <code>.dataValue</code> property will be updated.</p>
+<p>When the controller&#39;s property is changed, the attribute will be updated accordingly in the DOM. Make sure to assign only string values to properties that are linked to attributes, as attributes can only hold string values.</p>
+<p>When a name is listed in both <code>attr</code> and <code>prop</code>, the most recently changed source (attribute or property) will update the other.</p>
+<p>Learn more about <a href="input.html">component inputs</a> and how attributes and properties work.</p>
+<h3><code>prop</code> (optional, array of strings)</h3>
+<p>Performs two-way mirroring of these properties, linking the element&#39;s property to the controller&#39;s property. When either one is changed, the other will be updated to match, the <code>change</code> event will be fired, <code>onChange()</code> will be called, and any bindings using that property will be updated.</p>
+<p>Properties can hold any type of value, including objects and dates.</p>
+<p>When a name is listed in both <code>attr</code> and <code>prop</code>, the most recently changed source (attribute or property) will update the other.</p>
+<p>Learn more about <a href="input.html">component inputs</a> and how attributes and properties work.</p>
+<h3><code>style</code> (optional, string)</h3>
+<p>CSS styles for your custom element. These will be added to the document when your element is used. The technique changes if you are using the Shadow DOM or not.</p>
+<p>Shadow DOM: A <code>&lt;style&gt;</code> element is added inside your component when it is created. Style your host element using the <code>:host</code> selector, as is normal.</p>
+<p>Light DOM: The CSS styles are scoped to your element (plus the template elements are scoped), then the styles are added to the parent document when the component is added. If the parent document already has the styles in play, these are not added again. Style your host element using the <code>:host</code> selector, which will automatically be changed to your element&#39;s name.</p>
+<p>Learn more about <a href="styling.html">styling components</a>.</p>
+<h3><code>template</code> (required, string)</h3>
+<p>This is the HTML that the element will use for its content. This template will be processed in the controller&#39;s scope, even when passing content to child custom elements (such as with content projection through slots).</p>
+<p>When using an empty string, it will be up to the controller to add the necessary DOM elements and bindings. Elements dynamically added to the DOM through your controller will not be scoped automatically, so you must style them with an embedded <code>&lt;style&gt;</code> tag or add the generated class names yourself. This is discussed more in <a href="styling.html">styling components</a>.</p>
+<h3><code>useShadow</code> (optional, boolean)</h3>
+<p>If truthy, encapsulate the component inside a shadow DOM. This is <code>false</code> by default because the shadow DOM has a slight performance hit and has specific design trade-offs that may not suit your needs.</p>
 
 </div>
             </div>

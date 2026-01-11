@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Getting Started (Fudgel.js)</title>
+        <title>Input (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
         <link
@@ -100,27 +100,30 @@
             </div>
             <div class="content">
                 <div class="limit-width">
-<h1>Getting Started</h1>
-<p><u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.</p>
-<p><code-sample sample="samples/umd-from-cdn.json"></code-sample></p>
-<p><code-sample sample="samples/module-from-cdn.json"></code-sample></p>
-<p>Installing locally as a package is simple.</p>
-<ul>
-<li><code>npm install fudgel</code></li>
-<li><code>yarn add fudgel</code></li>
-<li><code>bower install fudgel</code></li>
-</ul>
-<p><u>Step 2:</u> At this point you have access to the <code>Fudgel</code> object or the module&#39;s exports. It&#39;s time to write your first controller. Select the chunk of code that best fits your needs.</p>
-<p><code-sample sample="samples/hello-world-module.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-umd.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-typescript.json"></code-sample></p>
-<p><u>Step 3:</u> You&#39;ve already made a custom element at this point. What&#39;s left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel&#39;s features.</p>
-<ul>
-<li><a href="bindings.html">Bindings</a> - Connect the template to a controller.</li>
-<li><a href="events.html">Events</a> - Respond to user actions.</li>
-<li><a href="input.html">Input</a> - Receive information from outside.</li>
-<li><a href="styling.html">Styling</a> - Style using either Light DOM or Shadow DOM.</li>
-</ul>
+<h1>Input</h1>
+<p>Custom elements often need to receive information from the outside world. This
+information typically comes from attributes and properties assigned on the DOM
+element. Fudgel supports both, and does two-way binding to expose information
+back to the outside world as well.</p>
+<h2>Attributes</h2>
+<p>Elements in HTML can have attributes assigned to them. The attribute names are always in lowercase and the values are always strings. For example, consider the following HTML:</p>
+<p><code-sample sample="samples/attributes.json"></code-sample></p>
+<p>In this example, <code>&lt;my-element&gt;</code> has three attributes: <code>title</code>, <code>data-count</code>, and <code>disabled</code>. The <code>title</code> attribute has a string value of &quot;Hello World&quot;, the <code>data-count</code> attribute has a string value of &quot;5&quot;, and the <code>disabled</code> attribute is present without a declared value, so the element says its value is &quot;&quot; (an empty string).</p>
+<p>To access these attributes in your Fudgel controller, you need to declare them in the component&#39;s configuration using the <code>attr</code> array. Fudgel will automatically create properties on your controller that correspond to these attributes, converting the attribute names from kebab-case to camelCase.</p>
+<p>When a property is updated in the controller, the corresponding attribute on the DOM element will also be updated automatically. This two-way binding allows for easy synchronization between the controller and the DOM.</p>
+<p>Make sure to only assign strings to these properties. Only strings and <code>false</code> (which removes the attribute) should be used. Assigning other types, such as numbers or objects, will not be reflected in the DOM&#39;s copy of the attributes.</p>
+<p>When a single property is declared in both <code>attr</code> and <code>prop</code>, the most recent assignment takes priority.</p>
+<p>A special note about boolean attributes: In HTML, the presence of a boolean attribute (like <code>disabled</code>, <code>checked</code>, or <code>hidden</code>) indicates a true value, but it&#39;s value is &quot;&quot; (an empty string). If you set the corresponding property in the controller to <code>true</code> or <code>false</code>, Fudgel will add or remove the attribute accordingly.</p>
+<h2>Properties</h2>
+<p>Similar to attributes, properties can be assigned directly on the DOM element using JavaScript. Properties can hold any type of value, including objects, arrays, and dates. For example:</p>
+<p><code-sample sample="samples/properties.json"></code-sample></p>
+<p>Properties that are declared in this way shall have the DOM element&#39;s matching property updated automatically when the controller&#39;s property changes, and vice versa. This two-way binding allows for easy synchronization between the controller and the DOM.</p>
+<p>When a single property is declared in both <code>attr</code> and <code>prop</code>, the most recent assignment takes priority.</p>
+<h2>Caution</h2>
+<p>When using attributes, avoid code that tests for truthiness because an empty string is considered <code>true</code> for the DOM element&#39;s attribute presence.</p>
+<p><code-sample sample="samples/is-disabled.json"></code-sample></p>
+<p>Things get more complicated when mixing attributes and properties because now any value can be assigned through the property. However, this example shows that the logic remains the same and the <code>disabled</code> attribute is applied when one expects it to be.</p>
+<p><code-sample sample="samples/is-disabled-using-both.json"></code-sample></p>
 
 </div>
             </div>
