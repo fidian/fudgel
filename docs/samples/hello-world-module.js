@@ -2,7 +2,7 @@
 import { component } from '/fudgel.min.js';
 
 component(
-    'my-custom-component',
+    'hello-world-module',
     {
         template: `Hello {{audience}}!`,
     },

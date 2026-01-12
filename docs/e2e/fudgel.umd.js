@@ -49,7 +49,6 @@
         controller[`on${phase[0].toUpperCase()}${phase.slice(1)}`]?.(...args);
     };
 
-    // FIXME do not export
     const dispatchCustomEvent = (e, eventName, detail, customEventInit = {}) => {
         e.dispatchEvent(new CustomEvent(eventName, {
             bubbles: true,
@@ -59,8 +58,8 @@
             ...customEventInit,
         }));
     };
-    const emit = (controller, eventName, detail, customEventInit = {}) => {
-        const e = controller[metadata]?.host;
+    const emit = (source, eventName, detail, customEventInit = {}) => {
+        const e = source instanceof Element ? source : source[metadata]?.host;
         if (e) {
             dispatchCustomEvent(e, eventName, detail, customEventInit);
         }
@@ -1206,7 +1205,6 @@
         const ownerDocument = element.ownerDocument;
         const isReady = () => {
             let node = element;
-            // FIXME - is there another way to detect? isConnected might work.
             do {
                 if (node.nextSibling) {
                     return true;
@@ -1597,7 +1595,7 @@
             if (matchedRoute) {
                 this._activate(matchedRoute);
             }
-            dispatchCustomEvent(doc.body, 'routeChange', url);
+            emit(doc.body, 'routeChange', url);
         }
     }
     const defineRouterComponent = (name = 'router-outlet') => {

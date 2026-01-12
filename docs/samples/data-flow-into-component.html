@@ -1,9 +1,9 @@
 <!-- Accept data through attributes and properties -->
-<my-element title="Hello"></my-element>
+<data-flow-into-component title="Hello"></data-flow-into-component>
 <script type="module">
     import { component } from '/fudgel.min.js';
 
-    component('my-element', {
+    component('data-flow-into-component', {
         attr: ['title'],
         prop: ['items'],
         template: `
@@ -15,6 +15,6 @@
     });
 
     // Set a property to illustrate data bindings
-    const el = document.querySelector('my-element');
+    const el = document.querySelector('data-flow-into-component');
     el.items = [1, 2, 3];
 </script>

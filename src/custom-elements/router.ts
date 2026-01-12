@@ -13,7 +13,7 @@ import {
     doc,
     win,
 } from '../elements.js';
-import { dispatchCustomEvent } from '../actions.js';
+import { emit } from '../actions.js';
 
 interface MatchedRoute {
     e: HTMLElement;
@@ -195,7 +195,7 @@ export class RouterComponent extends HTMLElement {
             this._activate(matchedRoute);
         }
 
-        dispatchCustomEvent(doc.body, 'routeChange', url);
+        emit(doc.body, 'routeChange', url);
     }
 }
 

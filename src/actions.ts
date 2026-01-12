@@ -4,8 +4,7 @@ import { metadata } from './symbols.js';
 import { newSet } from './sets.js';
 import { lifecycle } from './lifecycle.js';
 
-// FIXME do not export
-export const dispatchCustomEvent = (
+const dispatchCustomEvent = (
     e: Element,
     eventName: string,
     detail?: any,
@@ -23,12 +22,12 @@ export const dispatchCustomEvent = (
 };
 
 export const emit = (
-    controller: Controller,
+    source: Controller | Element,
     eventName: string,
     detail?: any,
     customEventInit: CustomEventInit = {}
 ) => {
-    const e = controller[metadata]?.host;
+    const e = source instanceof Element ? source : source[metadata]?.host;
 
     if (e) {
         dispatchCustomEvent(e, eventName, detail, customEventInit);

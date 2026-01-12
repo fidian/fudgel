@@ -1,0 +1,29 @@
+<script type="module">
+    import { component, emit } from '/fudgel.min.js';
+
+    component(
+        'emit-example',
+        {
+            template: `
+                <div>
+                    <button @click="respond(true)">Yes</button>
+                    <button @click="respond(false)">No</button>
+                </div>
+            `,
+        },
+        class {
+            respond(answer) {
+                emit(this, 'confirmationResponse', answer);
+            }
+        }
+    );
+</script>
+<emit-example id="el"></emit-example>
+<div id="output">No response yet.</div>
+<script>
+    const el = document.getElementById('el');
+    const output = document.getElementById('output');
+    el.addEventListener('confirmationResponse', event => {
+        output.textContent = `User responded: ${event.detail}`;
+    });
+</script>

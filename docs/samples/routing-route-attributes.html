@@ -1,0 +1,24 @@
+<app-router>
+    <div path="/user/*/detail" title="Forbidden">
+        Disallow user detail, regardless of user.
+        Shows a wildcard.
+    </div>
+    <div path="**/login" title="Login" component="app-login">
+        Show login page when found anywhere in URL.
+        Shows a double-star wildcard.
+    </div>
+    <div path="/user" title="User List">
+        Show user list.
+    </div>
+    <div path="/store" title="Store List"
+        component="store-list">
+        Show custom store-list element.
+    </div>
+    <div path="^/[aeiou]+$" title="Vowels" regexp>
+        Path has only vowels.
+        Illustrating regular expressions.
+    </div>
+    <div>No routes match</div>
+</app-router>
+
+<script type="module" src="/location-changer.js"></script>

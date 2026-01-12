@@ -93,7 +93,7 @@ Fudgel uses about <span style="font-size: 1.2em">7k</span> to provide:
     -   Full TypeScript support
     -   Dependency injection for services, with overrides for testing
 
-<code-sample sample="samples/welcome-to-fudgel.json"></code-sample>
+<code-sample sample="samples/welcome-to-fudgel.js"></code-sample>
 
 In the above example, a new custom element is defined. Whenever you use the new HTML element `<my‑custom‑element>`, it will automatically insert "Hello Developer, welcome to Fudgel!" as text. Because of the timeout set up in `onInit` (a lifecycle method), in five seconds the text automatically changes to "Hello Super Developer, welcome to Fudgel!"
 
@@ -101,7 +101,7 @@ Web components make great additions to your browser-based UI because they work e
 
 <div style="display: flex; flex-direction: column; align-items: center">
 <fudgel-sizes></fudgel-sizes>
-<playground-button js="fudgel-sizes.js"></playground-button>
+<playground-button sample="fudgel-sizes.js"></playground-button>
 </div>
 
 As a comparison, just the HTML for this page is about the same size (excluding JavaScript, CSS, images, and fonts). A standard "Hello, world!" style project using Angular is reported at 35k and React is about 46k; however, both project sizes can vary immensely. With Fudgel, you're looking at adding under 100 bytes to the library size.

@@ -30,71 +30,103 @@
             <div class="sidebar">
                 
                 <a href="index.html" class="sidebar-link"
-                    >Welcome</a
+                     >Welcome</a
                 >
                 
                 <a href="getting-started.html" class="sidebar-link"
-                    >Getting Started</a
-                >
-                
-                <a href="component-config.html" class="sidebar-link"
-                    >Component Config</a
-                >
-                
-                <a href="bindings.html" class="sidebar-link"
-                    >Bindings</a
-                >
-                
-                <a href="input.html" class="sidebar-link"
-                    >Input</a
-                >
-                
-                <a href="styling.html" class="sidebar-link"
-                    >Styling</a
-                >
-                
-                <a href="best-practices.html" class="sidebar-link"
-                    >Best Practices</a
-                >
-                
-                <a href="directives.html" class="sidebar-link"
-                    >Directives</a
-                >
-                
-                <a href="expressions.html" class="sidebar-link"
-                    >Expressions</a
-                >
-                
-                <a href="lifecycle-methods.html" class="sidebar-link"
-                    >Lifecycle Methods</a
-                >
-                
-                <a href="content-projection.html" class="sidebar-link"
-                    >Content Projection</a
-                >
-                
-                <a href="routing.html" class="sidebar-link"
-                    >Routing</a
-                >
-                
-                <a href="hooks.html" class="sidebar-link"
-                    >Hooks</a
-                >
-                
-                <a href="utilities.html" class="sidebar-link"
-                    >Utilities</a
-                >
-                
-                <a href="examples.html" class="sidebar-link"
-                    >Examples</a
+                     >Getting Started</a
                 >
                 
                 <a href="playground/" class="sidebar-link"
-                    >Playground</a
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
                 >
                 
                 <a href="https://github.com/fidian/fudgel" class="sidebar-link"
-                    >GitHub</a
+                     >GitHub</a
                 >
                 
             </div>
@@ -102,8 +134,8 @@
                 <div class="limit-width">
 <h1>Getting Started</h1>
 <p><u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.</p>
-<p><code-sample sample="samples/umd-from-cdn.json"></code-sample></p>
-<p><code-sample sample="samples/module-from-cdn.json"></code-sample></p>
+<p><code-sample sample="samples/umd-from-cdn.html"></code-sample></p>
+<p><code-sample sample="samples/module-from-cdn.html"></code-sample></p>
 <p>Installing locally as a package is simple.</p>
 <ul>
 <li><code>npm install fudgel</code></li>
@@ -111,15 +143,42 @@
 <li><code>bower install fudgel</code></li>
 </ul>
 <p><u>Step 2:</u> At this point you have access to the <code>Fudgel</code> object or the module&#39;s exports. It&#39;s time to write your first controller. Select the chunk of code that best fits your needs.</p>
-<p><code-sample sample="samples/hello-world-module.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-umd.json"></code-sample></p>
-<p><code-sample sample="samples/hello-world-typescript.json"></code-sample></p>
+<p><code-sample sample="samples/hello-world-module.js"></code-sample></p>
+<p><code-sample sample="samples/hello-world-umd.html"></code-sample></p>
+<p><code-sample sample="samples/hello-world-typescript.js" no-playground></code-sample></p>
 <p><u>Step 3:</u> You&#39;ve already made a custom element at this point. What&#39;s left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel&#39;s features.</p>
+<p>Component creation and configuration:</p>
+<ul>
+<li><a href="best-practices.html">Best Practices</a> - How to get the most benefit and avoid problems.</li>
+<li><a href="component-config.html">Component Config</a> - Configure your component.</li>
+<li><a href="styling.html">Styling</a> - Style using either Light DOM or Shadow DOM.</li>
+</ul>
+<p>Directives and data bindings used within the templates:</p>
 <ul>
 <li><a href="bindings.html">Bindings</a> - Connect the template to a controller.</li>
-<li><a href="events.html">Events</a> - Respond to user actions.</li>
+<li><a href="directives.html">Directive Basics</a> - Overview of directives.</li>
+<li><a href="directive-event.html">Event <code>@</code> Directive</a> - Respond to user actions.</li>
+<li><a href="directive-property.html">Property <code>.</code> Directive</a> - Set properties on elements.</li>
+<li><a href="directive-class.html"><code>#class</code> Directive</a> - Conditionally set CSS classes.</li>
+<li><a href="directive-ref.html"><code>#ref</code> Directive</a> - Reference elements in your controller.</li>
+<li><a href="directive-for.html"><code>*for</code> Directive</a> - Repeat elements based on data.</li>
+<li><a href="directive-if.html"><code>*if</code> Directive</a> - Conditionally include elements.</li>
+<li><a href="directive-repeat.html"><code>*repeat</code> Directive</a> - Repeat elements a number of times.</li>
+</ul>
+<p>Data flow:</p>
+<ul>
+<li><a href="content-projection.html">Content Projection</a> - Insert user content into your component.</li>
+<li><a href="events.html">Events</a> - Communicate using custom events.</li>
 <li><a href="input.html">Input</a> - Receive information from outside.</li>
-<li><a href="styling.html">Styling</a> - Style using either Light DOM or Shadow DOM.</li>
+<li><a href="output.html">Output</a> - Send information to outside.</li>
+</ul>
+<p>Everything Else:</p>
+<ul>
+<li><a href="expressions.html">Expressions</a> - Use expressions in bindings and directives.</li>
+<li><a href="lifecycle.html">Lifecycle</a> - Respond to component lifecycle stages through events and methods.</li>
+<li><a href="routing.html">Routing</a> - Create single-page applications with routing.</li>
+<li><a href="upgrading.html">Upgrading</a> - Upgrade from older versions of Fudgel to the current version.</li>
+<li><a href="utilities.html">Utilities</a> - Helpful utility functions provided by Fudgel.</li>
 </ul>
 
 </div>
@@ -129,71 +188,103 @@
                 <div class="menu-links">
                     
                     <a href="index.html" class="flyout-link"
-                        >Welcome</a
+                         >Welcome</a
                     >
                     
                     <a href="getting-started.html" class="flyout-link"
-                        >Getting Started</a
-                    >
-                    
-                    <a href="component-config.html" class="flyout-link"
-                        >Component Config</a
-                    >
-                    
-                    <a href="bindings.html" class="flyout-link"
-                        >Bindings</a
-                    >
-                    
-                    <a href="input.html" class="flyout-link"
-                        >Input</a
-                    >
-                    
-                    <a href="styling.html" class="flyout-link"
-                        >Styling</a
-                    >
-                    
-                    <a href="best-practices.html" class="flyout-link"
-                        >Best Practices</a
-                    >
-                    
-                    <a href="directives.html" class="flyout-link"
-                        >Directives</a
-                    >
-                    
-                    <a href="expressions.html" class="flyout-link"
-                        >Expressions</a
-                    >
-                    
-                    <a href="lifecycle-methods.html" class="flyout-link"
-                        >Lifecycle Methods</a
-                    >
-                    
-                    <a href="content-projection.html" class="flyout-link"
-                        >Content Projection</a
-                    >
-                    
-                    <a href="routing.html" class="flyout-link"
-                        >Routing</a
-                    >
-                    
-                    <a href="hooks.html" class="flyout-link"
-                        >Hooks</a
-                    >
-                    
-                    <a href="utilities.html" class="flyout-link"
-                        >Utilities</a
-                    >
-                    
-                    <a href="examples.html" class="flyout-link"
-                        >Examples</a
+                         >Getting Started</a
                     >
                     
                     <a href="playground/" class="flyout-link"
-                        >Playground</a
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
                     >
                     
                     <a href="https://github.com/fidian/fudgel" class="flyout-link"
-                        >GitHub</a
+                         >GitHub</a
                     >
                     
                 </div>

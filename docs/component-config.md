@@ -17,11 +17,11 @@ The call to `component()` accepts three parameters:
 2. An object containing configuration to define for the new element.
 3. An optional class to instantiate as the controller.
 
-<code-sample sample="samples/hello-world-module.json"></code-sample>
+<code-sample sample="samples/hello-world-module.js"></code-sample>
 
 If you use TypeScript, you can also use the `@Component()` decorator, which takes only the first two parameters; the element name and the object of static values.
 
-<code-sample sample="samples/hello-world-typescript.json"></code-sample>
+<code-sample sample="samples/hello-world-typescript.js" no-playground></code-sample>
 
 ## Configuration
 

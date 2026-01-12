@@ -12,7 +12,7 @@ import { SampleService } from './sample-service.js';
 component(
     'code-sample',
     {
-        attr: ['sample'],
+        attr: ['sample', 'noPlayground'],
         style: css`
             :host {
                 display: block;
@@ -81,7 +81,7 @@ component(
                     {{label}}
                 </button>
                 <playground-button
-                    *if="meta.playground"
+                    *if="playground && type === 'html'"
                     sample="{{sample}}"
                 ></playground-button>
             </div>
@@ -96,33 +96,28 @@ component(
         constructor() {
             this.label = 'Copy';
             this.loaded = false;
+            this.playground = false;
+            this.type = 'html';
         }
 
-        async onChange(propName) {
-            if (propName !== 'sample') {
-                return;
-            }
-
-            const { meta, content } = await this.sampleService.getSample(this.sample);
-            this.meta = meta;
-            this.code = content;
-            this.loaded = true;
+        async onViewInit() {
             const codeElement = document.createElement('code');
 
-            if (this.meta.type) {
-                codeElement.classList.add(`language-${this.meta.type}`);
+            try {
+                const { content, type } = await this.sampleService.getSample(this.sample);
+                codeElement.classList.add(`language-${type}`);
+                this.code = content;
+            } catch (err) {
+                console.error(err);
+                this.code = `Could not load sample: ${this.sample}`;
             }
 
+            this.loaded = true;
+            this.playground = typeof this.noPlayground !== 'string';
             const textNode = document.createTextNode(this.code);
             codeElement.appendChild(textNode);
             this.pre.appendChild(codeElement);
             hljs.highlightElement(codeElement);
-        }
-
-        setContent() {
-            if (!this.loaded || !this.viewInit) {
-                return;
-            }
         }
 
         async copyToClipboard() {

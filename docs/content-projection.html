@@ -1,8 +1,8 @@
 <html>
     <head>
-        <title>Fudgel - Lightweight Web Component Library</title>
+        <title>Content Projection (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
-        <link rel="stylesheet" href="./style.css" />
+        <link rel="stylesheet" href="style.css" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,232 +26,242 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <page-wrapper>
-            <h1>Content Projection</h1>
-            <p>
-                Imagine you have a utility function to create a styled button.
-                You'd like the ability to specify the HTML that is displayed on
-                the button, but passing that in via an attribute or property is
-                problematic, especially when you want to have an image on the
-                button. There are two ways you have access to outside content in
-                order to "project" it into your element.
-            </p>
-            <h2>Normal Process Without Content Projection</h2>
-            <p>
-                Extra content within the custom element will be removed. The DOM
-                elements will be present during <code>onInit()</code> and are
-                removed before <code>onViewInit()</code>. Both of these are
-                detailed in
-                <a href="lifecycle-methods.html">Lifecycle Methods</a>.
-            </p>
-            <p>
-                If you wanted this content to be copied into your component,
-                this is easily done using one of the following methods.
-            </p>
-            <h2>Slots and Shadow DOM</h2>
-            <p>
-                You can use slotted content when your element enables
-                <code>useShadow: true</code> in its configuration. This
-                leverages built-in browser features and works well. To project
-                content, use the <code>&lt;slot&gt;</code> element.
-            </p>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    <!-- Here is the sample HTML -->
-                    <custom-button>
-                        <b>BOLD TEXT</b>
-                    </custom-button>
-                </template>
-            </code-sample>
-            <code-sample
-                type="js"
-                live="true"
-                html="<custom-button><b>BOLD TEXT</b></custom-button>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('custom-button', {
-                        style: `
-                            button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                                padding: 4px;
-                            }
-                        `,
-                        template: `<button><slot></slot></button>`,
-                        useShadow: true
-                    });
-                </template>
-            </code-sample>
-            <p>
-                You can also project multiple pieces of content using named
-                slots. Read more about
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
-                    ><code>slot</code> elements</a
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link"
+                     >Welcome</a
                 >
-                and
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
-                    ><code>slot</code> attributes</a
-                >.
-            </p>
-            <h2>Slots and Light DOM</h2>
-            <p>
-                There is no browser-native support for slots in the light DOM,
-                however Fudgel can provide similar functionality. First, you
-                need to define the custom slot-like element, and after that
-                point all components will have <code>&lt;slot&gt;</code>
-                elements rewritten automatically to work as expected. This means
-                you can keep your template looking the same whether using light
-                DOM or shadow DOM.
-            </p>
-            <p>
-                This slot substitute doesn't work well for changing content.
-                Avoid using this when your content uses structural directives or
-                otherwise adds/removes elements.
-            </p>
-            <p>
-                This even works when parsing large amounts of HTML, thanks to
-                the <code>.onParse()</code>
-                <a href="lifecycle-methods.html">Lifecycle Method</a>.
-            </p>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    <!-- Here is the sample HTML -->
-                    <custom-button>
-                        <b>BOLD TEXT</b>
-                    </custom-button>
-                </template>
-            </code-sample>
-            <code-sample
-                type="js"
-                live="true"
-                html="<custom-button><b>BOLD TEXT</b></custom-button>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, defineSlotComponent } from './fudgel.min.js';
-
-                    // Crucial: create the custom slot component before
-                    // defining components that need this element!
-                    defineSlotComponent();
-
-                    // Now slots will work in your light DOM component.
-                    component('custom-button', {
-                        style: `
-                            button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                                padding: 4px;
-                            }
-                        `,
-                        template: `<button><slot></slot></button>`,
-                    });
-                </template>
-            </code-sample>
-            <p>
-                How does this work? Calling <code>defineSlotComponent()</code>
-                will define the custom component with the default name of
-                <code>slot-like</code>, which you can change by using
-                <code>defineSlotComponent('custom-element-name')</code>. Please
-                make sure you do this right away, before your custom elements
-                get created. This function also adds a
-                <a href="hooks.html">hook</a> to Fudgel for component creation
-                so all light DOM components will have their template rewritten,
-                changing <code>slot</code> elements into
-                <code>slot-like</code> elements. This template change happens
-                once during each components initial definition. If the template
-                is rewritten, the controller's <code>.onInit()</code> and
-                <code>.onParse()</code> methods will be patched to push content
-                into the slots.
-            </p>
-            <p>
-                The downside of this method is that you may see a flicker of the
-                original DOM before it is put into the right places within your
-                component. This is because the DOM structure is built before the
-                template overrides the node's content.
-            </p>
-            <p>
-                This method is designed to operate like the native
-                <code>&lt;slot&gt;</code> element. Read more about
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"
-                    ><code>slot</code> elements</a
+                
+                <a href="getting-started.html" class="sidebar-link"
+                     >Getting Started</a
                 >
-                and
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"
-                    ><code>slot</code> attributes</a
-                >.
-            </p>
-            <h2>Manual Content Retrieval</h2>
-            <p>
-                Your controller can access the custom element and pull its
-                children using a query selector, walking the DOM, or other
-                techniques. Make sure you capture the content during
-                <code>onParse()</code> and then add the content to the DOM in
-                <code>onViewInit()</code> because the element is cleared and the
-                template is applied between these two method calls. Learn more
-                about these
-                <a href="lifecycle-methods.html">Lifecycle Methods</a>.
-            </p>
-            <p>
-                One advantage of using this technique is the template element is
-                not rendered, so it can avoid the flicker of the slot-like
-                approach.
-            </p>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    <!-- Here is the sample HTML -->
-                    <custom-button>
-                        <template>
-                            <b>BOLD TEXT</b>
-                        </template>
-                    </custom-button>
-                </template>
-            </code-sample>
-            <code-sample
-                type="js"
-                live="true"
-                html="<custom-button><template><b>BOLD TEXT</b></template></custom-button>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, rootElement } from './fudgel.min.js';
+                
+                <a href="playground/" class="sidebar-link"
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
+                >
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link"
+                     >GitHub</a
+                >
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Content Projection</h1>
+<p>Imagine you have a utility function to create a styled button.  You&#39;d like the ability to specify the HTML that is displayed on the button, but passing that in via an attribute or property is problematic, especially when you want to have an image on the button. There are two ways you have access to outside content in order to &quot;project&quot; it into your element.</p>
+<h2>Normal Process Without Content Projection</h2>
+<p>Extra content within the custom element will be removed. The DOM elements will be present during <code>onInit()</code> and are removed before <code>onViewInit()</code>. Both of these are detailed in <a href="lifecycle.html">Lifecycle</a>.</p>
+<p>If you wanted this content to be copied into your component, this is easily done using one of the following methods.</p>
+<h2>Slots and Shadow DOM</h2>
+<p>You can use slotted content when your element enables <code>useShadow: true</code> in its <a href="component-config.html">configuration</a>. This leverages built-in browser features and works well. To project content, use the <code>&lt;slot&gt;</code> element.</p>
+<p>You can also project multiple pieces of content into specific areas using named slots. Read more about <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"><code>&lt;slot&gt; elements</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"><code>slot</code> attributes</a>.</p>
+<p><code-sample sample="samples/slot-example.html"></code-sample></p>
+<h2>Slots and Light DOM</h2>
+<p>There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element, and after that point all components will have <code>&lt;slot&gt;</code> elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM.</p>
+<p>This slot substitute doesn&#39;t work well for changing content.  Avoid using this when your content uses structural directives or otherwise adds/removes elements.</p>
+<p><code-sample sample="samples/slot-like-example.html"></code-sample></p>
+<p>How does this work? Calling <code>defineSlotComponent()</code> will define the custom component with the default name of <code>slot-like</code>, which you can change by using <code>defineSlotComponent(&#39;custom-element-name&#39;)</code>. Please make sure you do this right away, before your custom elements get created. This function watches for component creation within Fudgel so all light DOM components will have their template rewritten, changing <code>&lt;slot&gt;</code> elements into <code>&lt;slot-like&gt;</code> elements. This template change happens once during each components initial definition. If the component uses <code>&lt;slot-like&gt;</code>, then extra functionality is added to help support content projection.</p>
+<p>The downside of this method is that you may see a flicker of the original DOM before it is put into the right places within your component. This is because the DOM structure is built before the template overrides the node&#39;s content.</p>
+<p><code>&lt;slot-like&gt;</code> is designed to be a lightweight substitute for the native <code>&lt;slot&gt;</code> element, including support for named slots.</p>
+<h2>Manual Content Retrieval</h2>
+<p>Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques. Make sure you capture the content during <code>onParse()</code> and then add the content to the DOM in <code>onViewInit()</code> because the element is cleared and the template is applied between these two method calls. Learn more about these <a href="lifecycle.html">Lifecycle</a>.</p>
+<p>One advantage of using this technique is the template element is not rendered, so it can avoid the flicker of the slot-like approach.</p>
+<p><code-sample sample="samples/manual-content-projection.html"></code-sample></p>
 
-                    component('custom-button', {
-                        style: `
-                            button {
-                                border-radius: 4px;
-                                border-width: 2x;
-                                border-color: blue;
-                                border-style: solid;
-                            }
-                        `,
-                        template: `<button #ref="button"></button>`
-                    }, class {
-                        onParse() {
-                            const element = rootElement(this);
-                            this.template = element.querySelector('template');
-                        }
-
-                        onViewInit() {
-                            this.button.append(this.template.content);
-                        }
-                    });
-                </template>
-            </code-sample>
-        </page-wrapper>
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link"
+                         >Welcome</a
+                    >
+                    
+                    <a href="getting-started.html" class="flyout-link"
+                         >Getting Started</a
+                    >
+                    
+                    <a href="playground/" class="flyout-link"
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
+                    >
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link"
+                         >GitHub</a
+                    >
+                    
+                </div>
+            </div>
+        </div>
     </body>
     <script src="js.js" type="module"></script>
 </html>

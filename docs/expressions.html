@@ -1,8 +1,8 @@
 <html>
     <head>
-        <title>Fudgel - Lightweight Web Component Library</title>
+        <title>Expressions (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
-        <link rel="stylesheet" href="./style.css" />
+        <link rel="stylesheet" href="style.css" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,294 +26,256 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <page-wrapper>
-            <h1>Expressions</h1>
-            <p>
-                Fudgel supports binding to expressions in templates. This allows
-                you to insert dynamic values, call functions, and conditionally
-                render content based on the state of your controller.
-            </p>
-            <p>
-                Most JavaScript syntax works in expressions. It looks like
-                JavaScript and it has access to properties on the controller as
-                well as variables that are defined in various directives. There
-                are several examples on this page along with a list of all
-                operations that are allowed.
-            </p>
-            <p>
-                Bindings are automatically updated when the controller's
-                top-level properties change. This is a shallow compare, so
-                object references need to change or use a
-                <a href="utilities.html">utility function</a> to manually
-                trigger updates.
-            </p>
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link"
+                     >Welcome</a
+                >
+                
+                <a href="getting-started.html" class="sidebar-link"
+                     >Getting Started</a
+                >
+                
+                <a href="playground/" class="sidebar-link"
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
+                >
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link"
+                     >GitHub</a
+                >
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Expressions</h1>
+<p>Fudgel supports binding to expressions in templates. This allows you to insert dynamic values, call functions, and conditionally render content based on the state of your controller.</p>
+<p>Most JavaScript syntax works in expressions. It looks like JavaScript and it has access to properties on the controller as well as variables that are defined in various directives. There are several examples on this page along with a list of all operations that are allowed.</p>
+<p>The value returned from the expression is used by the <a href="directives.html">directive</a> or <a href="bindings.html">binding</a> that contains it.</p>
+<h2>Automatic Updates</h2>
+<p>Top-level properties on the controller are observed for changes when they are used as a part of an expression. When the property changes, any bindings or directives that use that property are automatically updated. This is done using a shallow compare, so if an object or array is used in an expression, the reference must change for the update to be detected. You can use a <a href="utilities.html">utility function</a> to manually trigger updates if necessary.</p>
+<p><code-sample sample="samples/expressions-bindings.js"></code-sample></p>
+<h2>Scope</h2>
+<p>Each expression is evaluated in the context of a scope. Scopes are layered on top of the controller&#39;s properties. In this example, the controller&#39;s name will be shown first. The <a href="directive-for.html"><code>*for</code> directive</a> creates a new scope for each child element. This allows the key and the value in one segment to not collide with the key and value of others. In the next example, <code>name</code> is set to the value from the current iteration. This allows you to access properties from the controller as well as variables defined in directives.</p>
+<p><code-sample sample="samples/expression-for.js"></code-sample></p>
+<h2>Allowed Expressions and Operations</h2>
+<p>Most JavaScript syntax is allowed in expressions.</p>
+<ul>
+<li>Strings: <code>&quot;Hello&quot;</code>, <code>&#39;World&#39;</code>, <code>&quot;escaped characters: \b \f \n \r \t \v&quot;</code></li>
+<li>Numbers: <code>42</code>, <code>3.14</code>, <code>3e-10</code></li>
+<li>Literals: <code>true</code>, <code>false</code>, <code>null</code>, <code>[&#39;arrays&#39;, true]</code>, <code>{&quot;an&quot;:&quot;object&quot;, [&#39;works&#39;]: true}</code></li>
+<li>Variables: <code>myVar</code>, <code>myProp.childProp</code>, <code>myProp[3]</code>, <code>myProp[&#39;childProp&#39;]</code>, <code>myProp?.childProp</code></li>
+<li>Unary operators: <code>!myVar</code>, <code>+myVar</code>, <code>-myVar</code>, <code>~myVar</code></li>
+<li>Binary operators: <code>||</code>, <code>??</code>, <code>&amp;&amp;</code>, <code>|</code>, <code>^</code>, <code>&amp;</code>, <code>==</code>, <code>!=</code>, <code>===</code>, <code>!==</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&gt;&gt;&gt;</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>, <code>**</code></li>
+<li>Function calls: <code>myFunc(arg1, &#39;arg2&#39;, 3)</code></li>
+<li>Miscellaneous: <code>typeof</code>, <code>in</code>, <code>instanceof</code></li>
+</ul>
+<h2>Disallowed Expressions and Syntax</h2>
+<p>Templates should not create complex logic or behaviors. They also should not alter the values in scope, create new functions, or be forced to deal with flow-control statements. Templates should only be used as a bridge to show information to the user, to pass extra information along as an attribute or property, or to bind events to event handlers.</p>
+<p>The point of the template is to keep things simple and let the controller do the heavy lifting. Several of the following items are not allowed based on this principle. Others are not allowed because there is no succinct way to implement them while also supporting strict Content-Security-Policy directives.</p>
+<ul>
+<li>Multiple statements: <code>method1(); method2()</code>, <code>method1(), method2()</code></li>
+<li>Creation of new functions: <code>function test() {}</code>, <code>() =&gt; {}</code> due to difficulty implementing under strict Content-Security-Policy</li>
+<li>Async, await: <code>async</code>, <code>await</code> - requires function creation</li>
+<li>Spread operator: <code>...</code> - no easy way to implement while also avoiding Content-Security-Policy issues</li>
+<li>Assignments: <code>=</code>, <code>+=</code>, <code>-=</code>, etc.</li>
+<li>Prefix and postfix increment/decrement: <code>++</code>, <code>--</code></li>
+<li>Deletion of object properties: <code>delete propName</code></li>
+</ul>
 
-            <h2>Scope</h2>
-            <p>
-                Each expression is evaluated in the context of a scope. Scopes
-                are layered on top of the controller's properties. In this
-                example, the controller's name will be shown first.
-                <code>*for</code> (a <a href="directives.html">directive</a>)
-                creates a new scope for each child element, so the
-                <code>name</code> property will be set to the value of the
-                <code>name</code> variable in the loop. This allows you to
-                access properties from the controller as well as variables
-                defined in directives.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<expression-scope></expression-scope>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('expression-scope', {
-                        template: `
-                        <p>Controller Name: {{ name }}, color {{color}}</p>
-
-                            <ul>
-                                <li *for="name of childNames">
-                                    Child Name: {{ name }}, color {{color}}
-                                </li>
-                            </ul>
-                        `,
-                    }, class {
-                        childNames = [ 'child1', 'child2' ];
-                        name = 'component';
-                        color = 'yellow';
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Text Interpolation</h2>
-            <p>
-                Text interpolation allows you to insert dynamic values into the
-                HTML content. The expressions are wrapped in double curly
-                braces.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<expression-text></expression-text>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('expression-text', {
-                        template: `
-                            <p title="Greeting to {{ name }}">
-                                Hello, {{ name }}!
-                            </p>
-
-                            <img src="{{ avatarUrl }}" alt="Avatar" />
-                        `,
-                    }, class {
-                        name = 'Alice';
-                        avatarUrl = 'favicon-32x32.png';
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Attributes and Boolean Values</h2>
-            <p>
-                Attributes can be set to a string with an expression, but the
-                behavior is different when it is set to <code>true</code> and
-                <code>false</code>. When the value is <code>true</code>, the
-                attribute will be added to the element. When it is
-                <code>false</code>, the attribute will be removed. This allows
-                for conditional attributes.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<expression-attr-boolean></expression-attr-boolean>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('expression-attr-boolean', {
-                        template: `
-                            <button disabled="{{ isDisabled }}">
-                                The Button
-                            </button>
-
-                            <button @click="toggle()">
-                                Toggle Disabled
-                            </button>
-                        `,
-                    }, class {
-                        isDisabled = false;
-
-                        toggle() {
-                            this.isDisabled = !this.isDisabled;
-                        }
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Event Handlers</h2>
-            <p>
-                You can bind to events using the <code>@event</code> syntax. The
-                expression should resolve to a function call, but it isn't
-                required. This allows you to call methods on your controller
-                when an event occurs.
-                <a href="directives.html">Directives</a> discusses this in more
-                detail.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<expression-event></expression-event>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('expression-event', {
-                        template: `
-                            <p>Change Count: {{ changeCount }}</p>
-                            <input
-                                type="text"
-                                @input="change()"
-                                placeholder="Type something..." />
-                        `,
-                    }, class {
-                        changeCount = 0;
-
-                        change() {
-                            this.changeCount += 1;
-                        }
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Property Bindings</h2>
-            <p>
-                Properties can be bound using the <code>prop</code> directive.
-                This allows you to set properties on the custom element
-                instance. The value can be a string, number, object, or any
-                other type. Learn more about
-                <a href="directives.html">directives</a> for more details.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<expression-property></expression-property>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component } from './fudgel.min.js';
-
-                    component('expression-property-child', {
-                        prop: ['name'],
-                        template: 'Name is {{name}}'
-                    });
-                    component('expression-property', {
-                        template: `
-                            <expression-property-child .name="name">
-                            </expression-property-child>
-                        `,
-                    }, class {
-                        name = 'Alice';
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Allowed Expressions and Operations</h2>
-            <ul>
-                <li>
-                    Strings: <code>"Hello"</code>, <code>'World'</code>,
-                    <code>"escaped characters: \b \f \n \r \t \v"</code>
-                </li>
-                <li>
-                    Numbers: <code>42</code>, <code>3.14</code>,
-                    <code>3e-10</code>
-                </li>
-                <li>
-                    Literals: <code>true</code>, <code>false</code>,
-                    <code>null</code>, <code>['arrays', true]</code>,
-                    <code>{"an":"object", ['works']: true}</code>
-                </li>
-                <li>
-                    Variables: <code>myVar</code>,
-                    <code>myProp.childProp</code>, <code>myProp[3]</code>,
-                    <code>myProp['childProp']</code>,
-                    <code>myProp?.childProp</code>
-                </li>
-                <li>
-                    Unary operators: <code>!myVar</code>, <code>+myVar</code>,
-                    <code>-myVar</code>, <code>~myVar</code>
-                </li>
-                <li>
-                    Binary operators: <code>||</code>, <code>??</code>,
-                    <code>&amp;&amp;</code>, <code>|</code>, <code>^</code>,
-                    <code>&amp;</code>, <code>==</code>, <code>!=</code>,
-                    <code>===</code>, <code>!==</code>, <code>&lt;</code>,
-                    <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>,
-                    <code>&lt;&lt;</code>, <code>&gt;&gt;</code>,
-                    <code>&gt;&gt;&gt;</code>, <code>+</code>, <code>-</code>,
-                    <code>*</code>, <code>/</code>, <code>%</code>,
-                    <code>**</code>
-                </li>
-                <li>Function calls: <code>myFunc(arg1, 'arg2', 3)</code></li>
-                <li>
-                    Miscellaneous: <code>typeof</code>, <code>in</code>,
-                    <code>instanceof</code>
-                </li>
-            </ul>
-
-            <h2>Disallowed Expressions and Syntax</h2>
-            <p>
-                Templates should not create complex logic or behaviors. They
-                also should not alter the values in scope, create new functions,
-                or be forced to deal with flow-control statements. Templates
-                should only be used as a bridge to show information to the user,
-                to pass extra information along as an attribute or property, or
-                to bind events to event handlers.
-            </p>
-            <p>
-                The point of the template is to keep things simple and let the
-                controller do the heavy lifting. Several of the following items
-                are not allowed based on this principle. Others are not allowed
-                because there is no succinct way to implement them while also
-                supporting strict Content-Security-Policy directives.
-            </p>
-            <ul>
-                <li>
-                    Multiple statements: <code>method1(); method2()</code>,
-                    <code>method1(), method2()</code>
-                </li>
-                <li>
-                    Creation of new functions: <code>function test() {}</code>,
-                    <code>() =&gt; {}</code> due to difficulty implementing
-                    under strict Content-Security-Policy
-                </li>
-                <li>
-                    Async, await: <code>async</code>, <code>await</code> -
-                    requires function creation
-                </li>
-                <li>
-                    Spread operator: <code>...</code> - no easy way to
-                    implement while also avoiding Content-Security-Policy
-                    issues
-                </li>
-                <li>
-                    Assignments: <code>=</code>, <code>+=</code>,
-                    <code>-=</code>, etc.
-                </li>
-                <li>
-                    Prefix and postfix increment/decrement: <code>++</code>,
-                    <code>--</code>
-                </li>
-                <li>
-                    Deletion of object properties: <code>delete propName</code>
-                </li>
-            </ul>
-        </page-wrapper>
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link"
+                         >Welcome</a
+                    >
+                    
+                    <a href="getting-started.html" class="flyout-link"
+                         >Getting Started</a
+                    >
+                    
+                    <a href="playground/" class="flyout-link"
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
+                    >
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link"
+                         >GitHub</a
+                    >
+                    
+                </div>
+            </div>
+        </div>
     </body>
     <script src="js.js" type="module"></script>
 </html>

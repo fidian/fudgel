@@ -1,7 +1,7 @@
 import { component, metadata } from '/fudgel.min.js';
 
 component(
-    'fudgel-size',
+    'avoid-style-scoping',
     {
         style: `
             /* This style is SCOPED and does NOT apply

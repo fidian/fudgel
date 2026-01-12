@@ -1,8 +1,8 @@
 <html>
     <head>
-        <title>Fudgel - Lightweight Web Component Library</title>
+        <title>Routing (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
-        <link rel="stylesheet" href="./style.css" />
+        <link rel="stylesheet" href="style.css" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,534 +26,287 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <page-wrapper>
-            <h1>Routing</h1>
-            <p>
-                A declarative, minimalistic router is shipped with Fudgel. With
-                this, you can declare routes, have named parameters, match
-                routes on regular expressions, instantiate custom web
-                components, and track the browser's location through the
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/API/History_API"
-                    >History API</a
-                >. There's a section later in this document if you're interested
-                in using hashes instead.
-            </p>
-            <h2>Overly Complex Example</h2>
-            <p>
-                Let's show you how it works with a fairly elaborate bit of code.
-                Don't worry, each feature and option will be explained again
-                later.
-            </p>
-            <code-sample type="js" live="true" html="<main-page></main-page>">
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, defineRouterComponent } from './fudgel.min.js';
-
-                    defineRouterComponent('app-router');
-
-                    component('main-page', {
-                        attr: ['thing'],
-                        template: `
-                            <app-router>
-                                &lt;div path="^(/(index.html|routing.html)?)?$"
-                                    regex title="Page 1"&gt;
-                                    Page 1: This is the default route.
-                                    It's a bit more complicated because
-                                    it's showing how to use a regular
-                                    expression.
-                                    <a href="/page2/param">Go to page 2</a>
-                                &lt;/div&gt;
-                                &lt;div path="/page2/:thing"
-                                    component="page-two" title="Page2"&gt;
-                                    Shows the custom component instead of
-                                    these words.
-                                &lt;/div&gt;
-                                <div path="**" title="Unknown Page">
-                                    Unhandled route.
-                                    <a href="/">Continue to page 1</a>
-                                </div>
-                                <div path="**">
-                                    This won't ever be displayed. Only the
-                                    first matching route will be shown.
-                                </div>
-                            </app-router>
-                        `
-                    });
-
-                    component('page-two', {
-                        template: `
-                            Page 2: Go to
-                            <a href="/unknown">an unknown page</a>.<br />
-                            Going <a href="#" @click.stop.prevent="goBack()">back</a>
-                            does not work well in this playground, but it does
-                            work in a regular app.<br />
-                            The value from the route is "{{thing}}".
-                        `
-                    }, class {
-                        goBack() {
-                            history.go(-1);
-                        }
-                    });
-                </template>
-            </code-sample>
-            <p>
-                Try playing with the live demo and you can see that routing does
-                indeed work. There's also custom component instantiation,
-                passing route parameters as attributes, setting the document
-                title, automatically handling links, and more. There's a lot to
-                unpack, so each of the following sections will talk about
-                specific aspects.
-            </p>
-
-            <h2>Defining the Component</h2>
-            <p>
-                The router component is not declared automatically when you
-                import Fudgel. This is to allow for better tree shaking, so you
-                can pick and choose what you want to use from the library. This
-                technique of exporting a component definition function also
-                allows a developer to deal with custom component name collisions
-                or to swap in a different router more easily.
-            </p>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    import { defineRouterComponent } from './fudgel.min.js';
-
-                    defineRouterComponent('app-router');
-                </template>
-            </code-sample>
-            <p>
-                This creates a new custom element named
-                <code>&lt;app-router&gt;</code>. For the rest of the examples in
-                the documentation, we will use
-                <code>&lt;app-router&gt;</code> as the name of the router
-                element.
-            </p>
-
-            <h2>Creating Routes</h2>
-            <p>
-                Any direct child of the router element is considered routable.
-                If it has a path, then the path is matched against the URL and
-                all specified segments must match (more on this later). If there
-                is no path, then it defaults to "**", which matches all paths.
-            </p>
-            <code-sample type="html" live="true">
-                <!-- prettier-ignore -->
-                <template>
-                    <app-router>
-                        <div path="/user/:userId">
-                            Show info for a specific user<br />
-                            Inspect the element and see
-                            the user-id attribute
-                        </div>
-                        <div path="/user">
-                            Show user list
-                        </div>
-                        <div path="/store">
-                            Show store list
-                        </div>
-                        <div path="/store/:storeId">
-                            Show single store<br />
-                            (never used - see below)
-                        </div>
-                        <div>
-                            This matches everything<br />
-                            It's path is assumed to be "**"
-                        </div>
-                    </app-router>
-
-                    <script type="module" src="location-changer.js"></script>
-                </template>
-            </code-sample>
-            <p>
-                Route matching will match entire path segments but ignore
-                segments in the URL that don't exist in the path, plus only the
-                first matching route will be shown. Make sure you order the
-                children from most specific path to least specific. For example,
-                the route <code>/user/123</code> correctly maps to "Show info
-                for a specific user", but <code>/store/123</code>
-                will scan through the elements and stop on "Show store list"
-                because it matches the beginning of the URL first.
-            </p>
-            <p>Some more examples of routing with the above example:</p>
-            <ul>
-                <li>
-                    URL: <code>/</code> &rarr; Result: "This matches everything"
-                </li>
-                <li>URL: <code>/user</code> &rarr; Result: "Show user list"</li>
-                <li>
-                    URL: <code>/user/</code> &rarr; Result: "Show user list"
-                </li>
-                <li>
-                    URL: <code>/user/1234</code> &rarr; Result: "Show info for a
-                    specific user"
-                </li>
-            </ul>
-            <p>
-                Elements that are routes can have several attributes to control
-                what they do.
-            </p>
-            <ul>
-                <li>
-                    <code>component</code> - When the path matches, create an
-                    element with this name. If the path has named parameters,
-                    assign them to the created element as attributes.
-                </li>
-                <li>
-                    <code>path</code> - The URL to match against. Can use named
-                    parameters, such as <code>:id</code> with a leading colon
-                    and the values are all assigned to the element as
-                    attributes. Can use wildcards; <code>*</code> matches a
-                    single path segment, <code>**</code> matches one or more
-                    path segments. Can use a regular expression when combined
-                    with <code>regexp</code> attribute.
-                </li>
-                <li>
-                    <code>regexp</code> - By including this attribute, the
-                    <code>path</code> attribute will be interpreted as a regular
-                    expression.
-                </li>
-                <li>
-                    <code>title</code> - When the route matches, change the
-                    document's title to match this attribute.
-                </li>
-            </ul>
-            <code-sample type="html" live="true">
-                <!-- prettier-ignore -->
-                <template>
-                    <app-router>
-                        <div path="/user/*/detail" title="Forbidden">
-                            Disallow user detail, regardless of user.
-                            Shows a wildcard.
-                        </div>
-                        <div path="**/login" title="Login" component="app-login">
-                            Show login page when found anywhere in URL.
-                            Shows a double-star wildcard.
-                        </div>
-                        <div path="/user" title="User List">
-                            Show user list.
-                        </div>
-                        <div path="/store" title="Store List"
-                            component="store-list">
-                            Show custom store-list element.
-                        </div>
-                        <div path="^/[aeiou]+$" title="Vowels" regexp>
-                            Path has only vowels.
-                            Illustrating regular expressions.
-                        </div>
-                        <div>No routes match</div>
-                    </app-router>
-
-                    <script type="module" src="location-changer.js"></script>
-                </template>
-            </code-sample>
-            <p>
-                Be careful about custom components - you must either use the
-                <code>component</code> attribute to initialize them as shown
-                above, or you need to wrap all of your routes in a
-                <code>&lt;template&gt;</code> element. Failure to do either of
-                these methods will cause your component to be instantiated and
-                then copied, which will probably not work well for any event
-                bindings.
-            </p>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    <!-- Wrapping in a template fixes issues -->
-                    <app-router>
-                        <template>
-                            <div path="/replace" component="my-component">
-                                Replaces this div with the component.
-                            </div>
-                            <div path="/embed">
-                                <my-component>
-                                    Works as expected.
-                                </my-component>
-                            </div>
-                            <my-component path="/direct">
-                                Also works as expected.
-                            </my-component>
-                        </template>
-                    </app-router>
-
-                    <!-- This example does NOT WORK how you want -->
-                    <app-router>
-                        <div path="/replace" component="my-component">
-                            Replaces this div with the component.
-                        </div>
-                        <div path="/embed">
-                            <my-component>
-                                Instantiates the component and removes it from
-                                the DOM, afterwards adding clones to the DOM.
-                                Probably not what you want.
-                            </my-component>
-                        </div>
-                        <my-component path="/direct">
-                            Same problem as the one above.
-                        </my-component>
-                    </app-router>
-                </template>
-            </code-sample>
-            <p>
-                Named parameters are passed to elements as attributes. The named
-                parameters are expected to be written in camel case, such as
-                <code>/user/:userId</code> in the example below. This will get
-                changed into the attribute <code>user-id</code> on the HTML
-                element because attributes are case-insensitive. You can see
-                this if you inspect the DOM of the live example.
-            </p>
-            <p>
-                To make the effect more obvious, a Fudgel component named
-                <code>show-user</code> sets up the internal property
-                <code>this.userId</code> to mirror the element's
-                <code>user-id</code> attribute, and the template shows the
-                current user ID. This allows the example to be seen and prove
-                that everything's working as expected without involving any
-                debug tooling.
-            </p>
-            <code-sample type="js" live="true" html="<main-page></main-page>">
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, defineRouterComponent } from './fudgel.min.js';
-
-                    defineRouterComponent('app-router');
-
-                    component('main-page', {
-                        template: `
-                            <app-router>
-                                <div path="/user/:userId"
-                                    component="show-user"></div>
-                                <div>
-                                    Show user:<br />
-                                    <a href="/user/open-ai">OpenAI</a><br />
-                                    <a href="/user/chat-gpt">ChatGPT</a>
-                                </div>
-                            </app-router>
-                        `
-                    });
-
-                    component('show-user', {
-                        attr: ['userId'],
-                        template: `
-                            UserId: {{userId}}<br />
-                            <a href="/">Back to index</a>
-                        `
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Navigation</h2>
-            <p>
-                An event listener is added to <code>document.body</code> that
-                waits for all clicked links. When one is found, it will be
-                checked to see if it is within the current page. If so, the
-                event's default navigation is prevented and the history state is
-                updated with the new URL.
-            </p>
-            <p>
-                The
-                <a href="https://developer.mozilla.org/docs/Web/API/History"
-                    >History API</a
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link"
+                     >Welcome</a
                 >
-                is patched in order to capture routing events, so your
-                application can use
-                <code>history.pushState(null, null, url)</code>,
-                <code>history.back()</code> and all of the other methods to
-                navigate.
-            </p>
-            <p>
-                You can also get a reference to the router element and call it's
-                <code>go(url)</code> method.
-            </p>
-            <p>
-                The
-                <a href="https://developer.mozilla.org/docs/Web/API/Navigation"
-                    >Navigation API</a
+                
+                <a href="getting-started.html" class="sidebar-link"
+                     >Getting Started</a
                 >
-                is not used because it is experimental and isn't
-                <a href="https://caniuse.com/mdn-api_navigation"
-                    >widely adopted</a
-                >.
-            </p>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    document.querySelector('app-router').go('/page2');
-                </template>
-            </code-sample>
-
-            <h2>Getting Notified</h2>
-
-            <p>
-                When the router notices changes to the location, a custom
-                <code>routeChange</code> event is triggered on
-                <code>document.body</code>. Note that the same route can be
-                emitted multiple times when there are multiple routers used for
-                nested routing.
-            </p>
-
-            <code-sample type="js" live="true" html="<main-page></main-page>">
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, defineRouterComponent } from './fudgel.min.js';
-
-                    defineRouterComponent('app-router');
-
-                    component('main-page', {
-                        template: `
-                        <app-router>
-                            <div path="/fake">
-                                Just including the router so it sets up the
-                                events. This demo does not show routing. It
-                                shows how locations can be monitored with
-                                events.
-                            </div>
-                        </app-router>
-                        <div>
-                            Click here to switch routes:<br />
-                            <a href="/route1">Route 1</a><br />
-                            <a href="/route2">Route 2</a>
-                        </div>
-                        <route-changes></route-changes>
-                        `
-                    });
-
-                    component('route-changes', {
-                        template: `
-                            Number of route changes: {{count}}
-                        `
-                    }, class {
-                        count = 0;
-                        listener = () =&gt; this.count += 1;
-
-                        onInit() {
-                            document.body.addEventListener(
-                                'routeChange',
-                                this.listener
-                            );
-                        }
-
-                        onDestroy() {
-                            document.body.removeEventListener(
-                                'routeChange',
-                                this.listener
-                            );
-                        }
-                    });
-                </template>
-            </code-sample>
-
-            <h2>Watch Out For Problems</h2>
-            <p>
-                Because this is a simplistic router, there is the caveat that
-                elements within need to be static. Do not add or remove
-                elements, which means avoiding the use of structural directives
-                within the router element and its children. If you need to do
-                this, consider making the route into a component and let the
-                router initialize the component.
-            </p>
-
-            <h2>What About Using Hashes?</h2>
-            <p>
-                This router manipulates the History API for the following
-                reasons:
-            </p>
-            <ul>
-                <li>
-                    URLs look more "normal" to users. Seeing hashes in URLs
-                    makes people wonder because it's unusual.
-                </li>
-                <li>
-                    Links can operate normally and can operate in a single-page
-                    application. I can send a URL to a friend and it could still
-                    work.
-                </li>
-                <li>
-                    Better SEO. Search engines have a bit more difficulty
-                    traversing hash-based routes. Google used to suggest using
-                    the prefix "#!", but has now dropped it because of the
-                    History API
-                </li>
-            </ul>
-            <p>
-                <b>But what if I need to use hashes?</b> Yes, I was in the same
-                situation with a static file server and no way for me to serve
-                the same <code>index.html</code> for all of the routes in the
-                application. Fortunately, it might be possible to create a
-                custom 404 page. If you can, put this in your 404 page and it
-                will make the browser turn it into a 301 status code, which does
-                index well.
-            </p>
-            <code-sample type="html">
-                <!-- prettier-ignore -->
-                <template>
-                    &lt;!DOCTYPE html&gt;
-                    &lt;html&gt;&lt;head&gt;
-                    <meta charset="utf-8" />
-                    <script>sessionStorage.redirect = location.href;</script>
-                    <meta http-equiv="refresh" content="0;URL='/'" />
-                    &lt;/head&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;
-                </template>
-            </code-sample>
-            <p>
-                This will store the location in session storage and redirect you
-                immediately to the single page app. Inside your app, before any
-                other code, you will need to add this JavaScript to restore the
-                location.
-            </p>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    const redirect = sessionStorage.redirect;
-                    delete sessionStorage.redirect;
-
-                    if (redirect &amp;&amp; redirect !== location.href) {
-                        history.replaceState(null, null, redirect);
-                    }
-                </template>
-            </code-sample>
-            <p>
-                This technique is provided from
-                <a
-                    href="http://www.backalleycoder.com/2016/05/13/sghpa-the-single-page-app-hack-for-github-pages/"
-                    >S(GH)PA: The Single-Page App Hack for GitHub Pages</a
+                
+                <a href="playground/" class="sidebar-link"
+                     >Playground</a
                 >
-                by Daniel Buchner.
-            </p>
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
+                >
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link"
+                     >GitHub</a
+                >
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Routing</h1>
+<p>A declarative, minimalistic router is shipped with Fudgel. With this, you can declare routes, have named parameters, match routes on regular expressions, instantiate custom web components, and track the browser&#39;s location through the <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API">History API</a>.  There&#39;s a section later in this document if you&#39;re interested in using hashes instead.</p>
+<h2>Overly Complex Example</h2>
+<p>Let&#39;s show you how it works with a fairly elaborate bit of code.  Don&#39;t worry, each feature and option will be explained again later.</p>
+<p><code-sample sample="samples/routing-example.js"></code-sample></p>
+<p>Try playing with the live demo and you can see that routing does indeed work. There&#39;s also custom component instantiation, passing route parameters as attributes, setting the document title, automatically handling links, and more. There&#39;s a lot to unpack, so each of the following sections will talk about specific aspects.</p>
+<h2>Defining the Component</h2>
+<p>The router component is not declared automatically when you import Fudgel. This is to allow for better tree shaking, so you can pick and choose what you want to use from the library. This technique of exporting a component definition function also allows a developer to deal with custom component name collisions or to swap in a different router more easily.</p>
+<p><code-sample sample="samples/routing-define-router-component.js"></code-sample></p>
+<p>This creates a new custom element named <code>&lt;app-router&gt;</code>. For the rest of the examples in the documentation, we will use <code>&lt;app-router&gt;</code> as the router element name, but you can substitute your own name if you like.</p>
+<h2>Creating Routes</h2>
+<p>Any direct child of the router element is able to be routed.  If it has a path, then the path is matched against the URL and all specified segments must match (more on this later). If there is no path, then it defaults to &quot;**&quot;, which matches all paths.</p>
+<p><code-sample sample="samples/routing-routes.html"></code-sample></p>
+<p>Route matching will match entire path segments but ignore segments in the URL that don&#39;t exist in the path, plus only the first matching route will be shown. Make sure you order the children from most specific path to least specific. For example, the route <code>/user/123</code> correctly maps to &quot;Show info for a specific user&quot;, but <code>/store/123</code> will scan through the elements and stop on &quot;Show store list&quot; because it matches the beginning of the URL first.</p>
+<p>Some more examples of routing with the above example:</p>
+<ul>
+<li>URL: <code>/</code> → Result: &quot;This matches everything&quot;</li>
+<li>URL: <code>/user</code> → Result: &quot;Show user list&quot;</li>
+<li>URL: <code>/user/</code> → Result: &quot;Show user list&quot;</li>
+<li>URL: <code>/user/1234</code> → Result: &quot;Show info for a specific user</li>
+</ul>
+<p>Elements that are routes can have several attributes to control what they do.</p>
+<ul>
+<li><code>component</code> - When the path matches, create an element with this name. If the path has named parameters, assign them to the created element as attributes.</li>
+<li><code>path</code> - The URL to match against. Can use named parameters, such as <code>:id</code> with a leading colon and the values are all assigned to the element as attributes. Can use wildcards; <code>*</code> matches a single path segment, <code>**</code> matches one or more path segments. Can use a regular expression when combined with <code>regexp</code> attribute.</li>
+<li><code>regexp</code> - By including this attribute, the <code>path</code> attribute will be interpreted as a regular expression.</li>
+<li><code>title</code> - When the route matches, change the document&#39;s title to match this attribute.</li>
+</ul>
+<p><code-sample sample="samples/routing-route-attributes.html"></code-sample></p>
+<p>Be careful about custom components - you must either use the <code>component</code> attribute to initialize them as shown above, or you need to wrap all of your routes in a <code>&lt;template&gt;</code> element. Failure to do either of these methods will cause your component to be instantiated and then copied, which will probably not work well for any event bindings.</p>
+<p><code-sample sample="samples/routing-with-components.html" no-playground></code-sample></p>
+<p>Named parameters are passed to elements as attributes. The named parameters are expected to be written in camel case, such as <code>/user/:userId</code> in the example below. This will get changed into the attribute <code>user-id</code> on the HTML element because attributes are case-insensitive. You can see this if you inspect the DOM of the live example.</p>
+<p>To make the effect more obvious, a Fudgel component named <code>show-user</code> sets up the internal property <code>this.userId</code> to mirror the element&#39;s <code>user-id</code> attribute, and the template shows the current user ID. This allows the example to be seen and prove that everything&#39;s working as expected without involving any debug tooling.</p>
+<p><code-sample sample="samples/routing-parameters.js"></code-sample></p>
+<h2>Navigation</h2>
+<p>An event listener is added to <code>document.body</code> that waits for all clicked links. When one is found, it will be checked to see if it is within the current page. If so, the event&#39;s default navigation is prevented and the history state is updated with the new URL.</p>
+<p>The <a href="https://developer.mozilla.org/docs/Web/API/History">History API</a> is patched in order to capture routing events, so your application can use <code>history.pushState(null, null, url)</code>, <code>history.back()</code> and all of the other methods to navigate.</p>
+<p>You can also get a reference to the router element and call it&#39;s <code>go(url)</code> method.</p>
+<p>The <a href="https://developer.mozilla.org/docs/Web/API/Navigation">Navigation API</a> is not used because it is experimental and isn&#39;t <a href="https://caniuse.com/mdn-api_navigation">widely adopted</a> enough.</p>
+<p><code-sample sample="samples/routing-navigation.js" no-playground></code-sample></p>
+<h2>Getting Notified</h2>
+<p>When the router notices changes to the location, a custom <code>routeChange</code> event is triggered on <code>document.body</code>. Note that the same route can be emitted multiple times when there are multiple routers used for nested routing.</p>
+<p><code-sample sample="samples/routing-notification.js"></code-sample></p>
+<h2>Watch Out For Problems</h2>
+<p>Because this is a simplistic router, there is the caveat that elements within need to be static. Do not add or remove elements, which means avoiding the use of structural directives within the router element and its children. If you need to do this, consider making the route into a component and let the router initialize the component.</p>
+<h2>What About Using Hashes?</h2>
+<p>This router manipulates the History API for the following reasons:</p>
+<ul>
+<li>URLS look more &quot;normal&quot; to users. Seeing hashes in URLs makes people wonder because it&#39;s unusual.</li>
+<li>Links can operate normally and can operate in a single-page application. I can send a URL to a friend and it could still work.</li>
+<li>Better SEO. Search engines have a bit more difficulty traversing hash-based routes. Google used to suggest using the prefix &quot;#!&quot;, but has now dropped it because of the History API.</li>
+</ul>
+<p><strong>But what if I need to use hashes?</strong> Yes, I was in the same situation with a static file server and no way for me to serve the same <code>index.html</code> for all of the routes in the application. Fortunately, it might be possible to create a custom 404 page. If you can, put this in your 404 page and it will make the browser turn it into a 301 status code, which does index well.</p>
+<p><code-sample sample="samples/single-page-app-404.html" no-playground></code-sample></p>
+<p>This will store the location in session storage and redirect you immediately to the single page app. Inside your app, before any other code, you will need to add this JavaScript to restore the location.</p>
+<p><code-sample sample="samples/single-page-app-restore-location.js" no-playground></code-sample></p>
+<p>This technique is provided from <a href="http://www.backalleycoder.com/2016/05/13/sghpa-the-single-page-app-hack-for-github-pages/">S(GH)PA: The Single-Page App Hack for GitHub Pages</a> by Daniel Buchner.</p>
+<h2>Need More Functionality?</h2>
+<p>This is just a slimmed-down version of a few other fantastic web component routers that were combined. This router&#39;s goal is to be fairly minimal and provide enough for most smaller projects.  If you are looking for something with a bit more pizzaz, check these out.</p>
+<ul>
+<li><a href="https://github.com/colscott/a-wc-router">a-wc-router</a> by Colin Scott</li>
+<li><a href="https://github.com/erikringsmuth/app-router">app-router</a> by Erik Ringsmuth</li>
+<li><a href="https://github.com/markcellus/router-component">router-component</a> by Mark Cellus</li>
+<li><a href="https://github.com/jasimea/router-sample">router-sample</a> by Jasime Alvarado</li>
+</ul>
 
-            <h2>Need More Functionality?</h2>
-            <p>
-                This is just a slimmed-down version of a few other fantastic web
-                component routers that were combined. This router's goal is to
-                be fairly minimal and provide enough for most smaller projects.
-                If you are looking for something with a bit more pizzaz, check
-                these out.
-            </p>
-
-            <ul>
-                <li>
-                    <a href="https://github.com/colscott/a-wc-router"
-                        >a-wc-router</a
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link"
+                         >Welcome</a
                     >
-                </li>
-                <li>
-                    <a href="https://github.com/erikringsmuth/app-router"
-                        >app-router</a
+                    
+                    <a href="getting-started.html" class="flyout-link"
+                         >Getting Started</a
                     >
-                </li>
-                <li>
-                    <a href="https://github.com/markcellus/router-component"
-                        >router-component</a
+                    
+                    <a href="playground/" class="flyout-link"
+                         >Playground</a
                     >
-                </li>
-                <li>
-                    <a href="https://github.com/jasimea/router-sample"
-                        >router-sample</a
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
                     >
-                </li>
-            </ul>
-        </page-wrapper>
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
+                    >
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link"
+                         >GitHub</a
+                    >
+                    
+                </div>
+            </div>
+        </div>
     </body>
     <script src="js.js" type="module"></script>
 </html>

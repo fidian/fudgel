@@ -1,8 +1,8 @@
 <html>
     <head>
-        <title>Fudgel - Lightweight Web Component Library</title>
+        <title>Utility Functions (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
-        <link rel="stylesheet" href="./style.css" />
+        <link rel="stylesheet" href="style.css" />
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,560 +26,333 @@
         <meta name="theme-color" content="#ffffff" />
     </head>
     <body>
-        <page-wrapper>
-            <h1>Utility Functions</h1>
-            <p>
-                Fudgel comes with a few helpful functions that you should
-                leverage to squeeze as much as you can out of this tiny library.
-                They will help you communicate with other web components and
-                perform common activities.
-            </p>
-            <h2><code>emit</code> - Sending Data to Parents</h2>
-            <p>
-                Dispatching events from your controller can be tricky with the
-                shadow DOM. Also, for minification, you will probably want to
-                leverage shared code to send events.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<button-sample></button-sample>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, emit } from './fudgel.min.js';
-
-                    component('button-sample', {
-                        template: `
-                            <button @click.stop.prevent="clicked()">Click me</button>
-                            to send a custom event
-                        `
-                    }, class {
-                        clicked() {
-                            emit(this, 'button-sample-event', {
-                                extraData: 'can go in here',
-                                youCanUse: 'whatever you like',
-                                when: new Date()
-                            });
-                        }
-                    });
-                </template>
-            </code-sample>
-            <h2><code>rootElement</code> - Access the content DOM element</h2>
-            <p>
-                Your component creates all of its template elements in one
-                parent element. When using a shadow DOM, this is the shadow DOM
-                element. Otherwise, this is the custom element. To easily access
-                this element from your controller for content manipulation, use
-                <code>rootElement()</code>.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<root-element></root-element>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, rootElement } from './fudgel.min.js';
-
-                    component('root-element', {
-                        template: 'Wait for it ...'
-                    }, class {
-                        onViewInit() {
-                            setTimeout(() =&gt; {
-                                const element = rootElement(this);
-
-                                if (element) {
-                                    element.innerHTML = 'Hello, World!';
-                                }
-                            }, 1000);
-                        }
-                    });
-                </template>
-            </code-sample>
-            <h2><code>update</code> - Redrawing the UI</h2>
-            <p>
-                When you update internal data within an object, the change
-                detection will not pick it up. You can flag specific properties
-                as needing to be redrawn, as this example shows.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<user-sample></user-sample>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, emit, update } from './fudgel.min.js';
-
-                    component('user-sample', {
-                        template: `
-                            <p>Name: {{user.name}}</p>
-                            <button @click="clicked()">Update</button>
-                        `
-                    }, class {
-                        onInit() {
-                            this.user = {
-                                name: "Test User"
-                            };
-                        }
-
-                        clicked() {
-                            this.user.name = "Updated";
-                            update(this, "user");
-                        }
-                    });
-                </template>
-            </code-sample>
-            <p>
-                <code>update()</code> takes two optional parameters and behaves
-                differently depending on what you pass into the function.
-            </p>
-            <ul>
-                <li>
-                    <code>update(controller, 'property')</code> - Updates all
-                    bindings for a single property on a controller. This is the
-                    fastest call to make.
-                </li>
-                <li>
-                    <code>update(controller)</code> - Reruns all bindings that
-                    are attached to the controller. This affects all properties
-                    and every dynamic piece of HTML that is controlled by your
-                    controller.
-                </li>
-                <li>
-                    <code>update()</code> - The slowest of all ways to trigger
-                    an update, this form will update all bindings for all Fudgel
-                    components everywhere.
-                </li>
-            </ul>
-            <h2>
-                <code>html</code> and <code>css</code> - Dummy Tagged Template
-                Functions
-            </h2>
-            <p>
-                There are some build tools that will allow minification of HTML
-                and CSS when they are used within
-                <a
-                    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates"
-                    >tagged template literals</a
-                >. Fudgel exports <code>html()</code> and <code>css()</code> as
-                empty tag functions so your toolset will detect the appropriate
-                type of template and allow minification. You can see them in use
-                with the
-                <a href="https://github.com/Be-Prepared/Be-Prepared.github.io/"
-                    >Be Prepared</a
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link"
+                     >Welcome</a
                 >
-                PWA, which also uses Vite and a plugin to minify the HTML and
-                CSS used the template literals.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<demo-component></demo-component>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, css, html } from './fudgel.min.js';
+                
+                <a href="getting-started.html" class="sidebar-link"
+                     >Getting Started</a
+                >
+                
+                <a href="playground/" class="sidebar-link"
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
+                >
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link"
+                     >GitHub</a
+                >
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Utility Functions</h1>
+<p>Fudgel comes with a few helpful functions that you should leverage to squeeze as much as you can out of this tiny library. They will help you communicate with other web components and perform common activities.</p>
+<h2><code>emit(source, name, detail, options)</code> - Sending Data to Parents</h2>
+<ul>
+<li><code>source</code> (Element | Controller) - The element or controller that is sending the event. If passed a controller, the event will be sent from the controller&#39;s host element.</li>
+<li><code>name</code> (string) - The name of the event to send.</li>
+<li><code>detail</code> (any, optional) - The data to send with the event. This will be available on the event&#39;s <code>detail</code> property.</li>
+<li><code>options</code> (object, optional) - Additional options for the event.</li>
+</ul>
+<p>Dispatching events from your controller can be tricky with the shadow DOM. Also, for minification, you will probably want to leverage shared code to send events.</p>
+<p><code-sample sample="samples/utility-emit.js"></code-sample></p>
+<h2><code>metadata</code> - Access Components and Metadata</h2>
+<p>The <code>metadata</code> symbol allows you to do the following activities.</p>
+<p><strong>On A Custom Element:</strong> Using <code>element[metadata]</code> will give you access to the controller instance for that element.</p>
+<p><strong>On A Controller:</strong> From a controller, using <code>this[metadata]</code> will let you access the metadata object for that component, which contains the following properties:</p>
+<ul>
+<li><code>attr</code> - A <code>Set()</code> of attribute names, based on the <a href="component-config.html">component config</a> <code>attr</code> property.</li>
+<li><code>cssClassName</code> - The CSS class name used for <a href="styling.html">scoping styles</a>.</li>
+<li><code>events</code> - An <code>Emitter</code> instance for this component&#39;s events.</li>
+<li><code>host</code> - The <code>CustomElement</code> in the DOM that is being controlled by the current controller.</li>
+<li><code>prop</code> - A <code>Set()</code> of property names, based on the <a href="component-config.html">component config</a> <code>prop</code> property.</li>
+<li><code>root</code> - The root element for the component. If using Shadow DOM, this is the shadow root. Otherwise it is the custom element itself.</li>
+<li><code>style</code> - The styles to be added for the component, already <a href="styling.html">scoped</a>.</li>
+<li><code>tagName</code> - The tag name of the custom element.</li>
+<li><code>template</code> - The HTML template string for the component, which is already <a href="styling.html">scoped</a>.</li>
+<li><code>useShadow</code> - A boolean indicating whether the component is using Shadow DOM, which is based on the <a href="component-config.html">component config</a> <code>useShadow</code> property.</li>
+</ul>
+<p><strong>On A Scope:</strong> If the scope has the <code>metadata</code> property, it is the root scope, upon which all other scopes are based. The root scope is attached to <code>document.body</code>.</p>
+<h3>Using <code>element[metadata]</code></h3>
+<p>If you need the controller of another element, you can use <code>element[metadata]</code> to get the controller instance.</p>
+<p><code-sample sample="samples/utility-metadata-element.js"></code-sample></p>
+<h3>Using <code>controller[metadata].host</code></h3>
+<p>You might need to toggle attributes or perform other actions on the DOM from the controller. To get the actual custom element in the DOM, use <code>this[metadata].host</code>.</p>
+<p><code-sample sample="samples/utility-metadata-host.js"></code-sample></p>
+<h3>Using <code>controller[metadata].root</code></h3>
+<p>Your component creates all of its template elements in one parent element. When using a shadow DOM, this is the shadow DOM element. Otherwise, this is the custom element. To easily access this element from your controller for content manipulation, use <code>this[metadata].root</code>.</p>
+<p><code-sample sample="samples/utility-metadata-root.js"></code-sample></p>
+<h2><code>update(component)</code> - Redrawing the UI</h2>
+<ul>
+<li><code>component</code> (Controller, optional) - The controller to update. If not provided, all components will be updated.</li>
+</ul>
+<p>When you update internal data within an object, the change detection will not pick it up. You can flag specific properties as needing to be redrawn.</p>
+<p><code>update()</code> - When called with no arguments, it will update all bindings for all Fudgel components everywhere. This is the slowest way to trigger updates, but it is also the easiest.</p>
+<p><code>update(this)</code> - This is a better, more focused way to update all of the bindings for just the one controller.</p>
+<p><code-sample sample="samples/utility-update.js"></code-sample></p>
+<h2><code>html(string)</code> and <code>css(string)</code> - Dummy Tagged Template Functions</h2>
+<ul>
+<li><code>string</code> (string) - The HTML or CSS string. There is no processing done on this string.</li>
+<li>return (string) - The same string that was passed in.</li>
+</ul>
+<p>There are some build tools that will allow minification of HTML and CSS when they are used within <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates">tagged template literals</a>. Fudgel exports <code>html()</code> and <code>css()</code> as empty tag functions so your toolset will detect the appropriate type of template and allow minification. You can see them in use with the <a href="https://github.com/Be-Prepared/Be-Prepared.github.io/">Be Prepared</a> PWA, which also uses Vite and a plugin to minify the HTML and CSS used the template literals.</p>
+<p><code-sample sample="samples/utility-html-css.js"></code-sample></p>
+<h2><code>di(ServiceConstructor)</code> - Dependency Injection</h2>
+<ul>
+<li><code>ServiceConstructor</code> (Function) - The constructor function or class of the service to inject.</li>
+<li>return (Object) - A singleton instance of the requested service.</li>
+</ul>
+<p>Also included is a minimal dependency injection system, allowing you to inject singleton services into your components. Why use dependency injection? Well, it makes testing much easier, plus you only need to indicate what you want as opposed to how you obtain it or its dependencies.</p>
+<p>A requirement for this system is that you must not have side-effects nor arguments in the constructors of the services being injected.  If you can follow that rule, then this system will work for live sites, test systems, and even work after your code is minified.</p>
+<p><code-sample sample="samples/utility-di.js"></code-sample></p>
+<h2><code>diOverride(ServiceConstructor, instance)</code> - Override a Dependency Injection Service</h2>
+<ul>
+<li><code>ServiceConstructor</code> (Function) - The constructor function or class of the service to override.</li>
+<li><code>instance</code> (Object) - The instance to use when the service is requested via <code>di()</code>.</li>
+</ul>
+<p>If you need arguments, you could instead create an instance of the service and push it into the dependency injection system using <code>diOverride()</code>. This same mechanism is used for testing, allowing you to push in mock versions of services.</p>
+<p><code-sample sample="samples/utility-di-override.js"></code-sample></p>
+<h2><code>new Emitter()</code> - Send data to other things outside of the DOM</h2>
+<p>Node.js has an EventEmitter and it&#39;s useful for communication between services. The browser has an Event object that can be emitted up the DOM tree, but nothing really geared for services. Fudgel comes with a tiny event emitter you can use in your code. Create an emitter using <code>const emitter = new Emitter();</code> and then use the following methods to communicate:</p>
+<ul>
+<li><code>emitter.on(name, callback)</code> - Register a callback for an event name. Returns a function to remove the callback.</li>
+<li><code>emitter.off(name, callback)</code> - Remove a callback for an event name.</li>
+<li><code>emitter.emit(name, ...data)</code> - Emit an event with the given name and data.</li>
+</ul>
+<p><code-sample sample="samples/utility-emitter.js"></code-sample></p>
+<h2><code>parse</code> - A collection of methods for working with expressions</h2>
+<p>There are different ways one can parse expressions in Fudgel, and each has its own method and use case.</p>
+<p>All of these methods will return an array.</p>
+<ul>
+<li><code>[0]</code> - A function that can be called with one or more context objects to evaluate the expression against. Typically, one calls this with the current scope and the controller instance.</li>
+<li><code>[1]</code> - An array of property names that are being bound to in the expression.</li>
+</ul>
+<p><code-sample sample="samples/parse-js.js"></code-sample></p>
+<h3><code>parse.attr(expressionString)</code></h3>
+<ul>
+<li><code>expressionString</code> (string) - The expression string to parse.</li>
+<li>return (Array) - An array where <code>[0]</code> is a function to evaluate the expression, and <code>[1]</code> is an array of property names used in the expression.</li>
+</ul>
+<p>This is nearly identical to <code>parse.text()</code>. When called, the resulting <code>[0]</code> function will return a string that is suitable for use as an attribute value.</p>
+<p>However, if the expression would result in <code>null</code>, <code>undefined</code>, or <code>false</code>, then the result of the function would be <code>false</code>, indicating that the attribute should be removed.</p>
+<p>This parse function is used internally by Fudgel when processing attribute <a href="bindings.html">bindings</a>.</p>
+<h3><code>parse.js(expressionString)</code></h3>
+<ul>
+<li><code>expressionString</code> (string) - The expression string to parse.</li>
+<li>return (Array) - An array where <code>[0]</code> is a function to evaluate the expression, and <code>[1]</code> is an array of property names used in the expression.</li>
+</ul>
+<p>This method is used to parse expressions that look like JavaScript. It supports most JavaScript syntax, except for multiple statements, function creation, assignments, and a few other items. Please see the <a href="expressions.html">Expressions</a> page for more information on what is and isn&#39;t supported.</p>
+<p>This will likely be the most commonly used parse function. The following example adds a new directive that will send an update every second.</p>
+<h3><code>parse.text(expressionString)</code></h3>
+<ul>
+<li><code>expressionString</code> (string) - The expression string to parse.</li>
+<li>return (Array) - An array where <code>[0]</code> is a function to evaluate the expression, and <code>[1]</code> is an array of property names used in the expression.</li>
+</ul>
+<p>The result of running the function provided at <code>[0]</code> will always be a string. This is used for text <a href="bindings.html">bindings</a>.</p>
+<h2><code>getScope(node)</code> - Get a scope object associated to a node or a node&#39;s ancestor</h2>
+<ul>
+<li><code>node</code> (Node) - The starting point for searching for a scope.</li>
+<li>return (Scope) - The scope associated with the node or the nearest ancestor node.</li>
+</ul>
+<p>Fudgel&#39;s <a href="expressions.html">expressions</a> and bindings work within scopes. A controller creates a scope when it is bound to an element. Similarly, directives are able to create child scopes that have changes but don&#39;t overwrite a parent scope&#39;s values. This is how the <a href="directive-for.html"><code>*for</code> directive</a> works when it iterates. You may have need to create your own scope, especially if you are creating a new directive.</p>
+<p>This works in conjunction with <code>parse</code>. Please see the example there for how to create a child scope.</p>
 
-                    component('demo-component', {
-                        style: css`
-                            div {
-                                font-size: 3em;
-                                font-weight: bold;
-                            }
-                        `,
-                        template: html`
-                            <div>BIG WORDS</div>
-                        `
-                    });
-                </template>
-            </code-sample>
-            <h2><code>di</code> - Dependency Injection</h2>
-            <p>
-                Also included is a minimal dependency injection system, allowing
-                you to inject services into your components. Why use dependency
-                injection? Well, it makes testing much easier, plus you only
-                need to indicate what you want as opposed to how you obtain it
-                or its dependencies.
-            </p>
-            <p>
-                A requirement for this system is that you must not have
-                side-effects in the constructors of the services being injected.
-                If you can follow that rule, then this system will work for live
-                sites, test systems, and even work after your code is minified.
-            </p>
-            <code-sample type="js" live="true" html="<demo-di></demo-di>">
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, di } from './fudgel.min.js';
-
-                    class LogService {
-                        writeToConsole(message) {
-                            console.log(message);
-                        }
-                    }
-
-                    component('demo-di', {
-                        template: `<button @click="sendLog()">
-                                Log to Console
-                            </button>`
-                    }, class {
-                        logger = di(LogService);
-
-                        sendLog() {
-                            this.logger.writeToConsole('Logging a message');
-                        }
-                    });
-                </template>
-            </code-sample>
-            <p>
-                When you write tests, you will potentially want to push in a
-                mock to the dependency injection service. You can do that using
-                <code>diOverride()</code>. The only trick is that this must run
-                within the same browser sandbox (eg. iframe) where Fudgel is
-                running.
-            </p>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    // Vanilla JavaScript module
-                    import { diOverride } from './fudgel.min.js';
-                    import { MyService } from './my.service.js';
-                    import { MyMockService } frrom './my-mock.service.js';
-
-                    if (document.location.indexOf('mock') >= 0) {
-                        diOverride(MyService, MyMockService);
-                    }
-                </template>
-            </code-sample>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    // Example with Cypress
-                    cy.window().then((win) =&gt; {
-                        // It is important that your build includes Fudgel
-                        // so it is accessible as window.Fudgel.
-                        // Similarly, mock services need to be available.
-                        win.eval(`
-                            window.Fudgel.diOverride(
-                                window.NormalService,
-                                window.NormalServiceMock
-                            )
-                        `);
-                    });
-                </template>
-            </code-sample>
-            <h2>
-                <code>Emitter</code> - Send data to other things outside of the
-                DOM
-            </h2>
-            <p>
-                Node.js has an EventEmitter and it's useful for communication
-                between services. The browser has an Event object that can be
-                emitted up the DOM tree, but nothing really geared for services.
-                Fudgel comes with a tiny event emitter you can use in your code.
-                The emitter that is created supports
-                <code>.on(name, callback)</code>,
-                <code>.off(name, callback)</code> and
-                <code>.emit(name, ...data)</code>. Also,
-                <code>.on(name, callback)</code> returns a function to remove
-                the callback (the same as using
-                <code>.off(name, callback)</code> with the correct parameters).
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<tick-counter></tick-counter>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, Emitter } from './fudgel.min.js';
-
-                    class MyService {
-                        emitter = new Emitter();
-
-                        constructor() {
-                            setInterval(() =&gt; this.emitter.emit('tick'), 1000);
-                        }
-
-                        onTick(callback) {
-                            return this.emitter.on('tick', callback);
-                        }
-
-                        offTick(callback) {
-                            return this.emitter.off('tick', callback);
-                        }
-                    };
-
-                    const myService = new MyService();
-
-                    component('tick-counter', {
-                        template: `
-                            &lt;button
-                                *if="!tracking"
-                                @click="toggleTracking()"
-                            &gt;Watch Ticks&lt;/button&gt;
-                            &lt;button
-                                *if="tracking"
-                                @click="toggleTracking()"
-                            &gt;Stop Watching&lt;/button&gt;
-                            <div>Tick count: {{tickCount}}</div>
-                        `
-                    }, class {
-                        tracking = false;
-                        tickCount = 0;
-                        tickTracker = () =&gt; this.tickCount += 1;
-
-                        onDestroy() {
-                            myService.offTick(this.tickTracker);
-                        }
-
-                        toggleTracking() {
-                            this.tracking = !this.tracking;
-
-                            if (this.tracking) {
-                                myService.onTick(this.tickTracker);
-                            } else {
-                                myService.offTick(this.tickTracker);
-                            }
-                        }
-                    });
-                </template>
-            </code-sample>
-            <h2>
-                <code>controllerToElement</code> - Get an element from a
-                controller
-            </h2>
-            <p>
-                Fudgel components have controllers that are separated from the
-                DOM element. To help eliminate circular references and encourage
-                garbage collection, Fudgel only links elements directly to
-                controllers and not vice-versa. This map allows you to query for
-                an element if you have a controller. This might be useful when
-                you need to manipulate the DOM element from a component that
-                uses the shadow DOM.
-            </p>
-            <p>
-                It is possible for this to return <code>null</code> when the DOM
-                element is removed. Because JavaScript doesn't support
-                destroying objects, the controller instance might persist long
-                after the DOM element is gone, though the map will be updated
-                immediately. This is the only strong reference between the
-                controller and the element.
-            </p>
-            <p>
-                Look this value up every time you need it. Do not cache the
-                result because it could lead to memory leaks in your
-                application.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<set-attribute></set-attribute>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, controllerToElement } from './fudgel.min.js';
-
-                    component('set-attribute', {
-                        template: 'Inspect the DOM and notice the attribute value changing.',
-                        useShadow: true
-                    }, class {
-                        onViewInit() {
-                            let count = 0;
-                            this.interval = setInterval(() =&gt; {
-                                const element = controllerToElement(this);
-
-                                if (element) {
-                                    element.setAttribute('data-attribute', count ++);
-                                }
-                            }, 1000);
-                        }
-                        onDestroy() {
-                            clearInterval(this.interval);
-                        }
-                    });
-                </template>
-            </code-sample>
-            <h2>
-                <code>elementToController</code> - Get a controller from a
-                Fudgel DOM element
-            </h2>
-            <p>
-                When a child needs to access a parent's controller, this map
-                will retrieve the current bindings between DOM elements and
-                Fudgel controllers.
-            </p>
-            <p>
-                It is possible for this to return <code>null</code> when the
-                element is not registered to Fudgel.
-            </p>
-            <p>
-                The below examples use the shadow DOM just to help illustrate
-                when this is needed. Using shadow DOMs is not required for this
-                to work.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<parent-element></parent-element>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { component, controllerToElement, elementToController } from './fudgel.min.js';
-
-                    component('parent-element', {
-                        template: '<child-element></child-element>',
-                        useShadow: true
-                    }, class {
-                        // Called from child element
-                        logMessage(message) {
-                            console.log('Parent:', message);
-                        }
-                    });
-
-                    component('child-element', {
-                        template: `
-                            <button @click="clicked()">Click me to log in parent</button>
-                        `,
-                        useShadow: true
-                    }, class {
-                        clicked() {
-                            // Get the actual DOM element (not rootElement)
-                            const childElement = controllerToElement(this);
-
-                            if (!childElement) {
-                                console.error('Child element not in DOM');
-                                return;
-                            }
-
-                            const parentElement = this.closest('parent-element', childElement);
-
-                            if (!parentElement) {
-                                console.error('Could not find parent element in DOM');
-                                return;
-                            }
-
-                            const parent = elementToController(parentElement);
-
-                            if (!parent) {
-                                console.error('Could not find parent controller');
-                                return;
-                            }
-
-                            parent.logMessage('Hello from child');
-                        }
-
-                        // Pierce the shadow DOM layers to get the parent element.
-                        closest(selector, el) {
-                            return (
-                                (el !== document && el !== window && el.closest(selector)) ||
-                                this.closest(selector, el.getRootNode().host)
-                            );
-                        }
-                    });
-                </template>
-            </code-sample>
-
-            <h2><code>parse</code> - Change a string into executable code</h2>
-            <p>
-                Internally, Fudgel uses <code>parse</code> to detect bindings to
-                properties and to compute the resulting value. It's also used by
-                <a href="directives.html">directives</a> to send values, such as
-                with event emitters.
-            </p>
-            <p>
-                The result is an array, with <code>[0]</code> being the function
-                to call with an array of objects to search for properties, and
-                <code>[1]</code> is the list of properties that are being bound.
-                Internally, Fudgel uses the list of properties to set up proxies
-                to detect when the value changes.
-            </p>
-            <p>
-                This example adds a new directive that will send an update every
-                second.
-            </p>
-            <code-sample
-                type="js"
-                live="true"
-                html="<parent-element></parent-element>"
-            >
-                <!-- prettier-ignore -->
-                <template>
-                    import { addDirective, component, getScope, parse } from './fudgel.min.js';
-
-                    addDirective('#tick', (controller, node, attrValue) =&gt; {
-                        const parsed = parse(attrValue);
-                        const scope = Object.create(getScope(node));
-                        const updateFn = (tickValue) =&gt; {
-                            scope.$event = tickValue;
-                            parsed[0]([scope, controller]);
-                        };
-                        setInterval(() =&gt; updateFn(Date.now()), 1000);
-                    });
-
-                    component('parent-element', {
-                        template: `
-                            <div #tick="updateTick($event)">
-                                Last tick: {{tickValue}}
-                            </div>
-                        `
-                    }, class {
-                        tickValue = -1;
-
-                        updateTick(tickValue) {
-                            this.tickValue = tickValue;
-                        }
-                    });
-                </template>
-            </code-sample>
-
-            <h2>
-                <code>getScope(node)</code> - Get a scope object associated to a
-                node or a node's ancestor
-            </h2>
-            <p>
-                Fudgel's <a href="expressions.html">expressions</a> and bindings
-                work within scopes. A controller creates a scope when it is
-                bound to an element. Similarly, directives are able to create
-                child scopes that have changes but don't overwrite a parent
-                scope's values. This is how <code>*for</code> works when it
-                iterates. You may have need to create your own scope, especially
-                if you are creating a new directive.
-            </p>
-            <p>
-                This works in conjunction with <code>parse()</code>. Please see
-                the example there for how to create a child scope and how to
-                assign properties to the child scope.
-            </p>
-
-            <h2>
-                <code>nextTick(callback)</code> - Run code asynchronously, but
-                soon
-            </h2>
-            <p>
-                <code>setTimeout(callback, 0)</code> is a common way to run code
-                asynchronously, but it has a minimum delay even though it was
-                supposed to use zero milliseconds. This function uses either
-                <code>queueMicrotask()</code> or
-                <code>Promise.resolve().then()</code>
-                to run code as soon as possible after the current execution
-                context.
-            </p>
-            <code-sample type="js">
-                <!-- prettier-ignore -->
-                <template>
-                    // After someone clicks, set the state to "LOADING"
-                    // but do not do it in the current call stack
-                    onClick() {
-                        nextTick(() =&gt; {
-                            this.state = 'LOADING';
-                        });
-                    }
-                </template>
-            </code-sample>
-        </page-wrapper>
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link"
+                         >Welcome</a
+                    >
+                    
+                    <a href="getting-started.html" class="flyout-link"
+                         >Getting Started</a
+                    >
+                    
+                    <a href="playground/" class="flyout-link"
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
+                    >
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link"
+                         >GitHub</a
+                    >
+                    
+                </div>
+            </div>
+        </div>
     </body>
     <script src="js.js" type="module"></script>
 </html>

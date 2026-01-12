@@ -4,25 +4,25 @@
     const items = ['Item 1', 'Item 2', 'Item 3'];
 
     component(
-        'my-element',
+        'emit-and-exposing-property',
         {
             prop: ['currentSelection'],
             style: `
-            .selected {
-                background-color: green;
-                color: white
-            }
-        `,
+                .selected {
+                    background-color: green;
+                    color: white
+                }
+            `,
             template: `
-            <p>Select an item:</p>
-            <ul>
-                <li
-                    *for="item of items"
-                    @click="selectItem(item)"
-                    #class="{ selected: item === currentSelection }"
-                >{{item}}</li>
-            </ul>
-        `,
+                <p>Select an item:</p>
+                <ul>
+                    <li
+                        *for="item of items"
+                        @click="selectItem(item)"
+                        #class="{ selected: item === currentSelection }"
+                    >{{item}}</li>
+                </ul>
+            `,
         },
         class {
             items = items;
@@ -35,7 +35,7 @@
         }
     );
 </script>
-<my-element id="el"></my-element>
+<emit-and-exposing-property id="el"></emit-and-exposing-property>
 <script>
     const el = document.getElementById('el');
     el.addEventListener('itemSelected', event => {

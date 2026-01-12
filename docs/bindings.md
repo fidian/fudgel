@@ -6,7 +6,7 @@ title: Bindings (Fudgel.js)
 
 Fudgel uses a simple and powerful binding syntax to connect your component's template to its controller. Bindings are enclosed in double curly braces `{{openBrace}} {{closeBrace}}` and can be used to insert dynamic content into text and attribute values. Here's an example of a simple component that binds text and an attribute.
 
-<code-sample sample="samples/binding.json"></code-sample>
+<code-sample sample="samples/binding-example.js"></code-sample>
 
 The URL used in the link will be changed to match the `url` property from the controller, and the link text will reflect the `linkText` property. This will continue to update automatically as long as the component is in the DOM.
 
@@ -18,4 +18,4 @@ The link in the above example will be disabled for one of the items in the list.
 
 Bindings are updated whenever a top-level property in the expression changes. For example, if you have a binding like `{{openBrace}} user.name {{closeBrace}}`, the binding will update whenever the `user` property is assigned a new object. However, changes to nested properties (like `user.name`) will not automatically trigger an update unless you reassign the `user` property itself or use the `update()` [utility function](utilities.html).
 
-Similarly, bindings are used for [event handlers](events.html) and other [directives](directives.html).
+Similarly, bindings are used for other directives, such as [Event Directives](directive-event.html) and [If Directive](directive-if.html). This allows you to create dynamic behavior based on the component's state.

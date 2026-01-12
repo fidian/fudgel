@@ -2,7 +2,7 @@ import { component } from 'fudgel';
 
 export function defineMyElement(prefix = 'my-') {
     component(
-        `${prefix}element`,
+        `${prefix}export-component-function`,
         {
             template: 'Hello, world!',
         },

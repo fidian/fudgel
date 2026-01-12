@@ -2,7 +2,7 @@
 import { Component } from '/fudgel.min.js';
 
 @Component(
-    'my-custom-component',
+    'hello-world-typescript',
     {
         template: `Hello {{audience}}!`,
     }

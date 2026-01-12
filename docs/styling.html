@@ -30,71 +30,103 @@
             <div class="sidebar">
                 
                 <a href="index.html" class="sidebar-link"
-                    >Welcome</a
+                     >Welcome</a
                 >
                 
                 <a href="getting-started.html" class="sidebar-link"
-                    >Getting Started</a
-                >
-                
-                <a href="component-config.html" class="sidebar-link"
-                    >Component Config</a
-                >
-                
-                <a href="bindings.html" class="sidebar-link"
-                    >Bindings</a
-                >
-                
-                <a href="input.html" class="sidebar-link"
-                    >Input</a
-                >
-                
-                <a href="styling.html" class="sidebar-link"
-                    >Styling</a
-                >
-                
-                <a href="best-practices.html" class="sidebar-link"
-                    >Best Practices</a
-                >
-                
-                <a href="directives.html" class="sidebar-link"
-                    >Directives</a
-                >
-                
-                <a href="expressions.html" class="sidebar-link"
-                    >Expressions</a
-                >
-                
-                <a href="lifecycle-methods.html" class="sidebar-link"
-                    >Lifecycle Methods</a
-                >
-                
-                <a href="content-projection.html" class="sidebar-link"
-                    >Content Projection</a
-                >
-                
-                <a href="routing.html" class="sidebar-link"
-                    >Routing</a
-                >
-                
-                <a href="hooks.html" class="sidebar-link"
-                    >Hooks</a
-                >
-                
-                <a href="utilities.html" class="sidebar-link"
-                    >Utilities</a
-                >
-                
-                <a href="examples.html" class="sidebar-link"
-                    >Examples</a
+                     >Getting Started</a
                 >
                 
                 <a href="playground/" class="sidebar-link"
-                    >Playground</a
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
                 >
                 
                 <a href="https://github.com/fidian/fudgel" class="sidebar-link"
-                    >GitHub</a
+                     >GitHub</a
                 >
                 
             </div>
@@ -102,7 +134,7 @@
                 <div class="limit-width">
 <h1>Styling Components</h1>
 <p>Web components need styling in order to look good. Fudgel helps with styling by scoping your styles so they don&#39;t automatically affect the rest of the page. This is done using a few different techniques, based on what the browser supports. Before we dive into those more complicated questions, let&#39;s look at one example.</p>
-<p><code-sample sample="samples/basic-styling.json"></code-sample></p>
+<p><code-sample sample="samples/basic-styling.js"></code-sample></p>
 <p>This styles the host element to have a light yellow background, a border, and some padding. The paragraph inside has blue text.</p>
 <p>The <code>css</code> template function does not do anything special. It&#39;s only there as a flag to outside build tools to indicate that this string contains CSS. It&#39;s detailed more in the <a href="utilities.html">utilities</a> section.</p>
 <h2>Styling the Host Element</h2>
@@ -110,18 +142,18 @@
 <h2>Avoiding Style Scoping</h2>
 <p>When your custom element needs to inject other DOM elements, they will not have the generated class name applied automatically. This will affect your CSS. For instance, the code samples seen on this page leverage <a href="https://highlightjs.org/">Highlight.js</a> to colorize the code. These elements are dynamically added to the DOM and need to be styled, so the component needs to inject the styles itself.</p>
 <p>Fudgel will not modify any styles that are in a <code>&lt;style&gt;</code> tag in your template.</p>
-<p><code-sample sample="samples/avoid-style-scoping.json"></code-sample></p>
+<p><code-sample sample="samples/avoid-style-scoping.js"></code-sample></p>
 <h2>Light DOM</h2>
-<p><code-sample sample="samples/styling-example-light-dom.json"></code-sample></p>
+<p><code-sample sample="samples/styling-example-light-dom.html"></code-sample></p>
 <p>If you go into the playground and try it out, you&#39;ll see a regular button and a larger, styled button. The larger button is styled through <code>:host</code> in the component&#39;s <code>style</code> configuration. Normally that only works for Shadow DOM, but Fudgel rewrites it so there&#39;s one syntax for both Shadow DOM and Light DOM.</p>
 <p>You might now wonder about the styling for <code>button</code> and why both buttons aren&#39;t extra large. Keen observation!  Fudgel automatically scopes your styles so they don&#39;t leak out to the rest of the page. This is done by rewriting your CSS to target only your component. Your component&#39;s HTML template is also rewritten to include the necessary classes for scoping.</p>
 <p>This is effectively what Fudgel would generate for the above component.</p>
-<p><code-sample sample="samples/styling-example-light-dom-generated.json"></code-sample></p>
+<p><code-sample sample="samples/styling-example-light-dom-generated.html" no-playground></code-sample></p>
 <h2>Shadow DOM</h2>
 <p>Things are slightly different for Shadow DOM. This next example simply changes <code>useShadow: true</code> to leverage Shadow DOM.</p>
-<p><code-sample sample="samples/styling-example-shadow-dom.json"></code-sample></p>
+<p><code-sample sample="samples/styling-example-shadow-dom.html"></code-sample></p>
 <p>Because of the encapsulation provided by Shadow DOM, Fudgel doesn&#39;t need to do as much to rewrite your CSS for scoping. Here would be what Fudgel generates for the above example component.</p>
-<p><code-sample sample="samples/styling-example-shadow-dom-generated.json"></code-sample></p>
+<p><code-sample sample="samples/styling-example-shadow-dom-generated.html" no-playground></code-sample></p>
 
 </div>
             </div>
@@ -130,71 +162,103 @@
                 <div class="menu-links">
                     
                     <a href="index.html" class="flyout-link"
-                        >Welcome</a
+                         >Welcome</a
                     >
                     
                     <a href="getting-started.html" class="flyout-link"
-                        >Getting Started</a
-                    >
-                    
-                    <a href="component-config.html" class="flyout-link"
-                        >Component Config</a
-                    >
-                    
-                    <a href="bindings.html" class="flyout-link"
-                        >Bindings</a
-                    >
-                    
-                    <a href="input.html" class="flyout-link"
-                        >Input</a
-                    >
-                    
-                    <a href="styling.html" class="flyout-link"
-                        >Styling</a
-                    >
-                    
-                    <a href="best-practices.html" class="flyout-link"
-                        >Best Practices</a
-                    >
-                    
-                    <a href="directives.html" class="flyout-link"
-                        >Directives</a
-                    >
-                    
-                    <a href="expressions.html" class="flyout-link"
-                        >Expressions</a
-                    >
-                    
-                    <a href="lifecycle-methods.html" class="flyout-link"
-                        >Lifecycle Methods</a
-                    >
-                    
-                    <a href="content-projection.html" class="flyout-link"
-                        >Content Projection</a
-                    >
-                    
-                    <a href="routing.html" class="flyout-link"
-                        >Routing</a
-                    >
-                    
-                    <a href="hooks.html" class="flyout-link"
-                        >Hooks</a
-                    >
-                    
-                    <a href="utilities.html" class="flyout-link"
-                        >Utilities</a
-                    >
-                    
-                    <a href="examples.html" class="flyout-link"
-                        >Examples</a
+                         >Getting Started</a
                     >
                     
                     <a href="playground/" class="flyout-link"
-                        >Playground</a
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
                     >
                     
                     <a href="https://github.com/fidian/fudgel" class="flyout-link"
-                        >GitHub</a
+                         >GitHub</a
                     >
                     
                 </div>

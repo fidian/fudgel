@@ -10,61 +10,92 @@
             "url": "getting-started.html"
         },
         {
-            "label": "Component Config",
-            "url": "component-config.html"
+            "label": "Playground",
+            "url": "playground/"
         },
         {
             "label": "Bindings",
             "url": "bindings.html"
         },
         {
-            "label": "Input",
-            "url": "input.html"
-        },
-        {
-            "label": "Styling",
-            "url": "styling.html"
-        },
-        {
             "label": "Best Practices",
             "url": "best-practices.html"
         },
-
         {
-            "label": "Directives",
-            "url": "directives.html"
+            "label": "<code>#class</code> Directive",
+            "url": "directive-class.html"
         },
         {
-            "label": "Expressions",
-            "url": "expressions.html"
-        },
-        {
-            "label": "Lifecycle Methods",
-            "url": "lifecycle-methods.html"
+            "label": "Component Config",
+            "url": "component-config.html"
         },
         {
             "label": "Content Projection",
             "url": "content-projection.html"
         },
         {
+            "label": "Directive Basics",
+            "url": "directives.html"
+        },
+        {
+            "label": "Event <code>@</code> Directive",
+            "url": "directive-event.html"
+        },
+        {
+            "label": "Events",
+            "url": "events.html"
+        },
+        {
+            "label": "Expressions",
+            "url": "expressions.html"
+        },
+        {
+            "label": "<code>*for</code> Directive",
+            "url": "directive-for.html"
+        },
+        {
+            "label": "<code>*if</code> Directive",
+            "url": "directive-if.html"
+        },
+        {
+            "label": "Input",
+            "url": "input.html"
+        },
+        {
+            "label": "Lifecycle",
+            "url": "lifecycle.html"
+        },
+        {
+            "label": "Output",
+            "url": "output.html"
+        },
+        {
+            "label": "Property <code>.</code> Directive",
+            "url": "directive-property.html"
+        },
+        {
+            "label": "<code>#ref</code> Directive",
+            "url": "directive-ref.html"
+        },
+        {
+            "label": "<code>#repeat</code> Directive",
+            "url": "directive-repeat.html"
+        },
+        {
             "label": "Routing",
             "url": "routing.html"
         },
         {
-            "label": "Hooks",
-            "url": "hooks.html"
+            "label": "Styling",
+            "url": "styling.html"
+        },
+        {
+            "label": "Upgrading",
+            "url": "upgrading.html"
         },
         {
             "label": "Utilities",
             "url": "utilities.html"
-        },
-        {
-            "label": "Examples",
-            "url": "examples.html"
-        },
-        {
-            "label": "Playground",
-            "url": "playground/"
         },
         {
             "label": "GitHub",

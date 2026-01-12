@@ -1,0 +1,276 @@
+<html>
+    <head>
+        <title>Event @ Directive (Fudgel.js)</title>
+        <link rel="stylesheet" href="fonts/fonts.css" />
+        <link rel="stylesheet" href="style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link"
+                     >Welcome</a
+                >
+                
+                <a href="getting-started.html" class="sidebar-link"
+                     >Getting Started</a
+                >
+                
+                <a href="playground/" class="sidebar-link"
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
+                >
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link"
+                     >GitHub</a
+                >
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Event <code>@</code> Directive</h1>
+<p>Event handler <a href="directives.html">directives</a> are bound with a <code>@</code> prefixed attribute. The event that triggered the action is available as <code>$event</code> within the <a href="expressions.html">expression</a>.</p>
+<p><code-sample sample="samples/directive-event.js"></code-sample></p>
+<p>Event handlers can also have modifiers, indicating what should be done with the event. These are separated by a period and appear after the event name, always in kebab-case. They get changed into camelCase within Fudgel; only lowercase letters are allowed for HTML attributes.</p>
+<ul>
+<li><code>capture</code> - Dispatch the event to the registered listener before dispatching to any event targets beneath it in the DOM tree.</li>
+<li><code>document</code> - Bind the event to the document.</li>
+<li><code>once</code> - Invoke the listener at most once.</li>
+<li><code>outside</code> - Bind the event to the document and only fire when it happens from outside of the targeted element.</li>
+<li><code>passive</code> - Signifies that this event is passive and the developer will not call <code>preventDefault</code> on the event, allowing the engine to tweak how the event is processed.</li>
+<li><code>prevent</code> - Calls <code>preventDefault</code> on the event.</li>
+<li><code>self</code> - Only fires the event when the click is on the target element.</li>
+<li><code>stop</code> - Calls <code>stopPropagation</code> on the event.</li>
+<li><code>window</code> - Bind the event to the window.</li>
+</ul>
+<p>To help illustrate how these work, consider the following example:</p>
+<p><code-sample sample="samples/test-events.js"></code-sample></p>
+<p>You can also fire events only when certain key combinations are pressed.</p>
+<ul>
+<li><code>alt</code> - The alt key must be pressed.</li>
+<li><code>ctrl</code> - The control key must be pressed.</li>
+<li><code>meta</code> - The meta key must be pressed, which is the same as the Command key on Mac or Super key on Windows.</li>
+<li><code>shift</code> - The shift key must be pressed.</li>
+<li><code>exact</code> - The exact key combination must be pressed. This means using <code>keypress.ctrl.exact</code> only fires when a control-key combination is pressed but will not fire if the shift key is also pressed.</li>
+</ul>
+<p><code-sample sample="samples/test-keyboard-events.js"></code-sample></p>
+<p>Finally, any other event modifier will be treated as a key value. This means using <code>keypress.a</code> will only fire when the &quot;a&quot; key is pressed. Key values are listed on <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values">MDN&#39;s Keyboard Event Key Values page</a>. Make sure to use all lowercase and kebab-case names, such as <code>keypress.enter</code> and <code>keypress.arrow-left</code>.</p>
+<p>Some keys are difficult to represent as HTML attributes, so you can use their ASCII values or code point values, such as <code>keypress.code-32</code> for space (hex 0x20, ASCII code point 32) and <code>keypress.code-252</code> for ü.</p>
+<p><code-sample sample="samples/test-key-value-events.js"></code-sample></p>
+
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link"
+                         >Welcome</a
+                    >
+                    
+                    <a href="getting-started.html" class="flyout-link"
+                         >Getting Started</a
+                    >
+                    
+                    <a href="playground/" class="flyout-link"
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
+                    >
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link"
+                         >GitHub</a
+                    >
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

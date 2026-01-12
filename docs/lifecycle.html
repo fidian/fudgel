@@ -1,0 +1,312 @@
+<html>
+    <head>
+        <title>Lifecycle (Fudgel.js)</title>
+        <link rel="stylesheet" href="fonts/fonts.css" />
+        <link rel="stylesheet" href="style.css" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <div class="sidebar">
+                
+                <a href="index.html" class="sidebar-link"
+                     >Welcome</a
+                >
+                
+                <a href="getting-started.html" class="sidebar-link"
+                     >Getting Started</a
+                >
+                
+                <a href="playground/" class="sidebar-link"
+                     >Playground</a
+                >
+                
+                <a href="bindings.html" class="sidebar-link"
+                     >Bindings</a
+                >
+                
+                <a href="best-practices.html" class="sidebar-link"
+                     >Best Practices</a
+                >
+                
+                <a href="directive-class.html" class="sidebar-link"
+                     ><code>#class</code> Directive</a
+                >
+                
+                <a href="component-config.html" class="sidebar-link"
+                     >Component Config</a
+                >
+                
+                <a href="content-projection.html" class="sidebar-link"
+                     >Content Projection</a
+                >
+                
+                <a href="directives.html" class="sidebar-link"
+                     >Directive Basics</a
+                >
+                
+                <a href="directive-event.html" class="sidebar-link"
+                     >Event <code>@</code> Directive</a
+                >
+                
+                <a href="events.html" class="sidebar-link"
+                     >Events</a
+                >
+                
+                <a href="expressions.html" class="sidebar-link"
+                     >Expressions</a
+                >
+                
+                <a href="directive-for.html" class="sidebar-link"
+                     ><code>*for</code> Directive</a
+                >
+                
+                <a href="directive-if.html" class="sidebar-link"
+                     ><code>*if</code> Directive</a
+                >
+                
+                <a href="input.html" class="sidebar-link"
+                     >Input</a
+                >
+                
+                <a href="lifecycle.html" class="sidebar-link"
+                     >Lifecycle</a
+                >
+                
+                <a href="output.html" class="sidebar-link"
+                     >Output</a
+                >
+                
+                <a href="directive-property.html" class="sidebar-link"
+                     >Property <code>.</code> Directive</a
+                >
+                
+                <a href="directive-ref.html" class="sidebar-link"
+                     ><code>#ref</code> Directive</a
+                >
+                
+                <a href="directive-repeat.html" class="sidebar-link"
+                     ><code>#repeat</code> Directive</a
+                >
+                
+                <a href="routing.html" class="sidebar-link"
+                     >Routing</a
+                >
+                
+                <a href="styling.html" class="sidebar-link"
+                     >Styling</a
+                >
+                
+                <a href="upgrading.html" class="sidebar-link"
+                     >Upgrading</a
+                >
+                
+                <a href="utilities.html" class="sidebar-link"
+                     >Utilities</a
+                >
+                
+                <a href="https://github.com/fidian/fudgel" class="sidebar-link"
+                     >GitHub</a
+                >
+                
+            </div>
+            <div class="content">
+                <div class="limit-width">
+<h1>Lifecycle</h1>
+<p>Fudgel components have a series of lifecycle methods and events that allow you to hook into different stages of a component&#39;s existence. These methods can be overridden in your controller to perform actions at specific points in the component&#39;s lifecycle.</p>
+<p>If your controller has any of these methods, or if there is an event listener for any of these events, they will be called during specific moments during the lifecycle of your controller.</p>
+<p>For further information about how to listen for events, see the <a href="events.html">Events</a> page.</p>
+<h2>How To Use Lifecycle Stages</h2>
+<p>The most straightforward way is to use methods on your controller. For example, to use the initialization lifecycle method, you would define <code>onInit()</code> in your controller:</p>
+<p><code-sample sample="samples/welcome-to-fudgel.js"></code-sample></p>
+<p>You can also listen for lifecycle events on a per-controller basis by adding event listeners in your controller&#39;s constructor or <code>onInit()</code> method:</p>
+<p><code-sample sample="samples/lifecycle-controller-events.js"></code-sample></p>
+<p>Finally, you can listen for events across all controllers by adding global event listeners.</p>
+<p><code-sample sample="samples/lifecycle-global-events.js"></code-sample></p>
+<h2>Lifecycle Stages</h2>
+<p>Controllers will go through the following lifecycle stages. Some stages might get skipped, depending on how the component is used or what happens during its existence. Calls will happen in this order if they all occur.</p>
+<h3>Initialization (Always Called)</h3>
+<ul>
+<li>Global event: <code>init</code> (controller instance)</li>
+<li>Controller Event: <code>init</code> (no arguments)</li>
+<li>Controller Method: <code>onInit()</code></li>
+</ul>
+<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up.</p>
+<h3>Content Loaded (Most Likely Called)</h3>
+<ul>
+<li>Global event: <code>parse</code> (controller instance, wasAsync boolean)</li>
+<li>Controller Event: <code>parse</code> (wasAsync boolean)</li>
+<li>Controller Method: <code>onParse(wasAsync)</code></li>
+</ul>
+<p>The <code>parse</code> events are fired, and the <code>onParse()</code> method is called when all child nodes are parsed. This may be called asynchronously, especially for light DOM elements. If you are doing your own light DOM <a href="content-projection.html">content projection</a>, this would be an important method to use. When this is called, all child content has been added to the element. A parent&#39;s <code>parse</code> event and <code>onParse()</code> method will be called before a child&#39;s.</p>
+<p>At this point, the DOM has not been cleared and the template has not been applied. The original content is still present.</p>
+<h3>View Initialized (Most Likely Called)</h3>
+<ul>
+<li>Global event: <code>viewInit</code> (controller instance, wasAsync boolean)</li>
+<li>Controller Event: <code>viewInit</code> (wasAsync boolean)</li>
+<li>Controller Method: <code>onViewInit()</code></li>
+</ul>
+<p>This is executed at the very end, after the custom element is connected to the DOM and the template has also been attached and processed. At this point, all children are in the DOM, directives are processed, and your element is live. A child&#39;s &quot;View Initialized&quot; trigger will happen before the parent&#39;s.</p>
+<p>When this fires, the original content has been removed and the template has been applied. Also, the DOM elements created by the template have been linked to the controller.</p>
+<h3>Changes (Zero or More Times)</h3>
+<ul>
+<li>Global event: <code>change</code> (controller instance, propertyName, oldValue, newValue)</li>
+<li>Controller Event: <code>change</code> (propertyName, oldValue, newValue)</li>
+<li>Controller Method: <code>onChange(propertyName, oldValue, newValue)</code></li>
+</ul>
+<p>Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the <a href="component-config.html">config</a> plus any property used in a <a href="bindings.html">binding</a>. Differences are detected by using <code>Object.is()</code>, so changes to immutable objects will trigger change detection more easily.</p>
+<p>Calling <code>update()</code> (see <a href="utilities.html">Utilities</a>) will also call <code>onChange()</code> for all attributes and properties that are copied into the controller.</p>
+<h3>Update (Possibly Called)</h3>
+<ul>
+<li>Global event: <code>update</code> (controller instance)</li>
+<li>Controller Event: <code>update</code> (no arguments)</li>
+<li>Controller Method: <code>onUpdate()</code></li>
+</ul>
+<p>This is called from the <code>update()</code> <a href="utilities.html">utility function</a>, which forcibly updates all bindings to change and reflect the current state of the controller.</p>
+<h3>Unlink (Possibly Called)</h3>
+<ul>
+<li>Global event: <code>unlink</code> (controller instance, removed node)</li>
+<li>Controller Event: <code>unlink</code> (removed node)</li>
+<li>Controller Method: <code>onUnlink(removedNode)</code></li>
+</ul>
+<p>Removes bindings and other connections between the controller and some DOM elements. This is called when elements are being dynamically removed, such as with the <a href="directive-if.html"><code>*if</code> directive</a>.</p>
+<h3>Destruction (Always Called)</h3>
+<ul>
+<li>Global event: <code>destroy</code> (controller instance)</li>
+<li>Controller Event: <code>destroy</code> (no arguments)</li>
+<li>Controller Method: <code>onDestroy()</code></li>
+</ul>
+<p>When the element is disconnected from the DOM, the <code>destroy</code> events are fired and the <code>onDestroy()</code> method is called. This is a good place to clean up any resources, event listeners, or timers that were created during the lifecycle of the component.</p>
+
+</div>
+            </div>
+            <div class="menu">
+                <menu-handle></menu-handle>
+                <div class="menu-links">
+                    
+                    <a href="index.html" class="flyout-link"
+                         >Welcome</a
+                    >
+                    
+                    <a href="getting-started.html" class="flyout-link"
+                         >Getting Started</a
+                    >
+                    
+                    <a href="playground/" class="flyout-link"
+                         >Playground</a
+                    >
+                    
+                    <a href="bindings.html" class="flyout-link"
+                         >Bindings</a
+                    >
+                    
+                    <a href="best-practices.html" class="flyout-link"
+                         >Best Practices</a
+                    >
+                    
+                    <a href="directive-class.html" class="flyout-link"
+                         ><code>#class</code> Directive</a
+                    >
+                    
+                    <a href="component-config.html" class="flyout-link"
+                         >Component Config</a
+                    >
+                    
+                    <a href="content-projection.html" class="flyout-link"
+                         >Content Projection</a
+                    >
+                    
+                    <a href="directives.html" class="flyout-link"
+                         >Directive Basics</a
+                    >
+                    
+                    <a href="directive-event.html" class="flyout-link"
+                         >Event <code>@</code> Directive</a
+                    >
+                    
+                    <a href="events.html" class="flyout-link"
+                         >Events</a
+                    >
+                    
+                    <a href="expressions.html" class="flyout-link"
+                         >Expressions</a
+                    >
+                    
+                    <a href="directive-for.html" class="flyout-link"
+                         ><code>*for</code> Directive</a
+                    >
+                    
+                    <a href="directive-if.html" class="flyout-link"
+                         ><code>*if</code> Directive</a
+                    >
+                    
+                    <a href="input.html" class="flyout-link"
+                         >Input</a
+                    >
+                    
+                    <a href="lifecycle.html" class="flyout-link"
+                         >Lifecycle</a
+                    >
+                    
+                    <a href="output.html" class="flyout-link"
+                         >Output</a
+                    >
+                    
+                    <a href="directive-property.html" class="flyout-link"
+                         >Property <code>.</code> Directive</a
+                    >
+                    
+                    <a href="directive-ref.html" class="flyout-link"
+                         ><code>#ref</code> Directive</a
+                    >
+                    
+                    <a href="directive-repeat.html" class="flyout-link"
+                         ><code>#repeat</code> Directive</a
+                    >
+                    
+                    <a href="routing.html" class="flyout-link"
+                         >Routing</a
+                    >
+                    
+                    <a href="styling.html" class="flyout-link"
+                         >Styling</a
+                    >
+                    
+                    <a href="upgrading.html" class="flyout-link"
+                         >Upgrading</a
+                    >
+                    
+                    <a href="utilities.html" class="flyout-link"
+                         >Utilities</a
+                    >
+                    
+                    <a href="https://github.com/fidian/fudgel" class="flyout-link"
+                         >GitHub</a
+                    >
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="js.js" type="module"></script>
+</html>

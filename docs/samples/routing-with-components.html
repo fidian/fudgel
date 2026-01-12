@@ -1,0 +1,33 @@
+<!-- Wrapping in a template fixes issues -->
+<app-router>
+    <template>
+        <div path="/replace" component="my-component">
+            Replaces this div with the component.
+        </div>
+        <div path="/embed">
+            <my-component>
+                Works as expected.
+            </my-component>
+        </div>
+        <my-component path="/direct">
+            Also works as expected.
+        </my-component>
+    </template>
+</app-router>
+
+<!-- This example does NOT WORK how you want -->
+<app-router>
+    <div path="/replace" component="my-component">
+        Replaces this div with the component.
+    </div>
+    <div path="/embed">
+        <my-component>
+            Instantiates the component and removes it from
+            the DOM, afterwards adding clones to the DOM.
+            Probably not what you want.
+        </my-component>
+    </div>
+    <my-component path="/direct">
+        Same problem as the one above.
+    </my-component>
+</app-router>

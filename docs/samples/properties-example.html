@@ -1,0 +1,37 @@
+<properties-example></properties-example>
+
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    // Properties can be defined before the component is registered
+    const element = document.querySelector('properties-example');
+    element.title = 'Hello World';
+    element.dataCount = 5;
+
+    component(
+        'properties-example',
+        {
+            prop: ['title', 'dataCount', 'disabled', 'updateCount'],
+            template: `
+                <h1>{{title}}</h1>
+                <p>Count: {{dataCount}}</p>
+                <p>Disabled: {{disabled}}</p>
+            `,
+        }, class {
+            updateCount = 0;
+            onChange() {
+                this.updateCount += 1;
+            }
+        }
+    );
+
+    // or at any time afterwards
+    setTimeout(() => {
+        // Prints "Update count: 1"
+        console.log('Update count:', element.updateCount);
+        element.dataCount = 10;
+        element.disabled = true;
+        // Prints "Update count: 3"
+        console.log('Update count:', element.updateCount);
+    }, 1000);
+</script>

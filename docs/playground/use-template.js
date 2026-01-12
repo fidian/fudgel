@@ -11,6 +11,7 @@ const templates = {
     '../fudgel-sizes.js': 'Load JSON into Table',
     'simulated-typing.html': 'Simulated typing',
     'live-playground.js': 'This live playgroud!',
+    'todo-app.html': 'Todo App',
 };
 
 component(

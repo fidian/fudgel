@@ -1,0 +1,23 @@
+<app-router>
+    <div path="/user/:userId">
+        Show info for a specific user<br />
+        Inspect the element and see
+        the user-id attribute
+    </div>
+    <div path="/user">
+        Show user list
+    </div>
+    <div path="/store">
+        Show store list
+    </div>
+    <div path="/store/:storeId">
+        Show single store<br />
+        (never used - see below)
+    </div>
+    <div>
+        This matches everything<br />
+        It's path is assumed to be "**"
+    </div>
+</app-router>
+
+<script type="module" src="/location-changer.js"></script>

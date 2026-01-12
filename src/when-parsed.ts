@@ -25,7 +25,6 @@ export const whenParsed = (
     const isReady = () => {
         let node: Node | null = element;
 
-        // FIXME - is there another way to detect? isConnected might work.
         do {
             if (node.nextSibling) {
                 return true;

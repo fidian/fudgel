@@ -6,7 +6,7 @@ import { SampleService } from './sample-service.js';
 component(
     'playground-button',
     {
-        attr: ['sample', 'js'],
+        attr: ['sample'],
         style: css`
             a {
                 background: #e0e0e0;
@@ -38,27 +38,17 @@ component(
             if (propName === 'sample' && this.sample) {
                 this.loadSample(this.sample);
             }
-
-            if (propName === 'js' && this.js) {
-                this.loadJs(this.js);
-            }
         }
 
         async loadSample(url) {
-            const { meta, content } = await this.sampleService.getSample(url);
+            const { content, type } = await this.sampleService.getSample(url);
 
-            if (meta.type === 'js') {
+            if (type === 'js') {
                 this.content = this.playgroundDataService.jsToPlayground(content);
             } else {
                 this.content = content;
             }
 
-            this.setEncoded();
-        }
-
-        async loadJs(url) {
-            const content = await this.cachingFetchService.fetchText(url);
-            this.content = this.playgroundDataService.jsToPlayground(content);
             this.setEncoded();
         }
 

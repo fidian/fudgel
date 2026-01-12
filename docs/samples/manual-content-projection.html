@@ -1,0 +1,29 @@
+<manual-content-projection>
+    <template>
+        <b>BOLD TEXT</b>
+    </template>
+</manual-content-projection>
+
+<script type="module">
+    import { component, metadata } from '/fudgel.min.js';
+
+    component('manual-content-projection', {
+        style: `
+            button {
+                border-radius: 4px;
+                border-width: 2x;
+                border-color: blue;
+                border-style: solid;
+            }
+        `,
+        template: `<button #ref="button"></button>`
+    }, class {
+        onParse() {
+            this.template = this[metadata].root.querySelector('template');
+        }
+
+        onViewInit() {
+            this.button.append(this.template.content);
+        }
+    });
+</script>
