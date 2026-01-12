@@ -37,25 +37,22 @@ class Emitter {
 
 const events = new Emitter();
 
-const lifecycle = (controller, phase, ...args) => {
-    events.emit(phase, controller, ...args);
-    controller[metadata]?.events.emit(phase, ...args);
-    controller[`on${phase[0].toUpperCase()}${phase.slice(1)}`]?.(...args);
+const lifecycle = (controller, stage, ...args) => {
+    events.emit(stage, controller, ...args);
+    controller[metadata]?.events.emit(stage, ...args);
+    controller[`on${stage[0].toUpperCase()}${stage.slice(1)}`]?.(...args);
 };
 
-const dispatchCustomEvent = (e, eventName, detail, customEventInit = {}) => {
-    e.dispatchEvent(new CustomEvent(eventName, {
-        bubbles: true,
-        cancelable: false,
-        composed: true, // To go outside a shadow root
-        detail,
-        ...customEventInit,
-    }));
-};
 const emit = (source, eventName, detail, customEventInit = {}) => {
     const e = source instanceof Element ? source : source[metadata]?.host;
     if (e) {
-        dispatchCustomEvent(e, eventName, detail, customEventInit);
+        e.dispatchEvent(new CustomEvent(eventName, {
+            bubbles: true,
+            cancelable: false,
+            composed: true, // To go outside a shadow root
+            detail,
+            ...customEventInit,
+        }));
     }
 };
 const update = (controller) => {
@@ -83,9 +80,12 @@ const updateController = (controller) => {
 
 const Obj = Object;
 const stringify = (x) => JSON.stringify(x);
-// Memoizing reduces repeats by a factor of ~200.
+// Convert dashed-string to camelCaseString
 const dashToCamel = (dashed) => dashed.replace(/-(\p{Ll})/gu, match => match[1].toUpperCase());
+// Convert camelCaseString to dashed-string
 const camelToDash = (camel) => camel.replace(/\p{Lu}/gu, match => `-${match[0]}`.toLowerCase());
+// Convert PascalCaseString to dashed-string, used when removing a leading
+// portion of a camel case string, such as "on" from "onClick"
 const pascalToDash = (pascal) => camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
 const toString = (value) => `${value ?? ''}`;
 const isString = (x) => typeof x == 'string';
@@ -119,7 +119,7 @@ const cloneNode = (node) => node.cloneNode(true);
 const createElement = (name) => doc.createElement(name);
 const createTextNode = (content) => doc.createTextNode(content);
 const createComment = (content) => doc.createComment(content);
-const createFragment = () => doc.createDocumentFragment();
+const createDocumentFragment = () => doc.createDocumentFragment();
 const createTemplate = () => createElement('template');
 // NodeFilter.SHOW_ELEMENT = 0x01
 // NodeFilter.SHOW_TEXT = 0x04
@@ -1027,7 +1027,7 @@ const starIfDirective = (controller, anchor, source, attrValue) => {
 
 const starRepeatDirective = (controller, anchor, source, attrValue) => {
     let scopeName = 'index';
-    const matches = attrValue.match(/^(\S+)\s+as\s+(\S+)$/);
+    const matches = attrValue.match(/^(.*\S+)\s+as\s+(\S+)$/);
     if (matches) {
         attrValue = matches[1];
         scopeName = matches[2];
@@ -1145,7 +1145,7 @@ const linkTextNode = (controller, currentNode) => {
  * Use this function when a node is not yet attached to the document.
  */
 const link = (controller, node) => {
-    const fragment = createFragment();
+    const fragment = createDocumentFragment();
     fragment.append(node);
     linkNodes(controller, fragment);
 };
@@ -1441,7 +1441,6 @@ const scopeStyleRule = (rule, tagForScope, className, useShadow) => {
     }
     return rule.cssText;
 };
-// 6725
 // Exported for easier testing
 const scopeStyle = (style, tag, className, useShadow) => [...sandboxStyleRules(style)]
     .map(rule => scopeStyleRule(rule, tag, className, useShadow))
@@ -1469,7 +1468,7 @@ const diOverride = (Key, value) => {
 class RouterComponent extends HTMLElement {
     constructor() {
         super();
-        this._fragment = createFragment();
+        this._fragment = createDocumentFragment();
         this._lastMatched = [];
         this._routeElements = [];
         this._undo = [];
@@ -1633,7 +1632,7 @@ const defineRouterComponent = (name = 'router-outlet') => {
  * </outer-element>
  */
 const metadataElementSlotContent = shorthandWeakMap();
-const getFragment = (slotInfo, name) => slotInfo.n[name] || (slotInfo.n[name] = createFragment());
+const getFragment = (slotInfo, name) => slotInfo.n[name] || (slotInfo.n[name] = createDocumentFragment());
 // Given an element, find its parent element. The parent element may be outside
 // of a shadow root.
 const getParent = (element) => element.parentElement ||
@@ -1705,7 +1704,7 @@ const defineSlotComponent = (name = 'slot-like') => {
                     // Slots - named ones are set as additional properties. Unnamed
                     // slot content is combined into the '' fragment.
                     n: {
-                        '': createFragment(),
+                        '': createDocumentFragment(),
                     },
                     // Scope for the <slot-like> element.
                     s: getScope(getParent(controllerHost)),

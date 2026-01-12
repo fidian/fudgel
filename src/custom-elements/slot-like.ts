@@ -38,7 +38,7 @@ import { allComponents } from '../all-components.js';
 import { events } from '../events.js';
 import {
     createElement,
-    createFragment,
+    createDocumentFragment,
     createTemplate,
     createTreeWalker,
 } from '../elements.js';
@@ -63,7 +63,7 @@ const metadataElementSlotContent = shorthandWeakMap<
 >();
 
 const getFragment = (slotInfo: SlotInfo, name: string) =>
-    slotInfo.n[name] || (slotInfo.n[name] = createFragment());
+    slotInfo.n[name] || (slotInfo.n[name] = createDocumentFragment());
 
 // Given an element, find its parent element. The parent element may be outside
 // of a shadow root.
@@ -173,7 +173,7 @@ export const defineSlotComponent = (name = 'slot-like') => {
                     // Slots - named ones are set as additional properties. Unnamed
                     // slot content is combined into the '' fragment.
                     n: {
-                        '': createFragment(),
+                        '': createDocumentFragment(),
                     },
 
                     // Scope for the <slot-like> element.

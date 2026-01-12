@@ -59,10 +59,10 @@ export type ControllerLifecycleEvents =
 
 export const lifecycle = (
     controller: Controller,
-    phase: ControllerLifecycleEvents,
+    stage: ControllerLifecycleEvents,
     ...args: any[]
 ) => {
-    events.emit(phase, controller, ...args);
-    controller[metadata]?.events.emit(phase, ...args);
-    controller[`on${phase[0].toUpperCase()}${phase.slice(1)}`]?.(...args);
+    events.emit(stage, controller, ...args);
+    controller[metadata]?.events.emit(stage, ...args);
+    controller[`on${stage[0].toUpperCase()}${stage.slice(1)}`]?.(...args);
 };

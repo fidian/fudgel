@@ -16,7 +16,7 @@ export const createTextNode = (content: string) => doc.createTextNode(content);
 
 export const createComment = (content: string) => doc.createComment(content);
 
-export const createFragment = () => doc.createDocumentFragment();
+export const createDocumentFragment = () => doc.createDocumentFragment();
 
 export const createTemplate = () => createElement('template');
 

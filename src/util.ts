@@ -2,13 +2,16 @@ export const Obj = Object;
 
 export const stringify = (x: any) => JSON.stringify(x);
 
-// Memoizing reduces repeats by a factor of ~200.
+// Convert dashed-string to camelCaseString
 export const dashToCamel = (dashed: string) =>
     dashed.replace(/-(\p{Ll})/gu, match => match[1].toUpperCase());
 
+// Convert camelCaseString to dashed-string
 export const camelToDash = (camel: string) =>
     camel.replace(/\p{Lu}/gu, match => `-${match[0]}`.toLowerCase());
 
+// Convert PascalCaseString to dashed-string, used when removing a leading
+// portion of a camel case string, such as "on" from "onClick"
 export const pascalToDash = (pascal: string) =>
     camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
 

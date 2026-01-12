@@ -4,23 +4,6 @@ import { metadata } from './symbols.js';
 import { newSet } from './sets.js';
 import { lifecycle } from './lifecycle.js';
 
-const dispatchCustomEvent = (
-    e: Element,
-    eventName: string,
-    detail?: any,
-    customEventInit: CustomEventInit = {}
-) => {
-    e.dispatchEvent(
-        new CustomEvent(eventName, {
-            bubbles: true,
-            cancelable: false,
-            composed: true, // To go outside a shadow root
-            detail,
-            ...customEventInit,
-        })
-    );
-};
-
 export const emit = (
     source: Controller | Element,
     eventName: string,
@@ -30,7 +13,15 @@ export const emit = (
     const e = source instanceof Element ? source : source[metadata]?.host;
 
     if (e) {
-        dispatchCustomEvent(e, eventName, detail, customEventInit);
+        e.dispatchEvent(
+            new CustomEvent(eventName, {
+                bubbles: true,
+                cancelable: false,
+                composed: true, // To go outside a shadow root
+                detail,
+                ...customEventInit,
+            })
+        );
     }
 };
 

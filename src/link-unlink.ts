@@ -1,5 +1,5 @@
 import { Controller } from './controller-types.js';
-import { createFragment, createTreeWalker } from './elements.js';
+import { createDocumentFragment, createTreeWalker } from './elements.js';
 import { lifecycle } from './lifecycle.js';
 import { linkElementNode } from './link-element-node.js';
 import { linkStructuralDirective } from './link-structural-directive.js';
@@ -14,7 +14,7 @@ import { isTemplate } from './util.js';
  * Use this function when a node is not yet attached to the document.
  */
 export const link = (controller: Controller, node: Node) => {
-    const fragment = createFragment();
+    const fragment = createDocumentFragment();
     fragment.append(node);
     linkNodes(controller, fragment);
 }

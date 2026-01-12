@@ -288,7 +288,6 @@ const scopeStyleRule = (
     return rule.cssText;
 };
 
-// 6725
 // Exported for easier testing
 export const scopeStyle = (
     style: string,

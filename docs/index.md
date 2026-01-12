@@ -121,7 +121,7 @@ As a comparison, just the HTML for this page is about the same size (excluding J
 
 If you need to support slightly older versions, look at Fudgel 2.x.
 
-See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/?feats=mdn-html_elements_slot,template,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-javascript_builtins_weakmap,mdn-javascript_builtins_object_getprototypeof,proxy,wf-queuemicrotask). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked".
+See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/?feats=mdn-api_csspagerule_selectortext,wf-object-hasown). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked".
 
 ## Goals and Prior Work
 

@@ -135,6 +135,8 @@
 <h1><code>*repeat</code> Directive</h1>
 <p>Repeating a chunk of HTML a number of times is very easy when you add the <code>*repeat</code> <a href="directives.html">directive</a> to your template. Use a fixed number or an <a href="expressions.html">expression</a> to find the number.</p>
 <p><code-sample sample="samples/directive-repeat.js"></code-sample></p>
+<p>If you need to know what index you are on, you can use a special syntax of <code>*repeat=&quot;expression as indexName&quot;</code>, where <code>indexName</code> is the name of the variable that will hold the current index.</p>
+<p><code-sample sample="samples/directive-repeat-named.js"></code-sample></p>
 
 </div>
             </div>

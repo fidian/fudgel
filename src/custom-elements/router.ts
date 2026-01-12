@@ -9,7 +9,7 @@ import {
 import {
     cloneNode,
     createElement,
-    createFragment,
+    createDocumentFragment,
     doc,
     win,
 } from '../elements.js';
@@ -21,7 +21,7 @@ interface MatchedRoute {
 }
 
 export class RouterComponent extends HTMLElement {
-    private _fragment = createFragment();
+    private _fragment = createDocumentFragment();
     private _lastMatched: HTMLElement[] = [];
     private _routeElements: HTMLElement[] = [];
     private _undo: VoidFunction[] = [];

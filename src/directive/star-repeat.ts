@@ -13,7 +13,7 @@ export const starRepeatDirective: StructuralDirective = (
     attrValue: string
 ) => {
     let scopeName = 'index';
-    const matches = attrValue.match(/^(\S+)\s+as\s+(\S+)$/);
+    const matches = attrValue.match(/^(.*\S+)\s+as\s+(\S+)$/);
 
     if (matches) {
         attrValue = matches[1];
