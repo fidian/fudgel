@@ -96,7 +96,10 @@
     const toString = (value) => `${value ?? ''}`;
     const isString = (x) => typeof x == 'string';
     const getAttribute = (node, name) => node.getAttribute(name);
-    const hasOwn = (obj, prop) => Obj.hasOwn(obj, prop);
+    const hasOwn = (obj, prop) => Obj.prototype.hasOwnProperty.call(obj, prop);
+    // In the future, we could use the newer method. As of right now, it's only
+    // been around a couple years.
+    // Obj.hasOwn(obj, prop);
     const setAttribute = (node, name, value) => {
         if (value === true) {
             value = '';

@@ -108,20 +108,20 @@ As a comparison, just the HTML for this page is about the same size (excluding J
 
 ## Browser Support
 
-98% of browser traffic work with Fudgel. Here is a list of the minimum supported browser versions:
+99% of the top browser traffic works with Fudgel. Here is a list of the minimum supported browser versions:
 
 |      Browser     | Version | Released |
 |:----------------:|:-------:|:--------:|
-|      Chrome      |    71   | Dec 2018 |
+|      Chrome      |    60   | Jul 2017 |
 |       Edge       |    79   | Jan 2020 |
-|      Safari      |   12.1  | Mar 2019 |
-|      Firefox     |    69   | Sep 2019 |
-|    iOS Safari    |   12.2  | Mar 2019 |
-| Samsung Internet |   10.1  | Sep 2019 |
+|      Safari      |   11.1  | Mar 2018 |
+|      Firefox     |   110   | Feb 2023 |
+|    iOS Safari    |   11.3  | Mar 2018 |
+| Samsung Internet |    8.2  | Dec 2018 |
 
 If you need to support slightly older versions, look at Fudgel 2.x.
 
-See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/?feats=mdn-api_csspagerule_selectortext,wf-object-hasown). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked".
+See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/mdn-html_elements_slot,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-api_csspagerule_selectortext,wf-spread). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked".
 
 ## Goals and Prior Work
 

@@ -23,7 +23,10 @@ export const getAttribute = (node: Element | HTMLElement, name: string) =>
     node.getAttribute(name);
 
 export const hasOwn = (obj: Object, prop: string | symbol) =>
-    Obj.hasOwn(obj, prop);
+    Obj.prototype.hasOwnProperty.call(obj, prop);
+    // In the future, we could use the newer method. As of right now, it's only
+    // been around a couple years.
+    // Obj.hasOwn(obj, prop);
 
 export const setAttribute = (
     node: HTMLElement,
