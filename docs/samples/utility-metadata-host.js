@@ -1,4 +1,4 @@
-import { component, metadata } from './fudgel.min.js';
+import { component, metadata } from '/fudgel.min.js';
 
 component(
     'utility-metadata-host',

@@ -140,7 +140,7 @@
 <p>Try playing with the live demo and you can see that routing does indeed work. There&#39;s also custom component instantiation, passing route parameters as attributes, setting the document title, automatically handling links, and more. There&#39;s a lot to unpack, so each of the following sections will talk about specific aspects.</p>
 <h2>Defining the Component</h2>
 <p>The router component is not declared automatically when you import Fudgel. This is to allow for better tree shaking, so you can pick and choose what you want to use from the library. This technique of exporting a component definition function also allows a developer to deal with custom component name collisions or to swap in a different router more easily.</p>
-<p><code-sample sample="samples/routing-define-router-component.js"></code-sample></p>
+<p><code-sample sample="samples/routing-define-router-component.js" no-playground></code-sample></p>
 <p>This creates a new custom element named <code>&lt;app-router&gt;</code>. For the rest of the examples in the documentation, we will use <code>&lt;app-router&gt;</code> as the router element name, but you can substitute your own name if you like.</p>
 <h2>Creating Routes</h2>
 <p>Any direct child of the router element is able to be routed.  If it has a path, then the path is matched against the URL and all specified segments must match (more on this later). If there is no path, then it defaults to &quot;**&quot;, which matches all paths.</p>

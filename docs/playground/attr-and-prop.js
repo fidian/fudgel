@@ -1,14 +1,14 @@
 import { component } from './fudgel.min.js';
 
 component(
-    'prop-and-attr',
+    'attr-and-prop',
     {
         attr: ['myAttr'],
         prop: ['myProp'],
         template: `
-                            <div><b>prop</b>: {{myProp}}</div>
-                            <div><b>attr</b>: {{myAttr}}</div>
-                        `,
+            <div><b>prop</b>: {{myProp}}</div>
+            <div><b>attr</b>: {{myAttr}}</div>
+        `,
     },
     class {
         constructor() {
@@ -19,6 +19,6 @@ component(
 );
 
 setTimeout(() => {
-    document.querySelector('prop-and-attr').myProp =
+    document.querySelector('attr-and-prop').myProp =
         'This came from a property assignment';
 }, 1000);

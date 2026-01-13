@@ -75,15 +75,15 @@ Event bindings are added automatically, calling methods in your controller class
 
 Fudgel uses about <span style="font-size: 1.2em">7k</span> to provide:
 
--   Automatic DOM updates when properties change
-    -   Add and remove elements, classes, loop over data, events, and more
-    -   Lifecycle triggers exposed as events and controller methods
+-   Automatic DOM updates when [properties change](bindings.html)
+    -   Add and remove elements, classes, loop over data, events, and more with [directives](directives.html)
+    -   [Lifecycle](lifecycle.html) stages exposed as events and controller methods
 -   Creates a custom element using standard Web Component APIs
     -   Two-way property and attribute bindings, plus events for passing data
     -   Works with all major frameworks (eg. Angular, React, Vue, Svelte, etc.)
 -   Supports both Shadow DOM and Light DOM rendering
     -   Styles scoped to your component automatically, even when not using Shadow DOM
-    -   A simplistic `<slot-like>` element for content projection in the Light DOM
+    -   A simplistic `<slot-like>` element for [content projection](content-projection.html) in the Light DOM
 -   Building is optional; works with vanilla JavaScript
     -   Can use the library directly in the browser
     -   Fully tree-shakeable for smaller bundle sizes
@@ -104,11 +104,11 @@ Web components make great additions to your browser-based UI because they work e
 <playground-button sample="fudgel-sizes.js"></playground-button>
 </div>
 
-As a comparison, just the HTML for this page is about the same size (excluding JavaScript, CSS, images, and fonts). A standard "Hello, world!" style project using Angular is reported at 35k and React is about 46k; however, both project sizes can vary immensely. With Fudgel, you're looking at adding under 100 bytes to the library size.
+As a comparison, just the HTML for this page is about the same size (excluding JavaScript, CSS, images, and fonts). A standard "Hello, world!" style project using Angular is reported at 35k and React is about 46k; however, both project sizes can vary immensely.
 
 ## Browser Support
 
-99% of the top browser traffic works with Fudgel. Here is a list of the minimum supported browser versions:
+99% of tracked browser traffic works with Fudgel. Here is a list of the minimum supported browser versions:
 
 |      Browser     | Version | Released |
 |:----------------:|:-------:|:--------:|
@@ -119,16 +119,16 @@ As a comparison, just the HTML for this page is about the same size (excluding J
 |    iOS Safari    |   11.3  | Mar 2018 |
 | Samsung Internet |    8.2  | Dec 2018 |
 
-If you need to support slightly older versions, look at Fudgel 2.x.
+If you need to support slightly older versions, look at Fudgel 2.x or use Babel to transpile the library. (Firefox 110 is where [`CSSPageRule.selectorText` became available](https://developer.mozilla.org/en-US/docs/Web/API/CSSPageRule/selectorText), which is needed for CSS scoping.)
 
-See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/mdn-html_elements_slot,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-api_csspagerule_selectortext,wf-spread). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked".
+See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/mdn-html_elements_slot,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-api_csspagerule_selectortext,wf-spread). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked" to exclude bots, `curl`, and other unknown browsers.
 
 ## Goals and Prior Work
 
 This project has received the benefit of having others blaze trails in related areas. Thanks to the following projects for their inspiration:
 
 -   [Slim.js](https://slimjs.com/) provided the starting point that a lightweight library can contain lots of functionality, such as the automatic bindings and text parser.
--   [Angular](https://angular.io/) lifecycle hooks and structural directives were useful to mimic.
+-   [Angular](https://angular.dev/) lifecycle hooks and structural directives were useful to mimic.
 -   [Alpine.js](https://alpinejs.dev/) has event handlers using `@` prefixes and modifiers.
 -   [Vue.js](https://vuejs.org/) is big into using slots for content projection, plus they also have event handlers with modifiers.
 -   [Skruv](https://skruv.io/) is a small library that's similar to Slim.js and is the inspiration for the CSS scoping.

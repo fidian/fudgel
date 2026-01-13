@@ -1,4 +1,4 @@
-import { component, di } from './fudgel.min.js';
+import { component, di } from '/fudgel.min.js';
 
 class LogService {
     writeToConsole(message) {

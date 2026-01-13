@@ -1,4 +1,4 @@
-import { component, emit } from './fudgel.min.js';
+import { component, emit } from '/fudgel.min.js';
 
 component(
     'utility-emit',

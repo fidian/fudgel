@@ -1402,14 +1402,14 @@ const component = (tag, configInitial, constructor) => {
         }
     }
     try {
-        customElements.define(tag, CustomElement);
         const componentInfo = [
             CustomElement,
             constructor,
             config,
         ];
-        allComponents.add(componentInfo);
         events.emit('component', ...componentInfo);
+        customElements.define(tag, CustomElement); // throws
+        allComponents.add(componentInfo);
     }
     catch (_ignore) { }
     return CustomElement;

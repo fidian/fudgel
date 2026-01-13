@@ -7,19 +7,19 @@ component(
             <p>Using "key" and "value":</p>
             <ul>
                 <li *for="itemList">
-                    [{{key}}]: {{value.name}} - {{value.desc}
+                    [{{key}}]: {{value.name}} - {{value.desc}}
                 </li>
             </ul>
             <p>Renaming "value" to "item":</p>
             <ul>
                 <li *for="item of itemList">
-                    [{{key}}]: {{item.name}} - {{item.desc}
+                    [{{key}}]: {{item.name}} - {{item.desc}}
                 </li>
             </ul>
             <p>Naming the key as "index" and value as "item":</p>
             <ul>
                 <li *for="index, item of itemList">
-                    [{{index}}]: {{item.name}} - {{item.desc}
+                    [{{index}}]: {{item.name}} - {{item.desc}}
                 </li>
             </ul>
         `,

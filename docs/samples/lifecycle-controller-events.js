@@ -7,8 +7,9 @@ component('lifecycle-controller-events', {
 }, class {
     name = "Developer"
 
-    constructor() {
-        this[metadata].events.on('init', () => {
+    onInit() {
+        // this[metadata] is not available in the constructor
+        this[metadata].events.on('viewInit', () => {
             setTimeout(() => this.name = 'Super Developer', 5000);
         });
     }

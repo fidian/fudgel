@@ -28,6 +28,8 @@ Using this event, you can modify the component class so it will perform an actio
 
 <code-sample sample="samples/events-component-add-logging.js"></code-sample>
 
+There is a caveat: this event is launched before the component is registered with the browser, so you are able to modify its configuration or template. If you need to know if the component will be allowed to be defined, you can use `CustomElementRegistry.get()` to check if the tag name is already in use.
+
 ### Controller Events
 
 * Created by [Lifecycle](lifecycle.html) stages and other actions.

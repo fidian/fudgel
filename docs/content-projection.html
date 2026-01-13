@@ -135,11 +135,11 @@
 <h1>Content Projection</h1>
 <p>Imagine you have a utility function to create a styled button.  You&#39;d like the ability to specify the HTML that is displayed on the button, but passing that in via an attribute or property is problematic, especially when you want to have an image on the button. There are two ways you have access to outside content in order to &quot;project&quot; it into your element.</p>
 <h2>Normal Process Without Content Projection</h2>
-<p>Extra content within the custom element will be removed. The DOM elements will be present during <code>onInit()</code> and are removed before <code>onViewInit()</code>. Both of these are detailed in <a href="lifecycle.html">Lifecycle</a>.</p>
+<p>Extra content within the custom element will be removed. The DOM elements will be present during <code>onInit()</code> and are removed before <code>onViewInit()</code>. Both of these are detailed in <a href="lifecycle.html">Lifecycle</a> stages.</p>
 <p>If you wanted this content to be copied into your component, this is easily done using one of the following methods.</p>
 <h2>Slots and Shadow DOM</h2>
 <p>You can use slotted content when your element enables <code>useShadow: true</code> in its <a href="component-config.html">configuration</a>. This leverages built-in browser features and works well. To project content, use the <code>&lt;slot&gt;</code> element.</p>
-<p>You can also project multiple pieces of content into specific areas using named slots. Read more about <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"><code>&lt;slot&gt; elements</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"><code>slot</code> attributes</a>.</p>
+<p>You can also project multiple pieces of content into specific areas using named slots. Read more about <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"><code>&lt;slot&gt; elements</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"><code>slot</code> attributes</a> on MDN.</p>
 <p><code-sample sample="samples/slot-example.html"></code-sample></p>
 <h2>Slots and Light DOM</h2>
 <p>There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element, and after that point all components will have <code>&lt;slot&gt;</code> elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM.</p>
@@ -149,7 +149,7 @@
 <p>The downside of this method is that you may see a flicker of the original DOM before it is put into the right places within your component. This is because the DOM structure is built before the template overrides the node&#39;s content.</p>
 <p><code>&lt;slot-like&gt;</code> is designed to be a lightweight substitute for the native <code>&lt;slot&gt;</code> element, including support for named slots.</p>
 <h2>Manual Content Retrieval</h2>
-<p>Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques. Make sure you capture the content during <code>onParse()</code> and then add the content to the DOM in <code>onViewInit()</code> because the element is cleared and the template is applied between these two method calls. Learn more about these <a href="lifecycle.html">Lifecycle</a>.</p>
+<p>Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques. Make sure you capture the content during <code>onParse()</code> and then add the content to the DOM in <code>onViewInit()</code> because the element is cleared and the template is applied between these two method calls. Learn more about these <a href="lifecycle.html">Lifecycle</a> stages.</p>
 <p>One advantage of using this technique is the template element is not rendered, so it can avoid the flicker of the slot-like approach.</p>
 <p><code-sample sample="samples/manual-content-projection.html"></code-sample></p>
 

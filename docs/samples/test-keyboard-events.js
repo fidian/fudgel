@@ -1,4 +1,4 @@
-import { component } from './fudgel.min.js';
+import { component } from '/fudgel.min.js';
 
 component(
     'test-keyboard-events',

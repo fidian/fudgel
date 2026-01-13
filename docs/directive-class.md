@@ -1,5 +1,5 @@
 ---
-title: #class Directive (Fudgel.js)
+title: &num;class Directive (Fudgel.js)
 ---
 
 # `#class` Directive

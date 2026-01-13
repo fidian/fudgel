@@ -1,4 +1,4 @@
-import { addDirective } from './fudgel.min.js';
+import { addDirective } from '/fudgel.min.js';
 
 // Named - matches "#name" and should start with "#"
 addDirective('#name', (controller, node, attrValue, attrName) => {

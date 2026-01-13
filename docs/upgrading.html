@@ -136,6 +136,11 @@
 <p>When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.</p>
 <h2>From 2.x.x to 3.x.x</h2>
 <ul>
+<li>Parsing expressions changed.<ul>
+<li><code>parse()</code> is now <code>parse.js()</code> (one of several parsing functions available).</li>
+<li><code>parsed[0]</code> now accepts a list of objects to search as opposed to an array.</li>
+</ul>
+</li>
 <li><code>nextTick()</code> was removed.</li>
 <li><code>controllerToElement()</code>, <code>elementToController()</code>, and <code>rootElement()</code> has been removed. Use <code>metadata</code>, as seen on the <a href="utilities.html">Utilities</a> page instead.</li>
 <li>All hooks have been removed and switched to <a href="events.html">events</a>.<ul>

@@ -14,7 +14,7 @@ For performance, do not reassign to a bound property. Modify a local variable an
 
 ## Compatibility
 
-When building a library, do not automatically register your custom elements in your exported module. This won't allow developers to resolve name conflicts. Instead, export a function that allows a prefix or a custom name to be provided, similar to how `defineRouterElement` and `defineSlotComponent()` work for Fudgel's built-in elements.
+When building a library, do not automatically register your custom elements in your exported module. This won't allow developers to resolve name conflicts. Instead, export a function that allows a prefix or a custom name to be provided, similar to how `defineRouterElement()` (see [Routing](routing.html)) and `defineSlotComponent()` (described in [Content Projection](content-projection.html)) work for Fudgel's built-in elements.
 
 <code-sample sample="samples/export-component-function.js" no-playground></code-sample>
 
@@ -28,6 +28,6 @@ When you need to send data out of your controller, send an event. If you need da
 
 <code-sample sample="samples/emit-and-exposing-property.html"></code-sample>
 
-Alternately, you can use a service to share data between components. This example uses the built-in `Emitter` class.
+Alternately, you can use a service to share data between components. This example uses the built-in `Emitter` class, as found on the [utilities page](./utilities.html).
 
 <code-sample sample="samples/service-data-sharing.html"></code-sample>

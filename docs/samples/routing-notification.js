@@ -1,4 +1,4 @@
-import { component, defineRouterComponent } from './fudgel.min.js';
+import { component, defineRouterComponent } from '/fudgel.min.js';
 
 defineRouterComponent('app-router');
 

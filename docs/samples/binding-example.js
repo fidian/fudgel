@@ -4,13 +4,14 @@ const links = [
     { siteName: 'Fudgel', url: 'https://fudgel.js.org/' },
     { siteName: 'Example (disabled)', url: 'https://example.com/', disabled: true },
     { siteName: 'MDN Web Docs', url: 'https://developer.mozilla.org/' },
-    { siteName: 'W3C', url: 'https://www.w3.org/', disabled: true },
+    { siteName: 'W3C (disabled)', url: 'https://www.w3.org/', disabled: true },
 ];
 
 component(
     'binding-example',
     {
         template: `
+            <p>This rotates through sites every 4 seconds:</p>
             <p>
                 {{ siteName }}
                 <input

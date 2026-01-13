@@ -1,4 +1,4 @@
-import { component, update } from './fudgel.min.js';
+import { component, update } from '/fudgel.min.js';
 
 component(
     'utility-update',

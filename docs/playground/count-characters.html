@@ -1,7 +1,7 @@
 <script src="../e2e/fudgel.umd.js"></script>
 <script>
     Fudgel.component(
-        'sample-component',
+        'count-characters',
         {
             template: `
                 <input
@@ -11,20 +11,20 @@
                     placeholder="Type something..."
                     type="text"
                 />
-            <p>You typed {{ characterCount }} {{ letterOrLetters }}</p>
+                <p>You typed {{ characterCount }} {{ characters }}</p>
             `,
         },
         class {
             characterCount = 0;
-            letterOrLetters = 'letters';
+            characters = 'characters';
 
             recalc(event) {
                 this.characterCount = event.target.value.length;
 
                 if (this.characterCount === 1) {
-                    this.letterOrLetters = 'letter';
+                    this.characters = 'character';
                 } else {
-                    this.letterOrLetters = 'letters';
+                    this.characters = 'characters';
                 }
             }
         }

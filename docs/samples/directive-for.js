@@ -6,7 +6,7 @@ component(
         template: `
             <ul>
                 <li *for="itemList">
-                    [{{key}}]: {{value.name}} - {{value.desc}
+                    [{{key}}]: {{value.name}} - {{value.desc}}
                 </li>
             </ul>
         `,

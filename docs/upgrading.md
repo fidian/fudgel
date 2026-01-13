@@ -8,6 +8,9 @@ When a new version of Fudgel is released, you may need to make some changes to y
 
 ## From 2.x.x to 3.x.x
 
+* Parsing expressions changed.
+    * `parse()` is now `parse.js()` (one of several parsing functions available).
+    * `parsed[0]` now accepts a list of objects to search as opposed to an array.
 * `nextTick()` was removed.
 * `controllerToElement()`, `elementToController()`, and `rootElement()` has been removed. Use `metadata`, as seen on the [Utilities](utilities.html) page instead.
 * All hooks have been removed and switched to [events](events.html).

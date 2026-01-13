@@ -4,7 +4,7 @@ title: Getting Started (Fudgel.js)
 
 # Getting Started
 
-<u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs. This can be loaded from a CDN (as shown below, both as UMD or a module), or installed locally as a package.
+<u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs.
 
 <code-sample sample="samples/umd-from-cdn.html"></code-sample>
 

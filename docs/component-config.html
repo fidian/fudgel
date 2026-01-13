@@ -169,7 +169,7 @@ following properties in the object.</p>
 <p>Light DOM: The CSS styles are scoped to your element (plus the template elements are scoped), then the styles are added to the parent document when the component is added. If the parent document already has the styles in play, these are not added again. Style your host element using the <code>:host</code> selector, which will automatically be changed to your element&#39;s name.</p>
 <p>Learn more about <a href="styling.html">styling components</a>.</p>
 <h3><code>template</code> (required, string)</h3>
-<p>This is the HTML that the element will use for its content. This template will be processed in the controller&#39;s scope, even when passing content to child custom elements (such as with content projection through slots).</p>
+<p>This is the HTML that the element will use for its content. This template will be processed in the controller&#39;s scope, even when passing content to child custom elements (such as with content projection through slots; read more in <a href="content-projection.html">Content Projection</a>).</p>
 <p>When using an empty string, it will be up to the controller to add the necessary DOM elements and bindings. Elements dynamically added to the DOM through your controller will not be scoped automatically, so you must style them with an embedded <code>&lt;style&gt;</code> tag or add the generated class names yourself. This is discussed more in <a href="styling.html">styling components</a>.</p>
 <h3><code>useShadow</code> (optional, boolean)</h3>
 <p>If truthy, encapsulate the component inside a shadow DOM. This is <code>false</code> by default because the shadow DOM has a slight performance hit and has specific design trade-offs that may not suit your needs.</p>

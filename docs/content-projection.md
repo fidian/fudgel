@@ -8,7 +8,7 @@ Imagine you have a utility function to create a styled button.  You'd like the a
 
 ## Normal Process Without Content Projection
 
-Extra content within the custom element will be removed. The DOM elements will be present during `onInit()` and are removed before `onViewInit()`. Both of these are detailed in <a href="lifecycle.html">Lifecycle</a>.
+Extra content within the custom element will be removed. The DOM elements will be present during `onInit()` and are removed before `onViewInit()`. Both of these are detailed in <a href="lifecycle.html">Lifecycle</a> stages.
 
 If you wanted this content to be copied into your component, this is easily done using one of the following methods.
 
@@ -16,7 +16,7 @@ If you wanted this content to be copied into your component, this is easily done
 
 You can use slotted content when your element enables `useShadow: true` in its [configuration](component-config.html). This leverages built-in browser features and works well. To project content, use the `<slot>` element.
 
-You can also project multiple pieces of content into specific areas using named slots. Read more about [`<slot> elements`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) and [`slot` attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot).
+You can also project multiple pieces of content into specific areas using named slots. Read more about [`<slot> elements`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) and [`slot` attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot) on MDN.
 
 <code-sample sample="samples/slot-example.html"></code-sample>
 
@@ -36,7 +36,7 @@ The downside of this method is that you may see a flicker of the original DOM be
 
 ## Manual Content Retrieval
 
-Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques. Make sure you capture the content during `onParse()` and then add the content to the DOM in `onViewInit()` because the element is cleared and the template is applied between these two method calls. Learn more about these <a href="lifecycle.html">Lifecycle</a>.
+Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques. Make sure you capture the content during `onParse()` and then add the content to the DOM in `onViewInit()` because the element is cleared and the template is applied between these two method calls. Learn more about these <a href="lifecycle.html">Lifecycle</a> stages.
 
 One advantage of using this technique is the template element is not rendered, so it can avoid the flicker of the slot-like approach.
 

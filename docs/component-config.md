@@ -63,7 +63,7 @@ Learn more about [styling components](styling.html).
 
 ### `template` (required, string)
 
-This is the HTML that the element will use for its content. This template will be processed in the controller's scope, even when passing content to child custom elements (such as with content projection through slots).
+This is the HTML that the element will use for its content. This template will be processed in the controller's scope, even when passing content to child custom elements (such as with content projection through slots; read more in [Content Projection](content-projection.html)).
 
 When using an empty string, it will be up to the controller to add the necessary DOM elements and bindings. Elements dynamically added to the DOM through your controller will not be scoped automatically, so you must style them with an embedded `<style>` tag or add the generated class names yourself. This is discussed more in [styling components](styling.html).
 

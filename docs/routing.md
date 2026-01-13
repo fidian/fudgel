@@ -18,7 +18,7 @@ Try playing with the live demo and you can see that routing does indeed work. Th
 
 The router component is not declared automatically when you import Fudgel. This is to allow for better tree shaking, so you can pick and choose what you want to use from the library. This technique of exporting a component definition function also allows a developer to deal with custom component name collisions or to swap in a different router more easily.
 
-<code-sample sample="samples/routing-define-router-component.js"></code-sample>
+<code-sample sample="samples/routing-define-router-component.js" no-playground></code-sample>
 
 This creates a new custom element named `<app-router>`. For the rest of the examples in the documentation, we will use `<app-router>` as the router element name, but you can substitute your own name if you like.
 
@@ -94,7 +94,7 @@ This will store the location in session storage and redirect you immediately to 
 
 <code-sample sample="samples/single-page-app-restore-location.js" no-playground></code-sample>
 
-This technique is provided from [S(GH)PA: The Single-Page App Hack for GitHub Pages](http://www.backalleycoder.com/2016/05/13/sghpa-the-single-page-app-hack-for-github-pages/) by Daniel Buchner.
+This technique is provided from [S(GH)PA: The Single-Page App Hack for GitHub Pages](https://backalleycoder.com/posts/sghpa-the-single-page-app-hack-for-github-pages/) by Daniel Buchner.
 
 ## Need More Functionality?
 

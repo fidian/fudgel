@@ -1,4 +1,4 @@
-import { component, di, diOverride } from './fudgel.min.js';
+import { component, di, diOverride } from '/fudgel.min.js';
 
 class LogService {
     constructor(prefix) {

@@ -1,4 +1,4 @@
-import { component, rootElement } from './fudgel.min.js';
+import { component, rootElement } from '/fudgel.min.js';
 
 component(
     'utility-metadata-root',

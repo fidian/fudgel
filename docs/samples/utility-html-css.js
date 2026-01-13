@@ -1,4 +1,4 @@
-import { component, css, html } from './fudgel.min.js';
+import { component, css, html } from '/fudgel.min.js';
 
 component('utility-html-css', {
     style: css`

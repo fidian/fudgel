@@ -1,5 +1,5 @@
 ---
-title: #ref Directive (Fudgel.js)
+title: &num;ref Directive (Fudgel.js)
 ---
 
 # `#ref` Directive

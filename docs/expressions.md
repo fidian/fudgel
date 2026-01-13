@@ -20,7 +20,7 @@ Top-level properties on the controller are observed for changes when they are us
 
 Each expression is evaluated in the context of a scope. Scopes are layered on top of the controller's properties. In this example, the controller's name will be shown first. The [`*for` directive](directive-for.html) creates a new scope for each child element. This allows the key and the value in one segment to not collide with the key and value of others. In the next example, `name` is set to the value from the current iteration. This allows you to access properties from the controller as well as variables defined in directives.
 
-<code-sample sample="samples/expression-for.js"></code-sample>
+<code-sample sample="samples/expressions-for.js"></code-sample>
 
 ## Allowed Expressions and Operations
 

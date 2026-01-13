@@ -151,6 +151,7 @@
 <p><code-sample sample="samples/events-component.js"></code-sample></p>
 <p>Using this event, you can modify the component class so it will perform an action every time it is added to the DOM.</p>
 <p><code-sample sample="samples/events-component-add-logging.js"></code-sample></p>
+<p>There is a caveat: this event is launched before the component is registered with the browser, so you are able to modify its configuration or template. If you need to know if the component will be allowed to be defined, you can use <code>CustomElementRegistry.get()</code> to check if the tag name is already in use.</p>
 <h3>Controller Events</h3>
 <ul>
 <li>Created by <a href="lifecycle.html">Lifecycle</a> stages and other actions.</li>

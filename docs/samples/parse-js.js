@@ -4,7 +4,7 @@ import {
     metadata,
     getScope,
     parse,
-} from './fudgel.min.js';
+} from './fudgel.js';
 
 addDirective('#tick', (controller, node, attrValue) => {
     const parsed = parse.js(attrValue);
@@ -15,7 +15,7 @@ addDirective('#tick', (controller, node, attrValue) => {
     const scope = Object.create(getScope(node));
     const updateFn = tickValue => {
         scope.$event = tickValue;
-        parsed[0]([scope, controller]);
+        parsed[0](scope, controller);
     };
     const interval = setInterval(() => updateFn(Date.now()), 1000);
     controller[metadata].events.on('destroy', () => clearInterval(interval));

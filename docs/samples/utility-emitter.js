@@ -1,4 +1,4 @@
-import { component, Emitter } from './fudgel.min.js';
+import { component, Emitter } from '/fudgel.min.js';
 
 class MyService {
     emitter = new Emitter();
