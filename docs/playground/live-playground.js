@@ -74,10 +74,10 @@ component(
             <div class="wrapper">
                 <div class="pane working-area">
                     <div class="action-buttons">
-                        <span>
+                        <div>
                             <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel.js</a>
                             <span class="not-small">Playground</a>
-                        </span>
+                        </div>
                         <button title="Saves the HTML to your computer" @click="download()">Download</button>
                         <button title="Updates the URL and copies it to your clipboard for easy sharing" @click="share()">{{ shareLabel }}</button>
                         <use-template @content-change="contentChange($event)"></use-template>
