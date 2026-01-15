@@ -70,7 +70,7 @@ component(
             <div class="wrapper">
                 <div class="pane working-area">
                     <div class="action-buttons">
-                        <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel</a>
+                        <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel.js</a> Playground
                         <button title="Saves the HTML to your computer" @click="download()">Download</button>
                         <button title="Updates the URL and copies it to your clipboard for easy sharing" @click="share()">{{ shareLabel }}</button>
                         <use-template @content-change="contentChange($event)"></use-template>
@@ -159,7 +159,7 @@ component(
             setTimeout(() => {
                 this.shareLabel = 'Share';
                 this.shareBusy = false;
-            }, 1000);
+            }, 5000);
         }
 
         contentChange(event) {
