@@ -52,6 +52,10 @@ component(
                     flex-direction: column;
                     height: 160vh;
                 }
+
+                .not-small {
+                    display: none;
+                }
             }
         `,
         template: html`
@@ -70,7 +74,10 @@ component(
             <div class="wrapper">
                 <div class="pane working-area">
                     <div class="action-buttons">
-                        <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel.js</a> Playground
+                        <span>
+                            <a href="https://fudgel.js.org/" target="_blank" rel="noopener">Fudgel.js</a>
+                            <span class="not-small">Playground</a>
+                        </span>
                         <button title="Saves the HTML to your computer" @click="download()">Download</button>
                         <button title="Updates the URL and copies it to your clipboard for easy sharing" @click="share()">{{ shareLabel }}</button>
                         <use-template @content-change="contentChange($event)"></use-template>
