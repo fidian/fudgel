@@ -21,16 +21,16 @@ class Emitter {
         }
     }
     off(name, callback) {
-        const list = this._m.get(name)?.filter(item => item !== callback);
-        if (list) {
-            this._m.set(name, list);
-        }
-        else {
-            this._m.delete(name);
+        const set = this._m.get(name);
+        if (set) {
+            set.delete(callback);
+            if (!set.size) {
+                this._m.delete(name);
+            }
         }
     }
     on(name, callback) {
-        (this._m.get(name) ?? this._m.set(name, []).get(name)).push(callback);
+        (this._m.get(name) ?? this._m.set(name, newSet()).get(name)).add(callback);
         return () => this.off(name, callback);
     }
 }
@@ -991,11 +991,15 @@ const starForDirective = (controller, anchor, source, attrValue) => {
             lastNode = copy;
             activeNodes.set(key, lastNode);
         }
-        // Clean up any remaining nodes.
+        // Clean up any remaining nodes. It's faster to call `unlink()` once,
+        // so collect all nodes into a document fragment and flag that fragment
+        // for unlinking. The act of moving the nodes into the fragment will
+        // remove them from the DOM.
+        const fragment = createDocumentFragment();
         for (const old of oldNodes.values()) {
-            unlink(controller, old);
-            old.remove();
+            fragment.appendChild(old);
         }
+        unlink(controller, fragment);
     };
     addBindings(controller, anchor, update, parsed[1], anchorScope);
     update();

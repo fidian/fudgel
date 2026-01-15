@@ -1,6 +1,6 @@
 import { addBindings } from '../bindings.js';
 import { childScope, getScope } from '../scope.js';
-import { cloneNode } from '../elements.js';
+import { cloneNode, createDocumentFragment } from '../elements.js';
 import { Controller } from '../controller-types.js';
 import { entries } from '../util.js';
 import { link, unlink } from '../link-unlink.js';
@@ -65,11 +65,17 @@ export const starForDirective: StructuralDirective = (
             activeNodes.set(key, lastNode);
         }
 
-        // Clean up any remaining nodes.
+        // Clean up any remaining nodes. It's faster to call `unlink()` once,
+        // so collect all nodes into a document fragment and flag that fragment
+        // for unlinking. The act of moving the nodes into the fragment will
+        // remove them from the DOM.
+        const fragment = createDocumentFragment();
+
         for (const old of oldNodes.values()) {
-            unlink(controller, old);
-            old.remove();
+            fragment.appendChild(old);
         }
+
+        unlink(controller, fragment);
     };
     addBindings(controller, anchor, update, parsed[1], anchorScope);
     update();
