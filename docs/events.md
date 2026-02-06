@@ -66,8 +66,7 @@ All controller events will first emit a global event with the controller as the 
 ### `parse` Event
 
 * Created when the content has fully loaded for the custom element.
-* Arguments:
-    * `wasAsync`: Boolean indicating if the parsing was done asynchronously.
+* No arguments
 * More information on the [Lifecycle](lifecycle.html) page.
 
 ### `unlink` Event
@@ -86,6 +85,5 @@ All controller events will first emit a global event with the controller as the 
 ### `viewInit` Event
 
 * Created when the view has been fully initialized and the template applied.
-* Arguments:
-    * `wasAsync`: Boolean indicating if the view initialization was done asynchronously.
+* No arguments
 * More information on the [Lifecycle](lifecycle.html) page.

@@ -14,3 +14,4 @@ export * from './tag-functions.js';
 export { getAttribute, setAttribute } from './util.js';
 export * from './symbols.js';
 export * from './link-unlink.js';
+export * from './lifecycle.js';

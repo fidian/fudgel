@@ -1229,14 +1229,15 @@
         if (root != element ||
             ownerDocument.readyState != 'loading' ||
             isReady()) {
-            callback();
+            // queueMicrotask isn't supported widely enough yet.
+            Promise.resolve().then(callback);
         }
         else {
             // Watch the document or document fragment for changes.
             const unobserve = observe(ownerDocument, element, (isLoaded) => {
                 if (isLoaded || isReady()) {
                     unobserve();
-                    callback(true);
+                    callback();
                 }
             });
         }
@@ -1313,7 +1314,6 @@
             template: template.innerHTML,
         };
         class CustomElement extends HTMLElement {
-            static { this.observedAttributes = [...config.attr].map(camelToDash); }
             attributeChangedCallback(attributeName, _oldValue, newValue) {
                 change(this[metadata], dashToCamel(attributeName), newValue);
             }
@@ -1366,12 +1366,12 @@
                 }
                 // Initialize before adding child nodes
                 lifecycle(controller, 'init');
-                whenParsed(this, root, (wasAsync) => {
+                whenParsed(this, root, () => {
                     // Verify that the controller is still bound to an element. Avoids
                     // a race condition where an element is added but not "parsed"
                     // immediately, then removed before this callback can fire.
                     if (controller[metadata]) {
-                        lifecycle(controller, 'parse', wasAsync);
+                        lifecycle(controller, 'parse');
                         // Create initial child elements from the template. This creates them
                         // and adds them to the DOM, so do not use `link()`.
                         const template = createTemplate();
@@ -1392,7 +1392,7 @@
                         }
                         // Finally, add the processed nodes
                         root.append(template.content);
-                        lifecycle(controller, 'viewInit', wasAsync);
+                        lifecycle(controller, 'viewInit');
                     }
                 });
             }
@@ -1411,6 +1411,18 @@
                 delete this[metadata];
             }
         }
+        // iOS 15 Safari doesn't support static initialization blocks.
+        // Using this line inside the class
+        //     static observedAttributes = [...config.attr].map(camelToDash);
+        // Produces this line after transpilation
+        //     static { this.observedAttributes = [...config.attr].map(camelToDash); }
+        // And that produces the errors (only one of the following)
+        //     SyntaxError: Unexpected token '{'
+        //     Unhandled Promise Rejection: SyntaxError: Unexpected token '{'
+        // This can change once CanIUse shows better support for static
+        // initialization blocks. Currently (Feb 2026) it blocks 0.88% of global
+        // users.  https://caniuse.com/mdn-javascript_classes_static_initialization_blocks
+        CustomElement.observedAttributes = [...config.attr].map(camelToDash);
         try {
             const componentInfo = [
                 CustomElement,
@@ -1794,6 +1806,7 @@
     exports.getAttribute = getAttribute;
     exports.getScope = getScope;
     exports.html = html;
+    exports.lifecycle = lifecycle;
     exports.link = link;
     exports.linkNodes = linkNodes;
     exports.metadata = metadata;

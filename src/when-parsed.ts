@@ -19,7 +19,7 @@ const DOMContentLoaded = 'DOMContentLoaded';
 export const whenParsed = (
     element: HTMLElement,
     root: HTMLElement | ShadowRoot,
-    callback: (wasAsync?: boolean) => void
+    callback: () => void
 ) => {
     const ownerDocument = element.ownerDocument;
     const isReady = () => {
@@ -46,7 +46,8 @@ export const whenParsed = (
         ownerDocument.readyState != 'loading' ||
         isReady()
     ) {
-        callback();
+        // queueMicrotask isn't supported widely enough yet.
+        Promise.resolve().then(callback);
     } else {
         // Watch the document or document fragment for changes.
         const unobserve = observe(
@@ -55,7 +56,7 @@ export const whenParsed = (
             (isLoaded: boolean) => {
                 if (isLoaded || isReady()) {
                     unobserve();
-                    callback(true);
+                    callback();
                 }
             }
         );

@@ -27,10 +27,11 @@ export type ControllerLifecycleEvents =
     | 'init'
 
     // The HTML content has been parsed and is ready for DOM manipulation.
+    // Always called asychronously.
     //
     // * component.js
     //
-    // wasAsync: boolean
+    // no args
     | 'parse'
 
     // A node has been removed from the DOM.
@@ -50,11 +51,11 @@ export type ControllerLifecycleEvents =
     | 'update'
 
     // The view has been fully instantiated, template parsed, DOM created, and
-    // events are hooked up.
+    // events are hooked up. Always called asynchronously.
     //
     // * component.js
     //
-    // wasAsync: boolean
+    // no args
     | 'viewInit';
 
 export const lifecycle = (

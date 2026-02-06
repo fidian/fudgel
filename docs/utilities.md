@@ -153,3 +153,14 @@ The result of running the function provided at `[0]` will always be a string. Th
 Fudgel's [expressions](expressions.html) and bindings work within scopes. A controller creates a scope when it is bound to an element. Similarly, directives are able to create child scopes that have changes but don't overwrite a parent scope's values. This is how the [`*for` directive](directive-for.html) works when it iterates. You may have need to create your own scope, especially if you are creating a new directive.
 
 This works in conjunction with `parse`. Please see the example there for how to create a child scope.
+
+## `lifecycle(controller, stage, ...args)`
+
+* `controller` (Controller) - The controller instance.
+* `stage` (string) - The lifecycle stage to invoke. Built-in ones include `change`, `destroy`, `init`, `parse`, `unlink`, `update`, `viewInit`.
+* `args` (any, optional) - Additional arguments to pass to the lifecycle method events or methods.
+* return (void) - No return value.
+
+This will emit the lifecycle stage event as a global Fudgel event, on the controller's event emitter, and will also call the lifecycle method on the controller if it exists. The lifecycle events will use the stage name as supplied, however the lifecycle method will have the first letter capitalized and prefixed with `on`. For example, the `init` stage will call the `onInit()` method on the controller if it exists.
+
+Learn more about [lifecycle stages](lifecycle.html).

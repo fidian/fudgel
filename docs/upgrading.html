@@ -136,6 +136,15 @@
                 <div class="limit-width">
 <h1>Upgrading</h1>
 <p>When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.</p>
+<h2>From 3.1.x to 3.2.x</h2>
+<ul>
+<li><code>onViewInit()</code> and <code>onParse()</code> are now always asynchronous and their lifecycle stages no longer pass the <code>wasAsync</code> argument.</li>
+<li>Exposed <a href="utilities.html"><code>lifecycle</code> function</a> to allow for custom <a href="lifecycle.html">lifecycle stages</a>.</li>
+</ul>
+<h2>From 3.0.x to 3.1.x</h2>
+<ul>
+<li><code>*for</code> was made faster. No code changes are required.</li>
+</ul>
 <h2>From 2.x.x to 3.x.x</h2>
 <ul>
 <li>Parsing expressions changed.<ul>

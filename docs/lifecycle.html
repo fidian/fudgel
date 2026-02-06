@@ -153,30 +153,33 @@
 <li>Controller Event: <code>init</code> (no arguments)</li>
 <li>Controller Method: <code>onInit()</code></li>
 </ul>
-<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up.</p>
+<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point.</p>
+<p>This is an early stage in the lifecycle. Property bindings have been set up, but there hasn&#39;t been time for even synchronous code to assign values to the properties.</p>
 <h3>Content Loaded (Most Likely Called)</h3>
 <ul>
-<li>Global event: <code>parse</code> (controller instance, wasAsync boolean)</li>
-<li>Controller Event: <code>parse</code> (wasAsync boolean)</li>
-<li>Controller Method: <code>onParse(wasAsync)</code></li>
+<li>Global event: <code>parse</code> (controller instance)</li>
+<li>Controller Event: <code>parse</code> (no arguments)</li>
+<li>Controller Method: <code>onParse()</code></li>
 </ul>
-<p>The <code>parse</code> events are fired, and the <code>onParse()</code> method is called when all child nodes are parsed. This may be called asynchronously, especially for light DOM elements. If you are doing your own light DOM <a href="content-projection.html">content projection</a>, this would be an important method to use. When this is called, all child content has been added to the element. A parent&#39;s <code>parse</code> event and <code>onParse()</code> method will be called before a child&#39;s.</p>
+<p>The <code>parse</code> events are fired and the <code>onParse()</code> method is called when all child nodes are parsed. This will always be called asynchronously to make sure that whatever created the element has had enough time to assign properties or set <code>.innerHTML</code> as needed. If the web component is present during the initial page load, this event will not fire until all of the element&#39;s content is available. If you are doing your own light DOM <a href="content-projection.html">content projection</a>, this would be an important method to use. When this is called, all child content has probably been added to the element. &quot;Probably&quot; is used because another framework could add content to the element after synchronous code execution is complete, but that&#39;s fairly unlikely.</p>
+<p>There is no relationship between a parent element&#39;s lifecycle stages and a child&#39;d. Either one could be parsed first.</p>
 <p>At this point, the DOM has not been cleared and the template has not been applied. The original content is still present.</p>
 <h3>View Initialized (Most Likely Called)</h3>
 <ul>
-<li>Global event: <code>viewInit</code> (controller instance, wasAsync boolean)</li>
-<li>Controller Event: <code>viewInit</code> (wasAsync boolean)</li>
+<li>Global event: <code>viewInit</code> (controller instance)</li>
+<li>Controller Event: <code>viewInit</code> ()</li>
 <li>Controller Method: <code>onViewInit()</code></li>
 </ul>
-<p>This is executed at the very end, after the custom element is connected to the DOM and the template has also been attached and processed. At this point, all children are in the DOM, directives are processed, and your element is live. A child&#39;s &quot;View Initialized&quot; trigger will happen before the parent&#39;s.</p>
-<p>When this fires, the original content has been removed and the template has been applied. Also, the DOM elements created by the template have been linked to the controller.</p>
-<h3>Changes (Zero or More Times)</h3>
+<p>This is triggered at the very end, after the custom element is created, synchronous code to set up properties has elapsed, the custom element is connected to the DOM and the template has also been attached and the directives have been processed, adding child elements to the DOM. Properties should be available if sending data from another framework. Your element is live.</p>
+<p>A good practice is to use this method sparingly and instead react to changes in properties (see the next event). Initialize when you have enough data for the component, then uninitialize if missing some required information.</p>
+<h3>Change (Zero or More Times)</h3>
 <ul>
-<li>Global event: <code>change</code> (controller instance, propertyName, oldValue, newValue)</li>
-<li>Controller Event: <code>change</code> (propertyName, oldValue, newValue)</li>
+<li>Global event: <code>change</code> (controller instance, property name, old value, new value)</li>
+<li>Controller Event: <code>change</code> (property name, old value, new value)</li>
 <li>Controller Method: <code>onChange(propertyName, oldValue, newValue)</code></li>
 </ul>
 <p>Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the <a href="component-config.html">config</a> plus any property used in a <a href="bindings.html">binding</a>. Differences are detected by using <code>Object.is()</code>, so changes to immutable objects will trigger change detection more easily.</p>
+<p>This method can be called before &quot;Content Loaded&quot; and &quot;View Initialized&quot; stages.</p>
 <p>Calling <code>update()</code> (see <a href="utilities.html">Utilities</a>) will also call <code>onChange()</code> for all attributes and properties that are copied into the controller.</p>
 <h3>Update (Possibly Called)</h3>
 <ul>

@@ -23,11 +23,11 @@
         onInit() {
             triggerEvent(this, 'onInit');
         }
-        onParse(wasAsync) {
-            triggerEvent(this, `onParse ${wasAsync ? 'async' : 'sync'}`);
+        onParse() {
+            triggerEvent(this, `onParse`);
         }
-        onViewInit(wasAsync) {
-            triggerEvent(this, `onViewInit ${wasAsync ? 'async' : 'sync'}`);
+        onViewInit() {
+            triggerEvent(this, `onViewInit`);
         }
         onChange(propName) {
             triggerEvent(this, `onChange ${propName}`);

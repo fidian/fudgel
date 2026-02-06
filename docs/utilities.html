@@ -245,6 +245,15 @@
 </ul>
 <p>Fudgel&#39;s <a href="expressions.html">expressions</a> and bindings work within scopes. A controller creates a scope when it is bound to an element. Similarly, directives are able to create child scopes that have changes but don&#39;t overwrite a parent scope&#39;s values. This is how the <a href="directive-for.html"><code>*for</code> directive</a> works when it iterates. You may have need to create your own scope, especially if you are creating a new directive.</p>
 <p>This works in conjunction with <code>parse</code>. Please see the example there for how to create a child scope.</p>
+<h2><code>lifecycle(controller, stage, ...args)</code></h2>
+<ul>
+<li><code>controller</code> (Controller) - The controller instance.</li>
+<li><code>stage</code> (string) - The lifecycle stage to invoke. Built-in ones include <code>change</code>, <code>destroy</code>, <code>init</code>, <code>parse</code>, <code>unlink</code>, <code>update</code>, <code>viewInit</code>.</li>
+<li><code>args</code> (any, optional) - Additional arguments to pass to the lifecycle method events or methods.</li>
+<li>return (void) - No return value.</li>
+</ul>
+<p>This will emit the lifecycle stage event as a global Fudgel event, on the controller&#39;s event emitter, and will also call the lifecycle method on the controller if it exists. The lifecycle events will use the stage name as supplied, however the lifecycle method will have the first letter capitalized and prefixed with <code>on</code>. For example, the <code>init</code> stage will call the <code>onInit()</code> method on the controller if it exists.</p>
+<p>Learn more about <a href="lifecycle.html">lifecycle stages</a>.</p>
 
 </div>
             </div>

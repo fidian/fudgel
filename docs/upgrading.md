@@ -6,6 +6,18 @@ title: Upgrading (Fudgel.js)
 
 When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.
 
+
+## From 3.1.x to 3.2.x
+
+* `onViewInit()` and `onParse()` are now always asynchronous and their lifecycle stages no longer pass the `wasAsync` argument.
+* Exposed [`lifecycle` function](utilities.html) to allow for custom [lifecycle stages](lifecycle.html).
+
+
+## From 3.0.x to 3.1.x
+
+* `*for` was made faster. No code changes are required.
+
+
 ## From 2.x.x to 3.x.x
 
 * Parsing expressions changed.
@@ -22,6 +34,7 @@ When a new version of Fudgel is released, you may need to make some changes to y
     * Created `update` and `unlink` events.
     * `parse` and `viewInit` have been updated to potentially be synchronous, with a new argument indicating if this was called synchronously.
 * Documentation reviewed and significant improvements made.
+
 
 ## From 1.x.x to 2.x.x
 
