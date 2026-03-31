@@ -1,11 +1,11 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
+    allowCypressEnv: false,
     component: {
         devServer: {
             bundler: 'vite',
-            // In order for TypeScript to not complain, we lie here.
-            framework: 'cypress-ct-custom-elements' as 'vue',
+            framework: 'cypress-ct-custom-element' as 'vue',
         },
         includeShadowDom: true,
     },
