@@ -7,6 +7,6 @@ import { Component } from '/fudgel.min.js';
         template: `Hello {{audience}}!`,
     }
 )
-export class MyCustomComponent {
+class MyCustomComponent {
     audience = 'world';
 }

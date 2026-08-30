@@ -136,6 +136,14 @@
                 <div class="limit-width">
 <h1>Upgrading</h1>
 <p>When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.</p>
+<h2>From 3.3.x to 3.4.x</h2>
+<ul>
+<li>The router now matches on the path alone. A URL carrying a query string or a fragment, such as <code>/orders?status=open</code>, previously failed to match <code>/orders</code> and fell through to the catch-all route. Both are still left on the URL; read them with <code>location.search</code> and <code>location.hash</code>. See <a href="routing.html">Routing</a>.</li>
+<li>Routes may now name query parameters to receive as attributes, using a <code>query</code> attribute on the route. See <a href="routing.html">Routing</a>.</li>
+<li>The <code>routeChange</code> event detail is now the matched path. It previously carried whatever URL was passed to the History API, query string and all.</li>
+<li>The <code>@Component()</code> decorator no longer returns a value. It defined the custom element and then returned it, which TypeScript rejects because a class decorator may only return the class it decorated. The decorated name has always referred to the controller at runtime; now the types agree. No code changes are required.</li>
+<li>Only <code>dist</code> is published. If you were reaching into <code>fudgel/src</code> or <code>fudgel/docs</code> from an installed copy, import from the package instead.</li>
+</ul>
 <h2>From 3.1.x to 3.2.x</h2>
 <ul>
 <li><code>onViewInit()</code> and <code>onParse()</code> are now always asynchronous and their lifecycle stages no longer pass the <code>wasAsync</code> argument.</li>

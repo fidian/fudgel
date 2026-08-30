@@ -9,6 +9,9 @@ status() {
 status "Building"
 npm run build
 
+status "Type checks"
+tsc -p tsconfig.type-tests.json
+
 status "Tree shaking"
 agadoo dist/fudgel.mjs
 

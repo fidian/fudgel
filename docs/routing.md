@@ -68,11 +68,47 @@ The [Navigation API](https://developer.mozilla.org/docs/Web/API/Navigation) is n
 
 <code-sample sample="samples/routing-navigation.js" no-playground></code-sample>
 
+## Query Strings and Fragments
+
+Routes are matched against the path alone. A query string and a fragment both select something *within* a route rather than changing which route matched, so `/orders?status=open#totals` is the `/orders` route, and named parameters still come from the path.
+
+This applies however the location changed: a clicked link, `history.pushState()`, or the router's own `go()`.
+
+### Reading Query Parameters
+
+A route lists the parameters it cares about in a `query` attribute, and they arrive as attributes on the component, exactly like named parameters from the path.
+
+```html
+<app-router>
+    <div path="/orders" component="order-list" query="status,sortOrder"></div>
+</app-router>
+```
+
+```js
+component('order-list', {
+    attr: ['status', 'sortOrder'],
+    template: html`Showing {{status}} orders by {{sortOrder}}`,
+});
+```
+
+Names are camel case in the list and dashed as attributes. In the route you would use `sortOrder`, which would set the attribute `sort-order` on the element, and Fudgel would have that arrive as the property `sortOrder` in your component. This is the same convention the rest of Fudgel uses.
+
+A few things worth knowing:
+
+* A parameter that is absent removes the attribute rather than setting it empty, so a controller's default value applies and `*if` behaves.
+* A parameter that appears more than once, as in `?tag=one&tag=two`, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the `routeChange` event and read `location.search` directly.
+* Parameters not named in `query` are ignored. There is no wildcard.
+* Query parameters are applied after the path, so naming the same thing in both a path pattern and the `query` list means the query wins. Do not do that; nothing stops you but it isn't what you want.
+
+For a component that is not a route, listen for `routeChange` and read `location.search` yourself.
+
 ## Getting Notified
 
-When the router notices changes to the location, a custom `routeChange` event is triggered on `document.body`. Note that the same route can be emitted multiple times when there are multiple routers used for nested routing.
+When the router notices changes to the location, a custom `routeChange` event is triggered on `document.body`. Its detail is the matched path, without any query string or fragment. Note that the same route can be emitted multiple times when there are multiple routers used for nested routing.
 
 <code-sample sample="samples/routing-notification.js"></code-sample>
+
+If you need to know when any part of the location changes, listen for the `routeChange` event and then read `location.pathname`, `location.search`, and `location.hash` yourself. This would be useful in case you care about repeated query parameters or reacting to fragment updates.
 
 ## Watch Out For Problems
 

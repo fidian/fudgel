@@ -23,6 +23,12 @@ If you use TypeScript, you can also use the `@Component()` decorator, which take
 
 <code-sample sample="samples/hello-world-typescript.js" no-playground></code-sample>
 
+The decorator defines the custom element and returns nothing, so the decorated name still refers to your controller class. `component()` returns the custom element it defined, which is a different class; a decorator returning that would rebind the name to the wrong type, and TypeScript does not allow it. Reach for `component()` when you want that constructor, and the decorator when you want a class that stays itself.
+
+When using TypeScript, you may also want to use the `metadata` property to find information about the controller, the host element, or scope. This example shows how you can set up the types so that the controller will be able to access metadata.
+
+<code-sample sample="samples/show-tag-name-typescript.js" no-playground></code-sample>
+
 ## Configuration
 
 The configuration supplied as the second parameter will define the template,

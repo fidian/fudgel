@@ -150,6 +150,9 @@ custom element name.</li>
 <p><code-sample sample="samples/hello-world-module.js"></code-sample></p>
 <p>If you use TypeScript, you can also use the <code>@Component()</code> decorator, which takes only the first two parameters; the element name and the object of static values.</p>
 <p><code-sample sample="samples/hello-world-typescript.js" no-playground></code-sample></p>
+<p>The decorator defines the custom element and returns nothing, so the decorated name still refers to your controller class. <code>component()</code> returns the custom element it defined, which is a different class; a decorator returning that would rebind the name to the wrong type, and TypeScript does not allow it. Reach for <code>component()</code> when you want that constructor, and the decorator when you want a class that stays itself.</p>
+<p>When using TypeScript, you may also want to use the <code>metadata</code> property to find information about the controller, the host element, or scope. This example shows how you can set up the types so that the controller will be able to access metadata.</p>
+<p><code-sample sample="samples/show-tag-name-typescript.js" no-playground></code-sample></p>
 <h2>Configuration</h2>
 <p>The configuration supplied as the second parameter will define the template,
 styles, and if the Shadow DOM will be used. This is done by setting the

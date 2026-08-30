@@ -16,8 +16,12 @@ import {
 import { emit } from '../actions.js';
 
 interface MatchedRoute {
+    // The element that matched the route
     e: HTMLElement;
+    // Route parameters extracted from the path, if any, as key-value pairs
     g: [string, string][];
+    // Query parameters that the route is interested in, if any
+    q: string[];
 }
 
 export class RouterComponent extends HTMLElement {
@@ -92,6 +96,14 @@ export class RouterComponent extends HTMLElement {
             setAttribute(e, camelToDash(key), value);
         }
 
+        const params = new URLSearchParams(win.location.search);
+
+        for (const key of matchedRoute.q) {
+            // get() returns null when the parameter is absent, and
+            // setAttribute would then remove that attribute.
+            setAttribute(e, camelToDash(key), params.get(key));
+        }
+
         if (append) {
             this.append(e);
         }
@@ -154,6 +166,7 @@ export class RouterComponent extends HTMLElement {
                 return {
                     e: routeElement,
                     g: entries(match.groups || {}),
+                    q: getAttribute(routeElement, 'query')?.split(',') || [],
                 };
             }
         }
@@ -189,13 +202,19 @@ export class RouterComponent extends HTMLElement {
     }
 
     private _route(url: string) {
-        const matchedRoute = this._match(url);
+        // Routes match on the path alone. A query string and a fragment both
+        // select something *within* a route rather than changing which route
+        // matched, so `/orders?status=open` is the orders route. Every caller
+        // arrives here, including the patched history methods, which receive
+        // whatever URL the application gave them.
+        const path = url.replace(/[?#].*/, '') || '/';
+        const matchedRoute = this._match(path);
 
         if (matchedRoute) {
             this._activate(matchedRoute);
         }
 
-        emit(doc.body, 'routeChange', url);
+        emit(doc.body, 'routeChange', path);
     }
 }
 

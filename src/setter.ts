@@ -2,7 +2,7 @@ import { entries, Obj } from './util.js';
 import { shorthandWeakMap } from './maps.js'
 
 export type SetterCallback = (newValue: any, oldValue: any) => void;
-export interface TrackedSetters<> {
+export interface TrackedSetters {
     [key: string]: SetterCallback[];
 }
 

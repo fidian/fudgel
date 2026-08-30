@@ -42,8 +42,10 @@ import { change } from './change.js';
 // Decorator to wire a class as a custom component
 export const Component =
     (tag: string, config: CustomElementConfig) =>
-    (target: ControllerConstructor) =>
+    (target: ControllerConstructor) => {
         component(tag, config, target);
+        // Returns void
+    }
 
 export const component = (
     tag: string,

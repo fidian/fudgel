@@ -189,3 +189,180 @@ describe('router', () => {
         cy.get('#id').should('have.text', '123');
     });
 });
+
+@Component('query-target', {
+    attr: ['status', 'sortOrder', 'tag'],
+    template: `
+        status=<span id="qStatus">{{status}}</span>
+        sortOrder=<span id="qSort">{{sortOrder}}</span>
+        tag=<span id="qTag">{{tag}}</span>
+    `,
+})
+class QueryTargetComponent {
+    sortOrder = '';
+    status = '';
+    tag = '';
+}
+
+@Component('test-query-application', {
+    template: `
+    <div>
+        Path: <span id="path">{{path}}</span><br />
+        Search: <span id="search">{{search}}</span><br />
+        Hash: <span id="hash">{{hash}}</span><br />
+        Last routeChange: <span id="routeChange">{{routeChange}}</span>
+    </div>
+    <app-router>
+        <div path="/orders/:id" component="test-component"></div>
+        <div
+            path="/filtered"
+            component="query-target"
+            query="status,sortOrder,tag"
+        ></div>
+        <div path="/orders" id="orders">
+            Orders
+        </div>
+        <div id="fallback">Fallback</div>
+    </app-router>
+    <a id="plain" href="/orders">Orders</a>
+    <a id="withQuery" href="/orders?status=open&sort=date">Open orders</a>
+    <a id="withHash" href="/orders#totals">Order totals</a>
+    <a id="withBoth" href="/orders/7?status=open#totals">One order</a>
+    <button id="pushQuery" @click.stop.prevent="push('/orders?status=open')">
+        Push with a query
+    </button>
+    <button id="filtered" @click.stop.prevent="push('/filtered?status=open&sortOrder=date&other=ignored')">
+        Filtered
+    </button>
+    <button id="filteredFewer" @click.stop.prevent="push('/filtered?status=closed')">
+        Filtered, fewer parameters
+    </button>
+    <button id="filteredRepeated" @click.stop.prevent="push('/filtered?tag=one&tag=two')">
+        Filtered, repeated parameter
+    </button>
+    `,
+})
+class TestQueryApplicationComponent {
+    hash = '';
+    interval: ReturnType<typeof setInterval>;
+    path = '';
+    routeChange = '';
+    search = '';
+
+    onInit() {
+        document.body.addEventListener('routeChange', this.onRouteChange);
+        this.interval = setInterval(() => {
+            this.path = window.location.pathname;
+            this.search = window.location.search;
+            this.hash = window.location.hash;
+        }, 50);
+    }
+
+    onDestroy() {
+        document.body.removeEventListener('routeChange', this.onRouteChange);
+        clearInterval(this.interval);
+    }
+
+    onRouteChange = (event: Event) => {
+        this.routeChange = (event as CustomEvent<string>).detail;
+    };
+
+    push(url: string) {
+        history.pushState(null, '', url);
+    }
+}
+
+describe('router with query strings and fragments', () => {
+    beforeEach(() => {
+        history.pushState(null, null, '/');
+        cy.mount('<test-query-application></test-query-application>');
+    });
+
+    it('routes a plain path, as a baseline', () => {
+        cy.get('a#plain').click();
+        cy.get('#orders').should('exist');
+        cy.get('#fallback').should('not.exist');
+    });
+
+    it('routes a link carrying a query string, and keeps the query', () => {
+        // A query string selects within a route rather than changing which
+        // route matched, so this is still the orders route.
+        cy.get('a#withQuery').click();
+        cy.get('#orders').should('exist');
+        cy.get('#fallback').should('not.exist');
+        cy.get('#search').should('have.text', '?status=open&sort=date');
+    });
+
+    it('routes a link carrying a fragment, and keeps the fragment', () => {
+        cy.get('a#withHash').click();
+        cy.get('#orders').should('exist');
+        cy.get('#fallback').should('not.exist');
+        cy.get('#hash').should('have.text', '#totals');
+    });
+
+    it('matches path parameters with a query and a fragment present', () => {
+        cy.get('a#withBoth').click();
+        cy.get('test-component').should('exist');
+        // The parameter comes from the path, not from the query beside it.
+        cy.get('#id').should('have.text', '7');
+        cy.get('#search').should('have.text', '?status=open');
+        cy.get('#hash').should('have.text', '#totals');
+    });
+
+    it('routes a pushState carrying a query string', () => {
+        // The patched history methods receive whatever URL the application
+        // passed, which is where an unstripped query used to fall through to
+        // the catch-all route.
+        cy.get('button#pushQuery').click();
+        cy.get('#orders').should('exist');
+        cy.get('#fallback').should('not.exist');
+        cy.get('#path').should('have.text', '/orders');
+        cy.get('#search').should('have.text', '?status=open');
+    });
+
+    it('reports the path alone in routeChange', () => {
+        cy.get('a#withBoth').click();
+        cy.get('#routeChange').should('have.text', '/orders/7');
+    });
+});
+
+describe('router query parameters', () => {
+    beforeEach(() => {
+        history.pushState(null, null, '/');
+        cy.mount('<test-query-application></test-query-application>');
+    });
+
+    it('sets a declared parameter as an attribute', () => {
+        cy.get('button#filtered').click();
+        cy.get('#qStatus').should('have.text', 'open');
+        cy.get('#qSort').should('have.text', 'date');
+    });
+
+    it('ignores a parameter the route did not declare', () => {
+        cy.get('button#filtered').click();
+        cy.get('query-target').should('not.have.attr', 'other');
+    });
+
+    it('camel case in the list becomes a dashed attribute', () => {
+        cy.get('button#filtered').click();
+        cy.get('query-target').should('have.attr', 'sort-order', 'date');
+    });
+
+    it('removes the attribute when the parameter goes away', () => {
+        cy.get('button#filtered').click();
+        cy.get('#qSort').should('have.text', 'date');
+
+        // Same route, fewer parameters. The element is reused, so a stale
+        // attribute would otherwise linger.
+        cy.get('button#filteredFewer').click();
+        cy.get('#qStatus').should('have.text', 'closed');
+        cy.get('query-target').should('not.have.attr', 'sort-order');
+    });
+
+    it('takes the first value of a repeated parameter', () => {
+        // An attribute holds one string. URLSearchParams.get() answers with
+        // the first, and anything needing every value reads location.search.
+        cy.get('button#filteredRepeated').click();
+        cy.get('#qTag').should('have.text', 'one');
+    });
+});

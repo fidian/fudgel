@@ -174,9 +174,33 @@
 <p>You can also get a reference to the router element and call it&#39;s <code>go(url)</code> method.</p>
 <p>The <a href="https://developer.mozilla.org/docs/Web/API/Navigation">Navigation API</a> is not used because it is experimental and isn&#39;t <a href="https://caniuse.com/mdn-api_navigation">widely adopted</a> enough.</p>
 <p><code-sample sample="samples/routing-navigation.js" no-playground></code-sample></p>
+<h2>Query Strings and Fragments</h2>
+<p>Routes are matched against the path alone. A query string and a fragment both select something <em>within</em> a route rather than changing which route matched, so <code>/orders?status=open#totals</code> is the <code>/orders</code> route, and named parameters still come from the path.</p>
+<p>This applies however the location changed: a clicked link, <code>history.pushState()</code>, or the router&#39;s own <code>go()</code>.</p>
+<h3>Reading Query Parameters</h3>
+<p>A route lists the parameters it cares about in a <code>query</code> attribute, and they arrive as attributes on the component, exactly like named parameters from the path.</p>
+<pre><code class="language-html">&lt;app-router&gt;
+    &lt;div path=&quot;/orders&quot; component=&quot;order-list&quot; query=&quot;status,sortOrder&quot;&gt;&lt;/div&gt;
+&lt;/app-router&gt;
+</code></pre>
+<pre><code class="language-js">component(&#39;order-list&#39;, {
+    attr: [&#39;status&#39;, &#39;sortOrder&#39;],
+    template: html`Showing  orders by `,
+});
+</code></pre>
+<p>Names are camel case in the list and dashed as attributes. In the route you would use <code>sortOrder</code>, which would set the attribute <code>sort-order</code> on the element, and Fudgel would have that arrive as the property <code>sortOrder</code> in your component. This is the same convention the rest of Fudgel uses.</p>
+<p>A few things worth knowing:</p>
+<ul>
+<li>A parameter that is absent removes the attribute rather than setting it empty, so a controller&#39;s default value applies and <code>*if</code> behaves.</li>
+<li>A parameter that appears more than once, as in <code>?tag=one&amp;tag=two</code>, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the <code>routeChange</code> event and read <code>location.search</code> directly.</li>
+<li>Parameters not named in <code>query</code> are ignored. There is no wildcard.</li>
+<li>Query parameters are applied after the path, so naming the same thing in both a path pattern and the <code>query</code> list means the query wins. Do not do that; nothing stops you but it isn&#39;t what you want.</li>
+</ul>
+<p>For a component that is not a route, listen for <code>routeChange</code> and read <code>location.search</code> yourself.</p>
 <h2>Getting Notified</h2>
-<p>When the router notices changes to the location, a custom <code>routeChange</code> event is triggered on <code>document.body</code>. Note that the same route can be emitted multiple times when there are multiple routers used for nested routing.</p>
+<p>When the router notices changes to the location, a custom <code>routeChange</code> event is triggered on <code>document.body</code>. Its detail is the matched path, without any query string or fragment. Note that the same route can be emitted multiple times when there are multiple routers used for nested routing.</p>
 <p><code-sample sample="samples/routing-notification.js"></code-sample></p>
+<p>If you need to know when any part of the location changes, listen for the <code>routeChange</code> event and then read <code>location.pathname</code>, <code>location.search</code>, and <code>location.hash</code> yourself. This would be useful in case you care about repeated query parameters or reacting to fragment updates.</p>
 <h2>Watch Out For Problems</h2>
 <p>Because this is a simplistic router, there is the caveat that elements within need to be static. Do not add or remove elements, which means avoiding the use of structural directives within the router element and its children. If you need to do this, consider making the route into a component and let the router initialize the component.</p>
 <h2>What About Using Hashes?</h2>

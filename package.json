@@ -1,6 +1,6 @@
 {
     "name": "fudgel",
-    "version": "3.3.0",
+    "version": "3.4.0",
     "description": "Minimalist web component library to take the pain out of bindings and content updates.",
     "keywords": [
         "lightweight",
@@ -16,7 +16,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git://github.com/fidian/fudgel.git"
+        "url": "git+https://github.com/fidian/fudgel.git"
     },
     "homepage": "https://fudgel.js.org/",
     "author": "Tyler Akins <fidian@rumkin.com>",
@@ -31,26 +31,35 @@
         "reinstall": "rm -rf node_modules/ package-lock.json && npm install",
         "start": "light-server -s docs/ -p 8080",
         "test": "scripts/test",
-        "test:interactive": "start-server-and-test start http://localhost:8080 'cypress open'"
+        "test:interactive": "start-server-and-test start http://localhost:8080 'cypress open'",
+        "typecheck": "tsc -p tsconfig.type-tests.json"
     },
     "main": "dist/fudgel.js",
     "module": "dist/fudgel.mjs",
     "unpkg": "dist/fudgel.umd.min.js",
     "type": "module",
     "types": "dist/fudgel.d.ts",
+    "files": [
+        "dist"
+    ],
+    "sideEffects": false,
     "devDependencies": {
+        "@types/node": "^26.4.0",
         "agadoo": "^3.0.0",
-        "cypress": "^15.13.0",
+        "cypress": "^15.21.1",
         "cypress-ct-custom-elements": "^1.0.0",
-        "cypress-vite": "^1.8.0",
+        "cypress-vite": "^1.10.2",
         "light-server": "^2.9.1",
-        "marked": "^17.0.5",
-        "rollup": "^4.60.1",
-        "start-server-and-test": "^3.0.0",
-        "terser": "^5.46.1",
-        "typescript": "^5.9.3",
+        "marked": "^18.0.11",
+        "rollup": "^4.63.1",
+        "start-server-and-test": "^3.0.12",
+        "terser": "^5.51.2",
+        "typescript": "^7.0.2",
         "ultramatter": "^0.0.4",
-        "ventojs": "^2.3.1",
-        "vite": "^7.3.1"
+        "ventojs": "^2.4.0",
+        "vite": "^8.2.2"
+    },
+    "allowScripts": {
+        "cypress@15.21.1": true
     }
 }

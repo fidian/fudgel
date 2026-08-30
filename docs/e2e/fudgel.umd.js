@@ -1285,7 +1285,10 @@
      * Set up config and define a custom element.
      */
     // Decorator to wire a class as a custom component
-    const Component = (tag, config) => (target) => component(tag, config, target);
+    const Component = (tag, config) => (target) => {
+        component(tag, config, target);
+        // Returns void
+    };
     const component = (tag, configInitial, constructor) => {
         const cssClassName = `fudgel_${tag}`;
         const style = scopeStyle(configInitial.style || '', tag, cssClassName, configInitial.useShadow);
@@ -1549,6 +1552,12 @@
             for (const [key, value] of matchedRoute.g) {
                 setAttribute(e, camelToDash(key), value);
             }
+            const params = new URLSearchParams(win.location.search);
+            for (const key of matchedRoute.q) {
+                // get() returns null when the parameter is absent, and
+                // setAttribute would then remove that attribute.
+                setAttribute(e, camelToDash(key), params.get(key));
+            }
             if (append) {
                 this.append(e);
             }
@@ -1589,6 +1598,7 @@
                     return {
                         e: routeElement,
                         g: entries(match.groups || {}),
+                        q: getAttribute(routeElement, 'query')?.split(',') || [],
                     };
                 }
             }
@@ -1609,11 +1619,17 @@
             this._route(win.location.pathname);
         }
         _route(url) {
-            const matchedRoute = this._match(url);
+            // Routes match on the path alone. A query string and a fragment both
+            // select something *within* a route rather than changing which route
+            // matched, so `/orders?status=open` is the orders route. Every caller
+            // arrives here, including the patched history methods, which receive
+            // whatever URL the application gave them.
+            const path = url.replace(/[?#].*/, '') || '/';
+            const matchedRoute = this._match(path);
             if (matchedRoute) {
                 this._activate(matchedRoute);
             }
-            emit(doc.body, 'routeChange', url);
+            emit(doc.body, 'routeChange', path);
         }
     }
     const defineRouterComponent = (name = 'router-outlet') => {
