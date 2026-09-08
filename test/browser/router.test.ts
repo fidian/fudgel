@@ -1,6 +1,6 @@
 import { describe, beforeEach, expect, it } from 'vitest';
 import { Component, defineRouterComponent } from '../../src/fudgel.js';
-import { $, click, expectAttr, expectExists, expectMissing, expectText, expectValue, mount } from '../support/dom.js';
+import { $, click, expectAttr, expectCount, expectExists, expectMissing, expectText, expectValue, mount, tick } from '../support/dom.js';
 
 defineRouterComponent('app-router');
 
@@ -364,5 +364,161 @@ describe('router query parameters', () => {
         // the first, and anything needing every value reads location.search.
         await click('button#filteredRepeated');
         await expectText('#qTag', 'one');
+    });
+});
+
+@Component('link-kinds', {
+    template: `
+    <app-router>
+        <div path="/page1" id="linkPage1">page 1</div>
+        <div id="linkDefault">default</div>
+    </app-router>
+    <a id="plainLink" href="/page1">plain</a>
+    <a id="blankLink" href="/page1" target="_blank">new tab</a>
+    <a id="downloadLink" href="/page1" download>download</a>
+    <a id="externalLink" href="/page1" rel="external">external</a>
+    <a id="hashLink" href="#totals">totals</a>
+    <a id="otherPathHashLink" href="/page1#totals">totals on page 1</a>
+    `,
+})
+class LinkKindsComponent {}
+
+// Dispatch a click the way the browser would, then report whether the
+// router claimed it. The window listener runs after the router's body
+// listener and cancels the default action so no test navigates for real.
+const routerClaimed = (selector: string, init: MouseEventInit = {}) => {
+    let claimed: boolean | undefined;
+    window.addEventListener(
+        'click',
+        e => {
+            claimed = e.defaultPrevented;
+            e.preventDefault();
+        },
+        { once: true }
+    );
+    $(selector)!.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, ...init })
+    );
+
+    return claimed;
+};
+
+describe('history calls', () => {
+    beforeEach(async () => {
+        history.pushState(null, null, '/');
+        await mount('<test-application></test-application>');
+    });
+
+    it('keeps the route on replaceState without a URL', async () => {
+        await click('a#page1link');
+        await expectExists('#page1');
+        history.replaceState({ scrollTop: 10 }, '');
+        await tick();
+        await expectExists('#page1');
+        await expectMissing('#default');
+    });
+
+    it('resolves a relative pushState against the current URL', async () => {
+        history.pushState(null, '', 'page1/rel');
+        expect(location.pathname).toBe('/page1/rel');
+        await expectText('#id', 'rel');
+    });
+
+    it('keeps the route when only the query string changes', async () => {
+        await click('a#page1link');
+        await expectExists('#page1');
+        history.pushState(null, '', '?q=1');
+        expect(location.search).toBe('?q=1');
+        await tick();
+        await expectExists('#page1');
+        await expectMissing('#default');
+    });
+});
+
+describe('links the router leaves to the browser', () => {
+    beforeEach(async () => {
+        history.pushState(null, null, '/');
+        await mount('<link-kinds></link-kinds>');
+        await expectExists('#linkDefault');
+    });
+
+    it('claims a plain click', () => {
+        expect(routerClaimed('#plainLink')).toBe(true);
+    });
+
+    it('leaves a click with a modifier key or another button alone', () => {
+        expect(routerClaimed('#plainLink', { ctrlKey: true })).toBe(false);
+        expect(routerClaimed('#plainLink', { metaKey: true })).toBe(false);
+        expect(routerClaimed('#plainLink', { shiftKey: true })).toBe(false);
+        expect(routerClaimed('#plainLink', { altKey: true })).toBe(false);
+        expect(routerClaimed('#plainLink', { button: 1 })).toBe(false);
+    });
+
+    it('leaves target, download and rel=external links alone', () => {
+        expect(routerClaimed('#blankLink')).toBe(false);
+        expect(routerClaimed('#downloadLink')).toBe(false);
+        expect(routerClaimed('#externalLink')).toBe(false);
+    });
+
+    it('leaves a same-page fragment link alone, and claims one to another path', async () => {
+        expect(routerClaimed('#hashLink')).toBe(false);
+
+        // The browser handles the fragment, so it scrolls and the path stays.
+        $('#hashLink')!.click();
+        await tick();
+        expect(location.hash).toBe('#totals');
+        expect(location.pathname).toBe('/');
+        await expectExists('#linkDefault');
+
+        // A fragment on another path is a navigation, and the router's
+        // pushState happens as part of claiming it.
+        expect(routerClaimed('#otherPathHashLink')).toBe(true);
+        expect(location.pathname).toBe('/page1');
+        await expectExists('#linkPage1');
+        history.pushState(null, '', '/');
+    });
+});
+
+describe('nested routers', () => {
+    it('stop routing once removed, even when the outer router disconnects first', async () => {
+        history.pushState(null, null, '/');
+        await mount('<test-application></test-application>');
+        history.pushState(null, '', '/page3/123');
+        await expectText('#id', '123');
+
+        const changes: string[] = [];
+        const log = (e: Event) => changes.push((e as CustomEvent<string>).detail);
+        document.body.addEventListener('routeChange', log);
+
+        // Removing the application disconnects the outer router before the
+        // inner one. Nothing is left to route, so nothing announces a route.
+        document.body.innerHTML = '';
+        history.pushState(null, '', '/page2');
+        await tick();
+        expect(changes).toEqual([]);
+
+        // A fresh application routes on its own, exactly once per change.
+        await mount('<test-application></test-application>');
+        changes.length = 0;
+        history.pushState(null, '', '/page1');
+        await expectExists('#page1');
+        expect(changes).toEqual(['/page1']);
+        document.body.removeEventListener('routeChange', log);
+    });
+
+    it('navigate once for one click even with two routers listening', async () => {
+        history.pushState(null, null, '/');
+        await mount('<test-application></test-application><test-application></test-application>');
+        await expectCount('#default', 2);
+        const changes: string[] = [];
+        const log = (e: Event) => changes.push((e as CustomEvent<string>).detail);
+        document.body.addEventListener('routeChange', log);
+        await click('a#page1link');
+        await expectCount('#page1', 2);
+        document.body.removeEventListener('routeChange', log);
+
+        // One navigation, announced once by each router; a second pushState
+        // would have doubled this.
+        expect(changes).toEqual(['/page1', '/page1']);
     });
 });

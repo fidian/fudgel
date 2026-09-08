@@ -14,6 +14,7 @@ import {
     win,
 } from '../elements.js';
 import { emit } from '../actions.js';
+import { newSet } from '../sets.js';
 
 interface MatchedRoute {
     // The element that matched the route
@@ -28,11 +29,78 @@ interface MatchedRoute {
 // still being evaluated, which is the one thing a Node import must survive.
 const HTMLElementBase = (win.HTMLElement || Object) as typeof HTMLElement;
 
+// Every connected router, in connection order: an outer router before the
+// inner one it created.
+const routers = /*@__PURE__*/ newSet<RouterComponent>();
+let installed: boolean | undefined;
+
+// Route every router against the current location. A snapshot is walked
+// because an outer router activating a route can connect an inner router,
+// which routes itself as it connects.
+const routeAll = () => {
+    for (const router of [...routers]) {
+        router._route();
+    }
+};
+
+const clickedLink = (e: MouseEvent) => {
+    const link = e
+        .composedPath()
+        .filter((n: any) => (n as HTMLElement).tagName == 'A')[0] as
+        | HTMLAnchorElement
+        | undefined;
+
+    // Leave to the browser: anything already handled, a click meant to open
+    // a new tab or window (modifier keys, another button, a target), a
+    // download, a link marked external, another origin, and a fragment on
+    // the current page, which needs the browser to scroll.
+    if (
+        link &&
+        !e.defaultPrevented &&
+        !e.button &&
+        !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) &&
+        (!link.target || link.target == '_self') &&
+        !link.hasAttribute('download') &&
+        !/\bexternal\b/.test(link.rel) &&
+        link.href &&
+        link.origin == win.location.origin &&
+        !link.href.startsWith('blob:') &&
+        !(
+            link.hash &&
+            link.pathname == win.location.pathname &&
+            link.search == win.location.search
+        )
+    ) {
+        e.preventDefault();
+        win.history.pushState(
+            null,
+            '',
+            `${link.pathname}${link.search}${link.hash}`
+        );
+    }
+};
+
+// The history patch and the two listeners are installed once for the page,
+// not once per router. Per-router patches restored their originals in
+// disconnection order, which is parent first, so tearing down nested
+// routers left a dead router's wrapper on history.pushState.
+const install = () => {
+    win.addEventListener('popstate', routeAll);
+    doc.body.addEventListener('click', clickedLink);
+
+    for (const method of ['pushState', 'replaceState'] as const) {
+        const original = win.history[method];
+        win.history[method] = function (this: History, ...args: any[]) {
+            original.apply(this, args as [any, string, string?]);
+            routeAll();
+        };
+    }
+};
+
 export class RouterComponent extends HTMLElementBase {
     private _fragment = createDocumentFragment();
     private _lastMatched: HTMLElement[] = [];
     private _routeElements: HTMLElement[] = [];
-    private _undo: VoidFunction[] = [];
 
     constructor() {
         super();
@@ -55,17 +123,17 @@ export class RouterComponent extends HTMLElementBase {
     }
 
     connectedCallback() {
-        this._listen(win, 'popstate', this._popState);
-        this._listen(doc.body, 'click', this._clickedLink);
-        this._route(win.location.pathname);
-        this._patch(win.history, 'pushState', this._modifyStateGenerator);
-        this._patch(win.history, 'replaceState', this._modifyStateGenerator);
+        if (!installed) {
+            installed = true;
+            install();
+        }
+
+        routers.add(this);
+        this._route();
     }
 
     disconnectedCallback() {
-        while (this._undo.length) {
-            this._undo.pop()!();
-        }
+        routers.delete(this);
     }
 
     go(url: string) {
@@ -113,39 +181,6 @@ export class RouterComponent extends HTMLElementBase {
         }
     }
 
-    private _clickedLink(e: Event) {
-        if (!e.defaultPrevented) {
-            const link = e
-                .composedPath()
-                .filter((n: any) => (n as HTMLElement).tagName == 'A')[0] as
-                | HTMLAnchorElement
-                | undefined;
-
-            if (link) {
-                if (
-                    link.href &&
-                    link.origin == win.location.origin &&
-                    !link.href.startsWith('blob:')
-                ) {
-                    e.preventDefault();
-                    this.go(`${link.pathname}${link.search}${link.hash}`);
-                }
-            }
-        }
-    }
-
-    private _listen(
-        target: Window | HTMLElement,
-        eventName: string,
-        unboundListener: (...args: any[]) => void
-    ): void {
-        const boundListener = unboundListener.bind(this);
-        target.addEventListener(eventName, boundListener);
-        this._undo.push(() =>
-            target.removeEventListener(eventName, boundListener)
-        );
-    }
-
     private _match(url: string): MatchedRoute | undefined {
         for (const routeElement of this._routeElements) {
             const path = getAttribute(routeElement, 'path') || '**';
@@ -178,40 +213,14 @@ export class RouterComponent extends HTMLElementBase {
         // Returning undefined is falsy
     }
 
-    private _modifyStateGenerator(
-        target: object,
-        original: (state: any, title: string, url?: string | null) => void
-    ) {
-        return (state: any, title: string, url?: string | null) => {
-            original.call(target, state, title, url);
-            this._route(url || '/');
-        };
-    }
-
-    private _patch(
-        target: object,
-        methodName: string,
-        generator: (
-            target: object,
-            original: (...args: any[]) => any
-        ) => (...args: any[]) => any
-    ) {
-        const original = (target as any)[methodName];
-        (target as any)[methodName] = generator.call(this, target, original);
-        this._undo.push(() => ((target as any)[methodName] = original));
-    }
-
-    private _popState() {
-        this._route(win.location.pathname);
-    }
-
-    private _route(url: string) {
-        // Routes match on the path alone. A query string and a fragment both
-        // select something *within* a route rather than changing which route
-        // matched, so `/orders?status=open` is the orders route. Every caller
-        // arrives here, including the patched history methods, which receive
-        // whatever URL the application gave them.
-        const path = url.replace(/[?#].*/, '') || '/';
+    // Routes match on the path alone. A query string and a fragment both
+    // select something *within* a route rather than changing which route
+    // matched, so `/orders?status=open` is the orders route. The path is
+    // read back from the browser after every change, so a relative URL or
+    // a replaceState() with no URL at all is resolved the way the browser
+    // resolved it.
+    _route() {
+        const path = win.location.pathname;
         const matchedRoute = this._match(path);
 
         if (matchedRoute) {
