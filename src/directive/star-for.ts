@@ -15,6 +15,7 @@ export const starForDirective: StructuralDirective = (
 ) => {
     let keyName = 'key';
     let valueName = 'value';
+    let trackValue: string | undefined;
     // [key,] value of iterable [track expression]
     const matches = attrValue.match(
         /^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(.+?)(?:\s+track\s+(.+?))?\s*$/
@@ -24,9 +25,13 @@ export const starForDirective: StructuralDirective = (
         keyName = matches[1] || keyName;
         valueName = matches[2] || valueName;
         attrValue = matches[3];
+        trackValue = matches[4];
     }
 
     const parsed = parse.js(attrValue);
+    // What identifies an item: the track expression, evaluated with the
+    // loop variables in scope, or else the iteration key.
+    const track = trackValue && parse.js(trackValue);
     const anchorScope = getScope(anchor);
     let activeNodes = new Map<any, HTMLElement>();
     const update = () => {
@@ -35,35 +40,40 @@ export const starForDirective: StructuralDirective = (
         activeNodes = new Map();
         let lastNode: HTMLElement | Comment = anchor;
 
-        // Attempt to reuse nodes based on the key of the iterable
         for (const [key, value] of entries(iterable)) {
-            // Attempt to find the old node
-            let copy = oldNodes.get(key);
-            oldNodes.delete(key);
+            const id = track
+                ? track[0](
+                      { [keyName]: key, [valueName]: value },
+                      anchorScope,
+                      controller
+                  )
+                : key;
+            let copy = oldNodes.get(id);
+            oldNodes.delete(id);
 
-            if (copy === lastNode.nextSibling) {
-                // Next node is in the right position. Update the value in
-                // scope, which should trigger bindings.
+            if (copy) {
+                // Keep the node, and with it whatever state it holds. Update
+                // the scope, which triggers its bindings, and move it only
+                // if it is out of place.
                 const scope = getScope(copy);
-                (scope as any)[valueName] = value;
-            } else {
-                // Delete the old node if it exists
-                if (copy) {
-                    unlink(controller, copy);
-                    copy.remove();
-                }
+                scope[keyName] = key;
+                scope[valueName] = value;
 
+                if (copy !== lastNode.nextSibling) {
+                    lastNode.after(copy);
+                }
+            } else {
                 // Create a new node and set its scope
                 copy = cloneNode(source);
                 const scope = childScope(anchorScope, copy);
-                (scope as any)[keyName] = key;
-                (scope as any)[valueName] = value;
+                scope[keyName] = key;
+                scope[valueName] = value;
                 link(controller, copy);
                 lastNode.after(copy);
             }
 
             lastNode = copy;
-            activeNodes.set(key, lastNode);
+            activeNodes.set(id, copy);
         }
 
         // Clean up any remaining nodes. It's faster to call `unlink()` once,
