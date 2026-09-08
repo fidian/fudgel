@@ -46,6 +46,11 @@ npm start             # serve docs/ on :8080 (SSI's Manage dev server also uses 
   guarded fallback in `src/elements.ts`, or any other ES2019+ API.
 - **No `new Function`, no `eval`.** Expressions are parsed by `src/jsep.ts`
   so the library works under a strict Content-Security-Policy.
+- **`package.json` says the library has no side effects, except the dev
+  module.** `sideEffects` lists `dist/fudgel-dev.mjs` because a bare
+  `import 'fudgel/dev'` would otherwise be dropped by every bundler; a new
+  file that exists for its side effect goes on that list. `scripts/test`
+  checks the entry is still there.
 - **Module-level state must be marked pure** (`/*@__PURE__*/ newSet()`) or
   agadoo fails the tree-shaking check.
 - **Everything the library needs from the environment goes through

@@ -58,7 +58,11 @@
     "files": [
         "dist"
     ],
-    "sideEffects": false,
+    "sideEffects": [
+        "./dist/dev.js",
+        "./dist/fudgel-dev.mjs",
+        "./dist/fudgel-dev.min.mjs"
+    ],
     "devDependencies": {
         "@types/node": "^26.4.0",
         "@vitest/browser-playwright": "^5.0.0",

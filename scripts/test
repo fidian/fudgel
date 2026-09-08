@@ -25,6 +25,13 @@ for (const file of ['dist/fudgel.min.mjs', 'dist/fudgel.umd.min.js', 'dist/only-
 }
 "
 
+status "The dev module survives tree shaking"
+node -e "
+const pkg = require('./package.json');
+const listed = Array.isArray(pkg.sideEffects) && pkg.sideEffects.includes('./dist/fudgel-dev.mjs');
+if (!listed) { throw new Error('package.json sideEffects must list dist/fudgel-dev.mjs, or a bare import of fudgel/dev is dropped by bundlers'); }
+"
+
 status "Importable without a DOM"
 node -e "import('./dist/fudgel.mjs').then(m => { if (typeof m.di != 'function') { throw new Error('fudgel did not load under Node'); } })"
 node -e "if (typeof require('./dist/fudgel.cjs').di != 'function') { throw new Error('the CommonJS build did not load'); }"
