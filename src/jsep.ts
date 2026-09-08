@@ -671,6 +671,9 @@ const gobbleObjectLiteral = (): ValueProvider => {
 
             return [obj];
         },
-        newSet(...(props.map(prop => [prop[0][1], prop[1][1]]).flat()))
+        newSet(
+            ...props.map(prop => prop[0][1]),
+            ...props.map(prop => prop[1][1])
+        ),
     ];
 };

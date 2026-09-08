@@ -47,6 +47,7 @@
     "devDependencies": {
         "@types/node": "^26.4.0",
         "@vitest/browser-playwright": "^5.0.0",
+        "acorn": "^8.18.0",
         "agadoo": "^3.0.0",
         "light-server": "^2.9.1",
         "marked": "^18.0.11",

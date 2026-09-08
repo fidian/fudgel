@@ -4,7 +4,9 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Fudgel = {}));
 })(this, (function (exports) { 'use strict';
 
-    const newSet = (...iterables) => new Set(iterables.flatMap(list => [...list]));
+    // concat rather than flatMap: the library stays within ES2018 so Safari
+    // 11.1 can parse it, and flatMap arrived in ES2019.
+    const newSet = (...iterables) => new Set([].concat(...iterables.map(list => [...list])));
 
     const allComponents = /*@__PURE__*/ newSet();
 
@@ -22,7 +24,8 @@
         // Emits a value to all event listeners. If one listener removes a later
         // listener from the list, the later listener will still be called.
         emit(name, ...data) {
-            for (const cb of [...(this._m.get(name) ?? [])]) {
+            var _a;
+            for (const cb of [...((_a = this._m.get(name)) !== null && _a !== void 0 ? _a : [])]) {
                 cb(...data);
             }
         }
@@ -36,7 +39,8 @@
             }
         }
         on(name, callback) {
-            (this._m.get(name) ?? this._m.set(name, newSet()).get(name)).add(callback);
+            var _a;
+            ((_a = this._m.get(name)) !== null && _a !== void 0 ? _a : this._m.set(name, newSet()).get(name)).add(callback);
             return () => this.off(name, callback);
         }
     }
@@ -44,13 +48,15 @@
     const events = new Emitter();
 
     const lifecycle = (controller, stage, ...args) => {
+        var _a, _b;
         events.emit(stage, controller, ...args);
-        controller[metadata]?.events.emit(stage, ...args);
-        controller[`on${stage[0].toUpperCase()}${stage.slice(1)}`]?.(...args);
+        (_a = controller[metadata]) === null || _a === void 0 ? void 0 : _a.events.emit(stage, ...args);
+        (_b = controller[`on${stage[0].toUpperCase()}${stage.slice(1)}`]) === null || _b === void 0 ? void 0 : _b.call(controller, ...args);
     };
 
     const emit = (source, eventName, detail, customEventInit = {}) => {
-        const e = source instanceof Element ? source : source[metadata]?.host;
+        var _a;
+        const e = source instanceof Element ? source : (_a = source[metadata]) === null || _a === void 0 ? void 0 : _a.host;
         if (e) {
             e.dispatchEvent(new CustomEvent(eventName, {
                 bubbles: true,
@@ -72,6 +78,7 @@
         }
     };
     const updateController = (controller) => {
+        var _a;
         // Mark all attributes and properties as being changed so internals get
         // updated. Necessary when deeply nested objects are passed as input
         // properties to directives and are updated in scopes.
@@ -81,7 +88,7 @@
             lifecycle(controller, 'change', name, controller[name], controller[name]);
         }
         // Update all bound functions
-        controller[metadata]?.events.emit('update');
+        (_a = controller[metadata]) === null || _a === void 0 ? void 0 : _a.events.emit('update');
     };
 
     const Obj = Object;
@@ -93,7 +100,7 @@
     // Convert PascalCaseString to dashed-string, used when removing a leading
     // portion of a camel case string, such as "on" from "onClick"
     const pascalToDash = (pascal) => camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
-    const toString = (value) => `${value ?? ''}`;
+    const toString = (value) => `${value !== null && value !== void 0 ? value : ''}`;
     const isString = (x) => typeof x == 'string';
     const isFunction = (x) => typeof x == 'function';
     const getAttribute = (node, name) => node.getAttribute(name);
@@ -115,7 +122,7 @@
     // Return [key, value] pairs for a Map, Set, array, other iterable, or plain
     // object. Only a real iterable is trusted to have an entries() method; a
     // plain object may carry any key, including one called "entries".
-    const entries = (x) => isFunction(x?.[Symbol.iterator])
+    const entries = (x) => isFunction(x === null || x === void 0 ? void 0 : x[Symbol.iterator])
         ? // Map, Set, Array and NodeList have entries(); spread the rest.
             (isFunction(x.entries) ? x : [...x]).entries()
         : Obj.entries(x || {});
@@ -177,8 +184,8 @@
                 !(desc = Obj.getOwnPropertyDescriptor(proto, property))) {
                 proto = Obj.getPrototypeOf(proto);
             }
-            const get = desc?.get;
-            const set = desc?.set;
+            const get = desc === null || desc === void 0 ? void 0 : desc.get;
+            const set = desc === null || desc === void 0 ? void 0 : desc.set;
             let value = get ? undefined : obj[property];
             const read = function () {
                 return get ? get.call(this) : value;
@@ -209,30 +216,32 @@
     // Run `cleanup` once, when a directive removes `node` or the controller is
     // destroyed, and drop the listeners that were waiting for that moment.
     const whenRemoved = (controller, node, cleanup) => {
-        const events = controller[metadata]?.events;
+        var _a;
+        const events = (_a = controller[metadata]) === null || _a === void 0 ? void 0 : _a.events;
         const done = () => {
             cleanup();
             for (const remover of removers) {
-                remover?.();
+                remover === null || remover === void 0 ? void 0 : remover();
             }
         };
         const removers = [
-            events?.on('unlink', (removedNode) => {
+            events === null || events === void 0 ? void 0 : events.on('unlink', (removedNode) => {
                 if (removedNode.contains(node)) {
                     done();
                 }
             }),
-            events?.on('destroy', done),
+            events === null || events === void 0 ? void 0 : events.on('destroy', done),
         ];
     };
     const addBindings = (controller, node, callback, bindingList, scope) => {
+        var _a;
         for (const binding of bindingList) {
             const target = findBindingTarget(controller, scope, binding);
             const unpatch = patchSetter(target, binding, callback);
-            const offUpdate = controller[metadata]?.events.on('update', callback);
+            const offUpdate = (_a = controller[metadata]) === null || _a === void 0 ? void 0 : _a.events.on('update', callback);
             whenRemoved(controller, node, () => {
                 unpatch();
-                offUpdate?.();
+                offUpdate === null || offUpdate === void 0 ? void 0 : offUpdate();
             });
         }
     };
@@ -295,7 +304,7 @@
         // 1 Skip: , (comma)
         // 2 Skip: ...x, yield, =>, x?y:z, assignments
         '||': [3, (left, right) => root => [left(root)[0] || right(root)[0]]],
-        '??': [3, (left, right) => root => [left(root)[0] ?? right(root)[0]]],
+        '??': [3, (left, right) => root => { var _a; return [(_a = left(root)[0]) !== null && _a !== void 0 ? _a : right(root)[0]]; }],
         '&&': [4, (left, right) => root => [left(root)[0] && right(root)[0]]],
         '|': [5, (left, right) => root => [left(root)[0] | right(root)[0]]], // After ||
         '^': [6, (left, right) => root => [left(root)[0] ^ right(root)[0]]],
@@ -804,7 +813,7 @@
                 }
                 return [obj];
             },
-            newSet(...(props.map(prop => [prop[0][1], prop[1][1]]).flat()))
+            newSet(...props.map(prop => prop[0][1]), ...props.map(prop => prop[1][1])),
         ];
     };
 
@@ -857,11 +866,12 @@
     // See parseText
     const parseAttr = (text) => {
         const splitResult = splitText(text);
-        const first = splitResult?.[0];
-        if (first?.length == 3 && first[0] == '' && first[2] == '') {
+        const first = splitResult === null || splitResult === void 0 ? void 0 : splitResult[0];
+        if ((first === null || first === void 0 ? void 0 : first.length) == 3 && first[0] == '' && first[2] == '') {
             return [
                 (...roots) => {
-                    const x = first[1](...roots) ?? false;
+                    var _a;
+                    const x = (_a = first[1](...roots)) !== null && _a !== void 0 ? _a : false;
                     return x === !!x ? x : toString(x);
                 },
                 splitResult[1],
@@ -998,7 +1008,7 @@
 
     const change = (controller, propertyName, newValue) => {
         // Only allow the change if the controller is still active
-        if (controller?.[metadata]) {
+        if (controller === null || controller === void 0 ? void 0 : controller[metadata]) {
             const oldValue = controller[propertyName];
             if (oldValue !== newValue) {
                 controller[propertyName] = newValue;
@@ -1177,7 +1187,7 @@
             const applyDirective = generalDirectives[attrName] ||
                 generalDirectives[firstChar] ||
                 generalDirectives[''];
-            applyDirective?.(controller, currentNode, attr.nodeValue || '', attrName);
+            applyDirective === null || applyDirective === void 0 ? void 0 : applyDirective(controller, currentNode, attr.nodeValue || '', attrName);
         }
     };
 
@@ -1543,6 +1553,7 @@
         return CustomElement;
     };
     const scopeStyleRule = (rule, tagForScope, className, useShadow) => {
+        var _a;
         const styleRule = rule;
         const original = styleRule.selectorText;
         if (original) {
@@ -1584,7 +1595,7 @@
             }
             tagForScope = ''; // Don't need to scope children selectors
         }
-        for (const childRule of rule.cssRules ?? []) {
+        for (const childRule of (_a = rule.cssRules) !== null && _a !== void 0 ? _a : []) {
             scopeStyleRule(childRule, tagForScope, className, useShadow);
         }
         return rule.cssText;
@@ -1742,6 +1753,7 @@
             }
         }
         _match(url) {
+            var _a;
             for (const routeElement of this._routeElements) {
                 const path = getAttribute(routeElement, 'path') || '**';
                 const regexpAttr = getAttribute(routeElement, 'regexp');
@@ -1757,7 +1769,7 @@
                     return {
                         e: routeElement,
                         g: entries(match.groups || {}),
-                        q: getAttribute(routeElement, 'query')?.split(',') || [],
+                        q: ((_a = getAttribute(routeElement, 'query')) === null || _a === void 0 ? void 0 : _a.split(',')) || [],
                     };
                 }
             }

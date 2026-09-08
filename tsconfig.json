@@ -22,7 +22,7 @@
         "rootDir": "src",
         "sourceMap": true,
         "strict": true,
-        "target": "esNext",
+        "target": "ES2018",
         "useDefineForClassFields": false
     },
     "include": ["src/**/*.ts"]

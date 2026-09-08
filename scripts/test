@@ -16,6 +16,15 @@ tsc -p tsconfig.type-tests-standard.json
 status "Tree shaking"
 agadoo dist/fudgel.mjs
 
+status "ES2018 syntax only, so the documented browsers can parse it"
+node -e "
+const acorn = require('acorn');
+const fs = require('fs');
+for (const file of ['dist/fudgel.min.mjs', 'dist/fudgel.umd.min.js', 'dist/only-component.min.mjs']) {
+    acorn.parse(fs.readFileSync(file, 'utf8'), { ecmaVersion: 2018, sourceType: file.endsWith('.mjs') ? 'module' : 'script' });
+}
+"
+
 status "Importable without a DOM"
 node -e "import('./dist/fudgel.mjs').then(m => { if (typeof m.di != 'function') { throw new Error('fudgel did not load under Node'); } })"
 
