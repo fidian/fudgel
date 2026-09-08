@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -198,7 +214,7 @@
 </div><h3>Easy and Lightweight Web Components</h3>
 <p>Do you miss working with plain JavaScript and HTML? Are other frameworks causing pain or bloating your project? Tired of a slow transpile step? Fudgel allows you to write web components easily using familiar JavaScript classes and HTML, staying out of your way and making your life more effortless.</p>
 <p>Event bindings are added automatically, calling methods in your controller class. Property changes in your controller automatically update the HTML. Integrates seamlessly with Angular, React, and other frameworks. All of this is done while keeping the bundle size very small, so your users aren&#39;t waiting for a massive download just to see your content.</p>
-<p>Fudgel uses about <span style="font-size: 1.2em">7k</span> to provide:</p>
+<p>Fudgel uses under <span style="font-size: 1.2em">8k</span> to provide:</p>
 <ul>
 <li>Automatic DOM updates when <a href="bindings.html">properties change</a><ul>
 <li>Add and remove elements, classes, loop over data, events, and more with <a href="directives.html">directives</a></li>
@@ -247,8 +263,8 @@
 </thead>
 <tbody><tr>
 <td align="center">Chrome</td>
-<td align="center">60</td>
-<td align="center">Jul 2017</td>
+<td align="center">64</td>
+<td align="center">Jan 2018</td>
 </tr>
 <tr>
 <td align="center">Edge</td>
@@ -272,11 +288,11 @@
 </tr>
 <tr>
 <td align="center">Samsung Internet</td>
-<td align="center">8.2</td>
-<td align="center">Dec 2018</td>
+<td align="center">9.0</td>
+<td align="center">Jan 2019</td>
 </tr>
 </tbody></table>
-<p>If you need to support slightly older versions, look at Fudgel 2.x or use Babel to transpile the library. (Firefox 110 is where <a href="https://developer.mozilla.org/en-US/docs/Web/API/CSSPageRule/selectorText"><code>CSSPageRule.selectorText</code> became available</a>, which is needed for CSS scoping.)</p>
+<p>The build is compiled to ES2018 syntax and every release is checked against it, so a newer language feature cannot slip into the bundle. If you need to support slightly older versions, look at Fudgel 2.x or use Babel to transpile the library. (Firefox 110 is where <a href="https://developer.mozilla.org/en-US/docs/Web/API/CSSPageRule/selectorText"><code>CSSPageRule.selectorText</code> became available</a>, which is needed for CSS scoping.)</p>
 <p>See the details on the most restrictive browser features required to run Fudgel using <a href="https://caniuse.com/mdn-html_elements_slot,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-api_csspagerule_selectortext,wf-spread">CanIUse.com feature list</a>. At the bottom, click &quot;Show Summary&quot;, &quot;Intersection&quot; and change usage to &quot;all tracked&quot; to exclude bots, <code>curl</code>, and other unknown browsers.</p>
 <h2>Goals and Prior Work</h2>
 <p>This project has received the benefit of having others blaze trails in related areas. Thanks to the following projects for their inspiration:</p>
@@ -291,6 +307,10 @@
 </ul>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -348,6 +368,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -360,6 +388,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -368,12 +400,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

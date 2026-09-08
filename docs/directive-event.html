@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -136,6 +152,7 @@
                 <div class="limit-width">
 <h1>Event <code>@</code> Directive</h1>
 <p>Event handler <a href="directives.html">directives</a> are bound with a <code>@</code> prefixed attribute. The event that triggered the action is available as <code>$event</code> within the <a href="expressions.html">expression</a>.</p>
+<p>The attribute name is converted from kebab-case to camelCase, so <code>@value-save</code> listens for a <code>valueSave</code> event. It also listens for the name exactly as written, <code>value-save</code>, so a dashed event from another component library binds the same way. See <a href="naming.html">Naming Conventions</a>. Listeners are removed when a directive removes the element or the component is destroyed, including listeners placed on the window or document by the modifiers below.</p>
 <p><code-sample sample="samples/directive-event.js"></code-sample></p>
 <p>Event handlers can also have modifiers, indicating what should be done with the event. These are separated by a period and appear after the event name, always in kebab-case. They get changed into camelCase within Fudgel; only lowercase letters are allowed for HTML attributes.</p>
 <ul>
@@ -161,10 +178,14 @@
 </ul>
 <p><code-sample sample="samples/test-keyboard-events.js"></code-sample></p>
 <p>Finally, any other event modifier will be treated as a key value. This means using <code>keypress.a</code> will only fire when the &quot;a&quot; key is pressed. Key values are listed on <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values">MDN&#39;s Keyboard Event Key Values page</a>. Make sure to use all lowercase and kebab-case names, such as <code>keypress.enter</code> and <code>keypress.arrow-left</code>.</p>
-<p>Some keys are difficult to represent as HTML attributes, so you can use their ASCII values or code point values, such as <code>keypress.code-32</code> for space (hex 0x20, ASCII code point 32) and <code>keypress.code-252</code> for ü.</p>
+<p>Some keys are difficult to represent as HTML attributes, so you can use their ASCII values or code point values, such as <code>keypress.code-32</code> for space (hex 0x20, ASCII code point 32) and <code>keypress.code-252</code> for ü. The space bar also matches <code>keypress.space</code>.</p>
 <p><code-sample sample="samples/test-key-value-events.js"></code-sample></p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -222,6 +243,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -234,6 +263,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -242,12 +275,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

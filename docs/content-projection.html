@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -144,7 +160,7 @@
 <p>You can also project multiple pieces of content into specific areas using named slots. Read more about <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot"><code>&lt;slot&gt; elements</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot"><code>slot</code> attributes</a> on MDN.</p>
 <p><code-sample sample="samples/slot-example.html"></code-sample></p>
 <h2>Slots and Light DOM</h2>
-<p>There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element, and after that point all components will have <code>&lt;slot&gt;</code> elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM.</p>
+<p><strong>A <code>&lt;slot&gt;</code> in a light DOM template does nothing on its own</strong>; the content inside the element is simply removed. There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element by calling <code>defineSlotComponent()</code> once, before defining components. After that point all components will have <code>&lt;slot&gt;</code> elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM. While developing, <code>fudgel/dev</code> warns about a <code>&lt;slot&gt;</code> that was not rewritten.</p>
 <p>This slot substitute doesn&#39;t work well for changing content.  Avoid using this when your content uses structural directives or otherwise adds/removes elements.</p>
 <p><code-sample sample="samples/slot-like-example.html"></code-sample></p>
 <p>How does this work? Calling <code>defineSlotComponent()</code> will define the custom component with the default name of <code>slot-like</code>, which you can change by using <code>defineSlotComponent(&#39;custom-element-name&#39;)</code>. Please make sure you do this right away, before your custom elements get created. This function watches for component creation within Fudgel so all light DOM components will have their template rewritten, changing <code>&lt;slot&gt;</code> elements into <code>&lt;slot-like&gt;</code> elements. This template change happens once during each components initial definition. If the component uses <code>&lt;slot-like&gt;</code>, then extra functionality is added to help support content projection.</p>
@@ -156,6 +172,10 @@
 <p><code-sample sample="samples/manual-content-projection.html"></code-sample></p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -213,6 +233,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -225,6 +253,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -233,12 +265,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

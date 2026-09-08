@@ -6,6 +6,8 @@ title: Event @ Directive (Fudgel.js)
 
 Event handler [directives](directives.html) are bound with a `@` prefixed attribute. The event that triggered the action is available as `$event` within the [expression](expressions.html).
 
+The attribute name is converted from kebab-case to camelCase, so `@value-save` listens for a `valueSave` event. It also listens for the name exactly as written, `value-save`, so a dashed event from another component library binds the same way. See [Naming Conventions](naming.html). Listeners are removed when a directive removes the element or the component is destroyed, including listeners placed on the window or document by the modifiers below.
+
 <code-sample sample="samples/directive-event.js"></code-sample>
 
 Event handlers can also have modifiers, indicating what should be done with the event. These are separated by a period and appear after the event name, always in kebab-case. They get changed into camelCase within Fudgel; only lowercase letters are allowed for HTML attributes.
@@ -36,6 +38,6 @@ You can also fire events only when certain key combinations are pressed.
 
 Finally, any other event modifier will be treated as a key value. This means using `keypress.a` will only fire when the "a" key is pressed. Key values are listed on [MDN's Keyboard Event Key Values page](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values). Make sure to use all lowercase and kebab-case names, such as `keypress.enter` and `keypress.arrow-left`.
 
-Some keys are difficult to represent as HTML attributes, so you can use their ASCII values or code point values, such as `keypress.code-32` for space (hex 0x20, ASCII code point 32) and `keypress.code-252` for ü.
+Some keys are difficult to represent as HTML attributes, so you can use their ASCII values or code point values, such as `keypress.code-32` for space (hex 0x20, ASCII code point 32) and `keypress.code-252` for ü. The space bar also matches `keypress.space`.
 
 <code-sample sample="samples/test-key-value-events.js"></code-sample>

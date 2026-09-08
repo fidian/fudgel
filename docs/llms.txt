@@ -1,0 +1,57 @@
+# Fudgel
+
+> Fudgel is a small library (under 8k gzipped) for writing web components with plain JavaScript classes and HTML templates. No build step is required. A controller class holds state and methods; a template uses {{ }} bindings and a few directives; the result is a standard custom element that works inside any framework or none.
+
+Site: https://fudgel.js.org/ - Source: https://github.com/fidian/fudgel - Full text of every page: https://fudgel.js.org/llms-full.txt
+
+## Minimal component
+
+```js
+import { component, html, css } from 'fudgel';
+
+component('hello-world', {
+    attr: ['audience'],            // observed attributes, camelCase here, audience="..." in HTML
+    prop: ['settings'],            // element properties mirrored to the controller
+    style: css`:host { display: block; }`,
+    template: html`<p @click="greet()">Hello {{ audience }}!</p>`,
+}, class {
+    audience = 'world';
+    settings = {};
+    greet() { this.audience = 'friend'; }   // assigning a bound property re-renders it
+});
+```
+
+While developing, also `import 'fudgel/dev';` once, before components are defined. It warns about the mistakes below and is left out of production.
+
+## Rules that prevent most mistakes
+
+1. Names are camelCase in JavaScript and dash-case in HTML, always. `attr: ['parentSection']` is `parent-section="..."` in HTML; `prop: ['isSaveable']` is set with `.is-saveable="expr"`; a route parameter `:userId` arrives as `user-id`; `emit(this, 'valueSave')` is heard by `@value-save`. HTML lowercases attribute names, so `.isSaveable` becomes `.issaveable` and silently matches nothing.
+2. A binding re-runs only when a top-level identifier in its expression is assigned. `{{ user.name }}` updates when `user` is reassigned, not when `user.name` is mutated. `{{ canSave() }}` runs once; `{{ canSave(name, email) }}` re-runs when `name` or `email` is assigned, so pass a method the values it depends on. Or compute into a property and bind that. `update(this)` re-runs everything for one controller.
+3. Bind form controls by property: `<input .value="name" @input="setName($event.target.value)">`, `<input type="checkbox" .checked="flag">`. `value="{{ name }}"` sets an attribute the control ignores once edited. Use `@input`, not `@change`, to react to typing. A `<select>` whose options come from `*for` needs its value set in `onViewInit()`/`onChange()` through a `#ref`.
+4. `*for="row of rows track row.id"` keeps each row with its record across reorders and inserts. Without `track`, rows are keyed by array index. The loop variable is `value` (and `key`) unless named. Use `of`, never `in`.
+5. Expressions are a JavaScript subset: property access, calls, operators, `a ? b : c`, `(a + b)`, literals, `?.`, `??`. No assignment, no arrow functions, no template literals. Globals like `Math`, `JSON`, `Date` work. A parse error is logged and the binding is `undefined`.
+6. Lifecycle order: constructor, `onChange()` once per initial attr/prop value, `onInit()` (before the template exists), `onParse()` (original children still present), `onViewInit()` (template applied, DOM live), `onChange()` on later changes, `onDestroy()` on removal. Moving an element in the DOM destroys and recreates its controller.
+7. `attr` properties are strings; an absent attribute sets the property to `null`. Assigning a string, `true`, `false` or `null` to an `attr` property reflects to the attribute.
+8. Structural directives (`*if`, `*for`, `*repeat`) take one per element. `#class="{ active: isActive }"` toggles classes. `#ref="name"` stores the element on the controller (last row wins inside `*for`). `@event.modifier` supports `stop`, `prevent`, `self`, `outside`, `window`, `document`, `once`, `capture`, `passive`, key names (`enter`, `arrow-left`, `space`, `code-32`) and `ctrl`/`shift`/`alt`/`meta`/`exact`.
+9. Light DOM is the default. `<slot>` in a light DOM template does nothing unless `defineSlotComponent()` was called once first; with `useShadow: true` native slots work. Styles are scoped automatically; `:host`, `:host(.x)` and `:host-context(.x)` are rewritten for the light DOM.
+10. Router: `defineRouterComponent('app-router')`, then `<app-router><div path="/orders/:id" component="order-page"></div><div path="/orders">...</div><div>fallback</div></app-router>`. First match wins and a route matches longer paths, so list longer paths first. Navigate from anywhere with `history.pushState(null, '', '/path')`. Same route with new parameters reuses the element: handle it in `onChange()`, not `onInit()`. Query parameters named in `query="a,b"` arrive as attributes.
+11. Services: `di(ServiceClass)` returns one shared instance; constructors take no arguments. `diOverride(ServiceClass, fake)` replaces it for tests. Fudgel can be imported under Node, so services are unit-testable without a browser.
+12. `emit(this, 'eventName', detail)` dispatches a bubbling, composed CustomEvent from the host element. Parents listen with `@event-name="handler($event)"`.
+
+## Pages
+
+- [Getting Started](https://fudgel.js.org/getting-started.html): install, first component, TypeScript notes, the dev import
+- [Component Config](https://fudgel.js.org/component-config.html): attr, prop, style, template, useShadow
+- [Naming Conventions](https://fudgel.js.org/naming.html): the one naming rule and what happens when it is broken
+- [Bindings](https://fudgel.js.org/bindings.html) and [Expressions](https://fudgel.js.org/expressions.html): the {{ }} syntax and the supported JavaScript subset
+- [Reactivity](https://fudgel.js.org/reactivity.html): exactly what makes a binding update
+- [Forms](https://fudgel.js.org/forms.html): inputs, checkboxes, selects
+- [Directives](https://fudgel.js.org/directives.html): overview, plus one page each for `@event`, `.property`, `#class`, `#ref`, `*for`, `*if`, `*repeat`
+- [Lifecycle](https://fudgel.js.org/lifecycle.html) and [Events](https://fudgel.js.org/events.html): hooks, their order, and the global event emitter
+- [Input](https://fudgel.js.org/input.html) and [Output](https://fudgel.js.org/output.html): attributes, properties, emit()
+- [Content Projection](https://fudgel.js.org/content-projection.html): slots in shadow and light DOM
+- [Styling](https://fudgel.js.org/styling.html): how styles are scoped
+- [Routing](https://fudgel.js.org/routing.html): the router element
+- [Utilities](https://fudgel.js.org/utilities.html): emit, update, di, metadata, parse, Emitter, fudgel/dev
+- [Gotchas and FAQ](https://fudgel.js.org/gotchas.html): symptoms, causes, fixes
+- [Upgrading](https://fudgel.js.org/upgrading.html): changes per version

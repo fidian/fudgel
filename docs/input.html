@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -145,7 +161,7 @@ back to the outside world as well.</p>
 <p>In this example, <code>&lt;my-element&gt;</code> has three attributes: <code>title</code>, <code>data-count</code>, and <code>disabled</code>. The <code>title</code> attribute has a string value of &quot;Hello World&quot;, the <code>data-count</code> attribute has a string value of &quot;5&quot;, and the <code>disabled</code> attribute is present without a declared value, so the element says its value is &quot;&quot; (an empty string).</p>
 <p>To access these attributes in your Fudgel controller, you need to declare them in the component&#39;s configuration using the <code>attr</code> array. Fudgel will automatically create properties on your controller that correspond to these attributes, converting the attribute names from kebab-case to camelCase.</p>
 <p>When a property is updated in the controller, the corresponding attribute on the DOM element will also be updated automatically. This two-way binding allows for easy synchronization between the controller and the DOM.</p>
-<p>Make sure to only assign strings to these properties. Only strings and <code>false</code> (which removes the attribute) should be used. Assigning other types, such as numbers or objects, will not be reflected in the DOM&#39;s copy of the attributes.</p>
+<p>Assign a string to set the attribute, <code>true</code> to set it to an empty string, or <code>false</code>, <code>null</code> or <code>undefined</code> to remove it. Other types, such as numbers or objects, are not reflected in the DOM&#39;s copy of the attributes. When the attribute is absent, the controller&#39;s property is set to <code>null</code>, replacing any default the class gave it.</p>
 <p>When a single property is declared in both <code>attr</code> and <code>prop</code>, the most recent assignment takes priority.</p>
 <p>A special note about boolean attributes: In HTML, the presence of a boolean attribute (like <code>disabled</code>, <code>checked</code>, or <code>hidden</code>) indicates a true value, but it&#39;s value is &quot;&quot; (an empty string). If you set the corresponding property in the controller to <code>true</code> or <code>false</code>, Fudgel will add or remove the attribute accordingly.</p>
 <h2>Properties</h2>
@@ -160,6 +176,10 @@ back to the outside world as well.</p>
 <p><code-sample sample="samples/is-disabled-using-both.html"></code-sample></p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -217,6 +237,14 @@ back to the outside world as well.</p>
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -229,6 +257,10 @@ back to the outside world as well.</p>
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -237,12 +269,16 @@ back to the outside world as well.</p>
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

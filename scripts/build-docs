@@ -23,6 +23,44 @@ async function main() {
     for await (const entry of fsPromises.glob('*.md')) {
         processMarkdown(config, entry, headerContent, footerContent);
     }
+
+    await writeLlmsFull(config);
+}
+
+// One plain-text file holding every page in sidebar order, with the code
+// samples inlined, so an AI assistant can read the whole reference at once.
+async function writeLlmsFull(config) {
+    const parts = [
+        '# Fudgel - complete documentation',
+        'Generated from the pages at https://fudgel.js.org/. The short version is https://fudgel.js.org/llms.txt.',
+    ];
+
+    for (const page of config.pages) {
+        if (!page.url.endsWith('.html')) {
+            continue;
+        }
+
+        const filename = page.url.replace(/\.html$/, '.md');
+        const fm = parse(await fsPromises.readFile(filename, 'utf-8'));
+        let text = fm.content
+            .replace(/\{\{\s*openBrace\s*\}\}/g, '{{')
+            .replace(/\{\{\s*closeBrace\s*\}\}/g, '}}')
+            .replace(/<style>[\s\S]*?<\/style>/g, '')
+            .replace(/\]\((?!https?:)([^)]+)\.html\)/g, '](https://fudgel.js.org/$1.html)');
+        const samples = [...text.matchAll(/<code-sample sample="([^"]+)"[^>]*><\/code-sample>/g)];
+
+        for (const [tag, sample] of samples) {
+            const code = await fsPromises.readFile(sample, 'utf-8');
+            const language = sample.endsWith('.html') ? 'html' : 'js';
+            text = text.replace(tag, `Example (${sample}):\n\n\`\`\`${language}\n${code.trim()}\n\`\`\``);
+        }
+
+        parts.push(`\n---\n\nSource page: https://fudgel.js.org/${page.url}\n\n${text.trim()}`);
+    }
+
+    const outFilename = 'llms-full.txt';
+    console.log(`Writing file: ${outFilename}`);
+    await fsPromises.writeFile(outFilename, parts.join('\n') + '\n', 'utf-8');
 }
 
 async function processMarkdown(config, filename, headerContent, footerContent) {

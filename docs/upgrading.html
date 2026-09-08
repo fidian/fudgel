@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -136,6 +152,29 @@
                 <div class="limit-width">
 <h1>Upgrading</h1>
 <p>When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.</p>
+<h2>From 3.4.x to 3.5.x</h2>
+<p>No code changes are required. Several behaviors were bugs and now match what the documentation said; check anything that depended on the old behavior.</p>
+<ul>
+<li>Bindings and event listeners are cleaned up when a directive removes their element. Listeners on the window or document from <code>@event.window</code>, <code>.document</code> and <code>.outside</code> used to stay attached forever.</li>
+<li>A getter on the controller&#39;s prototype is read each time a binding runs instead of being copied once when the template linked. An accessor on the instance receives the instance as <code>this</code> when assigned.</li>
+<li>A global such as <code>Math</code> or <code>Date</code> in a binding resolves to the global. It used to be shadowed by an undefined controller property.</li>
+<li>Expressions support the conditional operator, <code>a ? b : c</code>, and parentheses, <code>(a + b) * c</code>.</li>
+<li><code>component()</code> throws when the browser rejects the element name, such as a name without a hyphen. It used to fail silently. A name that is already defined is still skipped.</li>
+<li>A kebab-case name in <code>attr</code> or <code>prop</code> is accepted as the camelCase one.</li>
+<li>Assigning <code>true</code>, <code>false</code>, <code>null</code> or <code>undefined</code> to a property listed in <code>attr</code> reflects to the attribute, as documented.</li>
+<li><code>@keydown.arrow-left</code> and other dashed key modifiers work; they never matched before. <code>@keydown.space</code> matches the space bar. <code>@some-event</code> also listens for the dashed name <code>some-event</code>, so events from other libraries bind.</li>
+<li><code>*for</code> accepts an expression with spaces, <code>*for=&quot;x of a ?? b&quot;</code>, and a <code>track</code> clause that keys rows by identity. A row that still exists is moved rather than rebuilt when the list is reordered.</li>
+<li>A growing <code>*repeat</code> appends new items after the existing ones instead of inserting them before.</li>
+<li>Light DOM style scoping handles <code>:host(...)</code>, <code>:host-context(...)</code>, pseudo-elements, and commas inside <code>:is()</code> and attribute selectors. A <code>p::before</code> rule no longer leaks to the whole page. A selector Fudgel cannot rewrite is reported in the console.</li>
+<li>A structural directive at the end of a template no longer re-links the content it rendered, which could re-read braces in your data as expressions.</li>
+<li>The router routes on the resolved location, so <code>history.replaceState(state)</code> without a URL keeps the current route and a relative URL is resolved. Clicks with a modifier key, another button, a <code>target</code>, <code>download</code>, <code>rel=&quot;external&quot;</code>, or a fragment on the current page are left to the browser. History is patched once for the page rather than once per router. <code>RouterComponent</code> exposes its route elements as <code>routes</code>.</li>
+<li><code>di()</code> recovers after a service constructor throws; it used to report a circular dependency forever.</li>
+<li>A property, object key, or route parameter named <code>entries</code> works.</li>
+<li><code>fudgel</code> can be imported outside a browser, so services that use <code>di()</code> can be unit tested under Node. <code>require(&#39;fudgel&#39;)</code> works, and <code>package.json</code> has an <code>exports</code> map with <code>fudgel</code> and <code>fudgel/dev</code>.</li>
+<li>The build is compiled to ES2018 and checked against it, so Safari 11.1 can parse it again.</li>
+<li>New: <code>import &#39;fudgel/dev&#39;</code> while developing prints warnings for common mistakes. See <a href="getting-started.html">Getting Started</a>.</li>
+<li>New types: <code>StrictController</code> and <code>ControllerHooks</code>. <code>Controller</code> no longer declares the <code>wasAsync</code> parameter removed in 3.2. <code>camelToDash</code> and <code>dashToCamel</code> are exported.</li>
+</ul>
 <h2>From 3.3.x to 3.4.x</h2>
 <ul>
 <li>The router now matches on the path alone. A URL carrying a query string or a fragment, such as <code>/orders?status=open</code>, previously failed to match <code>/orders</code> and fell through to the catch-all route. Both are still left on the URL; read them with <code>location.search</code> and <code>location.hash</code>. See <a href="routing.html">Routing</a>.</li>
@@ -182,6 +221,10 @@
 </ul>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -239,6 +282,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -251,6 +302,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -259,12 +314,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

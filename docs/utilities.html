@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -254,8 +270,31 @@
 </ul>
 <p>This will emit the lifecycle stage event as a global Fudgel event, on the controller&#39;s event emitter, and will also call the lifecycle method on the controller if it exists. The lifecycle events will use the stage name as supplied, however the lifecycle method will have the first letter capitalized and prefixed with <code>on</code>. For example, the <code>init</code> stage will call the <code>onInit()</code> method on the controller if it exists.</p>
 <p>Learn more about <a href="lifecycle.html">lifecycle stages</a>.</p>
+<h2><code>camelToDash(name)</code> and <code>dashToCamel(name)</code> - Name Conversion</h2>
+<ul>
+<li><code>name</code> (string) - The name to convert.</li>
+<li>return (string) - The converted name.</li>
+</ul>
+<p>The conversions Fudgel uses between JavaScript and HTML names, as described in <a href="naming.html">Naming Conventions</a>. <code>camelToDash(&#39;isSaveable&#39;)</code> is <code>is-saveable</code> and <code>dashToCamel(&#39;is-saveable&#39;)</code> is <code>isSaveable</code>.</p>
+<h2><code>fudgel/dev</code> - Development Warnings</h2>
+<pre><code class="language-js">import &#39;fudgel/dev&#39;;
+</code></pre>
+<p>Importing this module once, before components are defined, enables console warnings for mistakes that the production build cannot afford to detect. It never changes what Fudgel does, and each distinct warning is printed once.</p>
+<ul>
+<li>A method on a controller whose name is nearly a lifecycle hook, such as <code>onViewInitt()</code>.</li>
+<li>A <code>&lt;slot&gt;</code> in a light DOM template when <code>defineSlotComponent()</code> was not called.</li>
+<li>A <code>.property</code> or attribute on a Fudgel component whose lowercased name matches a declared property, such as <code>.isSaveable</code> for <code>isSaveable</code>; the warning gives the dash-case spelling to use.</li>
+<li>An identifier in an expression that is not on the controller, not in scope, and not a global.</li>
+<li>A <code>*for</code> written with <code>in</code> instead of <code>of</code>.</li>
+<li>A route that can never match because an earlier, shorter route matches the same paths.</li>
+</ul>
+<p>Leave the import out of a production build.</p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -313,6 +352,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -325,6 +372,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -333,12 +384,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

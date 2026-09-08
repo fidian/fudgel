@@ -54,6 +54,14 @@
             "url": "directive-for.html"
         },
         {
+            "label": "Forms",
+            "url": "forms.html"
+        },
+        {
+            "label": "Gotchas &amp; FAQ",
+            "url": "gotchas.html"
+        },
+        {
             "label": "<code>*if</code> Directive",
             "url": "directive-if.html"
         },
@@ -66,6 +74,10 @@
             "url": "lifecycle.html"
         },
         {
+            "label": "Naming Conventions",
+            "url": "naming.html"
+        },
+        {
             "label": "Output",
             "url": "output.html"
         },
@@ -74,11 +86,15 @@
             "url": "directive-property.html"
         },
         {
+            "label": "Reactivity",
+            "url": "reactivity.html"
+        },
+        {
             "label": "<code>#ref</code> Directive",
             "url": "directive-ref.html"
         },
         {
-            "label": "<code>#repeat</code> Directive",
+            "label": "<code>*repeat</code> Directive",
             "url": "directive-repeat.html"
         },
         {

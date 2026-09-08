@@ -34,6 +34,12 @@ Most JavaScript syntax is allowed in expressions.
 * Binary operators: `||`, `??`, `&&`, `|`, `^`, `&`, `==`, `!=`, `===`, `!==`, `<`, `>`, `<=`, `>=`, `<<`, `>>`, `>>>`, `+`, `-`, `*`, `/`, `%`, `**`
 * Function calls: `myFunc(arg1, 'arg2', 3)`
 * Miscellaneous: `typeof`, `in`, `instanceof`
+* Conditional: `isReady ? 'yes' : 'no'`
+* Grouping: `(a + b) * c`
+
+## Globals
+
+An identifier that is not in scope and not on the controller is read from `window`, so `Math.max(a, b)`, `JSON.stringify(obj)` and `Date.now()` work in expressions. Declare the properties your templates use, so a misspelled name is a controller property rather than a global lookup that finds nothing; `fudgel/dev` warns about the latter.
 
 ## Disallowed Expressions and Syntax
 
@@ -48,3 +54,8 @@ The point of the template is to keep things simple and let the controller do the
 * Assignments: `=`, `+=`, `-=`, etc.
 * Prefix and postfix increment/decrement: `++`, `--`
 * Deletion of object properties: `delete propName`
+* Template literals, regular expression literals, `new`, and arrow functions
+
+## When an Expression Fails to Parse
+
+Fudgel logs an error to the console naming the expression, the binding evaluates to `undefined` (text renders as nothing and a bound attribute is removed), and the other bindings and directives on the same element still work. The page keeps running.

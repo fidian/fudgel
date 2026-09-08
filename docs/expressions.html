@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -155,7 +171,11 @@
 <li>Binary operators: <code>||</code>, <code>??</code>, <code>&amp;&amp;</code>, <code>|</code>, <code>^</code>, <code>&amp;</code>, <code>==</code>, <code>!=</code>, <code>===</code>, <code>!==</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&gt;&gt;&gt;</code>, <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>, <code>**</code></li>
 <li>Function calls: <code>myFunc(arg1, &#39;arg2&#39;, 3)</code></li>
 <li>Miscellaneous: <code>typeof</code>, <code>in</code>, <code>instanceof</code></li>
+<li>Conditional: <code>isReady ? &#39;yes&#39; : &#39;no&#39;</code></li>
+<li>Grouping: <code>(a + b) * c</code></li>
 </ul>
+<h2>Globals</h2>
+<p>An identifier that is not in scope and not on the controller is read from <code>window</code>, so <code>Math.max(a, b)</code>, <code>JSON.stringify(obj)</code> and <code>Date.now()</code> work in expressions. Declare the properties your templates use, so a misspelled name is a controller property rather than a global lookup that finds nothing; <code>fudgel/dev</code> warns about the latter.</p>
 <h2>Disallowed Expressions and Syntax</h2>
 <p>Templates should not create complex logic or behaviors. They also should not alter the values in scope, create new functions, or be forced to deal with flow-control statements. Templates should only be used as a bridge to show information to the user, to pass extra information along as an attribute or property, or to bind events to event handlers.</p>
 <p>The point of the template is to keep things simple and let the controller do the heavy lifting. Several of the following items are not allowed based on this principle. Others are not allowed because there is no succinct way to implement them while also supporting strict Content-Security-Policy directives.</p>
@@ -167,9 +187,16 @@
 <li>Assignments: <code>=</code>, <code>+=</code>, <code>-=</code>, etc.</li>
 <li>Prefix and postfix increment/decrement: <code>++</code>, <code>--</code></li>
 <li>Deletion of object properties: <code>delete propName</code></li>
+<li>Template literals, regular expression literals, <code>new</code>, and arrow functions</li>
 </ul>
+<h2>When an Expression Fails to Parse</h2>
+<p>Fudgel logs an error to the console naming the expression, the binding evaluates to <code>undefined</code> (text renders as nothing and a bound attribute is removed), and the other bindings and directives on the same element still work. The page keeps running.</p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -227,6 +254,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -239,6 +274,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -247,12 +286,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

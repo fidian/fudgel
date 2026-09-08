@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -138,13 +154,17 @@
 <p>Fudgel uses a simple and powerful binding syntax to connect your component&#39;s template to its controller. Bindings are enclosed in double curly braces <code>{{ }}</code> and can be used to insert dynamic content into text and attribute values. Here&#39;s an example of a simple component that binds text and an attribute.</p>
 <p><code-sample sample="samples/binding-example.js"></code-sample></p>
 <p>The URL used in the link will be changed to match the <code>url</code> property from the controller, and the link text will reflect the <code>linkText</code> property. This will continue to update automatically as long as the component is in the DOM.</p>
-<p>The bindings don&#39;t have to be simple property names. JavaScript syntax can perform calculations or call methods on the controller. For example, you could bind to a method that formats a date or computes a value based on other properties. You are not allowed to use operators that change state, such as assignment (<code>=</code>), increment (<code>++</code>), or decrement (<code>--</code>). Learn more about <a href="expressions.html">supported expressions</a>.</p>
+<p>The bindings don&#39;t have to be simple property names. JavaScript syntax can perform calculations or call methods on the controller, such as a method that formats a date. A binding runs again when a top-level identifier in its expression is assigned, so pass a method the values it depends on: <code>{{ format(date) }}</code> updates when <code>date</code> is assigned, while <code>{{ formatDate() }}</code> runs once and never again. You are not allowed to use operators that change state, such as assignment (<code>=</code>), increment (<code>++</code>), or decrement (<code>--</code>). Learn more about <a href="expressions.html">supported expressions</a> and <a href="reactivity.html">reactivity</a>.</p>
 <p>Because not all JavaScript is supported in bindings and to encourage better separation of concerns, it&#39;s recommended to use methods to perform complex logic and update state. It also helps keep your templates clean and easy to read.</p>
 <p>The link in the above example will be disabled for one of the items in the list. When an attribute is bound to a boolean expression, null, or undefined, the attribute will be added or removed based on the truthiness of the value. This is useful for attributes like <code>disabled</code>, <code>checked</code>, or <code>hidden</code>. However, if there is even one character outside of the binding in the attribute value, it will always be treated as a string.</p>
-<p>Bindings are updated whenever a top-level property in the expression changes. For example, if you have a binding like <code>{{ user.name }}</code>, the binding will update whenever the <code>user</code> property is assigned a new object. However, changes to nested properties (like <code>user.name</code>) will not automatically trigger an update unless you reassign the <code>user</code> property itself or use the <code>update()</code> <a href="utilities.html">utility function</a>.</p>
+<p>Bindings are updated whenever a top-level property in the expression changes. For example, if you have a binding like <code>{{ user.name }}</code>, the binding will update whenever the <code>user</code> property is assigned a new object. However, changes to nested properties (like <code>user.name</code>) will not automatically trigger an update unless you reassign the <code>user</code> property itself or use the <code>update()</code> <a href="utilities.html">utility function</a>. The <a href="reactivity.html">Reactivity</a> page covers exactly what is watched.</p>
 <p>Similarly, bindings are used for other directives, such as <a href="directive-event.html">Event Directives</a> and <a href="directive-if.html">If Directive</a>. This allows you to create dynamic behavior based on the component&#39;s state.</p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -202,6 +222,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -214,6 +242,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -222,12 +254,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

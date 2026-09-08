@@ -13,3 +13,5 @@ Technically, with this simple example, you could use `inputField.focus()` direct
 ## Caveats
 
 The element reference is not removed when the element is removed from the DOM.
+
+Inside `*for`, every row assigns the same controller property, so the controller ends up with the last row's element. Use `$event.target` in an event handler, or give each row a component of its own.

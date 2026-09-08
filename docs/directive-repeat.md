@@ -8,6 +8,6 @@ Repeating a chunk of HTML a number of times is very easy when you add the `*repe
 
 <code-sample sample="samples/directive-repeat.js"></code-sample>
 
-If you need to know what index you are on, you can use a special syntax of `*repeat="expression as indexName"`, where `indexName` is the name of the variable that will hold the current index.
+If you need to know what index you are on, you can use a special syntax of `*repeat="expression as indexName"`, where `indexName` is the name of the variable that will hold the current index. The index starts at 1.
 
 <code-sample sample="samples/directive-repeat-named.js"></code-sample>

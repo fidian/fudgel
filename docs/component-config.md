@@ -5,10 +5,13 @@ title: Component Config (Fudgel.js)
 # Component Config
 
 The `component()` function will create a new element and register it with
-`window.customElements` as long as the element was not yet defined. The newly
-defined custom element will be assigned a constructor of `FudgelElement`, not
-your class. This is done to allow you to utilize any property in your class
-without fear of overwriting something important to `HTMLElement`.
+`window.customElements` as long as the element was not yet defined. A name that
+is already defined is skipped, so the same library can be loaded twice. A name
+the browser rejects, such as one without a hyphen, throws the browser's error
+rather than leaving an element that never upgrades. The newly defined custom
+element will be assigned a constructor of `FudgelElement`, not your class. This
+is done to allow you to utilize any property in your class without fear of
+overwriting something important to `HTMLElement`.
 
 The call to `component()` accepts three parameters:
 
@@ -39,9 +42,9 @@ following properties in the object.
 
 Monitor these attributes on the element for changes. When a listed attribute is changed, the controller's matching property name will be updated to match the new value, the `change` event will be fired, `onChange()` will be called, and any bindings using that property will be updated.
 
-Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the `data-value` attribute, you would add `"dataValue"` to this list and the controller's `.dataValue` property will be updated.
+Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the `data-value` attribute, you would add `"dataValue"` to this list and the controller's `.dataValue` property will be updated. A kebab-case name in this list is treated as the camelCase one. See [Naming Conventions](naming.html).
 
-When the controller's property is changed, the attribute will be updated accordingly in the DOM. Make sure to assign only string values to properties that are linked to attributes, as attributes can only hold string values.
+When the controller's property is changed, the attribute will be updated accordingly in the DOM: a string sets it, `true` sets it to an empty string, and `false`, `null` or `undefined` removes it. Other types are not reflected, as attributes can only hold string values. When the attribute is absent on the element, the property is set to `null`.
 
 When a name is listed in both `attr` and `prop`, the most recently changed source (attribute or property) will update the other.
 

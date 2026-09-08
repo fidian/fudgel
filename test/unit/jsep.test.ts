@@ -155,6 +155,24 @@ const scenarios: Scenario[] = [
     { fails: true, input: 'a(,,)' },
 
     //
+    // parentheses
+    //
+    { input: '(1 + 2) * 3', output: 9 },
+    { input: '((1))', output: 1 },
+    { input: '( 1 + 2 ) * 3', output: 9 },
+    { bindings: ['a'], input: '(a).b', output: 'ok', scope: { a: { b: 'ok' } } },
+    // The context survives grouping, so a method still has its object
+    {
+        bindings: ['a'],
+        input: '(a.b)()',
+        output: 'ok',
+        scope: { a: { v: 'ok', b() { return this.v; } } },
+    },
+    { input: '!(true && false)', output: true },
+    { fails: true, input: '(1 + 2' },
+    { fails: true, input: '()' },
+
+    //
     // conditional operator
     //
     { input: 'true ? 1 : 2', output: 1 },

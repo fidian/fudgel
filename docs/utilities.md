@@ -164,3 +164,27 @@ This works in conjunction with `parse`. Please see the example there for how to 
 This will emit the lifecycle stage event as a global Fudgel event, on the controller's event emitter, and will also call the lifecycle method on the controller if it exists. The lifecycle events will use the stage name as supplied, however the lifecycle method will have the first letter capitalized and prefixed with `on`. For example, the `init` stage will call the `onInit()` method on the controller if it exists.
 
 Learn more about [lifecycle stages](lifecycle.html).
+
+## `camelToDash(name)` and `dashToCamel(name)` - Name Conversion
+
+* `name` (string) - The name to convert.
+* return (string) - The converted name.
+
+The conversions Fudgel uses between JavaScript and HTML names, as described in [Naming Conventions](naming.html). `camelToDash('isSaveable')` is `is-saveable` and `dashToCamel('is-saveable')` is `isSaveable`.
+
+## `fudgel/dev` - Development Warnings
+
+```js
+import 'fudgel/dev';
+```
+
+Importing this module once, before components are defined, enables console warnings for mistakes that the production build cannot afford to detect. It never changes what Fudgel does, and each distinct warning is printed once.
+
+* A method on a controller whose name is nearly a lifecycle hook, such as `onViewInitt()`.
+* A `<slot>` in a light DOM template when `defineSlotComponent()` was not called.
+* A `.property` or attribute on a Fudgel component whose lowercased name matches a declared property, such as `.isSaveable` for `isSaveable`; the warning gives the dash-case spelling to use.
+* An identifier in an expression that is not on the controller, not in scope, and not a global.
+* A `*for` written with `in` instead of `of`.
+* A route that can never match because an earlier, shorter route matches the same paths.
+
+Leave the import out of a production build.

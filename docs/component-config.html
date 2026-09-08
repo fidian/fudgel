@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -136,10 +152,13 @@
                 <div class="limit-width">
 <h1>Component Config</h1>
 <p>The <code>component()</code> function will create a new element and register it with
-<code>window.customElements</code> as long as the element was not yet defined. The newly
-defined custom element will be assigned a constructor of <code>FudgelElement</code>, not
-your class. This is done to allow you to utilize any property in your class
-without fear of overwriting something important to <code>HTMLElement</code>.</p>
+<code>window.customElements</code> as long as the element was not yet defined. A name that
+is already defined is skipped, so the same library can be loaded twice. A name
+the browser rejects, such as one without a hyphen, throws the browser&#39;s error
+rather than leaving an element that never upgrades. The newly defined custom
+element will be assigned a constructor of <code>FudgelElement</code>, not your class. This
+is done to allow you to utilize any property in your class without fear of
+overwriting something important to <code>HTMLElement</code>.</p>
 <p>The call to <code>component()</code> accepts three parameters:</p>
 <ol>
 <li>The name of the custom element, which must contain a hyphen and be a valid
@@ -159,8 +178,8 @@ styles, and if the Shadow DOM will be used. This is done by setting the
 following properties in the object.</p>
 <h3><code>attr</code> (optional, array of strings)</h3>
 <p>Monitor these attributes on the element for changes. When a listed attribute is changed, the controller&#39;s matching property name will be updated to match the new value, the <code>change</code> event will be fired, <code>onChange()</code> will be called, and any bindings using that property will be updated.</p>
-<p>Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the <code>data-value</code> attribute, you would add <code>&quot;dataValue&quot;</code> to this list and the controller&#39;s <code>.dataValue</code> property will be updated.</p>
-<p>When the controller&#39;s property is changed, the attribute will be updated accordingly in the DOM. Make sure to assign only string values to properties that are linked to attributes, as attributes can only hold string values.</p>
+<p>Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the <code>data-value</code> attribute, you would add <code>&quot;dataValue&quot;</code> to this list and the controller&#39;s <code>.dataValue</code> property will be updated. A kebab-case name in this list is treated as the camelCase one. See <a href="naming.html">Naming Conventions</a>.</p>
+<p>When the controller&#39;s property is changed, the attribute will be updated accordingly in the DOM: a string sets it, <code>true</code> sets it to an empty string, and <code>false</code>, <code>null</code> or <code>undefined</code> removes it. Other types are not reflected, as attributes can only hold string values. When the attribute is absent on the element, the property is set to <code>null</code>.</p>
 <p>When a name is listed in both <code>attr</code> and <code>prop</code>, the most recently changed source (attribute or property) will update the other.</p>
 <p>Learn more about <a href="input.html">component inputs</a> and how attributes and properties work.</p>
 <h3><code>prop</code> (optional, array of strings)</h3>
@@ -180,6 +199,10 @@ following properties in the object.</p>
 <p>If truthy, encapsulate the component inside a shadow DOM. This is <code>false</code> by default because the shadow DOM has a slight performance hit and has specific design trade-offs that may not suit your needs.</p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -237,6 +260,14 @@ following properties in the object.</p>
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -249,6 +280,10 @@ following properties in the object.</p>
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -257,12 +292,16 @@ following properties in the object.</p>
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

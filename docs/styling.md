@@ -16,6 +16,12 @@ The `css` template function does not do anything special. It's only there as a f
 
 The above example used the `:host` pseudo-class to style the host element itself. This works in both Light DOM and Shadow DOM, thanks to Fudgel's CSS rewriting. One less thing to remember and your component could switch between Light DOM and Shadow DOM without changing your styles.
 
+## Selectors Fudgel Rewrites
+
+In the light DOM, `:host` becomes the element's tag name, `:host(.active)` becomes `my-tag.active`, and `:host-context(.dark) p` becomes `.dark my-tag p`. Every other selector is prefixed with the tag name and given the component's class on its last part, so `p::before` becomes `my-tag p.fudgel_my-tag::before` and `:is(a, b) span` keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class, so a nested light DOM component inside the shadow root is not styled by accident.
+
+If a selector cannot be rewritten into one the browser accepts, Fudgel logs "Unable to scope selector" and the rule is left unscoped. Simplify the selector if you see that message.
+
 ## Avoiding Style Scoping
 
 When your custom element needs to inject other DOM elements, they will not have the generated class name applied automatically. This will affect your CSS. For instance, the code samples seen on this page leverage [Highlight.js](https://highlightjs.org/) to colorize the code. These elements are dynamically added to the DOM and need to be styled, so the component needs to inject the styles itself.

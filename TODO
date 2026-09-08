@@ -9,9 +9,6 @@ https://github.com/EricSmekens/jsep/blob/master/packages/regex/src/index.js
 Consider adding template literals
 https://github.com/EricSmekens/jsep/blob/master/packages/template/src/index.js
 
-Add ternary
-https://github.com/EricSmekens/jsep/blob/master/packages/ternary/src/index.js
-
 Add a switch directive
 
 Perform speed tests - general

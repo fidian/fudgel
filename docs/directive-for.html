@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -135,14 +151,29 @@
             <div class="content">
                 <div class="limit-width">
 <h1><code>*for</code> Directive</h1>
-<p>Iterating across an object, array, set, map, or any other iterable is handled through the <code>*for</code> <a href="directives.html">directive</a>. This also automatically updates when the property on your controller is assigned to a new value. The key and value will be available in the <a href="expressions.html">expression</a> as <code>key</code> and <code>value</code>.</p>
+<p>Iterating across an object, array, set, map, or any other iterable is handled through the <code>*for</code> <a href="directives.html">directive</a>. This also automatically updates when the property on your controller is assigned to a new value. The key and the value will be available in the <a href="expressions.html">expression</a> as <code>key</code> and <code>value</code>.</p>
 <p><code-sample sample="samples/directive-for.js"></code-sample></p>
 <p>You can rename <code>key</code> and <code>value</code> to suit your needs. Also, nested scopes inherit from each other, exactly how you think they should. Scopes are discussed more on the <a href="expressions.html">Expressions</a> page.</p>
 <p><code-sample sample="samples/directive-for-named.js"></code-sample></p>
+<p>The iterable is any <a href="expressions.html">expression</a>, spaces included: <code>*for=&quot;row of rows ?? []&quot;</code>.</p>
+<h2>Keys and Reuse</h2>
+<p>Each item has a key: the index for an array, the property name for an object, and the key for a <code>Map</code>. When the list is reassigned, an item whose key is still present keeps its row. The row&#39;s DOM nodes stay where they are, the value in scope is reassigned, and its bindings update. Rows whose keys are gone are removed and new keys get new rows.</p>
+<p>Because arrays are keyed by index, a reordered array keeps row 0 as row 0 and changes what it shows. That is fine for plain text. It is a problem for a row that holds state of its own, such as an input someone has typed in or a child component: the state stays at the position while the record moves.</p>
+<h2><code>track</code></h2>
+<p>Add <code>track</code> with an expression to key rows by identity instead of position. The expression is evaluated with the loop variables in scope.</p>
+<pre><code class="language-html">&lt;div *for=&quot;row of rows track row.id&quot;&gt;
+    &lt;input .value=&quot;row.name&quot; /&gt;
+&lt;/div&gt;
+</code></pre>
+<p>A row now follows its record. Reversing the array moves the row elements; inserting at the front adds one row and leaves the others alone; and a row keeps whatever was typed into it.</p>
 <h2>Common Errors</h2>
-<p>Make sure to use <code>of</code>. If you use <code>in</code>, it will not work and instead you would be iterating over a boolean value, which is not iterable.</p>
+<p>Make sure to use <code>of</code>. If you use <code>in</code>, it will not work and instead you would be iterating over a boolean value, which is not iterable. <code>fudgel/dev</code> warns about this.</p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -200,6 +231,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -212,6 +251,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -220,12 +263,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -147,7 +163,7 @@
 <h2>Creating Routes</h2>
 <p>Any direct child of the router element is able to be routed.  If it has a path, then the path is matched against the URL and all specified segments must match (more on this later). If there is no path, then it defaults to &quot;**&quot;, which matches all paths.</p>
 <p><code-sample sample="samples/routing-routes.html"></code-sample></p>
-<p>Route matching will match entire path segments but ignore segments in the URL that don&#39;t exist in the path, plus only the first matching route will be shown. Make sure you order the children from most specific path to least specific. For example, the route <code>/user/123</code> correctly maps to &quot;Show info for a specific user&quot;, but <code>/store/123</code> will scan through the elements and stop on &quot;Show store list&quot; because it matches the beginning of the URL first.</p>
+<p>Route matching will match entire path segments but ignore segments in the URL that don&#39;t exist in the path, plus only the first matching route will be shown. Make sure you order the children from most specific path to least specific. For example, the route <code>/user/123</code> correctly maps to &quot;Show info for a specific user&quot;, but <code>/store/123</code> will scan through the elements and stop on &quot;Show store list&quot; because it matches the beginning of the URL first. The same applies to nested pages such as <code>/config</code> and <code>/config/pay-policy</code>: list the longer path first. While developing, <code>fudgel/dev</code> warns when a route can never match because an earlier one covers it.</p>
 <p>Some more examples of routing with the above example:</p>
 <ul>
 <li>URL: <code>/</code> → Result: &quot;This matches everything&quot;</li>
@@ -167,10 +183,12 @@
 <p><code-sample sample="samples/routing-with-components.html" no-playground></code-sample></p>
 <p>Named parameters are passed to elements as attributes. The named parameters are expected to be written in camel case, such as <code>/user/:userId</code> in the example below. This will get changed into the attribute <code>user-id</code> on the HTML element because attributes are case-insensitive. You can see this if you inspect the DOM of the live example.</p>
 <p>To make the effect more obvious, a Fudgel component named <code>show-user</code> sets up the internal property <code>this.userId</code> to mirror the element&#39;s <code>user-id</code> attribute, and the template shows the current user ID. This allows the example to be seen and prove that everything&#39;s working as expected without involving any debug tooling.</p>
+<p>When a new location matches the same route with different parameters, for example going from <code>/user/1</code> to <code>/user/2</code>, the element is kept and only its attributes change. <code>onInit()</code> ran when the element was created and does not run again; react to the new value in <code>onChange()</code>.</p>
 <p><code-sample sample="samples/routing-parameters.js"></code-sample></p>
 <h2>Navigation</h2>
 <p>An event listener is added to <code>document.body</code> that waits for all clicked links. When one is found, it will be checked to see if it is within the current page. If so, the event&#39;s default navigation is prevented and the history state is updated with the new URL.</p>
-<p>The <a href="https://developer.mozilla.org/docs/Web/API/History">History API</a> is patched in order to capture routing events, so your application can use <code>history.pushState(null, null, url)</code>, <code>history.back()</code> and all of the other methods to navigate.</p>
+<p>The router leaves alone any click the browser should handle itself: a click with a modifier key or with a button other than the main one, which opens a new tab or window; a link with a <code>target</code>, a <code>download</code> attribute, or <code>rel=&quot;external&quot;</code>; a link to another origin; and a fragment link on the current page, which the browser scrolls to.</p>
+<p>The <a href="https://developer.mozilla.org/docs/Web/API/History">History API</a> is patched in order to capture routing events, so your application can use <code>history.pushState(null, null, url)</code>, <code>history.back()</code> and all of the other methods to navigate. Any component can navigate this way without a reference to the router.</p>
 <p>You can also get a reference to the router element and call it&#39;s <code>go(url)</code> method.</p>
 <p>The <a href="https://developer.mozilla.org/docs/Web/API/Navigation">Navigation API</a> is not used because it is experimental and isn&#39;t <a href="https://caniuse.com/mdn-api_navigation">widely adopted</a> enough.</p>
 <p><code-sample sample="samples/routing-navigation.js" no-playground></code-sample></p>
@@ -191,7 +209,7 @@
 <p>Names are camel case in the list and dashed as attributes. In the route you would use <code>sortOrder</code>, which would set the attribute <code>sort-order</code> on the element, and Fudgel would have that arrive as the property <code>sortOrder</code> in your component. This is the same convention the rest of Fudgel uses.</p>
 <p>A few things worth knowing:</p>
 <ul>
-<li>A parameter that is absent removes the attribute rather than setting it empty, so a controller&#39;s default value applies and <code>*if</code> behaves.</li>
+<li>A parameter that is absent removes the attribute rather than setting it empty, so the property becomes <code>null</code> and <code>*if</code> behaves.</li>
 <li>A parameter that appears more than once, as in <code>?tag=one&amp;tag=two</code>, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the <code>routeChange</code> event and read <code>location.search</code> directly.</li>
 <li>Parameters not named in <code>query</code> are ignored. There is no wildcard.</li>
 <li>Query parameters are applied after the path, so naming the same thing in both a path pattern and the <code>query</code> list means the query wins. Do not do that; nothing stops you but it isn&#39;t what you want.</li>
@@ -225,6 +243,10 @@
 </ul>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -282,6 +304,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -294,6 +324,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -302,12 +336,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

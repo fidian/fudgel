@@ -2,7 +2,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Lifecycle (Fudgel.js)</title>
+        <title>Reactivity (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
         <link
@@ -150,75 +150,37 @@
             </div>
             <div class="content">
                 <div class="limit-width">
-<h1>Lifecycle</h1>
-<p>Fudgel components have a series of lifecycle methods and events that allow you to hook into different stages of a component&#39;s existence. These methods can be overridden in your controller to perform actions at specific points in the component&#39;s lifecycle.</p>
-<p>If your controller has any of these methods, or if there is an event listener for any of these events, they will be called during specific moments during the lifecycle of your controller.</p>
-<p>For further information about how to listen for events, see the <a href="events.html">Events</a> page.</p>
-<h2>How To Use Lifecycle Stages</h2>
-<p>The most straightforward way is to use methods on your controller. For example, to use the initialization lifecycle method, you would define <code>onInit()</code> in your controller:</p>
-<p><code-sample sample="samples/welcome-to-fudgel.js"></code-sample></p>
-<p>You can also listen for lifecycle events on a per-controller basis by adding event listeners in your controller&#39;s constructor or <code>onInit()</code> method:</p>
-<p><code-sample sample="samples/lifecycle-controller-events.js"></code-sample></p>
-<p>Finally, you can listen for events across all controllers by adding global event listeners.</p>
-<p><code-sample sample="samples/lifecycle-global-events.js"></code-sample></p>
-<h2>Lifecycle Stages</h2>
-<p>Controllers will go through the following lifecycle stages. Some stages might get skipped, depending on how the component is used or what happens during its existence. Calls will happen in this order if they all occur.</p>
-<h3>Initialization (Always Called)</h3>
+<h1>Reactivity</h1>
+<p>Fudgel has no virtual DOM and no dirty checking. It watches a small set of properties and re-runs exactly the bindings that mention them. Knowing which properties those are, and when a binding runs, answers nearly every &quot;why did this not update&quot; question.</p>
+<h2>What triggers a binding</h2>
+<p>When a template is linked, every binding and directive is parsed as an <a href="expressions.html">expression</a>, and the <strong>top-level identifiers</strong> in that expression are collected. For <code>{{ user.name }}</code> that is <code>user</code>. For <code>{{ format(date, &#39;short&#39;) }}</code> it is <code>format</code> and <code>date</code>. For <code>{{ canSave() }}</code> it is only <code>canSave</code>.</p>
+<p>Each identifier is looked up in the current scope (the variables a <code>*for</code> or another directive created) and then on the controller, and Fudgel watches that property. The binding runs again when the property is <strong>assigned</strong>, and only then.</p>
+<p>Two things follow from this.</p>
 <ul>
-<li>Global event: <code>init</code> (controller instance)</li>
-<li>Controller Event: <code>init</code> (no arguments)</li>
-<li>Controller Method: <code>onInit()</code></li>
+<li>Differences are detected with <code>Object.is()</code>. Assigning the same value again does nothing. Assigning a new object or array always counts as a change.</li>
+<li>Nothing below the top level is watched. <code>this.user.name = &#39;x&#39;</code> does not re-run <code>{{ user.name }}</code>. <code>this.user = { ...this.user, name: &#39;x&#39; }</code> does.</li>
 </ul>
-<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and <code>onChange()</code> has already been called once for each name in <code>attr</code> and <code>prop</code> with its initial value.</p>
-<p>This is an early stage in the lifecycle. Property bindings have been set up, but there hasn&#39;t been time for even synchronous code to assign values to the properties.</p>
-<h3>Content Loaded (Most Likely Called)</h3>
-<ul>
-<li>Global event: <code>parse</code> (controller instance)</li>
-<li>Controller Event: <code>parse</code> (no arguments)</li>
-<li>Controller Method: <code>onParse()</code></li>
-</ul>
-<p>The <code>parse</code> events are fired and the <code>onParse()</code> method is called when all child nodes are parsed. This will always be called asynchronously to make sure that whatever created the element has had enough time to assign properties or set <code>.innerHTML</code> as needed. If the web component is present during the initial page load, this event will not fire until all of the element&#39;s content is available. If you are doing your own light DOM <a href="content-projection.html">content projection</a>, this would be an important method to use. When this is called, all child content has probably been added to the element. &quot;Probably&quot; is used because another framework could add content to the element after synchronous code execution is complete, but that&#39;s fairly unlikely.</p>
-<p>There is no relationship between a parent element&#39;s lifecycle stages and a child&#39;d. Either one could be parsed first.</p>
-<p>At this point, the DOM has not been cleared and the template has not been applied. The original content is still present.</p>
-<h3>View Initialized (Most Likely Called)</h3>
-<ul>
-<li>Global event: <code>viewInit</code> (controller instance)</li>
-<li>Controller Event: <code>viewInit</code> ()</li>
-<li>Controller Method: <code>onViewInit()</code></li>
-</ul>
-<p>This is triggered at the very end, after the custom element is created, synchronous code to set up properties has elapsed, the custom element is connected to the DOM and the template has also been attached and the directives have been processed, adding child elements to the DOM. Properties should be available if sending data from another framework. Your element is live.</p>
-<p>A good practice is to use this method sparingly and instead react to changes in properties (see the next event). Initialize when you have enough data for the component, then uninitialize if missing some required information.</p>
-<h3>Change (Zero or More Times)</h3>
-<ul>
-<li>Global event: <code>change</code> (controller instance, property name, old value, new value)</li>
-<li>Controller Event: <code>change</code> (property name, old value, new value)</li>
-<li>Controller Method: <code>onChange(propertyName, oldValue, newValue)</code></li>
-</ul>
-<p>Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the <a href="component-config.html">config</a> plus any property used in a <a href="bindings.html">binding</a>. Differences are detected by using <code>Object.is()</code>, so changes to immutable objects will trigger change detection more easily.</p>
-<p>This method is called for the initial attribute and property values before <code>onInit()</code>, once per declared name, and can be called again before the &quot;Content Loaded&quot; and &quot;View Initialized&quot; stages.</p>
-<p>Calling <code>update()</code> (see <a href="utilities.html">Utilities</a>) will also call <code>onChange()</code> for all attributes and properties that are copied into the controller.</p>
-<h3>Update (Possibly Called)</h3>
-<ul>
-<li>Global event: <code>update</code> (controller instance)</li>
-<li>Controller Event: <code>update</code> (no arguments)</li>
-<li>Controller Method: <code>onUpdate()</code></li>
-</ul>
-<p>This is called from the <code>update()</code> <a href="utilities.html">utility function</a>, which forcibly updates all bindings to change and reflect the current state of the controller.</p>
-<h3>Unlink (Possibly Called)</h3>
-<ul>
-<li>Global event: <code>unlink</code> (controller instance, removed node)</li>
-<li>Controller Event: <code>unlink</code> (removed node)</li>
-<li>Controller Method: <code>onUnlink(removedNode)</code></li>
-</ul>
-<p>Removes bindings and other connections between the controller and some DOM elements. This is called when elements are being dynamically removed, such as with the <a href="directive-if.html"><code>*if</code> directive</a>.</p>
-<h3>Destruction (Always Called)</h3>
-<ul>
-<li>Global event: <code>destroy</code> (controller instance)</li>
-<li>Controller Event: <code>destroy</code> (no arguments)</li>
-<li>Controller Method: <code>onDestroy()</code></li>
-</ul>
-<p>When the element is disconnected from the DOM, the <code>destroy</code> events are fired and the <code>onDestroy()</code> method is called. This is a good place to clean up any resources, event listeners, or timers that were created during the lifecycle of the component. Event directives and bindings are cleaned up by Fudgel.</p>
-<p>Moving an element to another place in the DOM disconnects and reconnects it. The controller is destroyed and a new one is created for the same element, so any state that must survive a move belongs in a service; see <code>di()</code> on the <a href="utilities.html">Utilities</a> page.</p>
+<p><code-sample sample="samples/expressions-bindings.js"></code-sample></p>
+<h2>Method calls</h2>
+<p>A method call in a template runs when its binding runs. It is not re-run because something <em>inside</em> the method changed; Fudgel cannot see inside it. It is re-run when a top-level identifier in the expression is assigned.</p>
+<p>So <code>{{ canSave() }}</code> runs once. <code>{{ canSave(name, email) }}</code> runs again whenever <code>name</code> or <code>email</code> is assigned, because those are top-level identifiers in the expression. Pass the values a method depends on as arguments, and the binding follows them.</p>
+<pre><code class="language-html">&lt;!-- Runs once, whatever happens to name and email afterwards --&gt;
+&lt;button disabled=&quot;{{ !canSave() }}&quot;&gt;Save&lt;/button&gt;
+
+&lt;!-- Runs again when name or email is assigned --&gt;
+&lt;button disabled=&quot;{{ !canSave(name, email) }}&quot;&gt;Save&lt;/button&gt;
+</code></pre>
+<p>The other approach is to compute the value in the controller and bind the property: assign <code>this.isSaveable</code> whenever the inputs change and use <code>{{ !isSaveable }}</code>. Both work. Passing arguments keeps the logic in one place.</p>
+<h2>Getters</h2>
+<p>A getter on the controller&#39;s class, such as <code>get fullName()</code>, is read fresh each time a binding that mentions it runs. What the getter reads is not watched, so <code>{{ fullName }}</code> does not re-run when <code>first</code> is assigned. Call <code>update(this)</code> after the inputs change, or pass them to a method as arguments as described above.</p>
+<h2>Nested changes and <code>update()</code></h2>
+<p>When data changes below the top level and replacing the object is not practical, call <code>update(this)</code> to re-run every binding of one controller, or <code>update()</code> for every controller on the page. See <a href="utilities.html">Utilities</a>.</p>
+<h2>Loops</h2>
+<p>Inside <code>*for</code>, the loop variables are properties of a scope, and a row&#39;s bindings re-run when the row&#39;s value is reassigned. When the list itself is reassigned, rows are matched to items by key: the index for an array, the key for an object or Map. A row whose key is still present keeps its DOM nodes and receives the new value; the rest are removed. Add <code>track</code> to match rows by identity instead of position. See <a href="directive-for.html"><code>*for</code></a>.</p>
+<h2>Attributes and properties</h2>
+<p>A property named in <code>attr</code> or <code>prop</code> is watched the same way. A change to the attribute or the element property assigns the controller property, which re-runs its bindings and calls <code>onChange()</code>. <code>onChange()</code> also runs for the initial values, before <code>onInit()</code>. See <a href="lifecycle.html">Lifecycle</a>.</p>
+<h2>Globals</h2>
+<p>An identifier that is neither in scope nor on the controller is read from <code>window</code>, so <code>{{ Math.max(a, b) }}</code> and <code>{{ JSON.stringify(obj) }}</code> work, and re-run when <code>a</code>, <code>b</code> or <code>obj</code> is assigned. Declare the properties your templates use as class fields, so a misspelled name is a property Fudgel can watch rather than a global lookup that finds nothing. While developing, <code>fudgel/dev</code> warns about a name that resolves to nothing; see <a href="getting-started.html">Getting Started</a>.</p>
 
 </div>
                 <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">

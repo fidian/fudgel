@@ -7,6 +7,30 @@ title: Upgrading (Fudgel.js)
 When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.
 
 
+## From 3.4.x to 3.5.x
+
+No code changes are required. Several behaviors were bugs and now match what the documentation said; check anything that depended on the old behavior.
+
+* Bindings and event listeners are cleaned up when a directive removes their element. Listeners on the window or document from `@event.window`, `.document` and `.outside` used to stay attached forever.
+* A getter on the controller's prototype is read each time a binding runs instead of being copied once when the template linked. An accessor on the instance receives the instance as `this` when assigned.
+* A global such as `Math` or `Date` in a binding resolves to the global. It used to be shadowed by an undefined controller property.
+* Expressions support the conditional operator, `a ? b : c`, and parentheses, `(a + b) * c`.
+* `component()` throws when the browser rejects the element name, such as a name without a hyphen. It used to fail silently. A name that is already defined is still skipped.
+* A kebab-case name in `attr` or `prop` is accepted as the camelCase one.
+* Assigning `true`, `false`, `null` or `undefined` to a property listed in `attr` reflects to the attribute, as documented.
+* `@keydown.arrow-left` and other dashed key modifiers work; they never matched before. `@keydown.space` matches the space bar. `@some-event` also listens for the dashed name `some-event`, so events from other libraries bind.
+* `*for` accepts an expression with spaces, `*for="x of a ?? b"`, and a `track` clause that keys rows by identity. A row that still exists is moved rather than rebuilt when the list is reordered.
+* A growing `*repeat` appends new items after the existing ones instead of inserting them before.
+* Light DOM style scoping handles `:host(...)`, `:host-context(...)`, pseudo-elements, and commas inside `:is()` and attribute selectors. A `p::before` rule no longer leaks to the whole page. A selector Fudgel cannot rewrite is reported in the console.
+* A structural directive at the end of a template no longer re-links the content it rendered, which could re-read braces in your data as expressions.
+* The router routes on the resolved location, so `history.replaceState(state)` without a URL keeps the current route and a relative URL is resolved. Clicks with a modifier key, another button, a `target`, `download`, `rel="external"`, or a fragment on the current page are left to the browser. History is patched once for the page rather than once per router. `RouterComponent` exposes its route elements as `routes`.
+* `di()` recovers after a service constructor throws; it used to report a circular dependency forever.
+* A property, object key, or route parameter named `entries` works.
+* `fudgel` can be imported outside a browser, so services that use `di()` can be unit tested under Node. `require('fudgel')` works, and `package.json` has an `exports` map with `fudgel` and `fudgel/dev`.
+* The build is compiled to ES2018 and checked against it, so Safari 11.1 can parse it again.
+* New: `import 'fudgel/dev'` while developing prints warnings for common mistakes. See [Getting Started](getting-started.html).
+* New types: `StrictController` and `ControllerHooks`. `Controller` no longer declares the `wasAsync` parameter removed in 3.2. `camelToDash` and `dashToCamel` are exported.
+
 ## From 3.3.x to 3.4.x
 
 * The router now matches on the path alone. A URL carrying a query string or a fragment, such as `/orders?status=open`, previously failed to match `/orders` and fell through to the catch-all route. Both are still left on the URL; read them with `location.search` and `location.hash`. See [Routing](routing.html).

@@ -22,7 +22,7 @@ You can also project multiple pieces of content into specific areas using named 
 
 ## Slots and Light DOM
 
-There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element, and after that point all components will have `<slot>` elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM.
+**A `<slot>` in a light DOM template does nothing on its own**; the content inside the element is simply removed. There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element by calling `defineSlotComponent()` once, before defining components. After that point all components will have `<slot>` elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM. While developing, `fudgel/dev` warns about a `<slot>` that was not rewritten.
 
 This slot substitute doesn't work well for changing content.  Avoid using this when your content uses structural directives or otherwise adds/removes elements.
 

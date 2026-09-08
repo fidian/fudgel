@@ -331,7 +331,19 @@ const gobbleToken = (): ValueProvider => {
         return gobbleNumericLiteral();
     }
 
-    if (code == 34 || code == 39) {
+    if (code == 40) {
+        // 40 is '('
+        // A parenthesized expression
+        gobbleSpaces(1);
+        node = gobbleExpression() || throwJsepError();
+
+        // 41 is ')'
+        if ((code as number) != 41) {
+            throwJsepError();
+        }
+
+        gobbleSpaces(1);
+    } else if (code == 34 || code == 39) {
         // 34 = '"', 39 = "'"
         // Single or double quotes
         const str = gobbleStringLiteral();

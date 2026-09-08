@@ -2,7 +2,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Lifecycle (Fudgel.js)</title>
+        <title>Gotchas and FAQ (Fudgel.js)</title>
         <link rel="stylesheet" href="fonts/fonts.css" />
         <link rel="stylesheet" href="style.css" />
         <link
@@ -150,75 +150,44 @@
             </div>
             <div class="content">
                 <div class="limit-width">
-<h1>Lifecycle</h1>
-<p>Fudgel components have a series of lifecycle methods and events that allow you to hook into different stages of a component&#39;s existence. These methods can be overridden in your controller to perform actions at specific points in the component&#39;s lifecycle.</p>
-<p>If your controller has any of these methods, or if there is an event listener for any of these events, they will be called during specific moments during the lifecycle of your controller.</p>
-<p>For further information about how to listen for events, see the <a href="events.html">Events</a> page.</p>
-<h2>How To Use Lifecycle Stages</h2>
-<p>The most straightforward way is to use methods on your controller. For example, to use the initialization lifecycle method, you would define <code>onInit()</code> in your controller:</p>
-<p><code-sample sample="samples/welcome-to-fudgel.js"></code-sample></p>
-<p>You can also listen for lifecycle events on a per-controller basis by adding event listeners in your controller&#39;s constructor or <code>onInit()</code> method:</p>
-<p><code-sample sample="samples/lifecycle-controller-events.js"></code-sample></p>
-<p>Finally, you can listen for events across all controllers by adding global event listeners.</p>
-<p><code-sample sample="samples/lifecycle-global-events.js"></code-sample></p>
-<h2>Lifecycle Stages</h2>
-<p>Controllers will go through the following lifecycle stages. Some stages might get skipped, depending on how the component is used or what happens during its existence. Calls will happen in this order if they all occur.</p>
-<h3>Initialization (Always Called)</h3>
-<ul>
-<li>Global event: <code>init</code> (controller instance)</li>
-<li>Controller Event: <code>init</code> (no arguments)</li>
-<li>Controller Method: <code>onInit()</code></li>
-</ul>
-<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and <code>onChange()</code> has already been called once for each name in <code>attr</code> and <code>prop</code> with its initial value.</p>
-<p>This is an early stage in the lifecycle. Property bindings have been set up, but there hasn&#39;t been time for even synchronous code to assign values to the properties.</p>
-<h3>Content Loaded (Most Likely Called)</h3>
-<ul>
-<li>Global event: <code>parse</code> (controller instance)</li>
-<li>Controller Event: <code>parse</code> (no arguments)</li>
-<li>Controller Method: <code>onParse()</code></li>
-</ul>
-<p>The <code>parse</code> events are fired and the <code>onParse()</code> method is called when all child nodes are parsed. This will always be called asynchronously to make sure that whatever created the element has had enough time to assign properties or set <code>.innerHTML</code> as needed. If the web component is present during the initial page load, this event will not fire until all of the element&#39;s content is available. If you are doing your own light DOM <a href="content-projection.html">content projection</a>, this would be an important method to use. When this is called, all child content has probably been added to the element. &quot;Probably&quot; is used because another framework could add content to the element after synchronous code execution is complete, but that&#39;s fairly unlikely.</p>
-<p>There is no relationship between a parent element&#39;s lifecycle stages and a child&#39;d. Either one could be parsed first.</p>
-<p>At this point, the DOM has not been cleared and the template has not been applied. The original content is still present.</p>
-<h3>View Initialized (Most Likely Called)</h3>
-<ul>
-<li>Global event: <code>viewInit</code> (controller instance)</li>
-<li>Controller Event: <code>viewInit</code> ()</li>
-<li>Controller Method: <code>onViewInit()</code></li>
-</ul>
-<p>This is triggered at the very end, after the custom element is created, synchronous code to set up properties has elapsed, the custom element is connected to the DOM and the template has also been attached and the directives have been processed, adding child elements to the DOM. Properties should be available if sending data from another framework. Your element is live.</p>
-<p>A good practice is to use this method sparingly and instead react to changes in properties (see the next event). Initialize when you have enough data for the component, then uninitialize if missing some required information.</p>
-<h3>Change (Zero or More Times)</h3>
-<ul>
-<li>Global event: <code>change</code> (controller instance, property name, old value, new value)</li>
-<li>Controller Event: <code>change</code> (property name, old value, new value)</li>
-<li>Controller Method: <code>onChange(propertyName, oldValue, newValue)</code></li>
-</ul>
-<p>Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the <a href="component-config.html">config</a> plus any property used in a <a href="bindings.html">binding</a>. Differences are detected by using <code>Object.is()</code>, so changes to immutable objects will trigger change detection more easily.</p>
-<p>This method is called for the initial attribute and property values before <code>onInit()</code>, once per declared name, and can be called again before the &quot;Content Loaded&quot; and &quot;View Initialized&quot; stages.</p>
-<p>Calling <code>update()</code> (see <a href="utilities.html">Utilities</a>) will also call <code>onChange()</code> for all attributes and properties that are copied into the controller.</p>
-<h3>Update (Possibly Called)</h3>
-<ul>
-<li>Global event: <code>update</code> (controller instance)</li>
-<li>Controller Event: <code>update</code> (no arguments)</li>
-<li>Controller Method: <code>onUpdate()</code></li>
-</ul>
-<p>This is called from the <code>update()</code> <a href="utilities.html">utility function</a>, which forcibly updates all bindings to change and reflect the current state of the controller.</p>
-<h3>Unlink (Possibly Called)</h3>
-<ul>
-<li>Global event: <code>unlink</code> (controller instance, removed node)</li>
-<li>Controller Event: <code>unlink</code> (removed node)</li>
-<li>Controller Method: <code>onUnlink(removedNode)</code></li>
-</ul>
-<p>Removes bindings and other connections between the controller and some DOM elements. This is called when elements are being dynamically removed, such as with the <a href="directive-if.html"><code>*if</code> directive</a>.</p>
-<h3>Destruction (Always Called)</h3>
-<ul>
-<li>Global event: <code>destroy</code> (controller instance)</li>
-<li>Controller Event: <code>destroy</code> (no arguments)</li>
-<li>Controller Method: <code>onDestroy()</code></li>
-</ul>
-<p>When the element is disconnected from the DOM, the <code>destroy</code> events are fired and the <code>onDestroy()</code> method is called. This is a good place to clean up any resources, event listeners, or timers that were created during the lifecycle of the component. Event directives and bindings are cleaned up by Fudgel.</p>
-<p>Moving an element to another place in the DOM disconnects and reconnects it. The controller is destroyed and a new one is created for the same element, so any state that must survive a move belongs in a service; see <code>di()</code> on the <a href="utilities.html">Utilities</a> page.</p>
+<h1>Gotchas and FAQ</h1>
+<p>Each entry is a symptom, the reason, and the fix. Most of them are things Fudgel does on purpose that are not obvious the first time. Importing <code>fudgel/dev</code> while developing turns several of them into console warnings; see <a href="getting-started.html">Getting Started</a>.</p>
+<h2>My element never upgrades</h2>
+<p>A custom element name must contain a hyphen. <code>component(&#39;badname&#39;, ...)</code> throws the browser&#39;s own error; <code>component(&#39;bad-name&#39;, ...)</code> works. A name that is already defined is skipped without an error, so the same library can be loaded twice.</p>
+<h2>A property I set with <code>.isSaveable</code> never changes</h2>
+<p>HTML lowercases attribute names, so Fudgel receives <code>.issaveable</code>. Write <code>.is-saveable</code>. The same applies to attributes: <code>parentSection=&quot;x&quot;</code> never reaches <code>parentSection</code>; <code>parent-section=&quot;x&quot;</code> does. See <a href="naming.html">Naming Conventions</a>.</p>
+<h2><code>{{ canSave() }}</code> never updates</h2>
+<p>A binding re-runs when a top-level identifier in its expression is assigned, and <code>canSave</code> is never assigned. Pass the values it depends on as arguments, <code>{{ canSave(name, email) }}</code>, or compute the result into a property. See <a href="reactivity.html">Reactivity</a>.</p>
+<h2>An input in a <code>*for</code> row shows the wrong text after the list changes</h2>
+<p><code>value=&quot;{{ row.name }}&quot;</code> sets an attribute the input ignores once it has been edited, and rows are reused by position. Bind <code>.value=&quot;row.name&quot;</code> and add <code>track row.id</code> to the loop. See <a href="forms.html">Forms</a> and <a href="directive-for.html"><code>*for</code></a>.</p>
+<h2>A <code>&lt;select&gt;</code> shows the wrong option</h2>
+<p>Its options did not exist yet when <code>.value</code> was applied. Set <code>select.value</code> from <code>onViewInit()</code> and <code>onChange()</code> through a <code>#ref</code>. See <a href="forms.html">Forms</a>.</p>
+<h2>The content I put inside my element disappeared</h2>
+<p>A light DOM component clears its children and applies its template. To project them, either use <code>useShadow: true</code> and <code>&lt;slot&gt;</code>, or call <code>defineSlotComponent()</code> once before defining components so <code>&lt;slot&gt;</code> is rewritten to work in the light DOM. Without one of those a <code>&lt;slot&gt;</code> in a light DOM template does nothing. See <a href="content-projection.html">Content Projection</a>.</p>
+<h2>Route <code>/config/pay-policy</code> shows the <code>/config</code> page</h2>
+<p>Routes match in order and a route matches any longer path, so <code>/config</code> also matches <code>/config/pay-policy</code> when it comes first. List longer paths before shorter ones. See <a href="routing.html">Routing</a>.</p>
+<h2>Navigating between two ids of the same route does not reload</h2>
+<p>The router reuses the element when the same route matches again and only changes its attributes, so <code>onInit()</code> does not run a second time. React in <code>onChange()</code>. See <a href="routing.html">Routing</a>.</p>
+<h2>How do I navigate from a component that has no reference to the router?</h2>
+<p>Call <code>history.pushState(null, &#39;&#39;, &#39;/some/path&#39;)</code> from anywhere. The router listens to the History API. See <a href="routing.html">Routing</a>.</p>
+<h2>Moving an element somewhere else in the DOM reset it</h2>
+<p>Removing an element and appending it elsewhere disconnects and reconnects it, and a reconnected element gets a new controller. Libraries that reorder rows by moving nodes trigger this. Keep state that must survive a move in a service obtained with <code>di()</code>, or clone the element instead of moving it. See <a href="lifecycle.html">Lifecycle</a>.</p>
+<h2><code>#ref</code> inside <code>*for</code> gives me only the last row</h2>
+<p>Every row assigns the same controller property, so the last one wins. Use <code>$event.target</code> in an event handler, or give each row a component of its own.</p>
+<h2><code>onChange()</code> ran before <code>onInit()</code></h2>
+<p>It always does for the initial attribute and property values, once per declared name. See <a href="lifecycle.html">Lifecycle</a>.</p>
+<h2>An attribute that is absent made my property <code>null</code></h2>
+<p>A property listed in <code>attr</code> receives the attribute&#39;s value, and <code>null</code> when the attribute is absent, replacing the class field&#39;s default. Treat absence as <code>null</code> in the controller. (This changes in 4.0, where an absent attribute leaves the default alone; see <a href="upgrading.html">Upgrading</a>.)</p>
+<h2>The template shows nothing where my expression is, and the console has an error</h2>
+<p>The expression did not parse. Fudgel logs the expression, the binding evaluates to <code>undefined</code>, and the other directives on the element still link. See <a href="expressions.html">Expressions</a> for what is supported.</p>
+<h2><code>*for=&quot;item in list&quot;</code> renders nothing</h2>
+<p><code>*for</code> iterates with <code>of</code>. With <code>in</code> the expression is <code>item in list</code>, the <code>in</code> operator, which is a boolean and iterates nothing.</p>
+<h2>Changing <code>user.name</code> did not update <code>{{ user.name }}</code></h2>
+<p>Only top-level properties are watched. Reassign <code>user</code> with a new object, or call <code>update(this)</code>. See <a href="reactivity.html">Reactivity</a>.</p>
+<h2><code>fieldset[disabled]</code> does not disable controls inside my component</h2>
+<p>That is the browser: a disabled fieldset does not reach into a shadow root. Either keep such components in the light DOM or pass the disabled state as a property.</p>
+<h2>A <code>p::before</code> rule in my component styled every paragraph on the page</h2>
+<p>Fixed in 3.5. Earlier versions produced an invalid scoped selector for pseudo-elements and the browser kept the unscoped original. If the console reports &quot;Unable to scope selector&quot;, the selector is one Fudgel could not rewrite; simplify it.</p>
 
 </div>
                 <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">

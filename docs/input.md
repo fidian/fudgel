@@ -21,7 +21,7 @@ To access these attributes in your Fudgel controller, you need to declare them i
 
 When a property is updated in the controller, the corresponding attribute on the DOM element will also be updated automatically. This two-way binding allows for easy synchronization between the controller and the DOM.
 
-Make sure to only assign strings to these properties. Only strings and `false` (which removes the attribute) should be used. Assigning other types, such as numbers or objects, will not be reflected in the DOM's copy of the attributes.
+Assign a string to set the attribute, `true` to set it to an empty string, or `false`, `null` or `undefined` to remove it. Other types, such as numbers or objects, are not reflected in the DOM's copy of the attributes. When the attribute is absent, the controller's property is set to `null`, replacing any default the class gave it.
 
 When a single property is declared in both `attr` and `prop`, the most recent assignment takes priority.
 

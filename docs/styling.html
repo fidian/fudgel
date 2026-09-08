@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -141,6 +157,9 @@
 <p>The <code>css</code> template function does not do anything special. It&#39;s only there as a flag to outside build tools to indicate that this string contains CSS. It&#39;s detailed more in the <a href="utilities.html">utilities</a> section.</p>
 <h2>Styling the Host Element</h2>
 <p>The above example used the <code>:host</code> pseudo-class to style the host element itself. This works in both Light DOM and Shadow DOM, thanks to Fudgel&#39;s CSS rewriting. One less thing to remember and your component could switch between Light DOM and Shadow DOM without changing your styles.</p>
+<h2>Selectors Fudgel Rewrites</h2>
+<p>In the light DOM, <code>:host</code> becomes the element&#39;s tag name, <code>:host(.active)</code> becomes <code>my-tag.active</code>, and <code>:host-context(.dark) p</code> becomes <code>.dark my-tag p</code>. Every other selector is prefixed with the tag name and given the component&#39;s class on its last part, so <code>p::before</code> becomes <code>my-tag p.fudgel_my-tag::before</code> and <code>:is(a, b) span</code> keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class, so a nested light DOM component inside the shadow root is not styled by accident.</p>
+<p>If a selector cannot be rewritten into one the browser accepts, Fudgel logs &quot;Unable to scope selector&quot; and the rule is left unscoped. Simplify the selector if you see that message.</p>
 <h2>Avoiding Style Scoping</h2>
 <p>When your custom element needs to inject other DOM elements, they will not have the generated class name applied automatically. This will affect your CSS. For instance, the code samples seen on this page leverage <a href="https://highlightjs.org/">Highlight.js</a> to colorize the code. These elements are dynamically added to the DOM and need to be styled, so the component needs to inject the styles itself.</p>
 <p>Fudgel will not modify any styles that are in a <code>&lt;style&gt;</code> tag in your template.</p>
@@ -158,6 +177,10 @@
 <p><code-sample sample="samples/styling-example-shadow-dom-generated.html" no-playground></code-sample></p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -215,6 +238,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -227,6 +258,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -235,12 +270,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

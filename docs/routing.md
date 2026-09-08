@@ -28,7 +28,7 @@ Any direct child of the router element is able to be routed.  If it has a path, 
 
 <code-sample sample="samples/routing-routes.html"></code-sample>
 
-Route matching will match entire path segments but ignore segments in the URL that don't exist in the path, plus only the first matching route will be shown. Make sure you order the children from most specific path to least specific. For example, the route `/user/123` correctly maps to "Show info for a specific user", but `/store/123` will scan through the elements and stop on "Show store list" because it matches the beginning of the URL first.
+Route matching will match entire path segments but ignore segments in the URL that don't exist in the path, plus only the first matching route will be shown. Make sure you order the children from most specific path to least specific. For example, the route `/user/123` correctly maps to "Show info for a specific user", but `/store/123` will scan through the elements and stop on "Show store list" because it matches the beginning of the URL first. The same applies to nested pages such as `/config` and `/config/pay-policy`: list the longer path first. While developing, `fudgel/dev` warns when a route can never match because an earlier one covers it.
 
 Some more examples of routing with the above example:
 
@@ -54,13 +54,17 @@ Named parameters are passed to elements as attributes. The named parameters are 
 
 To make the effect more obvious, a Fudgel component named `show-user` sets up the internal property `this.userId` to mirror the element's `user-id` attribute, and the template shows the current user ID. This allows the example to be seen and prove that everything's working as expected without involving any debug tooling.
 
+When a new location matches the same route with different parameters, for example going from `/user/1` to `/user/2`, the element is kept and only its attributes change. `onInit()` ran when the element was created and does not run again; react to the new value in `onChange()`.
+
 <code-sample sample="samples/routing-parameters.js"></code-sample>
 
 ## Navigation
 
 An event listener is added to `document.body` that waits for all clicked links. When one is found, it will be checked to see if it is within the current page. If so, the event's default navigation is prevented and the history state is updated with the new URL.
 
-The [History API](https://developer.mozilla.org/docs/Web/API/History) is patched in order to capture routing events, so your application can use `history.pushState(null, null, url)`, `history.back()` and all of the other methods to navigate.
+The router leaves alone any click the browser should handle itself: a click with a modifier key or with a button other than the main one, which opens a new tab or window; a link with a `target`, a `download` attribute, or `rel="external"`; a link to another origin; and a fragment link on the current page, which the browser scrolls to.
+
+The [History API](https://developer.mozilla.org/docs/Web/API/History) is patched in order to capture routing events, so your application can use `history.pushState(null, null, url)`, `history.back()` and all of the other methods to navigate. Any component can navigate this way without a reference to the router.
 
 You can also get a reference to the router element and call it's `go(url)` method.
 
@@ -95,7 +99,7 @@ Names are camel case in the list and dashed as attributes. In the route you woul
 
 A few things worth knowing:
 
-* A parameter that is absent removes the attribute rather than setting it empty, so a controller's default value applies and `*if` behaves.
+* A parameter that is absent removes the attribute rather than setting it empty, so the property becomes `null` and `*if` behaves.
 * A parameter that appears more than once, as in `?tag=one&tag=two`, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the `routeChange` event and read `location.search` directly.
 * Parameters not named in `query` are ignored. There is no wildcard.
 * Query parameters are applied after the path, so naming the same thing in both a path pattern and the `query` list means the query wins. Do not do that; nothing stops you but it isn't what you want.

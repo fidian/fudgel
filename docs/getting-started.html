@@ -83,6 +83,14 @@
                      ><code>*for</code> Directive</a
                 >
                 
+                <a href="forms.html" class="sidebar-link"
+                     >Forms</a
+                >
+                
+                <a href="gotchas.html" class="sidebar-link"
+                     >Gotchas &amp; FAQ</a
+                >
+                
                 <a href="directive-if.html" class="sidebar-link"
                      ><code>*if</code> Directive</a
                 >
@@ -95,6 +103,10 @@
                      >Lifecycle</a
                 >
                 
+                <a href="naming.html" class="sidebar-link"
+                     >Naming Conventions</a
+                >
+                
                 <a href="output.html" class="sidebar-link"
                      >Output</a
                 >
@@ -103,12 +115,16 @@
                      >Property <code>.</code> Directive</a
                 >
                 
+                <a href="reactivity.html" class="sidebar-link"
+                     >Reactivity</a
+                >
+                
                 <a href="directive-ref.html" class="sidebar-link"
                      ><code>#ref</code> Directive</a
                 >
                 
                 <a href="directive-repeat.html" class="sidebar-link"
-                     ><code>#repeat</code> Directive</a
+                     ><code>*repeat</code> Directive</a
                 >
                 
                 <a href="routing.html" class="sidebar-link"
@@ -142,8 +158,10 @@
 <ul>
 <li><code>npm install fudgel</code></li>
 <li><code>yarn add fudgel</code></li>
-<li><code>bower install fudgel</code></li>
 </ul>
+<p>While developing, also import <code>fudgel/dev</code> once, before your components are defined. It does not change how Fudgel works and is left out of a production build; it warns in the console about the mistakes Fudgel otherwise cannot report, such as a property name that HTML lowercased, an expression that resolves to nothing, a <code>&lt;slot&gt;</code> that cannot project, a route that can never match, and a lifecycle hook that is nearly spelled right.</p>
+<pre><code class="language-js">import &#39;fudgel/dev&#39;;
+</code></pre>
 <p><u>Step 2:</u> At this point you have access to the <code>Fudgel</code> object or the module&#39;s exports. It&#39;s time to write your first controller. Select the chunk of code that best fits your needs.</p>
 <p><code-sample sample="samples/hello-world-module.js"></code-sample></p>
 <p><code-sample sample="samples/hello-world-umd.html"></code-sample></p>
@@ -153,11 +171,14 @@
 <ul>
 <li><a href="best-practices.html">Best Practices</a> - How to get the most benefit and avoid problems.</li>
 <li><a href="component-config.html">Component Config</a> - Configure your component.</li>
+<li><a href="naming.html">Naming Conventions</a> - camelCase in JavaScript, dash-case in HTML, and why.</li>
 <li><a href="styling.html">Styling</a> - Style using either Light DOM or Shadow DOM.</li>
 </ul>
 <p>Directives and data bindings used within the templates:</p>
 <ul>
 <li><a href="bindings.html">Bindings</a> - Connect the template to a controller.</li>
+<li><a href="reactivity.html">Reactivity</a> - What makes a binding update, and what does not.</li>
+<li><a href="forms.html">Forms</a> - Inputs, checkboxes and selects.</li>
 <li><a href="directives.html">Directive Basics</a> - Overview of directives.</li>
 <li><a href="directive-event.html">Event <code>@</code> Directive</a> - Respond to user actions.</li>
 <li><a href="directive-property.html">Property <code>.</code> Directive</a> - Set properties on elements.</li>
@@ -177,13 +198,32 @@
 <p>Everything Else:</p>
 <ul>
 <li><a href="expressions.html">Expressions</a> - Use expressions in bindings and directives.</li>
+<li><a href="gotchas.html">Gotchas and FAQ</a> - Symptoms, causes and fixes for the things that surprise people.</li>
 <li><a href="lifecycle.html">Lifecycle</a> - Respond to component lifecycle stages through events and methods.</li>
 <li><a href="routing.html">Routing</a> - Create single-page applications with routing.</li>
 <li><a href="upgrading.html">Upgrading</a> - Upgrade from older versions of Fudgel to the current version.</li>
 <li><a href="utilities.html">Utilities</a> - Helpful utility functions provided by Fudgel.</li>
 </ul>
+<h2>TypeScript</h2>
+<p>Fudgel ships its own types. Two things are worth knowing.</p>
+<p>The <code>@Component()</code> decorator works with both <code>experimentalDecorators</code> and the standard decorators in TypeScript 5 and later; it returns nothing, so the decorated name still refers to your controller class. <code>component()</code> returns the custom element instead. Class fields work with either setting of <code>useDefineForClassFields</code>.</p>
+<p>A controller can be any class. To have TypeScript check the signatures of the lifecycle hooks and complete their names, implement <code>StrictController</code>:</p>
+<pre><code class="language-ts">import { StrictController, ControllerMetadata, metadata } from &#39;fudgel&#39;;
+
+class MyController implements StrictController {
+    [metadata]?: ControllerMetadata;
+    count = 0;
+
+    onChange(propName: string, oldValue: unknown, newValue: unknown) {}
+}
+</code></pre>
+<p>Declare the properties your templates use as class fields, whether or not they have an initial value, so that a misspelled name in a template is a property Fudgel can watch rather than a global lookup that finds nothing.</p>
 
 </div>
+                <p class="limit-width" style="font-size: 0.85em; opacity: 0.75">
+                    For AI assistants: <a href="llms.txt">llms.txt</a> (the rules) and
+                    <a href="llms-full.txt">llms-full.txt</a> (every page).
+                </p>
             </div>
             <div class="menu">
                 <menu-handle></menu-handle>
@@ -241,6 +281,14 @@
                          ><code>*for</code> Directive</a
                     >
                     
+                    <a href="forms.html" class="flyout-link"
+                         >Forms</a
+                    >
+                    
+                    <a href="gotchas.html" class="flyout-link"
+                         >Gotchas &amp; FAQ</a
+                    >
+                    
                     <a href="directive-if.html" class="flyout-link"
                          ><code>*if</code> Directive</a
                     >
@@ -253,6 +301,10 @@
                          >Lifecycle</a
                     >
                     
+                    <a href="naming.html" class="flyout-link"
+                         >Naming Conventions</a
+                    >
+                    
                     <a href="output.html" class="flyout-link"
                          >Output</a
                     >
@@ -261,12 +313,16 @@
                          >Property <code>.</code> Directive</a
                     >
                     
+                    <a href="reactivity.html" class="flyout-link"
+                         >Reactivity</a
+                    >
+                    
                     <a href="directive-ref.html" class="flyout-link"
                          ><code>#ref</code> Directive</a
                     >
                     
                     <a href="directive-repeat.html" class="flyout-link"
-                         ><code>#repeat</code> Directive</a
+                         ><code>*repeat</code> Directive</a
                     >
                     
                     <a href="routing.html" class="flyout-link"

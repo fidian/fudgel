@@ -12,6 +12,8 @@ The normal way of advertising changes in a component's state is to dispatch a cu
 
 <code-sample sample="samples/emit-example.html"></code-sample>
 
+`emit()` dispatches a `CustomEvent` that bubbles, crosses shadow boundaries (`composed: true`) and is not cancelable. Pass an options object as the fourth argument to change any of that. A name may be camelCase or kebab-case; the [event directive](directive-event.html) listens for both.
+
 You may also want to catch events within your component. See [Event Directive](directive-event.html) section for further details.
 
 ## Properties

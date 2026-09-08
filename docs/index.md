@@ -73,7 +73,7 @@ Do you miss working with plain JavaScript and HTML? Are other frameworks causing
 
 Event bindings are added automatically, calling methods in your controller class. Property changes in your controller automatically update the HTML. Integrates seamlessly with Angular, React, and other frameworks. All of this is done while keeping the bundle size very small, so your users aren't waiting for a massive download just to see your content.
 
-Fudgel uses about <span style="font-size: 1.2em">7k</span> to provide:
+Fudgel uses under <span style="font-size: 1.2em">8k</span> to provide:
 
 -   Automatic DOM updates when [properties change](bindings.html)
     -   Add and remove elements, classes, loop over data, events, and more with [directives](directives.html)
@@ -112,14 +112,14 @@ As a comparison, just the HTML for this page is about the same size (excluding J
 
 |      Browser     | Version | Released |
 |:----------------:|:-------:|:--------:|
-|      Chrome      |    60   | Jul 2017 |
+|      Chrome      |    64   | Jan 2018 |
 |       Edge       |    79   | Jan 2020 |
 |      Safari      |   11.1  | Mar 2018 |
 |      Firefox     |   110   | Feb 2023 |
 |    iOS Safari    |   11.3  | Mar 2018 |
-| Samsung Internet |    8.2  | Dec 2018 |
+| Samsung Internet |    9.0  | Jan 2019 |
 
-If you need to support slightly older versions, look at Fudgel 2.x or use Babel to transpile the library. (Firefox 110 is where [`CSSPageRule.selectorText` became available](https://developer.mozilla.org/en-US/docs/Web/API/CSSPageRule/selectorText), which is needed for CSS scoping.)
+The build is compiled to ES2018 syntax and every release is checked against it, so a newer language feature cannot slip into the bundle. If you need to support slightly older versions, look at Fudgel 2.x or use Babel to transpile the library. (Firefox 110 is where [`CSSPageRule.selectorText` became available](https://developer.mozilla.org/en-US/docs/Web/API/CSSPageRule/selectorText), which is needed for CSS scoping.)
 
 See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/mdn-html_elements_slot,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-api_csspagerule_selectortext,wf-spread). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked" to exclude bots, `curl`, and other unknown browsers.
 

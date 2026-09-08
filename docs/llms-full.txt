@@ -1,0 +1,3675 @@
+# Fudgel - complete documentation
+Generated from the pages at https://fudgel.js.org/. The short version is https://fudgel.js.org/llms.txt.
+
+---
+
+Source page: https://fudgel.js.org/index.html
+
+<div class="flexAlign topContent">
+    <img src="logo.png" alt="Fudgel Logo" class="logo" />
+    <div class="titleBlock">
+        <div class="title">Fudgel</div>
+        <div class="subtitle">Write less. Do more.</div>
+    </div>
+</div>
+
+### Easy and Lightweight Web Components
+
+Do you miss working with plain JavaScript and HTML? Are other frameworks causing pain or bloating your project? Tired of a slow transpile step? Fudgel allows you to write web components easily using familiar JavaScript classes and HTML, staying out of your way and making your life more effortless.
+
+Event bindings are added automatically, calling methods in your controller class. Property changes in your controller automatically update the HTML. Integrates seamlessly with Angular, React, and other frameworks. All of this is done while keeping the bundle size very small, so your users aren't waiting for a massive download just to see your content.
+
+Fudgel uses under <span style="font-size: 1.2em">8k</span> to provide:
+
+-   Automatic DOM updates when [properties change](https://fudgel.js.org/bindings.html)
+    -   Add and remove elements, classes, loop over data, events, and more with [directives](https://fudgel.js.org/directives.html)
+    -   [Lifecycle](https://fudgel.js.org/lifecycle.html) stages exposed as events and controller methods
+-   Creates a custom element using standard Web Component APIs
+    -   Two-way property and attribute bindings, plus events for passing data
+    -   Works with all major frameworks (eg. Angular, React, Vue, Svelte, etc.)
+-   Supports both Shadow DOM and Light DOM rendering
+    -   Styles scoped to your component automatically, even when not using Shadow DOM
+    -   A simplistic `<slot-like>` element for [content projection](https://fudgel.js.org/content-projection.html) in the Light DOM
+-   Building is optional; works with vanilla JavaScript
+    -   Can use the library directly in the browser
+    -   Fully tree-shakeable for smaller bundle sizes
+    -   Published as both UMD and a module
+-   Taking care of developers and security-conscious teams
+    -   Works even with "Content-Security-Policy" directives (inline styles could break with a _really strict_ policy)
+    -   Full TypeScript support
+    -   Dependency injection for services, with overrides for testing
+
+Example (samples/welcome-to-fudgel.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component('welcome-to-fudgel', {
+    template: `
+        Hello {{name}}, welcome to Fudgel!
+    `
+}, class MyCustomElement {
+    name = "Developer"
+
+    onInit() {
+        setTimeout(() => this.name = 'Super Developer', 5000);
+    }
+});
+```
+
+In the above example, a new custom element is defined. Whenever you use the new HTML element `<my‑custom‑element>`, it will automatically insert "Hello Developer, welcome to Fudgel!" as text. Because of the timeout set up in `onInit` (a lifecycle method), in five seconds the text automatically changes to "Hello Super Developer, welcome to Fudgel!"
+
+Web components make great additions to your browser-based UI because they work everywhere. Self-contained chunks of functionality that can eliminate lots of work on your side. Also, upgrading them or upgrading your existing framework is easier because their dependencies are built into the custom element. The downside is a bit of extra size from the wiring that has to take place, but Fudgel limits that to just the necessities.
+
+<div style="display: flex; flex-direction: column; align-items: center">
+<fudgel-sizes></fudgel-sizes>
+<playground-button sample="fudgel-sizes.js"></playground-button>
+</div>
+
+As a comparison, just the HTML for this page is about the same size (excluding JavaScript, CSS, images, and fonts). A standard "Hello, world!" style project using Angular is reported at 35k and React is about 46k; however, both project sizes can vary immensely.
+
+## Browser Support
+
+99% of tracked browser traffic works with Fudgel. Here is a list of the minimum supported browser versions:
+
+|      Browser     | Version | Released |
+|:----------------:|:-------:|:--------:|
+|      Chrome      |    64   | Jan 2018 |
+|       Edge       |    79   | Jan 2020 |
+|      Safari      |   11.1  | Mar 2018 |
+|      Firefox     |   110   | Feb 2023 |
+|    iOS Safari    |   11.3  | Mar 2018 |
+| Samsung Internet |    9.0  | Jan 2019 |
+
+The build is compiled to ES2018 syntax and every release is checked against it, so a newer language feature cannot slip into the bundle. If you need to support slightly older versions, look at Fudgel 2.x or use Babel to transpile the library. (Firefox 110 is where [`CSSPageRule.selectorText` became available](https://developer.mozilla.org/en-US/docs/Web/API/CSSPageRule/selectorText), which is needed for CSS scoping.)
+
+See the details on the most restrictive browser features required to run Fudgel using [CanIUse.com feature list](https://caniuse.com/mdn-html_elements_slot,mdn-api_customelementregistry,mdn-api_shadowroot,mdn-api_csspagerule_selectortext,wf-spread). At the bottom, click "Show Summary", "Intersection" and change usage to "all tracked" to exclude bots, `curl`, and other unknown browsers.
+
+## Goals and Prior Work
+
+This project has received the benefit of having others blaze trails in related areas. Thanks to the following projects for their inspiration:
+
+-   [Slim.js](https://slimjs.com/) provided the starting point that a lightweight library can contain lots of functionality, such as the automatic bindings and text parser.
+-   [Angular](https://angular.dev/) lifecycle hooks and structural directives were useful to mimic.
+-   [Alpine.js](https://alpinejs.dev/) has event handlers using `@` prefixes and modifiers.
+-   [Vue.js](https://vuejs.org/) is big into using slots for content projection, plus they also have event handlers with modifiers.
+-   [Skruv](https://skruv.io/) is a small library that's similar to Slim.js and is the inspiration for the CSS scoping.
+-   [jsep](https://github.com/EricSmekens/jsep) is how the basis for how expressions are parsed within templates without using "eval()" or "new Function()".
+-   [a-wc-router](https://github.com/colscott/a-wc-router) inspired the `<slot-like>` element for [content projection](https://fudgel.js.org/content-projection.html) in the light DOM.
+
+---
+
+Source page: https://fudgel.js.org/getting-started.html
+
+# Getting Started
+
+<u>Step 1:</u> Install Fudgel or include it into your project. This can take several forms, depending on your needs.
+
+Example (samples/umd-from-cdn.html):
+
+```html
+<!-- Load as a UMD from a CDN -->
+<script src="https://unpkg.com/fudgel"></script>
+<script>
+    Fudgel.component('umd-from-cdn', {
+        template: '<div>Hello from My Component!</div>'
+    });
+</script>
+
+<umd-from-cdn></umd-from-cdn>
+```
+
+Example (samples/module-from-cdn.html):
+
+```html
+<!-- Load as a UMD module from a CDN -->
+<script type="module">
+    import { component } from 'https://unpkg.com/fudgel?module';
+    component('module-from-cdn', {
+        template: '<div>Hello from My Component!</div>'
+    });
+</script>
+
+<module-from-cdn></module-from-cdn>
+```
+
+Installing locally as a package is simple.
+
+* `npm install fudgel`
+* `yarn add fudgel`
+
+While developing, also import `fudgel/dev` once, before your components are defined. It does not change how Fudgel works and is left out of a production build; it warns in the console about the mistakes Fudgel otherwise cannot report, such as a property name that HTML lowercased, an expression that resolves to nothing, a `<slot>` that cannot project, a route that can never match, and a lifecycle hook that is nearly spelled right.
+
+```js
+import 'fudgel/dev';
+```
+
+
+<u>Step 2:</u> At this point you have access to the `Fudgel` object or the module's exports. It's time to write your first controller. Select the chunk of code that best fits your needs.
+
+Example (samples/hello-world-module.js):
+
+```js
+// Module
+import { component } from '/fudgel.min.js';
+
+component(
+    'hello-world-module',
+    {
+        template: `Hello {{audience}}!`,
+    },
+    class {
+        audience = 'world';
+    }
+);
+```
+
+Example (samples/hello-world-umd.html):
+
+```html
+<script src="/e2e/fudgel.umd.js"></script>
+<script>
+    // Vanilla JavaScript using window.Fudgel
+    Fudgel.component(
+        'hello-world-umd',
+        {
+            template: `Hello {{audience}}!`,
+        },
+        class {
+            audience = 'world';
+        }
+    );
+</script>
+<hello-world-umd></hello-world-umd>
+```
+
+Example (samples/hello-world-typescript.js):
+
+```js
+// TypeScript with decorators
+import { Component } from '/fudgel.min.js';
+
+@Component(
+    'hello-world-typescript',
+    {
+        template: `Hello {{audience}}!`,
+    }
+)
+class MyCustomComponent {
+    audience = 'world';
+}
+```
+
+<u>Step 3:</u> You've already made a custom element at this point. What's left is adding content to the template and handling actions by users. Investigate the following topics to learn more about Fudgel's features.
+
+Component creation and configuration:
+
+* [Best Practices](https://fudgel.js.org/best-practices.html) - How to get the most benefit and avoid problems.
+* [Component Config](https://fudgel.js.org/component-config.html) - Configure your component.
+* [Naming Conventions](https://fudgel.js.org/naming.html) - camelCase in JavaScript, dash-case in HTML, and why.
+* [Styling](https://fudgel.js.org/styling.html) - Style using either Light DOM or Shadow DOM.
+
+Directives and data bindings used within the templates:
+
+* [Bindings](https://fudgel.js.org/bindings.html) - Connect the template to a controller.
+* [Reactivity](https://fudgel.js.org/reactivity.html) - What makes a binding update, and what does not.
+* [Forms](https://fudgel.js.org/forms.html) - Inputs, checkboxes and selects.
+* [Directive Basics](https://fudgel.js.org/directives.html) - Overview of directives.
+* [Event `@` Directive](https://fudgel.js.org/directive-event.html) - Respond to user actions.
+* [Property `.` Directive](https://fudgel.js.org/directive-property.html) - Set properties on elements.
+* [`#class` Directive](https://fudgel.js.org/directive-class.html) - Conditionally set CSS classes.
+* [`#ref` Directive](https://fudgel.js.org/directive-ref.html) - Reference elements in your controller.
+* [`*for` Directive](https://fudgel.js.org/directive-for.html) - Repeat elements based on data.
+* [`*if` Directive](https://fudgel.js.org/directive-if.html) - Conditionally include elements.
+* [`*repeat` Directive](https://fudgel.js.org/directive-repeat.html) - Repeat elements a number of times.
+
+Data flow:
+
+* [Content Projection](https://fudgel.js.org/content-projection.html) - Insert user content into your component.
+* [Events](https://fudgel.js.org/events.html) - Communicate using custom events.
+* [Input](https://fudgel.js.org/input.html) - Receive information from outside.
+* [Output](https://fudgel.js.org/output.html) - Send information to outside.
+
+Everything Else:
+
+* [Expressions](https://fudgel.js.org/expressions.html) - Use expressions in bindings and directives.
+* [Gotchas and FAQ](https://fudgel.js.org/gotchas.html) - Symptoms, causes and fixes for the things that surprise people.
+* [Lifecycle](https://fudgel.js.org/lifecycle.html) - Respond to component lifecycle stages through events and methods.
+* [Routing](https://fudgel.js.org/routing.html) - Create single-page applications with routing.
+* [Upgrading](https://fudgel.js.org/upgrading.html) - Upgrade from older versions of Fudgel to the current version.
+* [Utilities](https://fudgel.js.org/utilities.html) - Helpful utility functions provided by Fudgel.
+
+## TypeScript
+
+Fudgel ships its own types. Two things are worth knowing.
+
+The `@Component()` decorator works with both `experimentalDecorators` and the standard decorators in TypeScript 5 and later; it returns nothing, so the decorated name still refers to your controller class. `component()` returns the custom element instead. Class fields work with either setting of `useDefineForClassFields`.
+
+A controller can be any class. To have TypeScript check the signatures of the lifecycle hooks and complete their names, implement `StrictController`:
+
+```ts
+import { StrictController, ControllerMetadata, metadata } from 'fudgel';
+
+class MyController implements StrictController {
+    [metadata]?: ControllerMetadata;
+    count = 0;
+
+    onChange(propName: string, oldValue: unknown, newValue: unknown) {}
+}
+```
+
+Declare the properties your templates use as class fields, whether or not they have an initial value, so that a misspelled name in a template is a property Fudgel can watch rather than a global lookup that finds nothing.
+
+---
+
+Source page: https://fudgel.js.org/bindings.html
+
+# Bindings
+
+Fudgel uses a simple and powerful binding syntax to connect your component's template to its controller. Bindings are enclosed in double curly braces `{{ }}` and can be used to insert dynamic content into text and attribute values. Here's an example of a simple component that binds text and an attribute.
+
+Example (samples/binding-example.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+const links = [
+    { siteName: 'Fudgel', url: 'https://fudgel.js.org/' },
+    { siteName: 'Example (disabled)', url: 'https://example.com/', disabled: true },
+    { siteName: 'MDN Web Docs', url: 'https://developer.mozilla.org/' },
+    { siteName: 'W3C (disabled)', url: 'https://www.w3.org/', disabled: true },
+];
+
+component(
+    'binding-example',
+    {
+        template: `
+            <p>This rotates through sites every 4 seconds:</p>
+            <p>
+                {{ siteName }}
+                <input
+                    type="text"
+                    disabled="{{ disabled }}"
+                    value="{{ url }}" />
+            </p>
+        `,
+    },
+    class {
+        onInit() {
+            this.index = -1;
+            const update = () => {
+                this.index = (this.index + 1) % links.length;
+                this.siteName = links[this.index].siteName;
+                this.url = links[this.index].url;
+                this.disabled = !!links[this.index].disabled;
+            };
+            update();
+            this.interval = setInterval(update, 4000);
+        }
+
+        onDestroy() {
+            clearInterval(this.interval);
+        }
+    }
+);
+```
+
+The URL used in the link will be changed to match the `url` property from the controller, and the link text will reflect the `linkText` property. This will continue to update automatically as long as the component is in the DOM.
+
+The bindings don't have to be simple property names. JavaScript syntax can perform calculations or call methods on the controller, such as a method that formats a date. A binding runs again when a top-level identifier in its expression is assigned, so pass a method the values it depends on: `{{ format(date) }}` updates when `date` is assigned, while `{{ formatDate() }}` runs once and never again. You are not allowed to use operators that change state, such as assignment (`=`), increment (`++`), or decrement (`--`). Learn more about [supported expressions](https://fudgel.js.org/expressions.html) and [reactivity](https://fudgel.js.org/reactivity.html).
+
+Because not all JavaScript is supported in bindings and to encourage better separation of concerns, it's recommended to use methods to perform complex logic and update state. It also helps keep your templates clean and easy to read.
+
+The link in the above example will be disabled for one of the items in the list. When an attribute is bound to a boolean expression, null, or undefined, the attribute will be added or removed based on the truthiness of the value. This is useful for attributes like `disabled`, `checked`, or `hidden`. However, if there is even one character outside of the binding in the attribute value, it will always be treated as a string.
+
+Bindings are updated whenever a top-level property in the expression changes. For example, if you have a binding like `{{ user.name }}`, the binding will update whenever the `user` property is assigned a new object. However, changes to nested properties (like `user.name`) will not automatically trigger an update unless you reassign the `user` property itself or use the `update()` [utility function](https://fudgel.js.org/utilities.html). The [Reactivity](https://fudgel.js.org/reactivity.html) page covers exactly what is watched.
+
+Similarly, bindings are used for other directives, such as [Event Directives](https://fudgel.js.org/directive-event.html) and [If Directive](https://fudgel.js.org/directive-if.html). This allows you to create dynamic behavior based on the component's state.
+
+---
+
+Source page: https://fudgel.js.org/best-practices.html
+
+# Best Practices
+
+Using Fudgel to create custom elements is straightforward. To help ensure maximum compatibility and performance, here are some best practices to follow when writing your components.
+
+## Performance
+
+For performance, do not reassign to a bound property. Modify a local variable and only assign it back to the bound property when all changes are complete. This prevents multiple updates to the DOM.
+
+Example (samples/assign-only-once.js):
+
+```js
+// Bad idea; it updates title multiple times
+this.title = this.title.toUpperCase();
+this.title = this.title.trim();
+
+if (this.title.length > 20) {
+    this.title = this.title.substring(0, 20) + '...';
+}
+
+// Much better; title is only updated once
+let updatedTitle = this.title;
+updatedTitle = updatedTitle.toUpperCase();
+updatedTitle = updatedTitle.trim();
+
+if (updatedTitle.length > 20) {
+    updatedTitle = updatedTitle.substring(0, 20) + '...';
+}
+
+this.title = updatedTitle;
+```
+
+## Compatibility
+
+When building a library, do not automatically register your custom elements in your exported module. This won't allow developers to resolve name conflicts. Instead, export a function that allows a prefix or a custom name to be provided, similar to how `defineRouterElement()` (see [Routing](https://fudgel.js.org/routing.html)) and `defineSlotComponent()` (described in [Content Projection](https://fudgel.js.org/content-projection.html)) work for Fudgel's built-in elements.
+
+Example (samples/export-component-function.js):
+
+```js
+import { component } from 'fudgel';
+
+export function defineMyElement(prefix = 'my-') {
+    component(
+        `${prefix}export-component-function`,
+        {
+            template: 'Hello, world!',
+        },
+        class {
+            // Add your controller logic here
+        }
+    );
+}
+```
+
+## Data Flow
+
+In general, you want your element to accept data into the controller using attributes (strings) and properties (any data). Attributes have universal support, where as most support properties.
+
+Example (samples/data-flow-into-component.html):
+
+```html
+<!-- Accept data through attributes and properties -->
+<data-flow-into-component title="Hello"></data-flow-into-component>
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component('data-flow-into-component', {
+        attr: ['title'],
+        prop: ['items'],
+        template: `
+            <h1>{{ title }}</h1>
+            <ul>
+                <li *for="item of items">{{ item }}</li>
+            </ul>
+        `,
+    });
+
+    // Set a property to illustrate data bindings
+    const el = document.querySelector('data-flow-into-component');
+    el.items = [1, 2, 3];
+</script>
+```
+
+When you need to send data out of your controller, send an event. If you need data to be visible and retrievable from the outside, expose it through a property.
+
+Example (samples/emit-and-exposing-property.html):
+
+```html
+<script type="module">
+    import { component, emit } from '/fudgel.min.js';
+
+    const items = ['Item 1', 'Item 2', 'Item 3'];
+
+    component(
+        'emit-and-exposing-property',
+        {
+            prop: ['currentSelection'],
+            style: `
+                .selected {
+                    background-color: green;
+                    color: white
+                }
+            `,
+            template: `
+                <p>Select an item:</p>
+                <ul>
+                    <li
+                        *for="item of items"
+                        @click="selectItem(item)"
+                        #class="{ selected: item === currentSelection }"
+                    >{{item}}</li>
+                </ul>
+            `,
+        },
+        class {
+            items = items;
+            currentSelection = items[0];
+
+            selectItem(item) {
+                this.currentSelection = item;
+                emit(this, 'itemSelected', item);
+            }
+        }
+    );
+</script>
+<emit-and-exposing-property id="el"></emit-and-exposing-property>
+<script>
+    const el = document.getElementById('el');
+    el.addEventListener('itemSelected', event => {
+        // event is a CustomEvent instance
+        console.log('Item selected:', event.detail);
+        this.currentSelection = event.detail;
+    });
+
+    setInterval(() => {
+        // Access a property
+        console.log('Current selection:', el.currentSelection);
+    }, 1000);
+</script>
+```
+
+Alternately, you can use a service to share data between components. This example uses the built-in `Emitter` class, as found on the [utilities page](https://fudgel.js.org/./utilities.html).
+
+Example (samples/service-data-sharing.html):
+
+```html
+<service-data-sharing></service-data-sharing>
+
+<script type="module">
+    import { component, di, Emitter } from '/fudgel.min.js';
+
+    // This shared data service illustrates Emitter and sharing data
+    class SharedDataService {
+        constructor() {
+            this.emitter = new Emitter();
+            this.value = '?';
+        }
+
+        getValue() {
+            return this.value;
+        }
+
+        setValue(value) {
+            this.value = value;
+            this.emitter.emit('valueChanged', value);
+        }
+
+        onValueChanged(callback) {
+            return this.emitter.on('valueChanged', callback);
+        }
+
+        offValueChanged(callback) {
+            this.emitter.off('valueChanged', callback);
+        }
+    }
+
+    component(
+        'service-data-sharing',
+        {
+            template: `
+            <p>
+                Component count:
+                <input type="number" @change="updateCount($event)" value="1" />
+            </p>
+            <shared-data-display *repeat="componentCount"></shared-data-display>
+        `,
+        },
+        class {
+            componentCount = 1;
+
+            updateCount(event) {
+                this.componentCount =
+                    Math.abs(parseInt(event.target.value)) || 1;
+            }
+        }
+    );
+
+    component(
+        'shared-data-display',
+        {
+            template: `
+            <p>
+                This is {{random}}. Shared value is {{value}}.
+                <button @click="setSharedValue()">
+                    Set value to {{random}}
+                </button>
+            </p>
+        `,
+        },
+        class {
+            random = Math.random().toString().substr(2, 4);
+            sharedDataService = di(SharedDataService);
+
+            onInit() {
+                this.value = this.sharedDataService.getValue();
+                this.removeEventListener =
+                    this.sharedDataService.onValueChanged(
+                        newValue => (this.value = newValue)
+                    );
+            }
+
+            onDestroy() {
+                this.removeEventListener?.();
+            }
+
+            setSharedValue() {
+                this.sharedDataService.setValue(this.random);
+            }
+        }
+    );
+</script>
+```
+
+---
+
+Source page: https://fudgel.js.org/directive-class.html
+
+# `#class` Directive
+
+There's a [directive](https://fudgel.js.org/directives.html) that makes it much easier to add and remove classes dynamically. The `#class` directive allows you to define class names to add or remove if the associated value is truthy or falsy. It accepts an object where the property names are the class names and the property values are the conditions.
+
+Example (samples/directive-class.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-class',
+    {
+        style: `
+            .even { background-color: lightblue; }
+            .notMultipleOfThree { border: 2px solid black; }
+            .moreThanFive { font-weight: bold; }
+        `,
+        template: `
+            <button @click="switchClasses()">Increment N</button>
+            <p #class="{
+                even: n % 2 === 0,
+                notMultipleOfThree: n % 3,
+                moreThanFive: n > 5
+            }">N: {{n}}</p>
+            <ul>
+                <li>Blue background if even</li>
+                <li>Black border if not a multiple of 3</li>
+                <li>Bold text if greater than 5</li>
+            </ul>
+        `,
+    },
+    class {
+        n = 1;
+
+        switchClasses() {
+            this.n = (this.n + 1) % 10;
+        }
+    }
+);
+```
+
+---
+
+Source page: https://fudgel.js.org/component-config.html
+
+# Component Config
+
+The `component()` function will create a new element and register it with
+`window.customElements` as long as the element was not yet defined. A name that
+is already defined is skipped, so the same library can be loaded twice. A name
+the browser rejects, such as one without a hyphen, throws the browser's error
+rather than leaving an element that never upgrades. The newly defined custom
+element will be assigned a constructor of `FudgelElement`, not your class. This
+is done to allow you to utilize any property in your class without fear of
+overwriting something important to `HTMLElement`.
+
+The call to `component()` accepts three parameters:
+
+1. The name of the custom element, which must contain a hyphen and be a valid
+   custom element name.
+2. An object containing configuration to define for the new element.
+3. An optional class to instantiate as the controller.
+
+Example (samples/hello-world-module.js):
+
+```js
+// Module
+import { component } from '/fudgel.min.js';
+
+component(
+    'hello-world-module',
+    {
+        template: `Hello {{audience}}!`,
+    },
+    class {
+        audience = 'world';
+    }
+);
+```
+
+If you use TypeScript, you can also use the `@Component()` decorator, which takes only the first two parameters; the element name and the object of static values.
+
+Example (samples/hello-world-typescript.js):
+
+```js
+// TypeScript with decorators
+import { Component } from '/fudgel.min.js';
+
+@Component(
+    'hello-world-typescript',
+    {
+        template: `Hello {{audience}}!`,
+    }
+)
+class MyCustomComponent {
+    audience = 'world';
+}
+```
+
+The decorator defines the custom element and returns nothing, so the decorated name still refers to your controller class. `component()` returns the custom element it defined, which is a different class; a decorator returning that would rebind the name to the wrong type, and TypeScript does not allow it. Reach for `component()` when you want that constructor, and the decorator when you want a class that stays itself.
+
+When using TypeScript, you may also want to use the `metadata` property to find information about the controller, the host element, or scope. This example shows how you can set up the types so that the controller will be able to access metadata.
+
+Example (samples/show-tag-name-typescript.js):
+
+```js
+// TypeScript with decorators. Shows how to use `metadata`
+// and have everything typed correctly.
+import { Component, ControllerMetadata, metadata } from '/fudgel.min.js';
+
+@Component(
+    'show-tag-name-typescript',
+    {
+        template: `My tag name is {{tagName}}`,
+    }
+)
+class MyCustomComponent {
+    audience = 'world';
+    [metadata]!: ControllerMetadata;
+    tagName = 'Unknown';
+
+    onInit() {
+        this.tagName = this[metadata].tagName;
+    }
+}
+```
+
+## Configuration
+
+The configuration supplied as the second parameter will define the template,
+styles, and if the Shadow DOM will be used. This is done by setting the
+following properties in the object.
+
+### `attr` (optional, array of strings)
+
+Monitor these attributes on the element for changes. When a listed attribute is changed, the controller's matching property name will be updated to match the new value, the `change` event will be fired, `onChange()` will be called, and any bindings using that property will be updated.
+
+Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the `data-value` attribute, you would add `"dataValue"` to this list and the controller's `.dataValue` property will be updated. A kebab-case name in this list is treated as the camelCase one. See [Naming Conventions](https://fudgel.js.org/naming.html).
+
+When the controller's property is changed, the attribute will be updated accordingly in the DOM: a string sets it, `true` sets it to an empty string, and `false`, `null` or `undefined` removes it. Other types are not reflected, as attributes can only hold string values. When the attribute is absent on the element, the property is set to `null`.
+
+When a name is listed in both `attr` and `prop`, the most recently changed source (attribute or property) will update the other.
+
+Learn more about [component inputs](https://fudgel.js.org/input.html) and how attributes and properties work.
+
+### `prop` (optional, array of strings)
+
+Performs two-way mirroring of these properties, linking the element's property to the controller's property. When either one is changed, the other will be updated to match, the `change` event will be fired, `onChange()` will be called, and any bindings using that property will be updated.
+
+Properties can hold any type of value, including objects and dates.
+
+When a name is listed in both `attr` and `prop`, the most recently changed source (attribute or property) will update the other.
+
+Learn more about [component inputs](https://fudgel.js.org/input.html) and how attributes and properties work.
+
+### `style` (optional, string)
+
+CSS styles for your custom element. These will be added to the document when your element is used. The technique changes if you are using the Shadow DOM or not.
+
+Shadow DOM: A `<style>` element is added inside your component when it is created. Style your host element using the `:host` selector, as is normal.
+
+Light DOM: The CSS styles are scoped to your element (plus the template elements are scoped), then the styles are added to the parent document when the component is added. If the parent document already has the styles in play, these are not added again. Style your host element using the `:host` selector, which will automatically be changed to your element's name.
+
+Learn more about [styling components](https://fudgel.js.org/styling.html).
+
+### `template` (required, string)
+
+This is the HTML that the element will use for its content. This template will be processed in the controller's scope, even when passing content to child custom elements (such as with content projection through slots; read more in [Content Projection](https://fudgel.js.org/content-projection.html)).
+
+When using an empty string, it will be up to the controller to add the necessary DOM elements and bindings. Elements dynamically added to the DOM through your controller will not be scoped automatically, so you must style them with an embedded `<style>` tag or add the generated class names yourself. This is discussed more in [styling components](https://fudgel.js.org/styling.html).
+
+### `useShadow` (optional, boolean)
+
+If truthy, encapsulate the component inside a shadow DOM. This is `false` by default because the shadow DOM has a slight performance hit and has specific design trade-offs that may not suit your needs.
+
+---
+
+Source page: https://fudgel.js.org/content-projection.html
+
+# Content Projection
+
+Imagine you have a utility function to create a styled button.  You'd like the ability to specify the HTML that is displayed on the button, but passing that in via an attribute or property is problematic, especially when you want to have an image on the button. There are two ways you have access to outside content in order to "project" it into your element.
+
+## Normal Process Without Content Projection
+
+Extra content within the custom element will be removed. The DOM elements will be present during `onInit()` and are removed before `onViewInit()`. Both of these are detailed in <a href="lifecycle.html">Lifecycle</a> stages.
+
+If you wanted this content to be copied into your component, this is easily done using one of the following methods.
+
+## Slots and Shadow DOM
+
+You can use slotted content when your element enables `useShadow: true` in its [configuration](https://fudgel.js.org/component-config.html). This leverages built-in browser features and works well. To project content, use the `<slot>` element.
+
+You can also project multiple pieces of content into specific areas using named slots. Read more about [`<slot> elements`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) and [`slot` attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/slot) on MDN.
+
+Example (samples/slot-example.html):
+
+```html
+<slot-example>
+    <b>BOLD TEXT</b>
+</slot-example>
+
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component('slot-example', {
+        style: `
+            button {
+                border-radius: 4px;
+                border-width: 2x;
+                border-color: blue;
+                border-style: solid;
+                padding: 4px;
+            }
+        `,
+        template: `<button><slot></slot></button>`,
+        useShadow: true
+    });
+</script>
+```
+
+## Slots and Light DOM
+
+**A `<slot>` in a light DOM template does nothing on its own**; the content inside the element is simply removed. There is no browser-native support for slots in the light DOM, however Fudgel can provide similar functionality. First, you need to define the custom slot-like element by calling `defineSlotComponent()` once, before defining components. After that point all components will have `<slot>` elements rewritten automatically to work as expected. This means you can keep your template looking the same whether using light DOM or shadow DOM. While developing, `fudgel/dev` warns about a `<slot>` that was not rewritten.
+
+This slot substitute doesn't work well for changing content.  Avoid using this when your content uses structural directives or otherwise adds/removes elements.
+
+Example (samples/slot-like-example.html):
+
+```html
+<slot-like-example>
+    <b>BOLD TEXT</b>
+</slot-like-example>
+
+<script type="module">
+    import { component, css, defineSlotComponent, di, html } from '/fudgel.min.js';
+
+    // Enable slot-like.
+    defineSlotComponent();
+
+    component('slot-like-example', {
+        style: `
+            button {
+                border-radius: 4px;
+                border-width: 2x;
+                border-color: blue;
+                border-style: solid;
+                padding: 4px;
+            }
+        `,
+        template: `<button><slot></slot></button>`,
+        useShadow: true
+    });
+</script>
+```
+
+How does this work? Calling `defineSlotComponent()` will define the custom component with the default name of `slot-like`, which you can change by using `defineSlotComponent('custom-element-name')`. Please make sure you do this right away, before your custom elements get created. This function watches for component creation within Fudgel so all light DOM components will have their template rewritten, changing `<slot>` elements into `<slot-like>` elements. This template change happens once during each components initial definition. If the component uses `<slot-like>`, then extra functionality is added to help support content projection.
+
+The downside of this method is that you may see a flicker of the original DOM before it is put into the right places within your component. This is because the DOM structure is built before the template overrides the node's content.
+
+`<slot-like>` is designed to be a lightweight substitute for the native `<slot>` element, including support for named slots.
+
+## Manual Content Retrieval
+
+Your controller can access the custom element and pull its children using a query selector, walking the DOM, or other techniques. Make sure you capture the content during `onParse()` and then add the content to the DOM in `onViewInit()` because the element is cleared and the template is applied between these two method calls. Learn more about these <a href="lifecycle.html">Lifecycle</a> stages.
+
+One advantage of using this technique is the template element is not rendered, so it can avoid the flicker of the slot-like approach.
+
+Example (samples/manual-content-projection.html):
+
+```html
+<manual-content-projection>
+    <template>
+        <b>BOLD TEXT</b>
+    </template>
+</manual-content-projection>
+
+<script type="module">
+    import { component, metadata } from '/fudgel.min.js';
+
+    component('manual-content-projection', {
+        style: `
+            button {
+                border-radius: 4px;
+                border-width: 2x;
+                border-color: blue;
+                border-style: solid;
+            }
+        `,
+        template: `<button #ref="button"></button>`
+    }, class {
+        onParse() {
+            this.template = this[metadata].root.querySelector('template');
+        }
+
+        onViewInit() {
+            this.button.append(this.template.content);
+        }
+    });
+</script>
+```
+
+---
+
+Source page: https://fudgel.js.org/directives.html
+
+# Directive Basics
+
+Directives appear as attributes within your component's template HTML. They provide a way to bind data and behavior to DOM elements. Fudgel provides several directives to handle most of the common use cases.
+
+Directives fit the following categories:
+
+* **Structural Directives** - Change the structure of the DOM by adding, removing, or repeating elements. These must start with a `*` character and only one is allowed per element, such as [`*if`](https://fudgel.js.org/directive-if.html), [`*for`](https://fudgel.js.org/directive-for.html), and [`*repeat`](https://fudgel.js.org/directive-repeat.html).
+* **Prefix Directives** - Assign a single character prefix and if an attribute starts with that character, the directive will be applied. These include [`@` for events](https://fudgel.js.org/directive-event.html) and [`.` for properties](https://fudgel.js.org/directive-property.html).
+* **Named Directives** - Uses a full name for the attribute. To avoid conflicts with standard HTML attributes, these start with `#`, such as [`#ref`](https://fudgel.js.org/directive-ref.html) and [`#class`](https://fudgel.js.org/directive-class.html).
+
+Processed at about the same time as directives are [bindings](https://fudgel.js.org/bindings.html), which use the `{{ }}` syntax to insert data into text nodes and attribute values.
+
+## Built-in Directives
+
+The following directives are built into Fudgel:
+
+* [`#class`](https://fudgel.js.org/directive-class.html) - Conditionally adds or removes CSS classes
+* [`#ref`](https://fudgel.js.org/directive-ref.html) - Assigns an element reference to a property on the controller.
+* [`*for`](https://fudgel.js.org/directive-for.html) - Repeats an element for each item in an array.
+* [`*if`](https://fudgel.js.org/directive-if.html) - Conditionally includes or excludes an element based on an expression.
+* [`*repeat`](https://fudgel.js.org/directive-repeat.html) - Repeats an element a fixed number of times.
+* [`.property`](https://fudgel.js.org/directive-property.html) - Sets a property on an element.
+* [`@event`](https://fudgel.js.org/directive-event.html) - Binds an event handler to an event.
+
+## Adding Custom Directives
+
+You are welcome to add your own directives. Regardless of the type of directive, you add them using the same function, `addDirective()`.
+
+Example (samples/add-directive.js):
+
+```js
+import { addDirective } from '/fudgel.min.js';
+
+// Named - matches "#name" and should start with "#"
+addDirective('#name', (controller, node, attrValue, attrName) => {
+    // Directive logic here
+});
+
+// Prefixed - matches attributes starting with "?"
+addDirective('?', (controller, node, attrValue, attrName) => {
+    // Directive logic here
+});
+
+// Structural - matches "*extra" and must start with "*"
+addDirective('*extra', (controller, anchor, node, attrValue) => {
+    // Directive logic here
+});
+```
+
+Your custom directive function must perform whatever manipulation in the DOM that is necessary. For structural directives, a comment is automatically added just before the element with the directive; this is an anchor point you can use for adding or removing elements.
+
+If you'd like to deal with the attribute value in a way that's similar to how Fudgel works with other property lookups, you will be very interested in `parse` and `getScope()`, exported as part of the [utilities](https://fudgel.js.org/utilities.html).
+
+The following example shows how to create a `#tick` directive that will use an [expression](https://fudgel.js.org/expressions.html) to call a function every seond.
+
+Example (samples/parse-js.js):
+
+```js
+import {
+    addDirective,
+    component,
+    metadata,
+    getScope,
+    parse,
+} from './fudgel.js';
+
+addDirective('#tick', (controller, node, attrValue) => {
+    const parsed = parse.js(attrValue);
+    // parsed[0] is a function that takes context objects,
+    // then evaluates the expression against those contexts.
+    // parsed[1] is a list of bound variables, which is not
+    // needed for this directive.
+    const scope = Object.create(getScope(node));
+    const updateFn = tickValue => {
+        scope.$event = tickValue;
+        parsed[0](scope, controller);
+    };
+    const interval = setInterval(() => updateFn(Date.now()), 1000);
+    controller[metadata].events.on('destroy', () => clearInterval(interval));
+});
+
+component(
+    'parse-js',
+    {
+        template: `
+            <div #tick="updateTick($event)">
+                Last tick: {{tickValue}}
+            </div>
+        `,
+    },
+    class {
+        tickValue = -1;
+
+        // Called from the #tick directive
+        updateTick(tickValue) {
+            this.tickValue = tickValue;
+        }
+    }
+);
+```
+
+---
+
+Source page: https://fudgel.js.org/directive-event.html
+
+# Event `@` Directive
+
+Event handler [directives](https://fudgel.js.org/directives.html) are bound with a `@` prefixed attribute. The event that triggered the action is available as `$event` within the [expression](https://fudgel.js.org/expressions.html).
+
+The attribute name is converted from kebab-case to camelCase, so `@value-save` listens for a `valueSave` event. It also listens for the name exactly as written, `value-save`, so a dashed event from another component library binds the same way. See [Naming Conventions](https://fudgel.js.org/naming.html). Listeners are removed when a directive removes the element or the component is destroyed, including listeners placed on the window or document by the modifiers below.
+
+Example (samples/directive-event.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-event',
+    {
+        template: `
+            <input
+                type="text"
+                placeholder="Type in here"
+                @input="contentChange($event)" />
+            <div #ref="output"></div>
+        `,
+    },
+    class {
+        contentChange(event) {
+            this.output.textContent = `You typed: ${event.target.value}`;
+        }
+    }
+);
+```
+
+Event handlers can also have modifiers, indicating what should be done with the event. These are separated by a period and appear after the event name, always in kebab-case. They get changed into camelCase within Fudgel; only lowercase letters are allowed for HTML attributes.
+
+* `capture` - Dispatch the event to the registered listener before dispatching to any event targets beneath it in the DOM tree.
+* `document` - Bind the event to the document.
+* `once` - Invoke the listener at most once.
+* `outside` - Bind the event to the document and only fire when it happens from outside of the targeted element.
+* `passive` - Signifies that this event is passive and the developer will not call `preventDefault` on the event, allowing the engine to tweak how the event is processed.
+* `prevent` - Calls `preventDefault` on the event.
+* `self` - Only fires the event when the click is on the target element.
+* `stop` - Calls `stopPropagation` on the event.
+* `window` - Bind the event to the window.
+
+To help illustrate how these work, consider the following example:
+
+Example (samples/test-events.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'test-events',
+    {
+        template: `
+            <div
+                @click.stop.prevent.outside="click('outside')"
+                @click.stop.prevent="click('inside')"
+                style="border: 1px solid black; padding: 10px; display: inline-block;"
+                >
+                Click inside or outside this box
+            </div>
+            <div>{{clickMessage}}</div>
+        `,
+    },
+    class {
+        clickMessage = 'Ready for your next click';
+        timeout = null;
+        click(message) {
+            if (this.timeout) {
+                clearTimeout(this.timeout);
+            }
+            this.clickMessage = `You clicked ${message} the box!`;
+            this.timeout = setTimeout(() => {
+                this.clickMessage = 'Ready for your next click';
+                this.timeout = null;
+            }, 2000);
+        }
+    }
+);
+```
+
+You can also fire events only when certain key combinations are pressed.
+
+* `alt` - The alt key must be pressed.
+* `ctrl` - The control key must be pressed.
+* `meta` - The meta key must be pressed, which is the same as the Command key on Mac or Super key on Windows.
+* `shift` - The shift key must be pressed.
+* `exact` - The exact key combination must be pressed. This means using `keypress.ctrl.exact` only fires when a control-key combination is pressed but will not fire if the shift key is also pressed.
+
+Example (samples/test-keyboard-events.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'test-keyboard-events',
+    {
+        template: `
+            <button
+                @click.stop.prevent="changeClicks()"
+                @click.ctrl="changeControlClicks()"
+                @click.shift.exact="changeShiftClicksExact()"
+                >
+                Click me!
+            </button>
+            <div>Number of clicks: {{clicks}}</div>
+            <div>Number of control-clicks: {{controlClicks}}</div>
+            <div>Number of shift-clicks with exact: {{shiftClicksExact}}</div>
+        `,
+    },
+    class {
+        clicks = 0;
+        controlClicks = 0;
+        shiftClicksExact = 0;
+        changeClicks() {
+            this.clicks += 1;
+        }
+        changeControlClicks() {
+            this.controlClicks += 1;
+        }
+        changeShiftClicksExact() {
+            this.shiftClicksExact += 1;
+        }
+    }
+);
+```
+
+Finally, any other event modifier will be treated as a key value. This means using `keypress.a` will only fire when the "a" key is pressed. Key values are listed on [MDN's Keyboard Event Key Values page](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values). Make sure to use all lowercase and kebab-case names, such as `keypress.enter` and `keypress.arrow-left`.
+
+Some keys are difficult to represent as HTML attributes, so you can use their ASCII values or code point values, such as `keypress.code-32` for space (hex 0x20, ASCII code point 32) and `keypress.code-252` for ü. The space bar also matches `keypress.space`.
+
+Example (samples/test-key-value-events.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'test-key-value-events',
+    {
+        template: `
+            <div>
+                <input type="text"
+                       @keypress.code-32="changeSpaceCount()"
+                       @keydown.enter="input2.focus()"
+                       @keydown.tab.stop.prevent="message($event)"
+                       #ref="input1"
+                       />
+                ({{spaceCount}} spaces pressed)
+            </div>
+            <input type="text"
+                   @keypress.code-32="changeSpaceCount()"
+                   @keydown.enter="input1.focus()"
+                   @keydown.tab.stop.prevent="message($event)"
+                   #ref="input2"
+                   />
+            <div>Press enter to switch between fields</div>
+            <div>Press tab for silly messages</div>
+        `,
+    },
+    class {
+        spaceCount = 0;
+        changeSpaceCount() {
+            this.spaceCount += 1;
+        }
+        message(event) {
+            this.input1.value = 'You pressed tab!';
+            this.input2.value = 'Congratulations!';
+            alert('Here is a silly message!');
+        }
+    }
+);
+```
+
+---
+
+Source page: https://fudgel.js.org/events.html
+
+# Events
+
+This page describes the events that take place in Fudgel when creating and using components. It is not related to DOM event handling, which is covered in [Event `@` Directive](https://fudgel.js.org/directive-event.html).
+
+There are global events and per-controller events. Several of these are described on the [Lifecycle](https://fudgel.js.org/lifecycle.html) page from the perspective of the stages of a component's lifecycle.
+
+## Global Events
+
+Global events allow the ability to add functionality or hook into all controller instances. This is done using the `events.on()` and `events.off()` methods. This uses an `Emitter` instance, which is exported as part of the [Utilities](https://fudgel.js.org/utilities.html) that are included with Fudgel.
+
+### `component` Event
+
+* Created by `component()` when a new component is defined.
+* Arguments:
+    * `customElement`: The custom element class being defined.
+    * `constructor`: The controller class being used for the component.
+    * `config`: The internal version of the [configuration object](https://fudgel.js.org/component-config.html).
+
+This event is launched when any component is defined. It allows modification of the class as necessary. The custom element has not been attached to the DOM at this point, so you are dealing with the controller's constructor and prototype instead of an instance.
+
+Example (samples/events-component.js):
+
+```js
+import { component, events } from '/fudgel.min.js';
+
+events.on(
+    'component',
+    (customElement, controllerClass, customElementConfig) => {
+        console.log(`Component defined:`, {
+            customElement,
+            controllerClass,
+            customElementConfig,
+        });
+    }
+);
+
+component('events-component', {
+    template: `This component is defined!`,
+});
+
+// Check your console for the log message
+```
+
+Using this event, you can modify the component class so it will perform an action every time it is added to the DOM.
+
+Example (samples/events-component-add-logging.js):
+
+```js
+import { component, events } from '/fudgel.min.js';
+
+events.on(
+    'component',
+    (customElement, controllerConstructor, customElementConfig) => {
+        // Patch the custom element's connectedCallback
+        const oldConnectedCallback = customElement.prototype.connectedCallback;
+        customElement.prototype.connectedCallback = function () {
+            console.log(`Added to DOM`);
+            oldConnectedCallback.call(this);
+            console.log(
+                'Done with connectedCallback processing'
+            );
+        };
+    }
+);
+
+component(
+    'events-component-add-logging',
+    {
+        template: `This component is defined!`,
+    },
+    class {
+        onInit() {
+            console.log('init is called');
+        }
+        onParse() {
+            console.log('parse is called');
+        }
+        onViewInit() {
+            console.log('view init is called');
+        }
+    }
+);
+```
+
+There is a caveat: this event is launched before the component is registered with the browser, so you are able to modify its configuration or template. If you need to know if the component will be allowed to be defined, you can use `CustomElementRegistry.get()` to check if the tag name is already in use.
+
+### Controller Events
+
+* Created by [Lifecycle](https://fudgel.js.org/lifecycle.html) stages and other actions.
+* Arguments:
+    * `controller`: The controller instance affected.
+    * Additional arguments vary by event.
+* See Controller Events section for further details.
+
+All controller events will first emit a global event with the controller as the first argument, followed by any additional arguments. Then, if there are any event listeners on the controller instance itself, those will be called with only the additional arguments (omitting the controller instance).
+
+## Controller Events
+
+### `change` Event
+
+* Created when a bound property changes.
+* Arguments:
+    * `propertyName`: The name of the property that changed.
+    * `oldValue`: The previous value of the property.
+    * `newValue`: The new value of the property.
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) page.
+
+### `destroy` Event
+
+* Created when the custom element is removed from the DOM and the controller is destroyed.
+* No arguments
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) page.
+
+### `init` Event
+
+* Created when the custom element is added to the DOM and the controller is created.
+* No arguments
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) page.
+
+### `parse` Event
+
+* Created when the content has fully loaded for the custom element.
+* No arguments
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) page.
+
+### `unlink` Event
+
+* Created when DOM elements are dynamically removed by a directive.
+* Arguments:
+    * `node`: The DOM node being removed.
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) and [Utilities](https://fudgel.js.org/utilities.html) pages.
+
+### `update` Event
+
+* Created by the `update()` [utility function](https://fudgel.js.org/utilities.html) to force an update of all bindings.
+* No arguments.
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) and [Utilities](https://fudgel.js.org/utilities.html) pages.
+
+### `viewInit` Event
+
+* Created when the view has been fully initialized and the template applied.
+* No arguments
+* More information on the [Lifecycle](https://fudgel.js.org/lifecycle.html) page.
+
+---
+
+Source page: https://fudgel.js.org/expressions.html
+
+# Expressions
+
+Fudgel supports binding to expressions in templates. This allows you to insert dynamic values, call functions, and conditionally render content based on the state of your controller.
+
+Most JavaScript syntax works in expressions. It looks like JavaScript and it has access to properties on the controller as well as variables that are defined in various directives. There are several examples on this page along with a list of all operations that are allowed.
+
+The value returned from the expression is used by the [directive](https://fudgel.js.org/directives.html) or [binding](https://fudgel.js.org/bindings.html) that contains it.
+
+## Automatic Updates
+
+Top-level properties on the controller are observed for changes when they are used as a part of an expression. When the property changes, any bindings or directives that use that property are automatically updated. This is done using a shallow compare, so if an object or array is used in an expression, the reference must change for the update to be detected. You can use a [utility function](https://fudgel.js.org/utilities.html) to manually trigger updates if necessary.
+
+Example (samples/expressions-bindings.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'expressions-bindings',
+    {
+        template: `
+            <p><button @click="updateProperty()">Update property</button>
+            Updating the property directly will not trigger an update.</p>
+            <p><button @click="updateObject()">Update object</button>
+            Updating the object reference will trigger an update.</p>
+            <p>Number: {{ obj.number }}</p>
+        `,
+    },
+    class {
+        obj = { number: 0 };
+        updateProperty() {
+            this.obj.number += 1;
+        }
+        updateObject() {
+            this.obj = { number: this.obj.number + 1 };
+        }
+    }
+);
+```
+
+## Scope
+
+Each expression is evaluated in the context of a scope. Scopes are layered on top of the controller's properties. In this example, the controller's name will be shown first. The [`*for` directive](https://fudgel.js.org/directive-for.html) creates a new scope for each child element. This allows the key and the value in one segment to not collide with the key and value of others. In the next example, `name` is set to the value from the current iteration. This allows you to access properties from the controller as well as variables defined in directives.
+
+Example (samples/expressions-for.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component('expressions-for', {
+    template: `
+        <p>Controller Name: {{ name }}, color {{color}}</p>
+
+        <ul>
+            <li *for="name of childNames">
+                Child Name: {{ name }}, color {{color}}
+            </li>
+        </ul>
+    `,
+}, class {
+    childNames = [ 'child1', 'child2' ];
+    name = 'component';
+    color = 'yellow';
+});
+```
+
+## Allowed Expressions and Operations
+
+Most JavaScript syntax is allowed in expressions.
+
+* Strings: `"Hello"`, `'World'`, `"escaped characters: \b \f \n \r \t \v"`
+* Numbers: `42`, `3.14`, `3e-10`
+* Literals: `true`, `false`, `null`, `['arrays', true]`, `{"an":"object", ['works']: true}`
+* Variables: `myVar`, `myProp.childProp`, `myProp[3]`, `myProp['childProp']`, `myProp?.childProp`
+* Unary operators: `!myVar`, `+myVar`, `-myVar`, `~myVar`
+* Binary operators: `||`, `??`, `&&`, `|`, `^`, `&`, `==`, `!=`, `===`, `!==`, `<`, `>`, `<=`, `>=`, `<<`, `>>`, `>>>`, `+`, `-`, `*`, `/`, `%`, `**`
+* Function calls: `myFunc(arg1, 'arg2', 3)`
+* Miscellaneous: `typeof`, `in`, `instanceof`
+* Conditional: `isReady ? 'yes' : 'no'`
+* Grouping: `(a + b) * c`
+
+## Globals
+
+An identifier that is not in scope and not on the controller is read from `window`, so `Math.max(a, b)`, `JSON.stringify(obj)` and `Date.now()` work in expressions. Declare the properties your templates use, so a misspelled name is a controller property rather than a global lookup that finds nothing; `fudgel/dev` warns about the latter.
+
+## Disallowed Expressions and Syntax
+
+Templates should not create complex logic or behaviors. They also should not alter the values in scope, create new functions, or be forced to deal with flow-control statements. Templates should only be used as a bridge to show information to the user, to pass extra information along as an attribute or property, or to bind events to event handlers.
+
+The point of the template is to keep things simple and let the controller do the heavy lifting. Several of the following items are not allowed based on this principle. Others are not allowed because there is no succinct way to implement them while also supporting strict Content-Security-Policy directives.
+
+* Multiple statements: `method1(); method2()`, `method1(), method2()`
+* Creation of new functions: `function test() {}`, `() => {}` due to difficulty implementing under strict Content-Security-Policy
+* Async, await: `async`, `await` - requires function creation
+* Spread operator: `...` - no easy way to implement while also avoiding Content-Security-Policy issues
+* Assignments: `=`, `+=`, `-=`, etc.
+* Prefix and postfix increment/decrement: `++`, `--`
+* Deletion of object properties: `delete propName`
+* Template literals, regular expression literals, `new`, and arrow functions
+
+## When an Expression Fails to Parse
+
+Fudgel logs an error to the console naming the expression, the binding evaluates to `undefined` (text renders as nothing and a bound attribute is removed), and the other bindings and directives on the same element still work. The page keeps running.
+
+---
+
+Source page: https://fudgel.js.org/directive-for.html
+
+# `*for` Directive
+
+Iterating across an object, array, set, map, or any other iterable is handled through the `*for` [directive](https://fudgel.js.org/directives.html). This also automatically updates when the property on your controller is assigned to a new value. The key and the value will be available in the [expression](https://fudgel.js.org/expressions.html) as `key` and `value`.
+
+Example (samples/directive-for.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-for',
+    {
+        template: `
+            <ul>
+                <li *for="itemList">
+                    [{{key}}]: {{value.name}} - {{value.desc}}
+                </li>
+            </ul>
+        `,
+    },
+    class {
+        itemList = [
+            { name: 'Item 1', desc: 'This is item 1' },
+            { name: 'Item 2', desc: 'Another item here' },
+        ];
+    }
+);
+```
+
+You can rename `key` and `value` to suit your needs. Also, nested scopes inherit from each other, exactly how you think they should. Scopes are discussed more on the [Expressions](https://fudgel.js.org/expressions.html) page.
+
+Example (samples/directive-for-named.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-for-named',
+    {
+        template: `
+            <p>Using "key" and "value":</p>
+            <ul>
+                <li *for="itemList">
+                    [{{key}}]: {{value.name}} - {{value.desc}}
+                </li>
+            </ul>
+            <p>Renaming "value" to "item":</p>
+            <ul>
+                <li *for="item of itemList">
+                    [{{key}}]: {{item.name}} - {{item.desc}}
+                </li>
+            </ul>
+            <p>Naming the key as "index" and value as "item":</p>
+            <ul>
+                <li *for="index, item of itemList">
+                    [{{index}}]: {{item.name}} - {{item.desc}}
+                </li>
+            </ul>
+        `,
+    },
+    class {
+        itemList = [
+            { name: 'Item 1', desc: 'This is item 1' },
+            { name: 'Item 2', desc: 'Another item here' },
+        ];
+    }
+);
+```
+
+The iterable is any [expression](https://fudgel.js.org/expressions.html), spaces included: `*for="row of rows ?? []"`.
+
+## Keys and Reuse
+
+Each item has a key: the index for an array, the property name for an object, and the key for a `Map`. When the list is reassigned, an item whose key is still present keeps its row. The row's DOM nodes stay where they are, the value in scope is reassigned, and its bindings update. Rows whose keys are gone are removed and new keys get new rows.
+
+Because arrays are keyed by index, a reordered array keeps row 0 as row 0 and changes what it shows. That is fine for plain text. It is a problem for a row that holds state of its own, such as an input someone has typed in or a child component: the state stays at the position while the record moves.
+
+## `track`
+
+Add `track` with an expression to key rows by identity instead of position. The expression is evaluated with the loop variables in scope.
+
+```html
+<div *for="row of rows track row.id">
+    <input .value="row.name" />
+</div>
+```
+
+A row now follows its record. Reversing the array moves the row elements; inserting at the front adds one row and leaves the others alone; and a row keeps whatever was typed into it.
+
+## Common Errors
+
+Make sure to use `of`. If you use `in`, it will not work and instead you would be iterating over a boolean value, which is not iterable. `fudgel/dev` warns about this.
+
+---
+
+Source page: https://fudgel.js.org/forms.html
+
+# Forms
+
+Form controls keep state of their own, and a few rules of the DOM decide whether a binding reaches it.
+
+## Bind the property, not the attribute
+
+`<input value="{{ name }}">` sets the `value` *attribute*. That works until someone types in the field. An input remembers that it has been edited (the DOM calls this the dirty value flag) and from then on ignores its `value` attribute. A checkbox does the same for `checked` and an option for `selected`.
+
+Bind the property instead, with the [`.` directive](https://fudgel.js.org/directive-property.html). It assigns `input.value`, which always takes effect.
+
+```html
+<input type="text" .value="name" />
+<input type="checkbox" .checked="isActive" />
+```
+
+```html
+<!-- Stops updating once the field has been edited -->
+<input type="text" value="{{ name }}" />
+```
+
+This matters most inside `*for`. Rows keep their DOM nodes when the list is reassigned, so an attribute binding on a reused row shows whatever was typed into it earlier, not the new record's value. A property binding shows the record. Adding `track` to the `*for` keeps each row with its own record across reorders; see [`*for`](https://fudgel.js.org/directive-for.html).
+
+## Reading the value back
+
+Bind `@input` to react to what the user typed. `@change` on a text field fires when the field loses focus, which makes a Save button look broken until the user tabs away. `input` fires on every edit, including paste and autofill, and before `change` for every kind of control.
+
+```html
+<input .value="name" @input="setName($event.target.value)" />
+```
+
+## `<select>`
+
+A `<select>` takes its value from its `<option>` children. When the options come from `*for`, they do not exist yet when `.value` on the select is applied, so the assignment does nothing. Set the value once the options exist: keep the select with [`#ref`](https://fudgel.js.org/directive-ref.html) and assign `select.value` in `onViewInit()`, and again in `onChange()` when the data the options come from arrives.
+
+## Boolean attributes
+
+`disabled="{{ isLocked }}"` adds the attribute when the expression is truthy and removes it otherwise, because the braces are the entire attribute value. With any character outside the braces the value is a string and the attribute is always present, which for `disabled` means always disabled. See [Bindings](https://fudgel.js.org/bindings.html).
+
+---
+
+Source page: https://fudgel.js.org/gotchas.html
+
+# Gotchas and FAQ
+
+Each entry is a symptom, the reason, and the fix. Most of them are things Fudgel does on purpose that are not obvious the first time. Importing `fudgel/dev` while developing turns several of them into console warnings; see [Getting Started](https://fudgel.js.org/getting-started.html).
+
+## My element never upgrades
+
+A custom element name must contain a hyphen. `component('badname', ...)` throws the browser's own error; `component('bad-name', ...)` works. A name that is already defined is skipped without an error, so the same library can be loaded twice.
+
+## A property I set with `.isSaveable` never changes
+
+HTML lowercases attribute names, so Fudgel receives `.issaveable`. Write `.is-saveable`. The same applies to attributes: `parentSection="x"` never reaches `parentSection`; `parent-section="x"` does. See [Naming Conventions](https://fudgel.js.org/naming.html).
+
+## `{{ canSave() }}` never updates
+
+A binding re-runs when a top-level identifier in its expression is assigned, and `canSave` is never assigned. Pass the values it depends on as arguments, `{{ canSave(name, email) }}`, or compute the result into a property. See [Reactivity](https://fudgel.js.org/reactivity.html).
+
+## An input in a `*for` row shows the wrong text after the list changes
+
+`value="{{ row.name }}"` sets an attribute the input ignores once it has been edited, and rows are reused by position. Bind `.value="row.name"` and add `track row.id` to the loop. See [Forms](https://fudgel.js.org/forms.html) and [`*for`](https://fudgel.js.org/directive-for.html).
+
+## A `<select>` shows the wrong option
+
+Its options did not exist yet when `.value` was applied. Set `select.value` from `onViewInit()` and `onChange()` through a `#ref`. See [Forms](https://fudgel.js.org/forms.html).
+
+## The content I put inside my element disappeared
+
+A light DOM component clears its children and applies its template. To project them, either use `useShadow: true` and `<slot>`, or call `defineSlotComponent()` once before defining components so `<slot>` is rewritten to work in the light DOM. Without one of those a `<slot>` in a light DOM template does nothing. See [Content Projection](https://fudgel.js.org/content-projection.html).
+
+## Route `/config/pay-policy` shows the `/config` page
+
+Routes match in order and a route matches any longer path, so `/config` also matches `/config/pay-policy` when it comes first. List longer paths before shorter ones. See [Routing](https://fudgel.js.org/routing.html).
+
+## Navigating between two ids of the same route does not reload
+
+The router reuses the element when the same route matches again and only changes its attributes, so `onInit()` does not run a second time. React in `onChange()`. See [Routing](https://fudgel.js.org/routing.html).
+
+## How do I navigate from a component that has no reference to the router?
+
+Call `history.pushState(null, '', '/some/path')` from anywhere. The router listens to the History API. See [Routing](https://fudgel.js.org/routing.html).
+
+## Moving an element somewhere else in the DOM reset it
+
+Removing an element and appending it elsewhere disconnects and reconnects it, and a reconnected element gets a new controller. Libraries that reorder rows by moving nodes trigger this. Keep state that must survive a move in a service obtained with `di()`, or clone the element instead of moving it. See [Lifecycle](https://fudgel.js.org/lifecycle.html).
+
+## `#ref` inside `*for` gives me only the last row
+
+Every row assigns the same controller property, so the last one wins. Use `$event.target` in an event handler, or give each row a component of its own.
+
+## `onChange()` ran before `onInit()`
+
+It always does for the initial attribute and property values, once per declared name. See [Lifecycle](https://fudgel.js.org/lifecycle.html).
+
+## An attribute that is absent made my property `null`
+
+A property listed in `attr` receives the attribute's value, and `null` when the attribute is absent, replacing the class field's default. Treat absence as `null` in the controller. (This changes in 4.0, where an absent attribute leaves the default alone; see [Upgrading](https://fudgel.js.org/upgrading.html).)
+
+## The template shows nothing where my expression is, and the console has an error
+
+The expression did not parse. Fudgel logs the expression, the binding evaluates to `undefined`, and the other directives on the element still link. See [Expressions](https://fudgel.js.org/expressions.html) for what is supported.
+
+## `*for="item in list"` renders nothing
+
+`*for` iterates with `of`. With `in` the expression is `item in list`, the `in` operator, which is a boolean and iterates nothing.
+
+## Changing `user.name` did not update `{{ user.name }}`
+
+Only top-level properties are watched. Reassign `user` with a new object, or call `update(this)`. See [Reactivity](https://fudgel.js.org/reactivity.html).
+
+## `fieldset[disabled]` does not disable controls inside my component
+
+That is the browser: a disabled fieldset does not reach into a shadow root. Either keep such components in the light DOM or pass the disabled state as a property.
+
+## A `p::before` rule in my component styled every paragraph on the page
+
+Fixed in 3.5. Earlier versions produced an invalid scoped selector for pseudo-elements and the browser kept the unscoped original. If the console reports "Unable to scope selector", the selector is one Fudgel could not rewrite; simplify it.
+
+---
+
+Source page: https://fudgel.js.org/directive-if.html
+
+# `*if` Directive
+
+Conditionally display an element using the [directive](https://fudgel.js.org/directives.html) `*if`. This will automatically be updated if using a property on your controller. If the [expression](https://fudgel.js.org/expressions.html) evaluates to false, the DOM element is removed. When it is true, the DOM element is put back.
+
+Example (samples/directive-if.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-if',
+    {
+        template: `
+            <button @click="toggleMessage()">Toggle Message</button>
+            <div *if="showMessage">
+                <p>The message is now visible!</p>
+            </div>
+            <div *if="!showMessage">
+                <p>The message is hidden. Click the button to show it.</p>
+            </div>
+        `,
+    },
+    class {
+        toggleMessage() {
+            this.showMessage = !this.showMessage;
+        }
+    }
+);
+```
+
+---
+
+Source page: https://fudgel.js.org/input.html
+
+# Input
+
+Custom elements often need to receive information from the outside world. This
+information typically comes from attributes and properties assigned on the DOM
+element. Fudgel supports both, and does two-way binding to expose information
+back to the outside world as well.
+
+## Attributes
+
+Elements in HTML can have attributes assigned to them. The attribute names are always in lowercase and the values are always strings. For example, consider the following HTML:
+
+Example (samples/attributes-example.html):
+
+```html
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component(
+        'attributes-example',
+        {
+            attr: ['title', 'dataCount', 'disabled'],
+            template: `
+                <h1>{{title}}</h1>
+                <p>Count: {{dataCount}}</p>
+                <p>Disabled: {{typeof disabled === 'string'}}</p>
+            `,
+        }
+    );
+</script>
+
+<!-- attribute values can be defined directly in the HTML -->
+<attributes-example title="Hello World" data-count="5" disabled></attributes-example>
+
+<script>
+    // or modified later via JavaScript
+    const element = document.querySelector('attributes-example');
+    setTimeout(() => {
+        element.setAttribute('data-count', '10');
+        element.removeAttribute('disabled');
+    }, 1000);
+</script>
+```
+
+In this example, `<my-element>` has three attributes: `title`, `data-count`, and `disabled`. The `title` attribute has a string value of "Hello World", the `data-count` attribute has a string value of "5", and the `disabled` attribute is present without a declared value, so the element says its value is "" (an empty string).
+
+To access these attributes in your Fudgel controller, you need to declare them in the component's configuration using the `attr` array. Fudgel will automatically create properties on your controller that correspond to these attributes, converting the attribute names from kebab-case to camelCase.
+
+When a property is updated in the controller, the corresponding attribute on the DOM element will also be updated automatically. This two-way binding allows for easy synchronization between the controller and the DOM.
+
+Assign a string to set the attribute, `true` to set it to an empty string, or `false`, `null` or `undefined` to remove it. Other types, such as numbers or objects, are not reflected in the DOM's copy of the attributes. When the attribute is absent, the controller's property is set to `null`, replacing any default the class gave it.
+
+When a single property is declared in both `attr` and `prop`, the most recent assignment takes priority.
+
+A special note about boolean attributes: In HTML, the presence of a boolean attribute (like `disabled`, `checked`, or `hidden`) indicates a true value, but it's value is "" (an empty string). If you set the corresponding property in the controller to `true` or `false`, Fudgel will add or remove the attribute accordingly.
+
+## Properties
+
+Similar to attributes, properties can be assigned directly on the DOM element using JavaScript. Properties can hold any type of value, including objects, arrays, and dates. For example:
+
+Example (samples/properties-example.html):
+
+```html
+<properties-example></properties-example>
+
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    // Properties can be defined before the component is registered
+    const element = document.querySelector('properties-example');
+    element.title = 'Hello World';
+    element.dataCount = 5;
+
+    component(
+        'properties-example',
+        {
+            prop: ['title', 'dataCount', 'disabled', 'updateCount'],
+            template: `
+                <h1>{{title}}</h1>
+                <p>Count: {{dataCount}}</p>
+                <p>Disabled: {{disabled}}</p>
+            `,
+        }, class {
+            updateCount = 0;
+            onChange() {
+                this.updateCount += 1;
+            }
+        }
+    );
+
+    // or at any time afterwards
+    setTimeout(() => {
+        // Prints "Update count: 1"
+        console.log('Update count:', element.updateCount);
+        element.dataCount = 10;
+        element.disabled = true;
+        // Prints "Update count: 3"
+        console.log('Update count:', element.updateCount);
+    }, 1000);
+</script>
+```
+
+Properties that are declared in this way shall have the DOM element's matching property updated automatically when the controller's property changes, and vice versa. This two-way binding allows for easy synchronization between the controller and the DOM.
+
+When a single property is declared in both `attr` and `prop`, the most recent assignment takes priority.
+
+## Caution
+
+When using attributes, avoid code that tests for truthiness because an empty string is considered `true` for the DOM element's attribute presence.
+
+Example (samples/is-disabled.html):
+
+```html
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component(
+        'is-disabled',
+        {
+            // Only attribute
+            attr: ['disabled'],
+            template: `
+                <p>
+                    Disabled value is {{ stringify(disabled) }} - test here
+                    <input type="text" disabled="{{ disabled }}" />
+                </p>
+            `,
+        }, class {
+            stringify(value) {
+                return JSON.stringify(value);
+            }
+        }
+    );
+</script>
+
+<is-disabled></is-disabled>
+<is-disabled disabled></is-disabled>
+<is-disabled disabled="disabled"></is-disabled>
+```
+
+Things get more complicated when mixing attributes and properties because now any value can be assigned through the property. However, this example shows that the logic remains the same and the `disabled` attribute is applied when one expects it to be.
+
+Example (samples/is-disabled-using-both.html):
+
+```html
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component(
+        'is-disabled-using-both',
+        {
+            attr: ['disabled'],
+            prop: ['disabled'],
+            template: `
+                <p>
+                    Disabled value is {{ stringify(disabled) }} - test here
+                    <input type="text" disabled="{{ disabled }}" />
+                </p>
+            `,
+        }, class {
+            stringify(value) {
+                return JSON.stringify(value);
+            }
+        }
+    );
+</script>
+
+<is-disabled-using-both></is-disabled-using-both>
+<is-disabled-using-both disabled></is-disabled-using-both>
+<is-disabled-using-both disabled="disabled"></is-disabled-using-both>
+<is-disabled-using-both id="useFalse"></is-disabled-using-both>
+<is-disabled-using-both id="useTrue"></is-disabled-using-both>
+
+<script>
+    document.getElementById('useFalse').disabled = false;
+    document.getElementById('useTrue').disabled = true;
+</script>
+```
+
+---
+
+Source page: https://fudgel.js.org/lifecycle.html
+
+# Lifecycle
+
+Fudgel components have a series of lifecycle methods and events that allow you to hook into different stages of a component's existence. These methods can be overridden in your controller to perform actions at specific points in the component's lifecycle.
+
+If your controller has any of these methods, or if there is an event listener for any of these events, they will be called during specific moments during the lifecycle of your controller.
+
+For further information about how to listen for events, see the [Events](https://fudgel.js.org/events.html) page.
+
+
+## How To Use Lifecycle Stages
+
+The most straightforward way is to use methods on your controller. For example, to use the initialization lifecycle method, you would define `onInit()` in your controller:
+
+Example (samples/welcome-to-fudgel.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component('welcome-to-fudgel', {
+    template: `
+        Hello {{name}}, welcome to Fudgel!
+    `
+}, class MyCustomElement {
+    name = "Developer"
+
+    onInit() {
+        setTimeout(() => this.name = 'Super Developer', 5000);
+    }
+});
+```
+
+You can also listen for lifecycle events on a per-controller basis by adding event listeners in your controller's constructor or `onInit()` method:
+
+Example (samples/lifecycle-controller-events.js):
+
+```js
+import { component, metadata } from '/fudgel.min.js';
+
+component('lifecycle-controller-events', {
+    template: `
+        Hello {{name}}, welcome to Fudgel!
+    `
+}, class {
+    name = "Developer"
+
+    onInit() {
+        // this[metadata] is not available in the constructor
+        this[metadata].events.on('viewInit', () => {
+            setTimeout(() => this.name = 'Super Developer', 5000);
+        });
+    }
+});
+```
+
+Finally, you can listen for events across all controllers by adding global event listeners.
+
+Example (samples/lifecycle-global-events.js):
+
+```js
+import { component, events, metadata } from '/fudgel.min.js';
+
+class LifecycleGlobalEvents {
+    name = 'Developer';
+}
+
+events.on('init', controllerInstance => {
+    if (controllerInstance instanceof LifecycleGlobalEvents) {
+        setTimeout(() => {
+            controllerInstance.name = 'Super Developer';
+        }, 5000);
+    }
+});
+
+component(
+    'lifecycle-global-events',
+    {
+        template: `
+        Hello {{name}}, welcome to Fudgel!
+    `,
+    },
+    LifecycleGlobalEvents
+);
+```
+
+
+## Lifecycle Stages
+
+Controllers will go through the following lifecycle stages. Some stages might get skipped, depending on how the component is used or what happens during its existence. Calls will happen in this order if they all occur.
+
+
+### Initialization (Always Called)
+
+-   Global event: `init` (controller instance)
+-   Controller Event: `init` (no arguments)
+-   Controller Method: `onInit()`
+
+Called after the custom element is connected to a DOM. It's a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and `onChange()` has already been called once for each name in `attr` and `prop` with its initial value.
+
+This is an early stage in the lifecycle. Property bindings have been set up, but there hasn't been time for even synchronous code to assign values to the properties.
+
+
+### Content Loaded (Most Likely Called)
+
+-   Global event: `parse` (controller instance)
+-   Controller Event: `parse` (no arguments)
+-   Controller Method: `onParse()`
+
+The `parse` events are fired and the `onParse()` method is called when all child nodes are parsed. This will always be called asynchronously to make sure that whatever created the element has had enough time to assign properties or set `.innerHTML` as needed. If the web component is present during the initial page load, this event will not fire until all of the element's content is available. If you are doing your own light DOM [content projection](https://fudgel.js.org/content-projection.html), this would be an important method to use. When this is called, all child content has probably been added to the element. "Probably" is used because another framework could add content to the element after synchronous code execution is complete, but that's fairly unlikely.
+
+There is no relationship between a parent element's lifecycle stages and a child'd. Either one could be parsed first.
+
+At this point, the DOM has not been cleared and the template has not been applied. The original content is still present.
+
+
+### View Initialized (Most Likely Called)
+
+-   Global event: `viewInit` (controller instance)
+-   Controller Event: `viewInit` ()
+-   Controller Method: `onViewInit()`
+
+This is triggered at the very end, after the custom element is created, synchronous code to set up properties has elapsed, the custom element is connected to the DOM and the template has also been attached and the directives have been processed, adding child elements to the DOM. Properties should be available if sending data from another framework. Your element is live.
+
+A good practice is to use this method sparingly and instead react to changes in properties (see the next event). Initialize when you have enough data for the component, then uninitialize if missing some required information.
+
+
+### Change (Zero or More Times)
+
+-   Global event: `change` (controller instance, property name, old value, new value)
+-   Controller Event: `change` (property name, old value, new value)
+-   Controller Method: `onChange(propertyName, oldValue, newValue)`
+
+Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the [config](https://fudgel.js.org/component-config.html) plus any property used in a [binding](https://fudgel.js.org/bindings.html). Differences are detected by using `Object.is()`, so changes to immutable objects will trigger change detection more easily.
+
+This method is called for the initial attribute and property values before `onInit()`, once per declared name, and can be called again before the "Content Loaded" and "View Initialized" stages.
+
+Calling `update()` (see [Utilities](https://fudgel.js.org/utilities.html)) will also call `onChange()` for all attributes and properties that are copied into the controller.
+
+
+### Update (Possibly Called)
+
+-   Global event: `update` (controller instance)
+-   Controller Event: `update` (no arguments)
+-   Controller Method: `onUpdate()`
+
+This is called from the `update()` [utility function](https://fudgel.js.org/utilities.html), which forcibly updates all bindings to change and reflect the current state of the controller.
+
+
+### Unlink (Possibly Called)
+
+-   Global event: `unlink` (controller instance, removed node)
+-   Controller Event: `unlink` (removed node)
+-   Controller Method: `onUnlink(removedNode)`
+
+Removes bindings and other connections between the controller and some DOM elements. This is called when elements are being dynamically removed, such as with the [`*if` directive](https://fudgel.js.org/directive-if.html).
+
+
+### Destruction (Always Called)
+
+-   Global event: `destroy` (controller instance)
+-   Controller Event: `destroy` (no arguments)
+-   Controller Method: `onDestroy()`
+
+When the element is disconnected from the DOM, the `destroy` events are fired and the `onDestroy()` method is called. This is a good place to clean up any resources, event listeners, or timers that were created during the lifecycle of the component. Event directives and bindings are cleaned up by Fudgel.
+
+Moving an element to another place in the DOM disconnects and reconnects it. The controller is destroyed and a new one is created for the same element, so any state that must survive a move belongs in a service; see `di()` on the [Utilities](https://fudgel.js.org/utilities.html) page.
+
+---
+
+Source page: https://fudgel.js.org/naming.html
+
+# Naming Conventions
+
+One rule covers every name that crosses between HTML and JavaScript in Fudgel: **camelCase in JavaScript, dash-case in HTML.** Fudgel converts in both directions.
+
+| Where | JavaScript | HTML |
+|---|---|---|
+| The `attr` list and the controller property | `attr: ['parentSection']` | `<my-el parent-section="...">` |
+| The `prop` list and the controller property | `prop: ['isSaveable']` | `<my-el .is-saveable="expression">` |
+| Route parameters and `query` names | `path="/user/:userId"`, `query="sortOrder"` | `user-id="123"`, `sort-order="asc"` |
+| Custom events | `emit(this, 'valueSave', detail)` | `@value-save="handler($event)"` |
+| Event modifiers | | `@keydown.arrow-left`, `@click.outside` |
+
+## Why the rule exists
+
+The HTML parser lowercases attribute names before Fudgel ever sees them. `.isSaveable="x"` reaches Fudgel as `.issaveable="x"`, and there is no way to get the capital letters back. Dash-case survives the parser, and Fudgel turns `is-saveable` into `isSaveable`.
+
+The same applies to a plain attribute: `parentSection="..."` arrives as `parentsection`, which is not the `parentSection` property.
+
+## What happens when it is wrong
+
+A mismatched name is not an error, which is what makes it hard to spot. The property directive sets a property nothing reads. The attribute is set on the element but never reaches the controller. The controller keeps its initial value, and that looks exactly like a reactivity problem. While developing, import `fudgel/dev` (see [Getting Started](https://fudgel.js.org/getting-started.html)) and Fudgel warns with the spelling to use whenever a lowercased name matches a declared property.
+
+## Events from other libraries
+
+Custom event names are case sensitive and the browser does not convert them. `@sl-change` listens for both `slChange` and `sl-change`, so a dashed event from another component library binds directly. Your own events work with either spelling: `emit(this, 'valueSave')` and `emit(this, 'value-save')` are both heard by `@value-save`.
+
+## What is accepted anyway
+
+A dashed name in the `attr` or `prop` list, such as `attr: ['parent-section']`, is treated as the camelCase name.
+
+---
+
+Source page: https://fudgel.js.org/output.html
+
+# Output
+
+One will often need to respond to changes in the state of a component by updating the DOM or sending information back to the outside world. Fudgel helps with this through two-way property binding and a function for sending events.
+
+## Events
+
+The normal way of advertising changes in a component's state is to dispatch a custom event. For better minification, Fudgel provides a helper [utility function](https://fudgel.js.org/utilities.html) called `emit` that makes this easier.
+
+Example (samples/emit-example.html):
+
+```html
+<script type="module">
+    import { component, emit } from '/fudgel.min.js';
+
+    component(
+        'emit-example',
+        {
+            template: `
+                <div>
+                    <button @click="respond(true)">Yes</button>
+                    <button @click="respond(false)">No</button>
+                </div>
+            `,
+        },
+        class {
+            respond(answer) {
+                emit(this, 'confirmationResponse', answer);
+            }
+        }
+    );
+</script>
+<emit-example id="el"></emit-example>
+<div id="output">No response yet.</div>
+<script>
+    const el = document.getElementById('el');
+    const output = document.getElementById('output');
+    el.addEventListener('confirmationResponse', event => {
+        output.textContent = `User responded: ${event.detail}`;
+    });
+</script>
+```
+
+`emit()` dispatches a `CustomEvent` that bubbles, crosses shadow boundaries (`composed: true`) and is not cancelable. Pass an options object as the fourth argument to change any of that. A name may be camelCase or kebab-case; the [event directive](https://fudgel.js.org/directive-event.html) listens for both.
+
+You may also want to catch events within your component. See [Event Directive](https://fudgel.js.org/directive-event.html) section for further details.
+
+## Properties
+
+A property binding is declared in the controller's configuration using the `prop` key. Each element of this string array names a property on the DOM element that should be kept in sync with a property of the same name on the controller. This lets you expose information about the component's state to outside code.
+
+Example (samples/properties-example.html):
+
+```html
+<properties-example></properties-example>
+
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    // Properties can be defined before the component is registered
+    const element = document.querySelector('properties-example');
+    element.title = 'Hello World';
+    element.dataCount = 5;
+
+    component(
+        'properties-example',
+        {
+            prop: ['title', 'dataCount', 'disabled', 'updateCount'],
+            template: `
+                <h1>{{title}}</h1>
+                <p>Count: {{dataCount}}</p>
+                <p>Disabled: {{disabled}}</p>
+            `,
+        }, class {
+            updateCount = 0;
+            onChange() {
+                this.updateCount += 1;
+            }
+        }
+    );
+
+    // or at any time afterwards
+    setTimeout(() => {
+        // Prints "Update count: 1"
+        console.log('Update count:', element.updateCount);
+        element.dataCount = 10;
+        element.disabled = true;
+        // Prints "Update count: 3"
+        console.log('Update count:', element.updateCount);
+    }, 1000);
+</script>
+```
+
+This is a two-way binding. When the controller updates the property, the outside DOM element is also updated automatically. Any value can be passed this way, including objects and arrays.
+
+If outside JavaScript updates the property on the DOM element, the controller's property is updated as well.
+
+There's more on this in the [input](https://fudgel.js.org/input.html) section.
+
+## Services
+
+Another technique for sending information elsewhere is to use a shared service. In Fudgel, the `di()` [utility function](https://fudgel.js.org/utilities.html) can be used to retrieve a shared service singleton instance. This can then be used to send information to other parts of the application.
+
+Example (samples/service-data-sharing.html):
+
+```html
+<service-data-sharing></service-data-sharing>
+
+<script type="module">
+    import { component, di, Emitter } from '/fudgel.min.js';
+
+    // This shared data service illustrates Emitter and sharing data
+    class SharedDataService {
+        constructor() {
+            this.emitter = new Emitter();
+            this.value = '?';
+        }
+
+        getValue() {
+            return this.value;
+        }
+
+        setValue(value) {
+            this.value = value;
+            this.emitter.emit('valueChanged', value);
+        }
+
+        onValueChanged(callback) {
+            return this.emitter.on('valueChanged', callback);
+        }
+
+        offValueChanged(callback) {
+            this.emitter.off('valueChanged', callback);
+        }
+    }
+
+    component(
+        'service-data-sharing',
+        {
+            template: `
+            <p>
+                Component count:
+                <input type="number" @change="updateCount($event)" value="1" />
+            </p>
+            <shared-data-display *repeat="componentCount"></shared-data-display>
+        `,
+        },
+        class {
+            componentCount = 1;
+
+            updateCount(event) {
+                this.componentCount =
+                    Math.abs(parseInt(event.target.value)) || 1;
+            }
+        }
+    );
+
+    component(
+        'shared-data-display',
+        {
+            template: `
+            <p>
+                This is {{random}}. Shared value is {{value}}.
+                <button @click="setSharedValue()">
+                    Set value to {{random}}
+                </button>
+            </p>
+        `,
+        },
+        class {
+            random = Math.random().toString().substr(2, 4);
+            sharedDataService = di(SharedDataService);
+
+            onInit() {
+                this.value = this.sharedDataService.getValue();
+                this.removeEventListener =
+                    this.sharedDataService.onValueChanged(
+                        newValue => (this.value = newValue)
+                    );
+            }
+
+            onDestroy() {
+                this.removeEventListener?.();
+            }
+
+            setSharedValue() {
+                this.sharedDataService.setValue(this.random);
+            }
+        }
+    );
+</script>
+```
+
+Using `di()` is not a requirement for sharing data, but it is a convenient way to make sure only one instance of a service exists.
+
+This is a more advanced technique, but it can be very useful for complex applications or when blending multiple frameworks together.
+
+Learn more about dependency injection using `di()` in the [utilities](https://fudgel.js.org/utilities.html) section.
+
+---
+
+Source page: https://fudgel.js.org/directive-property.html
+
+# Property `.` Directive (`.prop`)
+
+A Fudgel component can assign properties to DOM elements inside the template's HTML. This is useful for other custom components that allow you to pass configuration objects or arrays through properties. One does this using the `.` [directive](https://fudgel.js.org/directives.html).
+
+Example (samples/directive-property.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-property',
+    {
+        template: `
+            <child-component
+                .child-list="parentList"
+            ></child-component>
+        `,
+    },
+    class {
+        parentList = ['Apple', 'Banana', 'Cherry'];
+    }
+);
+
+component(
+    'child-component',
+    {
+        prop: ['childList'],
+        template: `
+            <ul>
+                <li *for="item of childList">{{item}}</li>
+            </ul>
+        `,
+    },
+    class {
+        childList = [];
+    }
+);
+```
+
+You'll notice that the parent component assigns the array of items on the child element using `.child-list` and the child receives the [input](https://fudgel.js.org/input.html) through the `prop` configuration. It's kebab-case in the template and camelCase in the controller because HTML attributes are always in lowercase when retrieved by JavaScript.
+
+You can use the same technique to assign any property on a DOM element, including `.innerHTML`.
+
+Example (samples/inner-html.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'inner-html',
+    {
+        template: `<div .inner-h-t-m-l="unsafeHtml"></div>`,
+    },
+    class {
+        unsafeHtml = `
+            <h2>Unsafe Inner HTML Example</h2>
+            <p>This content was set using <code>innerHTML</code>.</p>
+        `;
+    }
+);
+```
+
+---
+
+Source page: https://fudgel.js.org/reactivity.html
+
+# Reactivity
+
+Fudgel has no virtual DOM and no dirty checking. It watches a small set of properties and re-runs exactly the bindings that mention them. Knowing which properties those are, and when a binding runs, answers nearly every "why did this not update" question.
+
+## What triggers a binding
+
+When a template is linked, every binding and directive is parsed as an [expression](https://fudgel.js.org/expressions.html), and the **top-level identifiers** in that expression are collected. For `{{ user.name }}` that is `user`. For `{{ format(date, 'short') }}` it is `format` and `date`. For `{{ canSave() }}` it is only `canSave`.
+
+Each identifier is looked up in the current scope (the variables a `*for` or another directive created) and then on the controller, and Fudgel watches that property. The binding runs again when the property is **assigned**, and only then.
+
+Two things follow from this.
+
+* Differences are detected with `Object.is()`. Assigning the same value again does nothing. Assigning a new object or array always counts as a change.
+* Nothing below the top level is watched. `this.user.name = 'x'` does not re-run `{{ user.name }}`. `this.user = { ...this.user, name: 'x' }` does.
+
+Example (samples/expressions-bindings.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'expressions-bindings',
+    {
+        template: `
+            <p><button @click="updateProperty()">Update property</button>
+            Updating the property directly will not trigger an update.</p>
+            <p><button @click="updateObject()">Update object</button>
+            Updating the object reference will trigger an update.</p>
+            <p>Number: {{ obj.number }}</p>
+        `,
+    },
+    class {
+        obj = { number: 0 };
+        updateProperty() {
+            this.obj.number += 1;
+        }
+        updateObject() {
+            this.obj = { number: this.obj.number + 1 };
+        }
+    }
+);
+```
+
+## Method calls
+
+A method call in a template runs when its binding runs. It is not re-run because something *inside* the method changed; Fudgel cannot see inside it. It is re-run when a top-level identifier in the expression is assigned.
+
+So `{{ canSave() }}` runs once. `{{ canSave(name, email) }}` runs again whenever `name` or `email` is assigned, because those are top-level identifiers in the expression. Pass the values a method depends on as arguments, and the binding follows them.
+
+```html
+<!-- Runs once, whatever happens to name and email afterwards -->
+<button disabled="{{ !canSave() }}">Save</button>
+
+<!-- Runs again when name or email is assigned -->
+<button disabled="{{ !canSave(name, email) }}">Save</button>
+```
+
+The other approach is to compute the value in the controller and bind the property: assign `this.isSaveable` whenever the inputs change and use `{{ !isSaveable }}`. Both work. Passing arguments keeps the logic in one place.
+
+## Getters
+
+A getter on the controller's class, such as `get fullName()`, is read fresh each time a binding that mentions it runs. What the getter reads is not watched, so `{{ fullName }}` does not re-run when `first` is assigned. Call `update(this)` after the inputs change, or pass them to a method as arguments as described above.
+
+## Nested changes and `update()`
+
+When data changes below the top level and replacing the object is not practical, call `update(this)` to re-run every binding of one controller, or `update()` for every controller on the page. See [Utilities](https://fudgel.js.org/utilities.html).
+
+## Loops
+
+Inside `*for`, the loop variables are properties of a scope, and a row's bindings re-run when the row's value is reassigned. When the list itself is reassigned, rows are matched to items by key: the index for an array, the key for an object or Map. A row whose key is still present keeps its DOM nodes and receives the new value; the rest are removed. Add `track` to match rows by identity instead of position. See [`*for`](https://fudgel.js.org/directive-for.html).
+
+## Attributes and properties
+
+A property named in `attr` or `prop` is watched the same way. A change to the attribute or the element property assigns the controller property, which re-runs its bindings and calls `onChange()`. `onChange()` also runs for the initial values, before `onInit()`. See [Lifecycle](https://fudgel.js.org/lifecycle.html).
+
+## Globals
+
+An identifier that is neither in scope nor on the controller is read from `window`, so `{{ Math.max(a, b) }}` and `{{ JSON.stringify(obj) }}` work, and re-run when `a`, `b` or `obj` is assigned. Declare the properties your templates use as class fields, so a misspelled name is a property Fudgel can watch rather than a global lookup that finds nothing. While developing, `fudgel/dev` warns about a name that resolves to nothing; see [Getting Started](https://fudgel.js.org/getting-started.html).
+
+---
+
+Source page: https://fudgel.js.org/directive-ref.html
+
+# `#ref` Directive
+
+At times, you may need to get an element reference and use it in your controller. By marking an element with the `#ref` [directive](https://fudgel.js.org/directives.html) in your template, that same property will be assigned the element reference when it is added to the DOM.
+
+Example (samples/directive-ref.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component('directive-ref', {
+    template: `
+        <input type="text" #ref="inputField">
+        <button @click="focus()">Focus the input</button>
+    `
+}, class {
+    inputField = null; // This will be the HTMLInputElement
+
+    focus() {
+        this.inputField?.focus();
+    }
+});
+```
+
+Technically, with this simple example, you could use `inputField.focus()` directly without a controller.  This example just makes it more clear that the property is added to the controller.
+
+## Caveats
+
+The element reference is not removed when the element is removed from the DOM.
+
+Inside `*for`, every row assigns the same controller property, so the controller ends up with the last row's element. Use `$event.target` in an event handler, or give each row a component of its own.
+
+---
+
+Source page: https://fudgel.js.org/directive-repeat.html
+
+# `*repeat` Directive
+
+Repeating a chunk of HTML a number of times is very easy when you add the `*repeat` [directive](https://fudgel.js.org/directives.html) to your template. Use a fixed number or an [expression](https://fudgel.js.org/expressions.html) to find the number.
+
+Example (samples/directive-repeat.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-repeat',
+    {
+        template: `
+            <p>5 stars: <span *repeat="5">*</span></p>
+            <p>Some stars: <span *repeat="starCount">*</span></p>
+        `,
+    },
+    class {
+        starCount = 3;
+    }
+);
+```
+
+If you need to know what index you are on, you can use a special syntax of `*repeat="expression as indexName"`, where `indexName` is the name of the variable that will hold the current index. The index starts at 1.
+
+Example (samples/directive-repeat-named.js):
+
+```js
+import { component } from '/fudgel.min.js';
+
+component(
+    'directive-repeat',
+    {
+        template: `
+            <p>5 indices: <span *repeat="5 as index">
+                [{{ index }}]
+            </span></p>
+            <p>Some numbers: <span *repeat="numberCount as n">
+                [{{ n }}]
+            </span></p>
+        `,
+    },
+    class {
+        numberCount = 3;
+    }
+);
+```
+
+---
+
+Source page: https://fudgel.js.org/routing.html
+
+# Routing
+
+A declarative, minimalistic router is shipped with Fudgel. With this, you can declare routes, have named parameters, match routes on regular expressions, instantiate custom web components, and track the browser's location through the [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API).  There's a section later in this document if you're interested in using hashes instead.
+
+## Overly Complex Example
+
+Let's show you how it works with a fairly elaborate bit of code.  Don't worry, each feature and option will be explained again later.
+
+Example (samples/routing-example.js):
+
+```js
+import { component, defineRouterComponent } from '/fudgel.min.js';
+
+defineRouterComponent('app-router');
+
+component('routing-example', {
+    attr: ['thing'],
+    template: `
+        <app-router>
+            <div path="^(/(index.html|routing.html)?)?$"
+                regex title="Page 1">
+                Page 1: This is the default route.
+                It's a bit more complicated because
+                it's showing how to use a regular
+                expression.
+                <a href="/page2/param">Go to page 2</a>
+            </div>
+            <div path="/page2/:thing"
+                component="page-two" title="Page2">
+                Shows the custom component instead of
+                these words.
+            </div>
+            <div path="**" title="Unknown Page">
+                Unhandled route.
+                <a href="/">Continue to page 1</a>
+            </div>
+            <div path="**">
+                This won't ever be displayed. Only the
+                first matching route will be shown.
+            </div>
+        </app-router>
+    `,
+});
+
+component(
+    'page-two',
+    {
+        template: `
+            Page 2: Go to
+            <a href="/unknown">an unknown page</a>.<br />
+            Going <a href="#" @click.stop.prevent="goBack()">back</a>
+            does not work well in this playground, but it does
+            work in a regular app.<br />
+            The value from the route is "{{thing}}".
+        `,
+    },
+    class {
+        goBack() {
+            history.go(-1);
+        }
+    }
+);
+```
+
+Try playing with the live demo and you can see that routing does indeed work. There's also custom component instantiation, passing route parameters as attributes, setting the document title, automatically handling links, and more. There's a lot to unpack, so each of the following sections will talk about specific aspects.
+
+## Defining the Component
+
+The router component is not declared automatically when you import Fudgel. This is to allow for better tree shaking, so you can pick and choose what you want to use from the library. This technique of exporting a component definition function also allows a developer to deal with custom component name collisions or to swap in a different router more easily.
+
+Example (samples/routing-define-router-component.js):
+
+```js
+import { defineRouterComponent } from '/fudgel.min.js';
+
+defineRouterComponent('app-router');
+```
+
+This creates a new custom element named `<app-router>`. For the rest of the examples in the documentation, we will use `<app-router>` as the router element name, but you can substitute your own name if you like.
+
+## Creating Routes
+
+Any direct child of the router element is able to be routed.  If it has a path, then the path is matched against the URL and all specified segments must match (more on this later). If there is no path, then it defaults to "**", which matches all paths.
+
+Example (samples/routing-routes.html):
+
+```html
+<app-router>
+    <div path="/user/:userId">
+        Show info for a specific user<br />
+        Inspect the element and see
+        the user-id attribute
+    </div>
+    <div path="/user">
+        Show user list
+    </div>
+    <div path="/store">
+        Show store list
+    </div>
+    <div path="/store/:storeId">
+        Show single store<br />
+        (never used - see below)
+    </div>
+    <div>
+        This matches everything<br />
+        It's path is assumed to be "**"
+    </div>
+</app-router>
+
+<script type="module" src="/location-changer.js"></script>
+```
+
+Route matching will match entire path segments but ignore segments in the URL that don't exist in the path, plus only the first matching route will be shown. Make sure you order the children from most specific path to least specific. For example, the route `/user/123` correctly maps to "Show info for a specific user", but `/store/123` will scan through the elements and stop on "Show store list" because it matches the beginning of the URL first. The same applies to nested pages such as `/config` and `/config/pay-policy`: list the longer path first. While developing, `fudgel/dev` warns when a route can never match because an earlier one covers it.
+
+Some more examples of routing with the above example:
+
+* URL: `/` → Result: "This matches everything"
+* URL: `/user` → Result: "Show user list"
+* URL: `/user/` → Result: "Show user list"
+* URL: `/user/1234` → Result: "Show info for a specific user
+
+Elements that are routes can have several attributes to control what they do.
+
+* `component` - When the path matches, create an element with this name. If the path has named parameters, assign them to the created element as attributes.
+* `path` - The URL to match against. Can use named parameters, such as `:id` with a leading colon and the values are all assigned to the element as attributes. Can use wildcards; `*` matches a single path segment, `**` matches one or more path segments. Can use a regular expression when combined with `regexp` attribute.
+* `regexp` - By including this attribute, the `path` attribute will be interpreted as a regular expression.
+* `title` - When the route matches, change the document's title to match this attribute.
+
+Example (samples/routing-route-attributes.html):
+
+```html
+<app-router>
+    <div path="/user/*/detail" title="Forbidden">
+        Disallow user detail, regardless of user.
+        Shows a wildcard.
+    </div>
+    <div path="**/login" title="Login" component="app-login">
+        Show login page when found anywhere in URL.
+        Shows a double-star wildcard.
+    </div>
+    <div path="/user" title="User List">
+        Show user list.
+    </div>
+    <div path="/store" title="Store List"
+        component="store-list">
+        Show custom store-list element.
+    </div>
+    <div path="^/[aeiou]+$" title="Vowels" regexp>
+        Path has only vowels.
+        Illustrating regular expressions.
+    </div>
+    <div>No routes match</div>
+</app-router>
+
+<script type="module" src="/location-changer.js"></script>
+```
+
+Be careful about custom components - you must either use the `component` attribute to initialize them as shown above, or you need to wrap all of your routes in a `<template>` element. Failure to do either of these methods will cause your component to be instantiated and then copied, which will probably not work well for any event bindings.
+
+Example (samples/routing-with-components.html):
+
+```html
+<!-- Wrapping in a template fixes issues -->
+<app-router>
+    <template>
+        <div path="/replace" component="my-component">
+            Replaces this div with the component.
+        </div>
+        <div path="/embed">
+            <my-component>
+                Works as expected.
+            </my-component>
+        </div>
+        <my-component path="/direct">
+            Also works as expected.
+        </my-component>
+    </template>
+</app-router>
+
+<!-- This example does NOT WORK how you want -->
+<app-router>
+    <div path="/replace" component="my-component">
+        Replaces this div with the component.
+    </div>
+    <div path="/embed">
+        <my-component>
+            Instantiates the component and removes it from
+            the DOM, afterwards adding clones to the DOM.
+            Probably not what you want.
+        </my-component>
+    </div>
+    <my-component path="/direct">
+        Same problem as the one above.
+    </my-component>
+</app-router>
+```
+
+Named parameters are passed to elements as attributes. The named parameters are expected to be written in camel case, such as `/user/:userId` in the example below. This will get changed into the attribute `user-id` on the HTML element because attributes are case-insensitive. You can see this if you inspect the DOM of the live example.
+
+To make the effect more obvious, a Fudgel component named `show-user` sets up the internal property `this.userId` to mirror the element's `user-id` attribute, and the template shows the current user ID. This allows the example to be seen and prove that everything's working as expected without involving any debug tooling.
+
+When a new location matches the same route with different parameters, for example going from `/user/1` to `/user/2`, the element is kept and only its attributes change. `onInit()` ran when the element was created and does not run again; react to the new value in `onChange()`.
+
+Example (samples/routing-parameters.js):
+
+```js
+import { component, defineRouterComponent } from '/fudgel.min.js';
+
+defineRouterComponent('app-router');
+
+component('routing-parameters', {
+    template: `
+        <app-router>
+            <div path="/user/:userId"
+                component="show-user"></div>
+            <div>
+                Show user:<br />
+                <a href="/user/open-ai">OpenAI</a><br />
+                <a href="/user/chat-gpt">ChatGPT</a>
+            </div>
+        </app-router>
+    `,
+});
+
+component('show-user', {
+    attr: ['userId'],
+    template: `
+        UserId: {{userId}}<br />
+        <a href="/">Back to index</a>
+    `,
+});
+```
+
+## Navigation
+
+An event listener is added to `document.body` that waits for all clicked links. When one is found, it will be checked to see if it is within the current page. If so, the event's default navigation is prevented and the history state is updated with the new URL.
+
+The router leaves alone any click the browser should handle itself: a click with a modifier key or with a button other than the main one, which opens a new tab or window; a link with a `target`, a `download` attribute, or `rel="external"`; a link to another origin; and a fragment link on the current page, which the browser scrolls to.
+
+The [History API](https://developer.mozilla.org/docs/Web/API/History) is patched in order to capture routing events, so your application can use `history.pushState(null, null, url)`, `history.back()` and all of the other methods to navigate. Any component can navigate this way without a reference to the router.
+
+You can also get a reference to the router element and call it's `go(url)` method.
+
+The [Navigation API](https://developer.mozilla.org/docs/Web/API/Navigation) is not used because it is experimental and isn't [widely adopted](https://caniuse.com/mdn-api_navigation) enough.
+
+Example (samples/routing-navigation.js):
+
+```js
+document.querySelector('app-router').go('/page2');
+```
+
+## Query Strings and Fragments
+
+Routes are matched against the path alone. A query string and a fragment both select something *within* a route rather than changing which route matched, so `/orders?status=open#totals` is the `/orders` route, and named parameters still come from the path.
+
+This applies however the location changed: a clicked link, `history.pushState()`, or the router's own `go()`.
+
+### Reading Query Parameters
+
+A route lists the parameters it cares about in a `query` attribute, and they arrive as attributes on the component, exactly like named parameters from the path.
+
+```html
+<app-router>
+    <div path="/orders" component="order-list" query="status,sortOrder"></div>
+</app-router>
+```
+
+```js
+component('order-list', {
+    attr: ['status', 'sortOrder'],
+    template: html`Showing {{status}} orders by {{sortOrder}}`,
+});
+```
+
+Names are camel case in the list and dashed as attributes. In the route you would use `sortOrder`, which would set the attribute `sort-order` on the element, and Fudgel would have that arrive as the property `sortOrder` in your component. This is the same convention the rest of Fudgel uses.
+
+A few things worth knowing:
+
+* A parameter that is absent removes the attribute rather than setting it empty, so the property becomes `null` and `*if` behaves.
+* A parameter that appears more than once, as in `?tag=one&tag=two`, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the `routeChange` event and read `location.search` directly.
+* Parameters not named in `query` are ignored. There is no wildcard.
+* Query parameters are applied after the path, so naming the same thing in both a path pattern and the `query` list means the query wins. Do not do that; nothing stops you but it isn't what you want.
+
+For a component that is not a route, listen for `routeChange` and read `location.search` yourself.
+
+## Getting Notified
+
+When the router notices changes to the location, a custom `routeChange` event is triggered on `document.body`. Its detail is the matched path, without any query string or fragment. Note that the same route can be emitted multiple times when there are multiple routers used for nested routing.
+
+Example (samples/routing-notification.js):
+
+```js
+import { component, defineRouterComponent } from '/fudgel.min.js';
+
+defineRouterComponent('app-router');
+
+component('routing-notification', {
+    template: `
+        <app-router>
+            <div path="/fake">
+                Just including the router so it sets up the
+                events. This demo does not show routing. It
+                shows how locations can be monitored with
+                events.
+            </div>
+        </app-router>
+        <div>
+            Click here to switch routes:<br />
+            <a href="/route1">Route 1</a><br />
+            <a href="/route2">Route 2</a>
+        </div>
+        <route-changes></route-changes>
+    `
+});
+
+component('route-changes', {
+    template: `
+        Number of route changes: {{count}}
+    `
+}, class {
+    count = 0;
+    listener = () => this.count += 1;
+
+    onInit() {
+        document.body.addEventListener(
+            'routeChange',
+            this.listener
+        );
+    }
+
+    onDestroy() {
+        document.body.removeEventListener(
+            'routeChange',
+            this.listener
+        );
+    }
+});
+```
+
+If you need to know when any part of the location changes, listen for the `routeChange` event and then read `location.pathname`, `location.search`, and `location.hash` yourself. This would be useful in case you care about repeated query parameters or reacting to fragment updates.
+
+## Watch Out For Problems
+
+Because this is a simplistic router, there is the caveat that elements within need to be static. Do not add or remove elements, which means avoiding the use of structural directives within the router element and its children. If you need to do this, consider making the route into a component and let the router initialize the component.
+
+## What About Using Hashes?
+
+This router manipulates the History API for the following reasons:
+
+* URLS look more "normal" to users. Seeing hashes in URLs makes people wonder because it's unusual.
+* Links can operate normally and can operate in a single-page application. I can send a URL to a friend and it could still work.
+* Better SEO. Search engines have a bit more difficulty traversing hash-based routes. Google used to suggest using the prefix "#!", but has now dropped it because of the History API.
+
+**But what if I need to use hashes?** Yes, I was in the same situation with a static file server and no way for me to serve the same `index.html` for all of the routes in the application. Fortunately, it might be possible to create a custom 404 page. If you can, put this in your 404 page and it will make the browser turn it into a 301 status code, which does index well.
+
+Example (samples/single-page-app-404.html):
+
+```html
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8" />
+<script>sessionStorage.redirect = location.href;</script>
+<meta http-equiv="refresh" content="0;URL='/'" />
+</head><body></body></html>
+```
+
+This will store the location in session storage and redirect you immediately to the single page app. Inside your app, before any other code, you will need to add this JavaScript to restore the location.
+
+Example (samples/single-page-app-restore-location.js):
+
+```js
+const redirect = sessionStorage.redirect;
+delete sessionStorage.redirect;
+
+if (redirect && redirect !== location.href) {
+    history.replaceState(null, null, redirect);
+}
+```
+
+This technique is provided from [S(GH)PA: The Single-Page App Hack for GitHub Pages](https://backalleycoder.com/posts/sghpa-the-single-page-app-hack-for-github-pages/) by Daniel Buchner.
+
+## Need More Functionality?
+
+This is just a slimmed-down version of a few other fantastic web component routers that were combined. This router's goal is to be fairly minimal and provide enough for most smaller projects.  If you are looking for something with a bit more pizzaz, check these out.
+
+
+* [a-wc-router](https://github.com/colscott/a-wc-router) by Colin Scott
+* [app-router](https://github.com/erikringsmuth/app-router) by Erik Ringsmuth
+* [router-component](https://github.com/markcellus/router-component) by Mark Cellus
+* [router-sample](https://github.com/jasimea/router-sample) by Jasime Alvarado
+
+---
+
+Source page: https://fudgel.js.org/styling.html
+
+# Styling Components
+
+Web components need styling in order to look good. Fudgel helps with styling by scoping your styles so they don't automatically affect the rest of the page. This is done using a few different techniques, based on what the browser supports. Before we dive into those more complicated questions, let's look at one example.
+
+Example (samples/basic-styling.js):
+
+```js
+import { component, css } from '/fudgel.min.js';
+
+component(
+    'basic-styling',
+    {
+        // The "css" template function does nothing to
+        // the CSS. It is a simple marker that tells
+        // outside tooling that this is CSS and could be
+        // minified, such as with
+        // vite-plugin-minify-template-literals.
+        style: css`
+            :host {
+                display: inline-block;
+                border: 2px solid black;
+                padding: 0.5em;
+                margin: 0.5em;
+                background-color: lightyellow;
+            }
+
+            p {
+                font-size: 2em;
+                color: darkblue;
+            }
+        `,
+        template: `
+            <p>This paragraph is styled with basic styling.</p>
+        `,
+    }
+);
+```
+
+This styles the host element to have a light yellow background, a border, and some padding. The paragraph inside has blue text.
+
+The `css` template function does not do anything special. It's only there as a flag to outside build tools to indicate that this string contains CSS. It's detailed more in the [utilities](https://fudgel.js.org/utilities.html) section.
+
+## Styling the Host Element
+
+The above example used the `:host` pseudo-class to style the host element itself. This works in both Light DOM and Shadow DOM, thanks to Fudgel's CSS rewriting. One less thing to remember and your component could switch between Light DOM and Shadow DOM without changing your styles.
+
+## Selectors Fudgel Rewrites
+
+In the light DOM, `:host` becomes the element's tag name, `:host(.active)` becomes `my-tag.active`, and `:host-context(.dark) p` becomes `.dark my-tag p`. Every other selector is prefixed with the tag name and given the component's class on its last part, so `p::before` becomes `my-tag p.fudgel_my-tag::before` and `:is(a, b) span` keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class, so a nested light DOM component inside the shadow root is not styled by accident.
+
+If a selector cannot be rewritten into one the browser accepts, Fudgel logs "Unable to scope selector" and the rule is left unscoped. Simplify the selector if you see that message.
+
+## Avoiding Style Scoping
+
+When your custom element needs to inject other DOM elements, they will not have the generated class name applied automatically. This will affect your CSS. For instance, the code samples seen on this page leverage [Highlight.js](https://highlightjs.org/) to colorize the code. These elements are dynamically added to the DOM and need to be styled, so the component needs to inject the styles itself.
+
+Fudgel will not modify any styles that are in a `<style>` tag in your template.
+
+Example (samples/avoid-style-scoping.js):
+
+```js
+import { component, metadata } from '/fudgel.min.js';
+
+component(
+    'avoid-style-scoping',
+    {
+        style: `
+            /* This style is SCOPED and does NOT apply
+             * to content added by the controller */
+            img { display: none; }
+        `,
+        template: `
+            <style>
+                /* This style is NOT SCOPED and DOES apply
+                 * to content added by the controller plus
+                 * ALL other content IN THE WHOLE DOCUMENT */
+                img { max-width: 50px; }
+            </style>
+        `,
+    },
+    class {
+        async onViewInit() {
+            // Insert an image to the Fudgel logo
+            const img = document.createElement('img');
+            img.src = '/logo.png';
+            img.alt = 'Fudgel Logo';
+            this[metadata].root.appendChild(img);
+        }
+    }
+);
+```
+
+## Light DOM
+
+Example (samples/styling-example-light-dom.html):
+
+```html
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component('styling-example-light-dom', {
+        style: `
+            :host {
+                display: block;
+                background-color: green;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 2em;
+            }
+        `,
+        template: `<button>Styled Button</button>`,
+    });
+</script>
+
+<p><styling-example-light-dom></styling-example-light-dom></p>
+<p><button>Regular Button</button></p>
+```
+
+If you go into the playground and try it out, you'll see a regular button and a larger, styled button. The larger button is styled through `:host` in the component's `style` configuration. Normally that only works for Shadow DOM, but Fudgel rewrites it so there's one syntax for both Shadow DOM and Light DOM.
+
+You might now wonder about the styling for `button` and why both buttons aren't extra large. Keen observation!  Fudgel automatically scopes your styles so they don't leak out to the rest of the page. This is done by rewriting your CSS to target only your component. Your component's HTML template is also rewritten to include the necessary classes for scoping.
+
+This is effectively what Fudgel would generate for the above component.
+
+Example (samples/styling-example-light-dom-generated.html):
+
+```html
+<!-- Styles that would be defined by Fudgel -->
+<style>
+    styling-example-light-dom {
+        display: block;
+        background-color: green;
+        padding: 10px;
+    }
+
+    styling-example-light-dom button.fudgel_styling-example-light-dom {
+        font-size: 2em;
+    }
+</style>
+
+<!-- Template HTML that would be modified by Fudgel -->
+<button class="fudgel_styling-example-light-dom">Styled Button</button>
+```
+
+## Shadow DOM
+
+Things are slightly different for Shadow DOM. This next example simply changes `useShadow: true` to leverage Shadow DOM.
+
+Example (samples/styling-example-shadow-dom.html):
+
+```html
+<script type="module">
+    import { component } from '/fudgel.min.js';
+
+    component('styling-example-shadow-dom', {
+        style: `
+            :host {
+                display: block;
+                background-color: green;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 2em;
+            }
+        `,
+        template: `<button>Styled Button</button>`,
+        useShadow: true,
+    });
+</script>
+
+<p><styling-example-shadow-dom></styling-example-shadow-dom></p>
+<p><button>Regular Button</button></p>
+```
+
+Because of the encapsulation provided by Shadow DOM, Fudgel doesn't need to do as much to rewrite your CSS for scoping. Here would be what Fudgel generates for the above example component.
+
+Example (samples/styling-example-shadow-dom-generated.html):
+
+```html
+<!-- Styles that would be defined by Fudgel -->
+<style>
+    :host {
+        display: block;
+        background-color: green;
+        padding: 10px;
+    }
+
+    button.fudgel_styling-example-shadow-dom {
+        font-size: 2em;
+    }
+</style>
+
+<!-- Template HTML that would be modified by Fudgel -->
+<button class="fudgel_styling-example-shadow-dom">Styled Button</button>
+```
+
+---
+
+Source page: https://fudgel.js.org/upgrading.html
+
+# Upgrading
+
+When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.
+
+
+## From 3.4.x to 3.5.x
+
+No code changes are required. Several behaviors were bugs and now match what the documentation said; check anything that depended on the old behavior.
+
+* Bindings and event listeners are cleaned up when a directive removes their element. Listeners on the window or document from `@event.window`, `.document` and `.outside` used to stay attached forever.
+* A getter on the controller's prototype is read each time a binding runs instead of being copied once when the template linked. An accessor on the instance receives the instance as `this` when assigned.
+* A global such as `Math` or `Date` in a binding resolves to the global. It used to be shadowed by an undefined controller property.
+* Expressions support the conditional operator, `a ? b : c`, and parentheses, `(a + b) * c`.
+* `component()` throws when the browser rejects the element name, such as a name without a hyphen. It used to fail silently. A name that is already defined is still skipped.
+* A kebab-case name in `attr` or `prop` is accepted as the camelCase one.
+* Assigning `true`, `false`, `null` or `undefined` to a property listed in `attr` reflects to the attribute, as documented.
+* `@keydown.arrow-left` and other dashed key modifiers work; they never matched before. `@keydown.space` matches the space bar. `@some-event` also listens for the dashed name `some-event`, so events from other libraries bind.
+* `*for` accepts an expression with spaces, `*for="x of a ?? b"`, and a `track` clause that keys rows by identity. A row that still exists is moved rather than rebuilt when the list is reordered.
+* A growing `*repeat` appends new items after the existing ones instead of inserting them before.
+* Light DOM style scoping handles `:host(...)`, `:host-context(...)`, pseudo-elements, and commas inside `:is()` and attribute selectors. A `p::before` rule no longer leaks to the whole page. A selector Fudgel cannot rewrite is reported in the console.
+* A structural directive at the end of a template no longer re-links the content it rendered, which could re-read braces in your data as expressions.
+* The router routes on the resolved location, so `history.replaceState(state)` without a URL keeps the current route and a relative URL is resolved. Clicks with a modifier key, another button, a `target`, `download`, `rel="external"`, or a fragment on the current page are left to the browser. History is patched once for the page rather than once per router. `RouterComponent` exposes its route elements as `routes`.
+* `di()` recovers after a service constructor throws; it used to report a circular dependency forever.
+* A property, object key, or route parameter named `entries` works.
+* `fudgel` can be imported outside a browser, so services that use `di()` can be unit tested under Node. `require('fudgel')` works, and `package.json` has an `exports` map with `fudgel` and `fudgel/dev`.
+* The build is compiled to ES2018 and checked against it, so Safari 11.1 can parse it again.
+* New: `import 'fudgel/dev'` while developing prints warnings for common mistakes. See [Getting Started](https://fudgel.js.org/getting-started.html).
+* New types: `StrictController` and `ControllerHooks`. `Controller` no longer declares the `wasAsync` parameter removed in 3.2. `camelToDash` and `dashToCamel` are exported.
+
+## From 3.3.x to 3.4.x
+
+* The router now matches on the path alone. A URL carrying a query string or a fragment, such as `/orders?status=open`, previously failed to match `/orders` and fell through to the catch-all route. Both are still left on the URL; read them with `location.search` and `location.hash`. See [Routing](https://fudgel.js.org/routing.html).
+* Routes may now name query parameters to receive as attributes, using a `query` attribute on the route. See [Routing](https://fudgel.js.org/routing.html).
+* The `routeChange` event detail is now the matched path. It previously carried whatever URL was passed to the History API, query string and all.
+* The `@Component()` decorator no longer returns a value. It defined the custom element and then returned it, which TypeScript rejects because a class decorator may only return the class it decorated. The decorated name has always referred to the controller at runtime; now the types agree. No code changes are required.
+* Only `dist` is published. If you were reaching into `fudgel/src` or `fudgel/docs` from an installed copy, import from the package instead.
+
+## From 3.1.x to 3.2.x
+
+* `onViewInit()` and `onParse()` are now always asynchronous and their lifecycle stages no longer pass the `wasAsync` argument.
+* Exposed [`lifecycle` function](https://fudgel.js.org/utilities.html) to allow for custom [lifecycle stages](https://fudgel.js.org/lifecycle.html).
+
+
+## From 3.0.x to 3.1.x
+
+* `*for` was made faster. No code changes are required.
+
+
+## From 2.x.x to 3.x.x
+
+* Parsing expressions changed.
+    * `parse()` is now `parse.js()` (one of several parsing functions available).
+    * `parsed[0]` now accepts a list of objects to search as opposed to an array.
+* `nextTick()` was removed.
+* `controllerToElement()`, `elementToController()`, and `rootElement()` has been removed. Use `metadata`, as seen on the [Utilities](https://fudgel.js.org/utilities.html) page instead.
+* All hooks have been removed and switched to [events](https://fudgel.js.org/events.html).
+    * `hookOnGlobal()` is removed and mostly replaced with `events.on()`.
+    * `component` hook changed to an event and has an additional argument.
+    * `set:PROP_NAME` and `set:` hooks removed. `change` and `update` fire instead, respectively.
+* The `update()` [utility function](https://fudgel.js.org/utilities.html) no longer allows updating specific properties.
+* [Lifecycle](https://fudgel.js.org/lifecycle.html) stages now fire events globally, fire events on the controller, and call methods on the controller.
+    * Created `update` and `unlink` events.
+    * `parse` and `viewInit` have been updated to potentially be synchronous, with a new argument indicating if this was called synchronously.
+* Documentation reviewed and significant improvements made.
+
+
+## From 1.x.x to 2.x.x
+
+* No changes. The internals changed significantly and additional information was exposed, but the API remained the same.
+
+---
+
+Source page: https://fudgel.js.org/utilities.html
+
+# Utility Functions
+
+Fudgel comes with a few helpful functions that you should leverage to squeeze as much as you can out of this tiny library. They will help you communicate with other web components and perform common activities.
+
+## `emit(source, name, detail, options)` - Sending Data to Parents
+
+* `source` (Element | Controller) - The element or controller that is sending the event. If passed a controller, the event will be sent from the controller's host element.
+* `name` (string) - The name of the event to send.
+* `detail` (any, optional) - The data to send with the event. This will be available on the event's `detail` property.
+* `options` (object, optional) - Additional options for the event.
+
+Dispatching events from your controller can be tricky with the shadow DOM. Also, for minification, you will probably want to leverage shared code to send events.
+
+Example (samples/utility-emit.js):
+
+```js
+import { component, emit } from '/fudgel.min.js';
+
+component(
+    'utility-emit',
+    {
+        template: `
+            <button @click.stop.prevent="clicked()">Click me</button>
+            to send a custom event
+        `,
+    },
+    class {
+        clicked() {
+            emit(this, 'button-sample-event', {
+                extraData: 'can go in here',
+                youCanUse: 'whatever you like',
+                when: new Date(),
+            });
+        }
+    }
+);
+```
+
+## `metadata` - Access Components and Metadata
+
+The `metadata` symbol allows you to do the following activities.
+
+**On A Custom Element:** Using `element[metadata]` will give you access to the controller instance for that element.
+
+**On A Controller:** From a controller, using `this[metadata]` will let you access the metadata object for that component, which contains the following properties:
+
+* `attr` - A `Set()` of attribute names, based on the [component config](https://fudgel.js.org/component-config.html) `attr` property.
+* `cssClassName` - The CSS class name used for [scoping styles](https://fudgel.js.org/styling.html).
+* `events` - An `Emitter` instance for this component's events.
+* `host` - The `CustomElement` in the DOM that is being controlled by the current controller.
+* `prop` - A `Set()` of property names, based on the [component config](https://fudgel.js.org/component-config.html) `prop` property.
+* `root` - The root element for the component. If using Shadow DOM, this is the shadow root. Otherwise it is the custom element itself.
+* `style` - The styles to be added for the component, already [scoped](https://fudgel.js.org/styling.html).
+* `tagName` - The tag name of the custom element.
+* `template` - The HTML template string for the component, which is already [scoped](https://fudgel.js.org/styling.html).
+* `useShadow` - A boolean indicating whether the component is using Shadow DOM, which is based on the [component config](https://fudgel.js.org/component-config.html) `useShadow` property.
+
+**On A Scope:** If the scope has the `metadata` property, it is the root scope, upon which all other scopes are based. The root scope is attached to `document.body`.
+
+### Using `element[metadata]`
+
+If you need the controller of another element, you can use `element[metadata]` to get the controller instance.
+
+Example (samples/utility-metadata-element.js):
+
+```js
+import { component, metadata } from '/fudgel.min.js';
+
+component('utility-metadata-element', {
+    template: '<child-element></child-element>',
+    useShadow: true
+}, class {
+    // Called from child element
+    logMessage(message) {
+        console.log('Parent:', message);
+    }
+});
+
+component('child-element', {
+    template: `
+        <button @click="clicked()">Click me to log in parent</button>
+    `,
+    useShadow: true
+}, class {
+    clicked() {
+        // Get the custom element in the DOM (the host, not the root)
+        const childElement = this[metadata].host;
+
+        if (!childElement) {
+            console.error('Child element not in DOM');
+            return;
+        }
+
+        const parentElement = this.closest('parent-element', childElement);
+
+        if (!parentElement) {
+            console.error('Could not find parent element in DOM');
+            return;
+        }
+
+        const parentController = parentElement[metadata];
+
+        if (!parentController) {
+            console.error('Could not find parent controller');
+            return;
+        }
+
+        parentController.logMessage('Hello from child');
+    }
+
+    // Pierce the shadow DOM layers to get the parent element.
+    closest(selector, el) {
+        return (
+            (el !== document && el !== window && el.closest(selector)) ||
+            this.closest(selector, el.getRootNode().host)
+        );
+    }
+});
+```
+
+### Using `controller[metadata].host`
+
+You might need to toggle attributes or perform other actions on the DOM from the controller. To get the actual custom element in the DOM, use `this[metadata].host`.
+
+Example (samples/utility-metadata-host.js):
+
+```js
+import { component, metadata } from '/fudgel.min.js';
+
+component(
+    'utility-metadata-host',
+    {
+        template: 'Inspect the DOM and notice the attribute value changing.',
+        useShadow: true,
+    },
+    class {
+        onViewInit() {
+            let count = 0;
+            this.interval = setInterval(() => {
+                this[metadata].host.setAttribute('data-attribute', count++);
+            }, 1000);
+        }
+        onDestroy() {
+            clearInterval(this.interval);
+        }
+    }
+);
+```
+
+### Using `controller[metadata].root`
+
+Your component creates all of its template elements in one parent element. When using a shadow DOM, this is the shadow DOM element. Otherwise, this is the custom element. To easily access this element from your controller for content manipulation, use `this[metadata].root`.
+
+Example (samples/utility-metadata-root.js):
+
+```js
+import { component, metadata } from '/fudgel.min.js';
+
+component(
+    'utility-metadata-root',
+    {
+        template: 'Wait for it ...',
+    },
+    class {
+        onViewInit() {
+            setTimeout(() => {
+                // The root is where the template was placed: the shadow root
+                // when using one, otherwise the custom element itself.
+                this[metadata].root.innerHTML = 'Hello, World!';
+            }, 1000);
+        }
+    }
+);
+```
+
+## `update(component)` - Redrawing the UI
+
+* `component` (Controller, optional) - The controller to update. If not provided, all components will be updated.
+
+When you update internal data within an object, the change detection will not pick it up. You can flag specific properties as needing to be redrawn.
+
+`update()` - When called with no arguments, it will update all bindings for all Fudgel components everywhere. This is the slowest way to trigger updates, but it is also the easiest.
+
+`update(this)` - This is a better, more focused way to update all of the bindings for just the one controller.
+
+Example (samples/utility-update.js):
+
+```js
+import { component, update } from '/fudgel.min.js';
+
+component(
+    'utility-update',
+    {
+        template: `
+            <p>Name: {{user.name}}</p>
+            <button @click="clicked()">Update</button>
+        `,
+    },
+    class {
+        onInit() {
+            // Set up a deeply nested object
+            this.user = {
+                name: 'Test User',
+            };
+        }
+
+        clicked() {
+            // Update the deeply nested object
+            this.user.name = 'Updated';
+
+            // Force an update
+            update(this);
+        }
+    }
+);
+```
+
+## `html(string)` and `css(string)` - Dummy Tagged Template Functions
+
+* `string` (string) - The HTML or CSS string. There is no processing done on this string.
+* return (string) - The same string that was passed in.
+
+There are some build tools that will allow minification of HTML and CSS when they are used within [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates). Fudgel exports `html()` and `css()` as empty tag functions so your toolset will detect the appropriate type of template and allow minification. You can see them in use with the [Be Prepared](https://github.com/Be-Prepared/Be-Prepared.github.io/) PWA, which also uses Vite and a plugin to minify the HTML and CSS used the template literals.
+
+Example (samples/utility-html-css.js):
+
+```js
+import { component, css, html } from '/fudgel.min.js';
+
+component('utility-html-css', {
+    style: css`
+        div {
+            font-size: 3em;
+            font-weight: bold;
+        }
+    `,
+    template: html` <div>BIG WORDS</div> `,
+});
+```
+
+## `di(ServiceConstructor)` - Dependency Injection
+
+* `ServiceConstructor` (Function) - The constructor function or class of the service to inject.
+* return (Object) - A singleton instance of the requested service.
+
+Also included is a minimal dependency injection system, allowing you to inject singleton services into your components. Why use dependency injection? Well, it makes testing much easier, plus you only need to indicate what you want as opposed to how you obtain it or its dependencies.
+
+A requirement for this system is that you must not have side-effects nor arguments in the constructors of the services being injected.  If you can follow that rule, then this system will work for live sites, test systems, and even work after your code is minified.
+
+Example (samples/utility-di.js):
+
+```js
+import { component, di } from '/fudgel.min.js';
+
+class LogService {
+    writeToConsole(message) {
+        console.log(message);
+    }
+}
+
+component(
+    'utility-di',
+    {
+        template: `
+            <button @click="sendLog()">
+                Log to Console
+            </button>
+        `,
+    },
+    class {
+        logger = di(LogService);
+
+        sendLog() {
+            this.logger.writeToConsole('Logging a message');
+        }
+    }
+);
+```
+
+## `diOverride(ServiceConstructor, instance)` - Override a Dependency Injection Service
+
+* `ServiceConstructor` (Function) - The constructor function or class of the service to override.
+* `instance` (Object) - The instance to use when the service is requested via `di()`.
+
+If you need arguments, you could instead create an instance of the service and push it into the dependency injection system using `diOverride()`. This same mechanism is used for testing, allowing you to push in mock versions of services.
+
+Example (samples/utility-di-override.js):
+
+```js
+import { component, di, diOverride } from '/fudgel.min.js';
+
+class LogService {
+    constructor(prefix) {
+        this.prefix = prefix;
+    }
+
+    writeToConsole(message) {
+        console.log(`${this.prefix}: ${message}`);
+    }
+}
+
+diOverride(LogService, new LogService('MESSAGE:'));
+
+component(
+    'utility-di-override',
+    {
+        template: `
+            <button @click="sendLog()">
+                Log to Console
+            </button>
+        `,
+    },
+    class {
+        logger = di(LogService);
+
+        sendLog() {
+            this.logger.writeToConsole('Logging a message');
+        }
+    }
+);
+```
+
+## `new Emitter()` - Send data to other things outside of the DOM
+
+Node.js has an EventEmitter and it's useful for communication between services. The browser has an Event object that can be emitted up the DOM tree, but nothing really geared for services. Fudgel comes with a tiny event emitter you can use in your code. Create an emitter using `const emitter = new Emitter();` and then use the following methods to communicate:
+
+* `emitter.on(name, callback)` - Register a callback for an event name. Returns a function to remove the callback.
+* `emitter.off(name, callback)` - Remove a callback for an event name.
+* `emitter.emit(name, ...data)` - Emit an event with the given name and data.
+
+Example (samples/utility-emitter.js):
+
+```js
+import { component, Emitter } from '/fudgel.min.js';
+
+class MyService {
+    emitter = new Emitter();
+
+    constructor() {
+        setInterval(() => this.emitter.emit('tick'), 1000);
+    }
+
+    onTick(callback) {
+        return this.emitter.on('tick', callback);
+    }
+
+    offTick(callback) {
+        return this.emitter.off('tick', callback);
+    }
+}
+
+const myService = new MyService();
+
+component(
+    'utility-emitter',
+    {
+        template: `
+            <button
+                *if="!tracking"
+                @click="toggleTracking()"
+            >Watch Ticks</button>
+            <button
+                *if="tracking"
+                @click="toggleTracking()"
+            >Stop Watching</button>
+            <div>Tick count: {{tickCount}}</div>
+        `,
+    },
+    class {
+        tracking = false;
+        tickCount = 0;
+        tickTracker = () => (this.tickCount += 1);
+
+        onDestroy() {
+            myService.offTick(this.tickTracker);
+        }
+
+        toggleTracking() {
+            this.tracking = !this.tracking;
+
+            if (this.tracking) {
+                myService.onTick(this.tickTracker);
+            } else {
+                myService.offTick(this.tickTracker);
+            }
+        }
+    }
+);
+```
+
+## `parse` - A collection of methods for working with expressions
+
+There are different ways one can parse expressions in Fudgel, and each has its own method and use case.
+
+All of these methods will return an array.
+
+* `[0]` - A function that can be called with one or more context objects to evaluate the expression against. Typically, one calls this with the current scope and the controller instance.
+* `[1]` - An array of property names that are being bound to in the expression.
+
+Example (samples/parse-js.js):
+
+```js
+import {
+    addDirective,
+    component,
+    metadata,
+    getScope,
+    parse,
+} from './fudgel.js';
+
+addDirective('#tick', (controller, node, attrValue) => {
+    const parsed = parse.js(attrValue);
+    // parsed[0] is a function that takes context objects,
+    // then evaluates the expression against those contexts.
+    // parsed[1] is a list of bound variables, which is not
+    // needed for this directive.
+    const scope = Object.create(getScope(node));
+    const updateFn = tickValue => {
+        scope.$event = tickValue;
+        parsed[0](scope, controller);
+    };
+    const interval = setInterval(() => updateFn(Date.now()), 1000);
+    controller[metadata].events.on('destroy', () => clearInterval(interval));
+});
+
+component(
+    'parse-js',
+    {
+        template: `
+            <div #tick="updateTick($event)">
+                Last tick: {{tickValue}}
+            </div>
+        `,
+    },
+    class {
+        tickValue = -1;
+
+        // Called from the #tick directive
+        updateTick(tickValue) {
+            this.tickValue = tickValue;
+        }
+    }
+);
+```
+
+### `parse.attr(expressionString)`
+
+* `expressionString` (string) - The expression string to parse.
+* return (Array) - An array where `[0]` is a function to evaluate the expression, and `[1]` is an array of property names used in the expression.
+
+This is nearly identical to `parse.text()`. When called, the resulting `[0]` function will return a string that is suitable for use as an attribute value.
+
+However, if the expression would result in `null`, `undefined`, or `false`, then the result of the function would be `false`, indicating that the attribute should be removed.
+
+This parse function is used internally by Fudgel when processing attribute [bindings](https://fudgel.js.org/bindings.html).
+
+### `parse.js(expressionString)`
+
+* `expressionString` (string) - The expression string to parse.
+* return (Array) - An array where `[0]` is a function to evaluate the expression, and `[1]` is an array of property names used in the expression.
+
+This method is used to parse expressions that look like JavaScript. It supports most JavaScript syntax, except for multiple statements, function creation, assignments, and a few other items. Please see the [Expressions](https://fudgel.js.org/expressions.html) page for more information on what is and isn't supported.
+
+This will likely be the most commonly used parse function. The following example adds a new directive that will send an update every second.
+
+### `parse.text(expressionString)`
+
+* `expressionString` (string) - The expression string to parse.
+* return (Array) - An array where `[0]` is a function to evaluate the expression, and `[1]` is an array of property names used in the expression.
+
+The result of running the function provided at `[0]` will always be a string. This is used for text [bindings](https://fudgel.js.org/bindings.html).
+
+## `getScope(node)` - Get a scope object associated to a node or a node's ancestor
+
+* `node` (Node) - The starting point for searching for a scope.
+* return (Scope) - The scope associated with the node or the nearest ancestor node.
+
+Fudgel's [expressions](https://fudgel.js.org/expressions.html) and bindings work within scopes. A controller creates a scope when it is bound to an element. Similarly, directives are able to create child scopes that have changes but don't overwrite a parent scope's values. This is how the [`*for` directive](https://fudgel.js.org/directive-for.html) works when it iterates. You may have need to create your own scope, especially if you are creating a new directive.
+
+This works in conjunction with `parse`. Please see the example there for how to create a child scope.
+
+## `lifecycle(controller, stage, ...args)`
+
+* `controller` (Controller) - The controller instance.
+* `stage` (string) - The lifecycle stage to invoke. Built-in ones include `change`, `destroy`, `init`, `parse`, `unlink`, `update`, `viewInit`.
+* `args` (any, optional) - Additional arguments to pass to the lifecycle method events or methods.
+* return (void) - No return value.
+
+This will emit the lifecycle stage event as a global Fudgel event, on the controller's event emitter, and will also call the lifecycle method on the controller if it exists. The lifecycle events will use the stage name as supplied, however the lifecycle method will have the first letter capitalized and prefixed with `on`. For example, the `init` stage will call the `onInit()` method on the controller if it exists.
+
+Learn more about [lifecycle stages](https://fudgel.js.org/lifecycle.html).
+
+## `camelToDash(name)` and `dashToCamel(name)` - Name Conversion
+
+* `name` (string) - The name to convert.
+* return (string) - The converted name.
+
+The conversions Fudgel uses between JavaScript and HTML names, as described in [Naming Conventions](https://fudgel.js.org/naming.html). `camelToDash('isSaveable')` is `is-saveable` and `dashToCamel('is-saveable')` is `isSaveable`.
+
+## `fudgel/dev` - Development Warnings
+
+```js
+import 'fudgel/dev';
+```
+
+Importing this module once, before components are defined, enables console warnings for mistakes that the production build cannot afford to detect. It never changes what Fudgel does, and each distinct warning is printed once.
+
+* A method on a controller whose name is nearly a lifecycle hook, such as `onViewInitt()`.
+* A `<slot>` in a light DOM template when `defineSlotComponent()` was not called.
+* A `.property` or attribute on a Fudgel component whose lowercased name matches a declared property, such as `.isSaveable` for `isSaveable`; the warning gives the dash-case spelling to use.
+* An identifier in an expression that is not on the controller, not in scope, and not a global.
+* A `*for` written with `in` instead of `of`.
+* A route that can never match because an earlier, shorter route matches the same paths.
+
+Leave the import out of a production build.
