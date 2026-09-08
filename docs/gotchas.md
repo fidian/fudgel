@@ -76,4 +76,4 @@ That is the browser: a disabled fieldset does not reach into a shadow root. Eith
 
 ## A `p::before` rule in my component styled every paragraph on the page
 
-Fixed in 3.5. Earlier versions produced an invalid scoped selector for pseudo-elements and the browser kept the unscoped original. If the console reports "Unable to scope selector", the selector is one Fudgel could not rewrite; simplify it.
+Fixed in 4.0. Earlier versions produced an invalid scoped selector for pseudo-elements and the browser kept the unscoped original. If the console reports "Unable to scope selector", the selector is one Fudgel could not rewrite; simplify it.

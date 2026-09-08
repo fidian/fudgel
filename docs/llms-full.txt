@@ -1622,7 +1622,7 @@ That is the browser: a disabled fieldset does not reach into a shadow root. Eith
 
 ## A `p::before` rule in my component styled every paragraph on the page
 
-Fixed in 3.5. Earlier versions produced an invalid scoped selector for pseudo-elements and the browser kept the unscoped original. If the console reports "Unable to scope selector", the selector is one Fudgel could not rewrite; simplify it.
+Fixed in 4.0. Earlier versions produced an invalid scoped selector for pseudo-elements and the browser kept the unscoped original. If the console reports "Unable to scope selector", the selector is one Fudgel could not rewrite; simplify it.
 
 ---
 
@@ -3089,7 +3089,7 @@ Source page: https://fudgel.js.org/upgrading.html
 When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.
 
 
-## From 3.5.x to 4.0.x
+## From 3.4.x to 4.0.x
 
 Three behaviors changed on purpose.
 
@@ -3097,9 +3097,7 @@ Three behaviors changed on purpose.
 * The index a `*repeat` provides starts at 0, like every other index in JavaScript and like the keys of `*for` over an array. Add 1 where a template shows the number to people.
 * In the light DOM, a descendant named after `:host` in a style rule is scoped to the component, so `:host p` no longer styles a `<p>` inside a nested component, which it never did in the shadow DOM. To style content that another component provides, style it from that component.
 
-## From 3.4.x to 3.5.x
-
-No code changes are required. Several behaviors were bugs and now match what the documentation said; check anything that depended on the old behavior.
+Everything else needs no code changes. Several behaviors were bugs and now match what the documentation said; check anything that depended on the old behavior.
 
 * Bindings and event listeners are cleaned up when a directive removes their element. Listeners on the window or document from `@event.window`, `.document` and `.outside` used to stay attached forever.
 * A getter on the controller's prototype is read each time a binding runs instead of being copied once when the template linked. An accessor on the instance receives the instance as `this` when assigned.
