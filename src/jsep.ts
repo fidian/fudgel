@@ -202,7 +202,35 @@ const gobbleSpaces = (advanceChars = 0) => {
     }
 };
 
+// An expression is a binary expression, optionally followed by `? a : b`.
 const gobbleExpression = (): ValueProvider => {
+    const test = gobbleBinaryExpression();
+
+    // 63 is '?'. Optional chaining was already consumed by
+    // gobbleTokenProperty, so a '?' here starts a conditional.
+    if (test && code == 63) {
+        gobbleSpaces(1);
+        const consequent = gobbleExpression() || throwJsepError();
+
+        // 58 is ':'
+        if ((code as number) != 58) {
+            throwJsepError();
+        }
+
+        gobbleSpaces(1);
+        const alternate = gobbleExpression() || throwJsepError();
+
+        return [
+            root =>
+                test[0](root)[0] ? consequent[0](root) : alternate[0](root),
+            newSet(test[1], consequent[1], alternate[1]),
+        ];
+    }
+
+    return test;
+};
+
+const gobbleBinaryExpression = (): ValueProvider => {
     const combineLast = () => {
         const r = stack.pop() as ValueProvider,
             op = stack.pop() as BinaryOp,

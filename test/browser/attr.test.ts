@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest';
 import { component, html } from '../../src/fudgel.js';
-import { click, expectAttr, expectText, mount } from '../support/dom.js';
+import { $, click, expectAttr, expectText, mount } from '../support/dom.js';
 
 component(
     'custom-element',
@@ -84,5 +84,60 @@ describe('attr', () => {
     it('removes attributes set as false', async () => {
         await mount('<test-false></test-false>');
         await expectAttr('#test', 'disabled', null);
+    });
+});
+
+component(
+    'dashed-attr',
+    {
+        // The documented form is camelCase; the dashed form must mean the same.
+        attr: ['child-value'],
+        template: '<div id="dv">{{childValue}}</div><button @click="set()">set</button>',
+    },
+    class {
+        childValue = 'default';
+
+        set() {
+            this.childValue = 'changed';
+        }
+    }
+);
+
+component(
+    'reflect-bool',
+    {
+        attr: ['disabled'],
+        template:
+            '<button id="on" @click="set(true)">on</button><button id="off" @click="set(false)">off</button><button id="undef" @click="set(undefined)">undef</button>',
+    },
+    class {
+        disabled: any;
+
+        set(value: any) {
+            this.disabled = value;
+        }
+    }
+);
+
+describe('attr names and values', () => {
+    it('accepts a dashed name in attr as if it were camelCase', async () => {
+        await mount('<dashed-attr child-value="from attribute"></dashed-attr>');
+        await expectText('#dv', 'from attribute');
+        $('dashed-attr')!.setAttribute('child-value', 'updated');
+        await expectText('#dv', 'updated');
+        await click('button');
+        await expectAttr('dashed-attr', 'child-value', 'changed');
+    });
+
+    it('reflects booleans to the attribute as the docs promise', async () => {
+        await mount('<reflect-bool></reflect-bool>');
+        await click('#on');
+        await expectAttr('reflect-bool', 'disabled', '');
+        await click('#off');
+        await expectAttr('reflect-bool', 'disabled', null);
+        await click('#on');
+        await expectAttr('reflect-bool', 'disabled', '');
+        await click('#undef');
+        await expectAttr('reflect-bool', 'disabled', null);
     });
 });

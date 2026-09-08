@@ -15,8 +15,9 @@ export const starForDirective: StructuralDirective = (
 ) => {
     let keyName = 'key';
     let valueName = 'value';
+    // [key,] value of iterable [track expression]
     const matches = attrValue.match(
-        /^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(\S+)\s*$/
+        /^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(.+?)(?:\s+track\s+(.+?))?\s*$/
     );
 
     if (matches) {

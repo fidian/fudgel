@@ -155,6 +155,30 @@ const scenarios: Scenario[] = [
     { fails: true, input: 'a(,,)' },
 
     //
+    // conditional operator
+    //
+    { input: 'true ? 1 : 2', output: 1 },
+    { input: 'false ? 1 : 2', output: 2 },
+    // Right-associative: the alternate may itself be a conditional
+    { input: 'false ? 1 : true ? 2 : 3', output: 2 },
+    // Everything else binds tighter than ?:
+    { input: 'null ?? true ? "a" : "b"', output: 'a' },
+    { input: '1 + 1 ? "yes" : "no"', output: 'yes' },
+    { input: 'true ? 1 + 1 : 2 + 2', output: 2 },
+    {
+        bindings: ['a', 'b', 'c'],
+        input: 'a ? b : c',
+        output: 'B',
+        scope: { a: 1, b: 'B', c: 'C' },
+    },
+    // Optional chaining before a conditional
+    { bindings: ['a'], input: 'a?.x ? 1 : 2', output: 2, scope: {} },
+    // A consequent that starts with a dot is a number, not a chain
+    { bindings: ['a'], input: 'a ? .5 : 1', output: 0.5, scope: { a: true } },
+    // Missing alternate
+    { fails: true, input: 'a ? b' },
+
+    //
     // gobbleObjectLiteral
     //
     {

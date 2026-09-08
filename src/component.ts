@@ -75,11 +75,14 @@ export const component = (
     };
     template.innerHTML = configInitial.template;
     updateClasses(template);
+    // Property names, whichever way they were written.
+    const names = (list?: Iterable<string>) =>
+        newSet([...(list || [])].map(dashToCamel));
     const config = {
         ...configInitial,
-        attr: newSet(configInitial.attr || []),
+        attr: names(configInitial.attr),
         cssClassName,
-        prop: newSet(configInitial.prop || []),
+        prop: names(configInitial.prop),
         style,
         tag,
         template: template.innerHTML,
@@ -131,11 +134,14 @@ export const component = (
                     getAttribute(this, attributeName)
                 );
 
-                // When the internal property changes, update the attribute but only
-                // if it is a string or null.
+                // When the internal property changes, update the attribute:
+                // a string is set, true becomes an empty string, and false,
+                // null and undefined remove it.
                 patchSetter(controller, propertyName, (newValue: any) => {
                     if (
-                        (isString(newValue) || newValue === null) &&
+                        (isString(newValue) ||
+                            newValue == null ||
+                            newValue === !!newValue) &&
                         controller[metadata]
                     ) {
                         setAttribute(this, attributeName, newValue);
@@ -248,16 +254,21 @@ export const component = (
     // users.  https://caniuse.com/mdn-javascript_classes_static_initialization_blocks
     (CustomElement as any).observedAttributes = [...config.attr].map(camelToDash);
 
-    try {
-        const componentInfo: ComponentInfo = [
-            CustomElement,
-            constructor!,
-            config,
-        ];
-        events.emit('component', ...componentInfo);
-        customElements.define(tag, CustomElement); // throws
+    const componentInfo: ComponentInfo = [
+        CustomElement,
+        constructor!,
+        config,
+    ];
+    events.emit('component', ...componentInfo);
+
+    // A name that is already defined is skipped, so the same library can be
+    // loaded twice. Anything else define() rejects, such as a name without
+    // a hyphen, throws here rather than leaving an element that silently
+    // never upgrades.
+    if (!customElements.get(tag)) {
+        customElements.define(tag, CustomElement);
         allComponents.add(componentInfo);
-    } catch (_ignore) {}
+    }
 
     return CustomElement;
 };
@@ -268,33 +279,54 @@ const scopeStyleRule = (
     className: string,
     useShadow?: boolean
 ) => {
-    if ((rule as CSSStyleRule).selectorText) {
-        (rule as CSSStyleRule).selectorText = (
-            rule as CSSStyleRule
-        ).selectorText
-            .split(',')
-            .map((selector: string) => {
-                selector = selector.trim();
-                const addSuffix = (x: string) => `${x}.${className}`;
-                const replaceScope = (x: string, withThis: string) =>
-                    x.replace(/:host/, withThis);
-                const doesNotHaveScope = replaceScope(selector, '') == selector;
+    const styleRule = rule as CSSStyleRule;
+    const original = styleRule.selectorText;
 
-                if (useShadow) {
-                    if (doesNotHaveScope || selector.includes(' ')) {
-                        selector = addSuffix(selector);
-                    }
-                } else {
-                    selector = replaceScope(selector, tagForScope);
+    if (original) {
+        // Split on the commas between selectors, not the ones inside :is(),
+        // :not() or an attribute value, then scope each selector.
+        const scoped = (original.match(/(?:\([^)]*\)|\[[^\]]*\]|[^,])+/g) || [])
+            .map(selector => {
+                // A pseudo-element must stay last, so the scoping class goes
+                // before it. (The browser has already serialized the legacy
+                // :before as ::before.)
+                const [, base, pseudo = ''] = selector
+                    .trim()
+                    .match(/^(.*?)(::[\w-]+(?:\([^)]*\))?)?$/)!;
+                // :host, :host(X) or :host-context(X), and whatever follows
+                const [, context, arg = '', rest] =
+                    base.match(/^:host(-context)?(?:\(([^)]*)\))?(.*)$/) || [];
+                const addSuffix = (x: string) => `${x}.${className}${pseudo}`;
 
-                    if (doesNotHaveScope) {
-                        selector = `${tagForScope} ${addSuffix(selector)}`;
-                    }
+                if (rest == undefined) {
+                    // No host form: the element and its own descendants.
+                    return useShadow
+                        ? addSuffix(base)
+                        : `${tagForScope} ${addSuffix(base)}`;
                 }
 
-                return selector;
+                if (useShadow) {
+                    // The shadow root scopes the host itself; a descendant
+                    // still needs the class so a nested light DOM component
+                    // is not styled too.
+                    return rest.trim() ? addSuffix(base) : base + pseudo;
+                }
+
+                return (
+                    (context ? `${arg} ${tagForScope}` : tagForScope + arg) +
+                    rest +
+                    pseudo
+                );
             })
             .join(',');
+        styleRule.selectorText = scoped;
+
+        // The browser ignores a selector it cannot parse, which would leave
+        // the rule exactly as written and applying to the whole page.
+        if (scoped != original && styleRule.selectorText == original) {
+            console.error(`Unable to scope selector: ${scoped}`);
+        }
+
         tagForScope = ''; // Don't need to scope children selectors
     }
 

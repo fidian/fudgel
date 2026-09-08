@@ -47,7 +47,11 @@ export const eventDirective: GeneralDirective = (
     attrValue: string,
     attrName: string
 ) => {
-    const [eventName, ...modifiers] = dashToCamel(attrName.slice(1)).split('.');
+    // Modifiers keep their dashes ("arrow-left"); only the event name is
+    // converted, and the attribute's own spelling is listened for as well
+    // so a dashed event from another library ("sl-change") can be heard.
+    const [rawName, ...modifiers] = attrName.slice(1).split('.');
+    const eventName = dashToCamel(rawName);
     const scope = Obj.create(getScope(node));
     const parsed = parse.js(attrValue);
     const fn = (event: Event) => {
@@ -88,11 +92,15 @@ export const eventDirective: GeneralDirective = (
             ![...modifierSet].some(modifier =>
                 (
                     modifierGuards[modifier] ||
-                    ((e: Event) =>
-                        pascalToDash((e as KeyboardEvent).key) !==
-                        (modifier.match(/^code-\d+$/)
-                            ? String.fromCodePoint(+modifier.split('-')[1])
-                            : modifier))
+                    ((e: Event) => {
+                        const key = (e as KeyboardEvent).key;
+                        const code = modifier.match(/^code-(\d+)$/);
+
+                        return code
+                            ? key != String.fromCodePoint(+code[1])
+                            : (key == ' ' ? 'space' : pascalToDash(key)) !=
+                                  modifier;
+                    })
                 )(event, node, modifierSet)
             )
         ) {
@@ -100,12 +108,18 @@ export const eventDirective: GeneralDirective = (
         }
     };
 
-    eventTarget.addEventListener(eventName, listener, options);
+    const names = newSet([eventName, rawName]);
+
+    for (const name of names) {
+        eventTarget.addEventListener(name, listener, options);
+    }
 
     // A listener on the window or document would otherwise outlive the
     // element, and keep firing for it, forever.
-    whenRemoved(controller, node, () =>
-        eventTarget.removeEventListener(eventName, listener, options)
-    );
+    whenRemoved(controller, node, () => {
+        for (const name of names) {
+            eventTarget.removeEventListener(name, listener, options);
+        }
+    });
     setAttribute(node, attrName);
 };

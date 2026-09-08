@@ -107,3 +107,19 @@ describe('for', () => {
         await expectValue(() => text('#x')?.trim(), '');
     });
 });
+
+component(
+    'for-with-spaces',
+    { template: '<span *for="x of list ?? fallback">{{x}},</span>' },
+    class {
+        list: string[] | undefined = undefined;
+        fallback = ['a', 'b'];
+    }
+);
+
+describe('the iterable expression', () => {
+    it('may contain spaces', async () => {
+        await mount('<for-with-spaces></for-with-spaces>');
+        await expectText('for-with-spaces', 'a,b,');
+    });
+});

@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest';
-import { component, Controller, emit, html } from '../../src/fudgel.js';
-import { click, expectText, mount } from '../support/dom.js';
+import { describe, expect, it } from 'vitest';
+import { component, Controller, emit, html, metadata } from '../../src/fudgel.js';
+import { $, click, expectText, mount } from '../support/dom.js';
 
 component(
     'child-el',
@@ -103,5 +103,32 @@ describe('Element removal', () => {
         await click('#test2');
         await click('#get-count');
         await expectText('#changes', '2');
+    });
+});
+
+component(
+    'dashed-emitter',
+    { template: '<button id="fire" @click="fire()">fire</button>' },
+    class {
+        fire() {
+            emit(this, 'sl-change', 'dashed');
+            emit(this, 'slChange', 'camel');
+        }
+    }
+);
+
+component(
+    'dashed-listener',
+    { template: '<dashed-emitter @sl-change="heard.push($event.detail)"></dashed-emitter>' },
+    class {
+        heard: string[] = [];
+    }
+);
+
+describe('an event directive with a dashed name', () => {
+    it('hears the dashed event other libraries emit, and the camelCase one', async () => {
+        await mount('<dashed-listener></dashed-listener>');
+        await click('#fire');
+        expect($('dashed-listener')![metadata].heard).toEqual(['dashed', 'camel']);
     });
 });

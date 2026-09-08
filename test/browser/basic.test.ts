@@ -112,3 +112,14 @@ describe('a controller whose constructor throws', () => {
         expect(errors).toEqual(['Uncaught Error: constructor failed']);
     });
 });
+
+describe('component() names', () => {
+    it('throws for a name without a hyphen instead of failing silently', () => {
+        expect(() => component('nohyphen', { template: '' })).toThrow(DOMException);
+    });
+
+    it('tolerates defining the same name twice', () => {
+        expect(component('defined-twice', { template: 'first' })).toBeTypeOf('function');
+        expect(() => component('defined-twice', { template: 'second' })).not.toThrow();
+    });
+});

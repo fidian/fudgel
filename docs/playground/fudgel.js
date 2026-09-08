@@ -404,7 +404,28 @@ const gobbleSpaces = (advanceChars = 0) => {
         advance();
     }
 };
+// An expression is a binary expression, optionally followed by `? a : b`.
 const gobbleExpression = () => {
+    const test = gobbleBinaryExpression();
+    // 63 is '?'. Optional chaining was already consumed by
+    // gobbleTokenProperty, so a '?' here starts a conditional.
+    if (test && code == 63) {
+        gobbleSpaces(1);
+        const consequent = gobbleExpression() || throwJsepError();
+        // 58 is ':'
+        if (code != 58) {
+            throwJsepError();
+        }
+        gobbleSpaces(1);
+        const alternate = gobbleExpression() || throwJsepError();
+        return [
+            root => test[0](root)[0] ? consequent[0](root) : alternate[0](root),
+            newSet(test[1], consequent[1], alternate[1]),
+        ];
+    }
+    return test;
+};
+const gobbleBinaryExpression = () => {
     const combineLast = () => {
         const r = stack.pop(), op = stack.pop(), l = stack.pop();
         stack.push([op[1](l[0], r[0]), newSet(l[1], r[1])]);
@@ -891,7 +912,11 @@ const modifierGuards = {
     exact: (e, _node, modifierSet) => ['ctrl', 'shift', 'alt', 'meta'].some(m => e[`${m}Key`] && !modifierSet.has(m)),
 };
 const eventDirective = (controller, node, attrValue, attrName) => {
-    const [eventName, ...modifiers] = dashToCamel(attrName.slice(1)).split('.');
+    // Modifiers keep their dashes ("arrow-left"); only the event name is
+    // converted, and the attribute's own spelling is listened for as well
+    // so a dashed event from another library ("sl-change") can be heard.
+    const [rawName, ...modifiers] = attrName.slice(1).split('.');
+    const eventName = dashToCamel(rawName);
     const scope = Obj.create(getScope(node));
     const parsed = parse.js(attrValue);
     const fn = (event) => {
@@ -924,17 +949,28 @@ const eventDirective = (controller, node, attrValue, attrName) => {
     }
     const listener = (event) => {
         if (![...modifierSet].some(modifier => (modifierGuards[modifier] ||
-            ((e) => pascalToDash(e.key) !==
-                (modifier.match(/^code-\d+$/)
-                    ? String.fromCodePoint(+modifier.split('-')[1])
-                    : modifier)))(event, node, modifierSet))) {
+            ((e) => {
+                const key = e.key;
+                const code = modifier.match(/^code-(\d+)$/);
+                return code
+                    ? key != String.fromCodePoint(+code[1])
+                    : (key == ' ' ? 'space' : pascalToDash(key)) !=
+                        modifier;
+            }))(event, node, modifierSet))) {
             fn(event);
         }
     };
-    eventTarget.addEventListener(eventName, listener, options);
+    const names = newSet([eventName, rawName]);
+    for (const name of names) {
+        eventTarget.addEventListener(name, listener, options);
+    }
     // A listener on the window or document would otherwise outlive the
     // element, and keep firing for it, forever.
-    whenRemoved(controller, node, () => eventTarget.removeEventListener(eventName, listener, options));
+    whenRemoved(controller, node, () => {
+        for (const name of names) {
+            eventTarget.removeEventListener(name, listener, options);
+        }
+    });
     setAttribute(node, attrName);
 };
 
@@ -987,7 +1023,8 @@ const propertyDirective = (controller, node, attrValue, attrName) => {
 const starForDirective = (controller, anchor, source, attrValue) => {
     let keyName = 'key';
     let valueName = 'value';
-    const matches = attrValue.match(/^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(\S+)\s*$/);
+    // [key,] value of iterable [track expression]
+    const matches = attrValue.match(/^\s*(?:(?:(\S+)\s*,\s*)?(\S+)\s+of\s+)?(.+?)(?:\s+track\s+(.+?))?\s*$/);
     if (matches) {
         keyName = matches[1] || keyName;
         valueName = matches[2] || valueName;
@@ -1088,7 +1125,7 @@ const starRepeatDirective = (controller, anchor, source, attrValue) => {
             target.remove();
         }
         let lastIndex = activeNodes.length + 1;
-        let lastNode = activeNodes[lastIndex - 1] || anchor;
+        let lastNode = activeNodes[activeNodes.length - 1] || anchor;
         while (activeNodes.length < desired) {
             let copy = cloneNode(source);
             const scope = childScope(anchorScope, copy);
@@ -1156,11 +1193,18 @@ const linkStructuralDirective = (controller, treeWalker, currentNode) => {
             currentNode.remove();
             // Move tree walker to the next node. Processing the directive will
             // modify the DOM between the anchor and the current tree walker node.
-            treeWalker.nextNode();
+            const next = treeWalker.nextNode();
             // Remove star directives here so infinite loops are avoided.
             setAttribute(currentNode, directive[0]);
             // Applying the directive may automatically append elements after the anchor.
             directive[1](controller, anchor, currentNode, directive[2], directive[0]);
+            if (!next) {
+                // Nothing followed the anchor, so nothing is left to walk.
+                // Stepping back would land inside the clones the directive
+                // just linked and walk them a second time, re-reading any
+                // braces in the data they rendered as expressions.
+                return 2;
+            }
             // Move back one node so the next loop will process the node we're
             // currently pointing at.
             treeWalker.previousNode();
@@ -1219,8 +1263,12 @@ const linkNodes = (controller, root) => {
             linkTextNode(controller, currentNode);
         }
         else if (type == 1) {
-            linkStructuralDirective(controller, treeWalker, currentNode) ||
-                linkElementNode(controller, currentNode);
+            const linked = linkStructuralDirective(controller, treeWalker, currentNode);
+            // 2 means the directive's element was the last node in this root.
+            if (linked == 2) {
+                return;
+            }
+            linked || linkElementNode(controller, currentNode);
         }
     }
 };
@@ -1339,11 +1387,13 @@ const component = (tag, configInitial, constructor) => {
     };
     template.innerHTML = configInitial.template;
     updateClasses(template);
+    // Property names, whichever way they were written.
+    const names = (list) => newSet([...(list || [])].map(dashToCamel));
     const config = {
         ...configInitial,
-        attr: newSet(configInitial.attr || []),
+        attr: names(configInitial.attr),
         cssClassName,
-        prop: newSet(configInitial.prop || []),
+        prop: names(configInitial.prop),
         style,
         tag,
         template: template.innerHTML,
@@ -1378,10 +1428,13 @@ const component = (tag, configInitial, constructor) => {
                 // Set initial value - updates are tracked with
                 // attributeChangedCallback.
                 change(controller, propertyName, getAttribute(this, attributeName));
-                // When the internal property changes, update the attribute but only
-                // if it is a string or null.
+                // When the internal property changes, update the attribute:
+                // a string is set, true becomes an empty string, and false,
+                // null and undefined remove it.
                 patchSetter(controller, propertyName, (newValue) => {
-                    if ((isString(newValue) || newValue === null) &&
+                    if ((isString(newValue) ||
+                        newValue == null ||
+                        newValue === !!newValue) &&
                         controller[metadata]) {
                         setAttribute(this, attributeName, newValue);
                     }
@@ -1461,42 +1514,62 @@ const component = (tag, configInitial, constructor) => {
     // initialization blocks. Currently (Feb 2026) it blocks 0.88% of global
     // users.  https://caniuse.com/mdn-javascript_classes_static_initialization_blocks
     CustomElement.observedAttributes = [...config.attr].map(camelToDash);
-    try {
-        const componentInfo = [
-            CustomElement,
-            constructor,
-            config,
-        ];
-        events.emit('component', ...componentInfo);
-        customElements.define(tag, CustomElement); // throws
+    const componentInfo = [
+        CustomElement,
+        constructor,
+        config,
+    ];
+    events.emit('component', ...componentInfo);
+    // A name that is already defined is skipped, so the same library can be
+    // loaded twice. Anything else define() rejects, such as a name without
+    // a hyphen, throws here rather than leaving an element that silently
+    // never upgrades.
+    if (!customElements.get(tag)) {
+        customElements.define(tag, CustomElement);
         allComponents.add(componentInfo);
     }
-    catch (_ignore) { }
     return CustomElement;
 };
 const scopeStyleRule = (rule, tagForScope, className, useShadow) => {
-    if (rule.selectorText) {
-        rule.selectorText = rule.selectorText
-            .split(',')
-            .map((selector) => {
-            selector = selector.trim();
-            const addSuffix = (x) => `${x}.${className}`;
-            const replaceScope = (x, withThis) => x.replace(/:host/, withThis);
-            const doesNotHaveScope = replaceScope(selector, '') == selector;
+    const styleRule = rule;
+    const original = styleRule.selectorText;
+    if (original) {
+        // Split on the commas between selectors, not the ones inside :is(),
+        // :not() or an attribute value, then scope each selector.
+        const scoped = (original.match(/(?:\([^)]*\)|\[[^\]]*\]|[^,])+/g) || [])
+            .map(selector => {
+            // A pseudo-element must stay last, so the scoping class goes
+            // before it. (The browser has already serialized the legacy
+            // :before as ::before.)
+            const [, base, pseudo = ''] = selector
+                .trim()
+                .match(/^(.*?)(::[\w-]+(?:\([^)]*\))?)?$/);
+            // :host, :host(X) or :host-context(X), and whatever follows
+            const [, context, arg = '', rest] = base.match(/^:host(-context)?(?:\(([^)]*)\))?(.*)$/) || [];
+            const addSuffix = (x) => `${x}.${className}${pseudo}`;
+            if (rest == undefined) {
+                // No host form: the element and its own descendants.
+                return useShadow
+                    ? addSuffix(base)
+                    : `${tagForScope} ${addSuffix(base)}`;
+            }
             if (useShadow) {
-                if (doesNotHaveScope || selector.includes(' ')) {
-                    selector = addSuffix(selector);
-                }
+                // The shadow root scopes the host itself; a descendant
+                // still needs the class so a nested light DOM component
+                // is not styled too.
+                return rest.trim() ? addSuffix(base) : base + pseudo;
             }
-            else {
-                selector = replaceScope(selector, tagForScope);
-                if (doesNotHaveScope) {
-                    selector = `${tagForScope} ${addSuffix(selector)}`;
-                }
-            }
-            return selector;
+            return ((context ? `${arg} ${tagForScope}` : tagForScope + arg) +
+                rest +
+                pseudo);
         })
             .join(',');
+        styleRule.selectorText = scoped;
+        // The browser ignores a selector it cannot parse, which would leave
+        // the rule exactly as written and applying to the whole page.
+        if (scoped != original && styleRule.selectorText == original) {
+            console.error(`Unable to scope selector: ${scoped}`);
+        }
         tagForScope = ''; // Don't need to scope children selectors
     }
     for (const childRule of rule.cssRules ?? []) {

@@ -49,11 +49,18 @@ export const linkNodes = (
         if (type == 3) {
             linkTextNode(controller, currentNode as Text);
         } else if (type == 1) {
-            linkStructuralDirective(controller, treeWalker, currentNode as HTMLElement) ||
-            linkElementNode(
+            const linked = linkStructuralDirective(
                 controller,
+                treeWalker,
                 currentNode as HTMLElement
             );
+
+            // 2 means the directive's element was the last node in this root.
+            if (linked == 2) {
+                return;
+            }
+
+            linked || linkElementNode(controller, currentNode as HTMLElement);
         }
     }
 };

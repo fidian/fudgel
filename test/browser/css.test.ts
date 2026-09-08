@@ -1,4 +1,4 @@
-import { describe, beforeEach, it } from 'vitest';
+import { describe, beforeEach, expect, it } from 'vitest';
 import { component, css, html } from '../../src/fudgel.js';
 import { scopeStyle } from '../../src/component.js';
 import { sandboxStyleRules } from '../../src/elements.js';
@@ -150,6 +150,55 @@ const tests: StyleCase[] = [
         light: 'custom-element a-b.fudgel-123 { width: 100vw; } @media (max-width: 940px) { custom-element a-b.fudgel-123 { width: 50vw; } }',
         shadow: 'a-b.fudgel-123 { width: 100vw; } @media (max-width: 940px) { a-b.fudgel-123 { width: 50vw; } }',
     },
+    {
+        id: '5 :host(...)',
+        input: ':host(.on) { color: red; }',
+        confirm: [':host(.on) { color: red; }'],
+        light: 'custom-element.on { color: red; }',
+        shadow: ':host(.on) { color: red; }',
+    },
+    {
+        id: '6 :host-context(...)',
+        input: ':host-context(.dark) p { color: red; }',
+        confirm: [':host-context(.dark) p { color: red; }'],
+        light: '.dark custom-element p { color: red; }',
+        shadow: ':host-context(.dark) p.fudgel-123 { color: red; }',
+    },
+    {
+        id: '7 comma inside :is()',
+        input: ':is(a, b) span { color: red; }',
+        confirm: [':is(a, b) span { color: red; }'],
+        light: 'custom-element :is(a, b) span.fudgel-123 { color: red; }',
+        shadow: ':is(a, b) span.fudgel-123 { color: red; }',
+    },
+    {
+        id: '8 pseudo-element',
+        input: 'p::before { content: "x"; }',
+        confirm: ['p::before { content: "x"; }'],
+        light: 'custom-element p.fudgel-123::before { content: "x"; }',
+        shadow: 'p.fudgel-123::before { content: "x"; }',
+    },
+    {
+        id: '9 pseudo-class',
+        input: 'p:hover { color: red; }',
+        confirm: ['p:hover { color: red; }'],
+        light: 'custom-element p:hover.fudgel-123 { color: red; }',
+        shadow: 'p:hover.fudgel-123 { color: red; }',
+    },
+    {
+        id: '10 child combinator',
+        input: ':host>p { color: red; }',
+        confirm: [':host > p { color: red; }'],
+        light: 'custom-element > p { color: red; }',
+        shadow: ':host > p.fudgel-123 { color: red; }',
+    },
+    {
+        id: '11 comma inside an attribute',
+        input: '[title="a,b"] { color: red; }',
+        confirm: ['[title="a,b"] { color: red; }'],
+        light: 'custom-element [title="a,b"].fudgel-123 { color: red; }',
+        shadow: '[title="a,b"].fudgel-123 { color: red; }',
+    },
 ];
 
 function makePattern(str: string) {
@@ -184,4 +233,35 @@ describe('scopeStyle', () => {
             await expectValue(() => !!$('#shadow .result')?.textContent?.match(makePattern(test.shadow)), true);
         });
     }
+});
+
+component('pseudo-scoped', {
+    style: css`
+        p::before {
+            content: 'inside';
+        }
+    `,
+    template: html`<p id="inside">in</p>`,
+});
+
+component('host-class-styled', {
+    style: css`
+        :host(.on) {
+            color: rgb(1, 2, 3);
+        }
+    `,
+    template: html`styled`,
+});
+
+describe('scoped styles in a live page', () => {
+    it('keep a pseudo-element rule inside the component', async () => {
+        await mount('<p id="outside">out</p><pseudo-scoped></pseudo-scoped>');
+        await expectValue(() => getComputedStyle($('#inside')!, '::before').content, '"inside"');
+        expect(getComputedStyle($('#outside')!, '::before').content).toBe('none');
+    });
+
+    it('apply a :host(...) rule to the host', async () => {
+        await mount('<host-class-styled class="on"></host-class-styled>');
+        await expectValue(() => getComputedStyle($('host-class-styled')!).color, 'rgb(1, 2, 3)');
+    });
 });

@@ -8,7 +8,7 @@ export const linkStructuralDirective = (
     controller: Object,
     treeWalker: TreeWalker,
     currentNode: HTMLElement
-): Node | null | void | 1 => {
+): Node | null | void | 1 | 2 => {
     const attrs = currentNode.attributes;
 
     if (attrs) {
@@ -41,7 +41,7 @@ export const linkStructuralDirective = (
 
             // Move tree walker to the next node. Processing the directive will
             // modify the DOM between the anchor and the current tree walker node.
-            treeWalker.nextNode();
+            const next = treeWalker.nextNode();
 
             // Remove star directives here so infinite loops are avoided.
             setAttribute(currentNode, directive[0]);
@@ -54,6 +54,14 @@ export const linkStructuralDirective = (
                 directive[2],
                 directive[0]
             );
+
+            if (!next) {
+                // Nothing followed the anchor, so nothing is left to walk.
+                // Stepping back would land inside the clones the directive
+                // just linked and walk them a second time, re-reading any
+                // braces in the data they rendered as expressions.
+                return 2;
+            }
 
             // Move back one node so the next loop will process the node we're
             // currently pointing at.

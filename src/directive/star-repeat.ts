@@ -33,7 +33,7 @@ export const starRepeatDirective: StructuralDirective = (
         }
 
         let lastIndex = activeNodes.length + 1;
-        let lastNode = activeNodes[lastIndex - 1] || anchor;
+        let lastNode = activeNodes[activeNodes.length - 1] || anchor;
 
         while (activeNodes.length < desired) {
             let copy = cloneNode(source);
