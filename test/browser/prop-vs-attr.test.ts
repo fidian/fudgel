@@ -95,10 +95,11 @@ component(
 
 describe('prop vs attr', () => {
     it('works with no incoming values', async () => {
+        // An absent attribute leaves the class field's default alone.
         await mount('<parent-element></parent-element>');
-        await expectText('show-value-attr', 'null');
+        await expectText('show-value-attr', '"initial"');
         await expectText('show-value-prop', '"initial"');
-        await expectText('show-value-attr-prop', 'null');
+        await expectText('show-value-attr-prop', '"initial"');
     });
     it('works with attr', async () => {
         await mount('<parent-element-attr></parent-element-attr>');
@@ -114,7 +115,7 @@ describe('prop vs attr', () => {
     });
     it('works with prop', async () => {
         await mount('<parent-element-prop></parent-element-prop>');
-        await expectText('show-value-attr', 'null');
+        await expectText('show-value-attr', '"initial"');
         await expectText('show-value-prop', '"ok"');
         await expectText('show-value-attr-prop', '"ok"');
     });

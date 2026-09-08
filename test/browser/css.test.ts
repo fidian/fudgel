@@ -161,7 +161,7 @@ const tests: StyleCase[] = [
         id: '6 :host-context(...)',
         input: ':host-context(.dark) p { color: red; }',
         confirm: [':host-context(.dark) p { color: red; }'],
-        light: '.dark custom-element p { color: red; }',
+        light: '.dark custom-element p.fudgel-123 { color: red; }',
         shadow: ':host-context(.dark) p.fudgel-123 { color: red; }',
     },
     {
@@ -189,7 +189,7 @@ const tests: StyleCase[] = [
         id: '10 child combinator',
         input: ':host>p { color: red; }',
         confirm: [':host > p { color: red; }'],
-        light: 'custom-element > p { color: red; }',
+        light: 'custom-element > p.fudgel-123 { color: red; }',
         shadow: ':host > p.fudgel-123 { color: red; }',
     },
     {

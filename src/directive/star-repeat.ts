@@ -32,7 +32,7 @@ export const starRepeatDirective: StructuralDirective = (
             target.remove();
         }
 
-        let lastIndex = activeNodes.length + 1;
+        let lastIndex = activeNodes.length;
         let lastNode = activeNodes[activeNodes.length - 1] || anchor;
 
         while (activeNodes.length < desired) {

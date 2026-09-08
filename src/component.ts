@@ -126,13 +126,15 @@ export const component = (
             for (const propertyName of config.attr) {
                 const attributeName = camelToDash(propertyName);
 
-                // Set initial value - updates are tracked with
+                // Set the initial value. An absent attribute leaves the
+                // controller's own default alone; later changes, including
+                // a removal (which sets null), arrive at
                 // attributeChangedCallback.
-                change(
-                    controller,
-                    propertyName,
-                    getAttribute(this, attributeName)
-                );
+                const initial = getAttribute(this, attributeName);
+
+                if (initial !== null) {
+                    change(controller, propertyName, initial);
+                }
 
                 // When the internal property changes, update the attribute:
                 // a string is set, true becomes an empty string, and false,
@@ -312,10 +314,11 @@ const scopeStyleRule = (
                     return rest.trim() ? addSuffix(base) : base + pseudo;
                 }
 
+                // A descendant of the host gets the class too, as in the
+                // shadow DOM, so a nested component is not styled by accident.
                 return (
                     (context ? `${arg} ${tagForScope}` : tagForScope + arg) +
-                    rest +
-                    pseudo
+                    (rest.trim() ? addSuffix(rest) : pseudo)
                 );
             })
             .join(',');

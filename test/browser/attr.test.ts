@@ -1,5 +1,5 @@
-import { describe, it } from 'vitest';
-import { component, html } from '../../src/fudgel.js';
+import { describe, expect, it } from 'vitest';
+import { component, html, metadata } from '../../src/fudgel.js';
 import { $, click, expectAttr, expectText, mount } from '../support/dom.js';
 
 component(
@@ -120,6 +120,15 @@ component(
 );
 
 describe('attr names and values', () => {
+    it('leaves the default alone when the attribute is absent, and sets null when it is removed', async () => {
+        await mount('<the-child test="present"></the-child>');
+        await expectText('#test', 'present');
+        await expectText('#childValue', 'value before attr');
+        $('the-child')!.removeAttribute('test');
+        await expectText('#test', '');
+        expect($('the-child')![metadata].test).toBeNull();
+    });
+
     it('accepts a dashed name in attr as if it were camelCase', async () => {
         await mount('<dashed-attr child-value="from attribute"></dashed-attr>');
         await expectText('#dv', 'from attribute');

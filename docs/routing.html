@@ -203,13 +203,13 @@
 </code></pre>
 <pre><code class="language-js">component(&#39;order-list&#39;, {
     attr: [&#39;status&#39;, &#39;sortOrder&#39;],
-    template: html`Showing  orders by `,
+    template: html`Showing {{status}} orders by {{sortOrder}}`,
 });
 </code></pre>
 <p>Names are camel case in the list and dashed as attributes. In the route you would use <code>sortOrder</code>, which would set the attribute <code>sort-order</code> on the element, and Fudgel would have that arrive as the property <code>sortOrder</code> in your component. This is the same convention the rest of Fudgel uses.</p>
 <p>A few things worth knowing:</p>
 <ul>
-<li>A parameter that is absent removes the attribute rather than setting it empty, so the property becomes <code>null</code> and <code>*if</code> behaves.</li>
+<li>A parameter that is absent removes the attribute rather than setting it empty. On the first match the controller&#39;s default applies; when a parameter disappears on a later navigation the property becomes <code>null</code>. Either way <code>*if</code> behaves.</li>
 <li>A parameter that appears more than once, as in <code>?tag=one&amp;tag=two</code>, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the <code>routeChange</code> event and read <code>location.search</code> directly.</li>
 <li>Parameters not named in <code>query</code> are ignored. There is no wildcard.</li>
 <li>Query parameters are applied after the path, so naming the same thing in both a path pattern and the <code>query</code> list means the query wins. Do not do that; nothing stops you but it isn&#39;t what you want.</li>

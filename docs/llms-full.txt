@@ -705,7 +705,7 @@ Monitor these attributes on the element for changes. When a listed attribute is 
 
 Attributes are always in camelCase in this list, even though they are in kebab-case in HTML. For example, to monitor the `data-value` attribute, you would add `"dataValue"` to this list and the controller's `.dataValue` property will be updated. A kebab-case name in this list is treated as the camelCase one. See [Naming Conventions](https://fudgel.js.org/naming.html).
 
-When the controller's property is changed, the attribute will be updated accordingly in the DOM: a string sets it, `true` sets it to an empty string, and `false`, `null` or `undefined` removes it. Other types are not reflected, as attributes can only hold string values. When the attribute is absent on the element, the property is set to `null`.
+When the controller's property is changed, the attribute will be updated accordingly in the DOM: a string sets it, `true` sets it to an empty string, and `false`, `null` or `undefined` removes it. Other types are not reflected, as attributes can only hold string values. An absent attribute leaves the property's default in place; removing the attribute later sets it to `null`.
 
 When a name is listed in both `attr` and `prop`, the most recently changed source (attribute or property) will update the other.
 
@@ -1600,9 +1600,9 @@ Every row assigns the same controller property, so the last one wins. Use `$even
 
 It always does for the initial attribute and property values, once per declared name. See [Lifecycle](https://fudgel.js.org/lifecycle.html).
 
-## An attribute that is absent made my property `null`
+## My property became `null` after an attribute went away
 
-A property listed in `attr` receives the attribute's value, and `null` when the attribute is absent, replacing the class field's default. Treat absence as `null` in the controller. (This changes in 4.0, where an absent attribute leaves the default alone; see [Upgrading](https://fudgel.js.org/upgrading.html).)
+A property listed in `attr` keeps its class default while the attribute is absent, and becomes `null` when the attribute is removed later. (Before 4.0 an absent attribute set `null` from the start; see [Upgrading](https://fudgel.js.org/upgrading.html).)
 
 ## The template shows nothing where my expression is, and the console has an error
 
@@ -1711,7 +1711,7 @@ To access these attributes in your Fudgel controller, you need to declare them i
 
 When a property is updated in the controller, the corresponding attribute on the DOM element will also be updated automatically. This two-way binding allows for easy synchronization between the controller and the DOM.
 
-Assign a string to set the attribute, `true` to set it to an empty string, or `false`, `null` or `undefined` to remove it. Other types, such as numbers or objects, are not reflected in the DOM's copy of the attributes. When the attribute is absent, the controller's property is set to `null`, replacing any default the class gave it.
+Assign a string to set the attribute, `true` to set it to an empty string, or `false`, `null` or `undefined` to remove it. Other types, such as numbers or objects, are not reflected in the DOM's copy of the attributes. When the attribute is absent, the controller's property keeps the value the class gave it. Removing an attribute later sets the property to `null`.
 
 When a single property is declared in both `attr` and `prop`, the most recent assignment takes priority.
 
@@ -1940,7 +1940,7 @@ Controllers will go through the following lifecycle stages. Some stages might ge
 -   Controller Event: `init` (no arguments)
 -   Controller Method: `onInit()`
 
-Called after the custom element is connected to a DOM. It's a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and `onChange()` has already been called once for each name in `attr` and `prop` with its initial value.
+Called after the custom element is connected to a DOM. It's a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and `onChange()` has already been called for each attribute that was present and each property that had been assigned, with its initial value.
 
 This is an early stage in the lifecycle. Property bindings have been set up, but there hasn't been time for even synchronous code to assign values to the properties.
 
@@ -1977,7 +1977,7 @@ A good practice is to use this method sparingly and instead react to changes in 
 
 Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the [config](https://fudgel.js.org/component-config.html) plus any property used in a [binding](https://fudgel.js.org/bindings.html). Differences are detected by using `Object.is()`, so changes to immutable objects will trigger change detection more easily.
 
-This method is called for the initial attribute and property values before `onInit()`, once per declared name, and can be called again before the "Content Loaded" and "View Initialized" stages.
+This method is called for the initial values before `onInit()`, once for each attribute that is present and each property that was assigned, and can be called again before the "Content Loaded" and "View Initialized" stages.
 
 Calling `update()` (see [Utilities](https://fudgel.js.org/utilities.html)) will also call `onChange()` for all attributes and properties that are copied into the controller.
 
@@ -2457,7 +2457,7 @@ component(
 );
 ```
 
-If you need to know what index you are on, you can use a special syntax of `*repeat="expression as indexName"`, where `indexName` is the name of the variable that will hold the current index. The index starts at 1.
+If you need to know what index you are on, you can use a special syntax of `*repeat="expression as indexName"`, where `indexName` is the name of the variable that will hold the current index. The index starts at 0.
 
 Example (samples/directive-repeat-named.js):
 
@@ -2764,7 +2764,7 @@ Names are camel case in the list and dashed as attributes. In the route you woul
 
 A few things worth knowing:
 
-* A parameter that is absent removes the attribute rather than setting it empty, so the property becomes `null` and `*if` behaves.
+* A parameter that is absent removes the attribute rather than setting it empty. On the first match the controller's default applies; when a parameter disappears on a later navigation the property becomes `null`. Either way `*if` behaves.
 * A parameter that appears more than once, as in `?tag=one&tag=two`, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the `routeChange` event and read `location.search` directly.
 * Parameters not named in `query` are ignored. There is no wildcard.
 * Query parameters are applied after the path, so naming the same thing in both a path pattern and the `query` list means the query wins. Do not do that; nothing stops you but it isn't what you want.
@@ -2929,7 +2929,7 @@ The above example used the `:host` pseudo-class to style the host element itself
 
 ## Selectors Fudgel Rewrites
 
-In the light DOM, `:host` becomes the element's tag name, `:host(.active)` becomes `my-tag.active`, and `:host-context(.dark) p` becomes `.dark my-tag p`. Every other selector is prefixed with the tag name and given the component's class on its last part, so `p::before` becomes `my-tag p.fudgel_my-tag::before` and `:is(a, b) span` keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class, so a nested light DOM component inside the shadow root is not styled by accident.
+In the light DOM, `:host` becomes the element's tag name, `:host(.active)` becomes `my-tag.active`, and `:host-context(.dark) p` becomes `.dark my-tag p.fudgel_my-tag`. Every other selector is prefixed with the tag name and given the component's class on its last part, so `p::before` becomes `my-tag p.fudgel_my-tag::before` and `:is(a, b) span` keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class. In both cases the class is what keeps a rule from reaching into a nested component, so to style content another component provides, style it from the component that provides it.
 
 If a selector cannot be rewritten into one the browser accepts, Fudgel logs "Unable to scope selector" and the rule is left unscoped. Simplify the selector if you see that message.
 
@@ -3088,6 +3088,14 @@ Source page: https://fudgel.js.org/upgrading.html
 
 When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.
 
+
+## From 3.5.x to 4.0.x
+
+Three behaviors changed on purpose.
+
+* An attribute that is absent no longer sets the controller property to `null`; the class field's default stays. Removing an attribute later still sets the property to `null`, and `onChange()` is no longer called for an absent attribute at startup. Code that relied on a declared attribute being `null` when absent should give the field no initial value, or treat `null` and `undefined` alike.
+* The index a `*repeat` provides starts at 0, like every other index in JavaScript and like the keys of `*for` over an array. Add 1 where a template shows the number to people.
+* In the light DOM, a descendant named after `:host` in a style rule is scoped to the component, so `:host p` no longer styles a `<p>` inside a nested component, which it never did in the shadow DOM. To style content that another component provides, style it from that component.
 
 ## From 3.4.x to 3.5.x
 

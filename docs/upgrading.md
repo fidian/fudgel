@@ -7,6 +7,14 @@ title: Upgrading (Fudgel.js)
 When a new version of Fudgel is released, you may need to make some changes to your existing components to ensure they continue to work correctly.
 
 
+## From 3.5.x to 4.0.x
+
+Three behaviors changed on purpose.
+
+* An attribute that is absent no longer sets the controller property to `null`; the class field's default stays. Removing an attribute later still sets the property to `null`, and `onChange()` is no longer called for an absent attribute at startup. Code that relied on a declared attribute being `null` when absent should give the field no initial value, or treat `null` and `undefined` alike.
+* The index a `*repeat` provides starts at 0, like every other index in JavaScript and like the keys of `*for` over an array. Add 1 where a template shows the number to people.
+* In the light DOM, a descendant named after `:host` in a style rule is scoped to the component, so `:host p` no longer styles a `<p>` inside a nested component, which it never did in the shadow DOM. To style content that another component provides, style it from that component.
+
 ## From 3.4.x to 3.5.x
 
 No code changes are required. Several behaviors were bugs and now match what the documentation said; check anything that depended on the old behavior.

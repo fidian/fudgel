@@ -91,7 +91,7 @@ A route lists the parameters it cares about in a `query` attribute, and they arr
 ```js
 component('order-list', {
     attr: ['status', 'sortOrder'],
-    template: html`Showing {{status}} orders by {{sortOrder}}`,
+    template: html`Showing {{openBrace}}status{{closeBrace}} orders by {{openBrace}}sortOrder{{closeBrace}}`,
 });
 ```
 
@@ -99,7 +99,7 @@ Names are camel case in the list and dashed as attributes. In the route you woul
 
 A few things worth knowing:
 
-* A parameter that is absent removes the attribute rather than setting it empty, so the property becomes `null` and `*if` behaves.
+* A parameter that is absent removes the attribute rather than setting it empty. On the first match the controller's default applies; when a parameter disappears on a later navigation the property becomes `null`. Either way `*if` behaves.
 * A parameter that appears more than once, as in `?tag=one&tag=two`, sets the attribute to the first value. An attribute holds one string. If you need every value, listen for the `routeChange` event and read `location.search` directly.
 * Parameters not named in `query` are ignored. There is no wildcard.
 * Query parameters are applied after the path, so naming the same thing in both a path pattern and the `query` list means the query wins. Do not do that; nothing stops you but it isn't what you want.

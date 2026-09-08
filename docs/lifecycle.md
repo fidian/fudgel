@@ -37,7 +37,7 @@ Controllers will go through the following lifecycle stages. Some stages might ge
 -   Controller Event: `init` (no arguments)
 -   Controller Method: `onInit()`
 
-Called after the custom element is connected to a DOM. It's a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and `onChange()` has already been called once for each name in `attr` and `prop` with its initial value.
+Called after the custom element is connected to a DOM. It's a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and `onChange()` has already been called for each attribute that was present and each property that had been assigned, with its initial value.
 
 This is an early stage in the lifecycle. Property bindings have been set up, but there hasn't been time for even synchronous code to assign values to the properties.
 
@@ -74,7 +74,7 @@ A good practice is to use this method sparingly and instead react to changes in 
 
 Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the [config](component-config.html) plus any property used in a [binding](bindings.html). Differences are detected by using `Object.is()`, so changes to immutable objects will trigger change detection more easily.
 
-This method is called for the initial attribute and property values before `onInit()`, once per declared name, and can be called again before the "Content Loaded" and "View Initialized" stages.
+This method is called for the initial values before `onInit()`, once for each attribute that is present and each property that was assigned, and can be called again before the "Content Loaded" and "View Initialized" stages.
 
 Calling `update()` (see [Utilities](utilities.html)) will also call `onChange()` for all attributes and properties that are copied into the controller.
 

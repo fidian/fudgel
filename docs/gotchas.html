@@ -176,8 +176,8 @@
 <p>Every row assigns the same controller property, so the last one wins. Use <code>$event.target</code> in an event handler, or give each row a component of its own.</p>
 <h2><code>onChange()</code> ran before <code>onInit()</code></h2>
 <p>It always does for the initial attribute and property values, once per declared name. See <a href="lifecycle.html">Lifecycle</a>.</p>
-<h2>An attribute that is absent made my property <code>null</code></h2>
-<p>A property listed in <code>attr</code> receives the attribute&#39;s value, and <code>null</code> when the attribute is absent, replacing the class field&#39;s default. Treat absence as <code>null</code> in the controller. (This changes in 4.0, where an absent attribute leaves the default alone; see <a href="upgrading.html">Upgrading</a>.)</p>
+<h2>My property became <code>null</code> after an attribute went away</h2>
+<p>A property listed in <code>attr</code> keeps its class default while the attribute is absent, and becomes <code>null</code> when the attribute is removed later. (Before 4.0 an absent attribute set <code>null</code> from the start; see <a href="upgrading.html">Upgrading</a>.)</p>
 <h2>The template shows nothing where my expression is, and the console has an error</h2>
 <p>The expression did not parse. Fudgel logs the expression, the binding evaluates to <code>undefined</code>, and the other directives on the element still link. See <a href="expressions.html">Expressions</a> for what is supported.</p>
 <h2><code>*for=&quot;item in list&quot;</code> renders nothing</h2>

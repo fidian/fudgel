@@ -54,9 +54,9 @@ Every row assigns the same controller property, so the last one wins. Use `$even
 
 It always does for the initial attribute and property values, once per declared name. See [Lifecycle](lifecycle.html).
 
-## An attribute that is absent made my property `null`
+## My property became `null` after an attribute went away
 
-A property listed in `attr` receives the attribute's value, and `null` when the attribute is absent, replacing the class field's default. Treat absence as `null` in the controller. (This changes in 4.0, where an absent attribute leaves the default alone; see [Upgrading](upgrading.html).)
+A property listed in `attr` keeps its class default while the attribute is absent, and becomes `null` when the attribute is removed later. (Before 4.0 an absent attribute set `null` from the start; see [Upgrading](upgrading.html).)
 
 ## The template shows nothing where my expression is, and the console has an error
 

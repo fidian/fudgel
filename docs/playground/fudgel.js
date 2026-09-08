@@ -1158,7 +1158,7 @@ const starRepeatDirective = (controller, anchor, source, attrValue) => {
             unlink(controller, target);
             target.remove();
         }
-        let lastIndex = activeNodes.length + 1;
+        let lastIndex = activeNodes.length;
         let lastNode = activeNodes[activeNodes.length - 1] || anchor;
         while (activeNodes.length < desired) {
             let copy = cloneNode(source);
@@ -1459,9 +1459,14 @@ const component = (tag, configInitial, constructor) => {
             // Set up bindings before adding child nodes
             for (const propertyName of config.attr) {
                 const attributeName = camelToDash(propertyName);
-                // Set initial value - updates are tracked with
+                // Set the initial value. An absent attribute leaves the
+                // controller's own default alone; later changes, including
+                // a removal (which sets null), arrive at
                 // attributeChangedCallback.
-                change(controller, propertyName, getAttribute(this, attributeName));
+                const initial = getAttribute(this, attributeName);
+                if (initial !== null) {
+                    change(controller, propertyName, initial);
+                }
                 // When the internal property changes, update the attribute:
                 // a string is set, true becomes an empty string, and false,
                 // null and undefined remove it.
@@ -1594,9 +1599,10 @@ const scopeStyleRule = (rule, tagForScope, className, useShadow) => {
                 // is not styled too.
                 return rest.trim() ? addSuffix(base) : base + pseudo;
             }
+            // A descendant of the host gets the class too, as in the
+            // shadow DOM, so a nested component is not styled by accident.
             return ((context ? `${arg} ${tagForScope}` : tagForScope + arg) +
-                rest +
-                pseudo);
+                (rest.trim() ? addSuffix(rest) : pseudo));
         })
             .join(',');
         styleRule.selectorText = scoped;

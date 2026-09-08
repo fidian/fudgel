@@ -169,7 +169,7 @@
 <li>Controller Event: <code>init</code> (no arguments)</li>
 <li>Controller Method: <code>onInit()</code></li>
 </ul>
-<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and <code>onChange()</code> has already been called once for each name in <code>attr</code> and <code>prop</code> with its initial value.</p>
+<p>Called after the custom element is connected to a DOM. It&#39;s a good place to set up your initial properties. Child elements are not yet attached to the DOM, templates are not parsed, and most other things are not yet set up. Attribute values that were present on the element when it was created have already been copied into the controller at this point, and <code>onChange()</code> has already been called for each attribute that was present and each property that had been assigned, with its initial value.</p>
 <p>This is an early stage in the lifecycle. Property bindings have been set up, but there hasn&#39;t been time for even synchronous code to assign values to the properties.</p>
 <h3>Content Loaded (Most Likely Called)</h3>
 <ul>
@@ -195,7 +195,7 @@
 <li>Controller Method: <code>onChange(propertyName, oldValue, newValue)</code></li>
 </ul>
 <p>Triggered whenever a monitored property on the controller is updated. Monitored properties are any attribute or property listed in the <a href="component-config.html">config</a> plus any property used in a <a href="bindings.html">binding</a>. Differences are detected by using <code>Object.is()</code>, so changes to immutable objects will trigger change detection more easily.</p>
-<p>This method is called for the initial attribute and property values before <code>onInit()</code>, once per declared name, and can be called again before the &quot;Content Loaded&quot; and &quot;View Initialized&quot; stages.</p>
+<p>This method is called for the initial values before <code>onInit()</code>, once for each attribute that is present and each property that was assigned, and can be called again before the &quot;Content Loaded&quot; and &quot;View Initialized&quot; stages.</p>
 <p>Calling <code>update()</code> (see <a href="utilities.html">Utilities</a>) will also call <code>onChange()</code> for all attributes and properties that are copied into the controller.</p>
 <h3>Update (Possibly Called)</h3>
 <ul>

@@ -18,7 +18,7 @@ The above example used the `:host` pseudo-class to style the host element itself
 
 ## Selectors Fudgel Rewrites
 
-In the light DOM, `:host` becomes the element's tag name, `:host(.active)` becomes `my-tag.active`, and `:host-context(.dark) p` becomes `.dark my-tag p`. Every other selector is prefixed with the tag name and given the component's class on its last part, so `p::before` becomes `my-tag p.fudgel_my-tag::before` and `:is(a, b) span` keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class, so a nested light DOM component inside the shadow root is not styled by accident.
+In the light DOM, `:host` becomes the element's tag name, `:host(.active)` becomes `my-tag.active`, and `:host-context(.dark) p` becomes `.dark my-tag p.fudgel_my-tag`. Every other selector is prefixed with the tag name and given the component's class on its last part, so `p::before` becomes `my-tag p.fudgel_my-tag::before` and `:is(a, b) span` keeps its comma. In the shadow DOM the host forms are left as they are and descendants receive the class. In both cases the class is what keeps a rule from reaching into a nested component, so to style content another component provides, style it from the component that provides it.
 
 If a selector cannot be rewritten into one the browser accepts, Fudgel logs "Unable to scope selector" and the rule is left unscoped. Simplify the selector if you see that message.
 

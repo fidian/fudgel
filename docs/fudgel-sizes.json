@@ -1,6 +1,6 @@
 [
-{ "name": "Everything (ESM)", "minified": 17670, "gzipped": 7646 },
-{ "name": "Everything (UMD)", "minified": 17833, "gzipped": 7687 },
-{ "name": "component()", "minified": 13195, "gzipped": 5844 },
+{ "name": "Everything (ESM)", "minified": 17696, "gzipped": 7656 },
+{ "name": "Everything (UMD)", "minified": 17859, "gzipped": 7695 },
+{ "name": "component()", "minified": 13221, "gzipped": 5851 },
 { "name": "fudgel/dev (development only)", "minified": 2772, "gzipped": 1499 }
 ]
