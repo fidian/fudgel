@@ -1,17 +1,12 @@
-import {
-    component,
-    defineSlotComponent,
-    html,
-    metadata,
-} from '../../src/fudgel.js';
+import { describe, beforeEach, expect, it } from 'vitest';
+import { component, defineSlotComponent, html, metadata } from '../../src/fudgel.js';
+import { $, expectContains, expectValue, mount } from '../support/dom.js';
 
 defineSlotComponent();
 
 component(
     'parent-element',
-    {
-        template: html`<child-element>{{name}}</child-element>`,
-    },
+    { template: html`<child-element>{{name}}</child-element>` },
     class {
         name = 'parent';
     }
@@ -67,9 +62,7 @@ component(
     }
 );
 
-component('content-projection', {
-    template: html`<slot></slot>`,
-});
+component('content-projection', { template: html`<slot></slot>` });
 
 component(
     'delayed-projection',
@@ -101,56 +94,41 @@ function generateContentDivs() {
     `);
 }
 
-describe('basic initialization', () => {
-    beforeEach(() => {
-        cy.mount('<parent-element></parent-element>');
-    });
+const slotIn = (selector: string, root: ParentNode) =>
+    $<HTMLSlotElement>('slot', $(selector, root)!)!;
 
-    it('projects content manually', () => {
-        cy.get('child-element')
-            .find('slot')
-            .then(element => {
-                expect(element[0].assignedNodes()[0].textContent).to.equal(
-                    'parent'
-                );
-            });
+describe('basic initialization', () => {
+    beforeEach(() => mount('<parent-element></parent-element>'));
+
+    it('projects content manually', async () => {
+        await expectValue(
+            () => slotIn('#unnamedSlot', $('child-element')!.shadowRoot!).assignedNodes()[0]?.textContent,
+            'parent'
+        );
     });
 });
 
 describe('with shadow dom', () => {
-    beforeEach(() => {
-        cy.mount('<parent-element-shadow></parent-element-shadow>');
-    });
+    beforeEach(() => mount('<parent-element-shadow></parent-element-shadow>'));
 
-    it('projects content into slots', () => {
-        cy.get('#namedSlot')
-            .find('slot')
-            .then(element => {
-                expect(element[0].assignedElements()[0].textContent).to.equal(
-                    'Correct'
-                );
-            });
+    it('projects content into slots', async () => {
+        const root = () => $('child-element-shadow')!.shadowRoot!;
+        await expectValue(
+            () => slotIn('#namedSlot', root()).assignedElements()[0]?.textContent,
+            'Correct'
+        );
 
         // The interpretation of the parent's template should be done in the parent.
-        cy.get('#unnamedSlot')
-            .find('slot')
-            .then(element => {
-                expect(element[0].assignedNodes()[0].textContent).to.equal(
-                    'parent'
-                );
-            });
+        expect(slotIn('#unnamedSlot', root()).assignedNodes()[0].textContent).toBe('parent');
     });
 });
 
 describe('with content supplied', () => {
-    beforeEach(() => {
-        cy.mount(`<content-projection>Is this italics? <i>YES</i></content-projection>`);
-    });
+    beforeEach(() =>
+        mount(`<content-projection>Is this italics? <i>YES</i></content-projection>`)
+    );
 
-    it('projects content', () => {
-        cy.get('content-projection slot-like i').should(
-            'contain.text',
-            'YES'
-        );
+    it('projects content', async () => {
+        await expectContains('content-projection slot-like i', 'YES');
     });
 });

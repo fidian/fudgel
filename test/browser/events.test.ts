@@ -1,4 +1,6 @@
+import { describe, it } from 'vitest';
 import { component, Controller, emit, html } from '../../src/fudgel.js';
+import { click, expectText, mount } from '../support/dom.js';
 
 component(
     'child-el',
@@ -41,12 +43,10 @@ component(
         x = 'one';
 
         getCount() {
-            console.log(this.controller);
             this.changes = this.controller.changeCount;
         }
 
         childInit(event: CustomEvent<Controller>) {
-            console.log('Child initialized', event.detail);
             this.controller = event.detail;
         }
 
@@ -75,32 +75,33 @@ component(
             // the controller
             const e = this.child;
             e.remove();
-            (e as any).x = 'test2'
+            (e as any).x = 'test2';
         }
     }
 );
 
 describe('Element removal', () => {
-    it('removes bindings when hidden', () => {
-        cy.mount('<parent-el></parent-el>');
-        cy.get('#get-count').click();
-        cy.get('#changes').should('have.text', '1');
-        cy.get('#make-change').click();
-        cy.get('#get-count').click();
-        cy.get('#changes').should('have.text', '2');
-        cy.get('#test1').click();
-        cy.get('#get-count').click();
-        cy.get('#changes').should('have.text', '2');
+    it('removes bindings when hidden', async () => {
+        await mount('<parent-el></parent-el>');
+        await click('#get-count');
+        await expectText('#changes', '1');
+        await click('#make-change');
+        await click('#get-count');
+        await expectText('#changes', '2');
+        await click('#test1');
+        await click('#get-count');
+        await expectText('#changes', '2');
     });
-    it('removes bindings when removed', () => {
-        cy.mount('<parent-el></parent-el>');
-        cy.get('#get-count').click();
-        cy.get('#changes').should('have.text', '1');
-        cy.get('#make-change').click();
-        cy.get('#get-count').click();
-        cy.get('#changes').should('have.text', '2');
-        cy.get('#test2').click();
-        cy.get('#get-count').click();
-        cy.get('#changes').should('have.text', '2');
+
+    it('removes bindings when removed', async () => {
+        await mount('<parent-el></parent-el>');
+        await click('#get-count');
+        await expectText('#changes', '1');
+        await click('#make-change');
+        await click('#get-count');
+        await expectText('#changes', '2');
+        await click('#test2');
+        await click('#get-count');
+        await expectText('#changes', '2');
     });
 });

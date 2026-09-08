@@ -1,9 +1,29 @@
+// Lifecycle order during a real page load. Each case is a static page under
+// docs/e2e/ that logs every constructor and lifecycle hook into #events;
+// what matters is how classic <script> tags interleave with the HTML parser,
+// so the pages are loaded in an iframe exactly as written (see the
+// serve-docs-e2e plugin in vitest.config.ts).
+import { describe, expect, it } from 'vitest';
+
+const loadPage = (url: string) =>
+    new Promise<Document>((resolve, reject) => {
+        document.body.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'width: 800px; height: 600px';
+        iframe.onload = () => resolve(iframe.contentDocument!);
+        iframe.onerror = reject;
+        iframe.src = url;
+        document.body.append(iframe);
+    });
+
+const events = (doc: Document) => doc.getElementById('events')?.textContent;
+const poll = <T>(fn: () => T) => expect.poll(fn, { timeout: 4000, interval: 25 });
+
 describe('Event order is correct', () => {
     const tests = [
         {
             // Content is ready immediately.
             name: 'Child-only, async',
-            // only: true,
             url: '/e2e/event-child-slot-async.html',
             events: [
                 'TestChildSlot [undefined] constructor',
@@ -16,7 +36,6 @@ describe('Event order is correct', () => {
         {
             // Content is ready immediately.
             name: 'Child-only, sync',
-            // only: true,
             url: '/e2e/event-child-slot-sync.html',
             events: [
                 'TestChildSlot [undefined] constructor',
@@ -31,7 +50,6 @@ describe('Event order is correct', () => {
             // parent will see the content earlier and the mutation observer is
             // not used.
             name: 'Parent, async',
-            // only: true,
             url: '/e2e/event-parent-async.html',
             events: [
                 'TestParent [undefined] constructor',
@@ -56,7 +74,6 @@ describe('Event order is correct', () => {
             // important that the parent sees all content before `onParse()`
             // is called.
             name: 'Parent, sync',
-            // only: true,
             url: '/e2e/event-parent-sync.html',
             events: [
                 'TestParent [undefined] constructor',
@@ -82,7 +99,6 @@ describe('Event order is correct', () => {
             // "from-template" contains "test-child-slot" through content
             // projection and <slot>.
             name: 'Parent, slot, async',
-            // only: true,
             url: '/e2e/event-parent-slot-async.html',
             events: [
                 'TestParentSlot [undefined] constructor',
@@ -107,7 +123,6 @@ describe('Event order is correct', () => {
             // "from-template" contains "test-child-slot" through content
             // projection and <slot>.
             name: 'Parent, slot, sync',
-            // only: true,
             url: '/e2e/event-parent-slot-sync.html',
             events: [
                 'TestParentSlot [undefined] constructor',
@@ -136,7 +151,6 @@ describe('Event order is correct', () => {
             //
             // * onDestroy calls go from top to bottom.
             name: 'Parent, slot-like, async',
-            // only: true,
             url: '/e2e/event-parent-slot-like-async.html',
             events: [
                 'TestParentSlotLike [undefined] constructor',
@@ -168,7 +182,6 @@ describe('Event order is correct', () => {
             //
             // * onDestroy calls go from top to bottom.
             name: 'Parent, slot-like, sync',
-            // only: true,
             url: '/e2e/event-parent-slot-like-sync.html',
             events: [
                 'TestParentSlotLike [undefined] constructor',
@@ -198,7 +211,6 @@ describe('Event order is correct', () => {
             // * Grandparent sees content
             // * onDestroy calls are from grandparent to parent to child
             name: 'Grandparent, async',
-            // only: true,
             url: '/e2e/event-grandparent-async.html',
             events: [
                 'TestGrandparent [undefined] constructor',
@@ -231,7 +243,6 @@ describe('Event order is correct', () => {
             // * Grandparent sees content
             // * onDestroy calls are from grandparent to parent to child
             name: 'Grandparent, sync',
-            // only: true,
             url: '/e2e/event-grandparent-sync.html',
             events: [
                 'TestGrandparent [undefined] constructor',
@@ -264,26 +275,22 @@ describe('Event order is correct', () => {
     ];
 
     for (const test of tests) {
-        const testMethod = 'only' in test ? it.only : it;
-        testMethod(test.name, () => {
-            cy.visit(test.url);
-            cy.get('#events').should(
-                'have.text',
-                test.events.join('\n') + '\n'
-            );
+        it(test.name, async () => {
+            const doc = await loadPage(test.url);
+            await poll(() => events(doc)).toBe(test.events.join('\n') + '\n');
         });
     }
 
-    it('handles onChange events', () => {
-        cy.visit('/e2e/event-parent-onchange.html');
-        cy.get('#childA').should('have.text', '0');
-        cy.get('#childP').should('have.text', '5');
-        cy.get('#updateA').click();
-        cy.get('#updateP').click();
-        cy.get('#childA').should('have.text', '1');
-        cy.get('#childP').should('have.text', '6');
-        cy.get('#events').should(
-            'have.text',
+    it('handles onChange events', async () => {
+        const doc = await loadPage('/e2e/event-parent-onchange.html');
+        const text = (id: string) => doc.getElementById(id)?.textContent;
+        await poll(() => text('childA')).toBe('0');
+        await poll(() => text('childP')).toBe('5');
+        doc.getElementById('updateA')!.click();
+        doc.getElementById('updateP')!.click();
+        await poll(() => text('childA')).toBe('1');
+        await poll(() => text('childP')).toBe('6');
+        await poll(() => text('events')).toBe(
             `TestParentOnchange [undefined] constructor
 TestParentOnchange [parent-onchange] onInit
 TestParentOnchange [parent-onchange] onParse

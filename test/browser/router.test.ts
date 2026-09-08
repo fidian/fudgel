@@ -1,4 +1,6 @@
+import { describe, beforeEach, expect, it } from 'vitest';
 import { Component, defineRouterComponent } from '../../src/fudgel.js';
+import { $, click, expectAttr, expectExists, expectMissing, expectText, expectValue, mount } from '../support/dom.js';
 
 defineRouterComponent('app-router');
 
@@ -27,7 +29,7 @@ defineRouterComponent('app-router');
         </div>
     </app-router>
     <div><a id="startOver" href="/">Start Over</a></div>
-    `
+    `,
 })
 class TestApplicationComponent {
     historyLength = -1;
@@ -51,10 +53,10 @@ class TestApplicationComponent {
     template: `
         id attribute is <span id="id">{{id}}</span><br />
         <button @click.stop.prevent="goBack()">Go Back</button>
-    `
+    `,
 })
 class TestComponent {
-    id;
+    id: string;
 
     goBack() {
         history.back();
@@ -69,7 +71,7 @@ class TestComponent {
         <button id="forward" @click.stop.prevent="history.forward()">history.forward()</button><br />
         <button id="pushState" @click.stop.prevent="history.pushState(null, '', '/')">history.pushState(null, '', '/')</button><br />
         Back to the <a href="/">default route</a>
-    `
+    `,
 })
 class TestHistoryComponent {
     history = history;
@@ -91,102 +93,99 @@ class TestHistoryComponent {
                 </div>
             </template>
         </app-router>
-    `
+    `,
 })
 export class TestTemplate {}
 
 let testHistoryInits = 0;
 
 describe('router', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         history.pushState(null, null, '/');
-        cy.mount('<test-application></test-application>');
+        await mount('<test-application></test-application>');
     });
 
-    it('routes with links and sets attributes', () => {
+    it('routes with links and sets attributes', async () => {
         // Show the default page
-        cy.get('#page1').should('not.exist');
-        cy.get('test-component').should('not.exist');
-        cy.get('#default').should('exist');
-        cy.get('#notShown').should('not.exist');
+        await expectMissing('#page1');
+        await expectMissing('test-component');
+        await expectExists('#default');
+        await expectMissing('#notShown');
 
         // Go to page 1
-        cy.get('a#page1link').click();
-        cy.get('#page1').should('exist');
-        cy.get('test-component').should('not.exist');
-        cy.get('#default').should('not.exist');
-        cy.get('#notShown').should('not.exist');
+        await click('a#page1link');
+        await expectExists('#page1');
+        await expectMissing('test-component');
+        await expectMissing('#default');
+        await expectMissing('#notShown');
 
         // Go to the detail component
-        cy.get('a#testingId').click();
-        cy.get('#page1').should('not.exist');
-        cy.get('test-component').should('exist');
-        cy.get('#default').should('not.exist');
-        cy.get('#notShown').should('not.exist');
+        await click('a#testingId');
+        await expectMissing('#page1');
+        await expectExists('test-component');
+        await expectMissing('#default');
+        await expectMissing('#notShown');
 
         // Confirm the attribute contains the matching path segment
-        cy.get('#id').should('have.text', 'testingId');
+        await expectText('#id', 'testingId');
 
         // Back to page 1
-        cy.get('button').click();
+        await click('button');
 
         // Go to the detail component with a deeper route
-        cy.get('a#deeper').click();
-        cy.get('#page1').should('not.exist');
-        cy.get('test-component').should('exist');
-        cy.get('#default').should('not.exist');
-        cy.get('#notShown').should('not.exist');
+        await click('a#deeper');
+        await expectMissing('#page1');
+        await expectExists('test-component');
+        await expectMissing('#default');
+        await expectMissing('#notShown');
 
         // Confirm the attribute only shows the first matching path segment
-        cy.get('#id').should('have.text', 'deeper');
+        await expectText('#id', 'deeper');
 
         // Back to page 1
-        cy.get('button').click()
+        await click('button');
 
         // Verify that a slash is ignored at the end of a route
-        cy.get('#slash').click();
-        cy.get('#location').should('have.text', '/page1/');
-        cy.get('#page1').should('exist');
-        cy.get('test-component').should('not.exist');
+        await click('#slash');
+        await expectText('#location', '/page1/');
+        await expectExists('#page1');
+        await expectMissing('test-component');
 
         // Back to default route
-        cy.get('#startOver').click();
+        await click('#startOver');
     });
 
-    it('navigates correctly with history', () => {
+    it('navigates correctly with history', async () => {
         // Confirm components do not get instantiated over and over
-        let initsBefore;
-        cy.get('a#page2link').click();
-        cy.get('#inits').then(() => {
-            initsBefore = testHistoryInits;
-        });
-        cy.get('#deeper').click();
-        cy.get('#deeper').click();
-        cy.get('#inits').then(() => {
-            expect(testHistoryInits).to.equal(initsBefore);
-        });
+        await click('a#page2link');
+        await expectExists('#inits');
+        const initsBefore = testHistoryInits;
+        await click('#deeper');
+        await click('#deeper');
+        await expectExists('#inits');
+        expect(testHistoryInits).toBe(initsBefore);
 
         // Confirm navigation back pops from the state
-        cy.get('#location').should('have.text', '/page2/deeper');
-        cy.get('button#back').click();
-        cy.get('#location').should('have.text', '/page2/deeper'); // not changed visibly
-        cy.get('button#back').click();
-        cy.get('#location').should('have.text', '/page2');
-        cy.get('button#forward').click();
-        cy.get('#location').should('have.text', '/page2/deeper');
-        cy.get('button#pushState').click();
-        cy.get('#location').should('have.text', '/');
+        await expectText('#location', '/page2/deeper');
+        await click('button#back');
+        await expectText('#location', '/page2/deeper'); // not changed visibly
+        await click('button#back');
+        await expectText('#location', '/page2');
+        await click('button#forward');
+        await expectText('#location', '/page2/deeper');
+        await click('button#pushState');
+        await expectText('#location', '/');
     });
 
-    it('works with a <template> element', () => {
+    it('works with a <template> element', async () => {
         // Navigate to the template
-        cy.get('a#page3link').click();
-        cy.get('#page3default').should('exist');
+        await click('a#page3link');
+        await expectExists('#page3default');
 
         // Route to the test element
-        cy.get('a#page3link').click();
-        cy.get('#123').should('exist');
-        cy.get('#id').should('have.text', '123');
+        await click('a#page3link');
+        await expectExists('[id="123"]');
+        await expectText('#id', '123');
     });
 });
 
@@ -273,96 +272,97 @@ class TestQueryApplicationComponent {
 }
 
 describe('router with query strings and fragments', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         history.pushState(null, null, '/');
-        cy.mount('<test-query-application></test-query-application>');
+        await mount('<test-query-application></test-query-application>');
     });
 
-    it('routes a plain path, as a baseline', () => {
-        cy.get('a#plain').click();
-        cy.get('#orders').should('exist');
-        cy.get('#fallback').should('not.exist');
+    it('routes a plain path, as a baseline', async () => {
+        await click('a#plain');
+        await expectExists('#orders');
+        await expectMissing('#fallback');
     });
 
-    it('routes a link carrying a query string, and keeps the query', () => {
+    it('routes a link carrying a query string, and keeps the query', async () => {
         // A query string selects within a route rather than changing which
         // route matched, so this is still the orders route.
-        cy.get('a#withQuery').click();
-        cy.get('#orders').should('exist');
-        cy.get('#fallback').should('not.exist');
-        cy.get('#search').should('have.text', '?status=open&sort=date');
+        await click('a#withQuery');
+        await expectExists('#orders');
+        await expectMissing('#fallback');
+        await expectText('#search', '?status=open&sort=date');
     });
 
-    it('routes a link carrying a fragment, and keeps the fragment', () => {
-        cy.get('a#withHash').click();
-        cy.get('#orders').should('exist');
-        cy.get('#fallback').should('not.exist');
-        cy.get('#hash').should('have.text', '#totals');
+    it('routes a link carrying a fragment, and keeps the fragment', async () => {
+        await click('a#withHash');
+        await expectExists('#orders');
+        await expectMissing('#fallback');
+        await expectText('#hash', '#totals');
     });
 
-    it('matches path parameters with a query and a fragment present', () => {
-        cy.get('a#withBoth').click();
-        cy.get('test-component').should('exist');
+    it('matches path parameters with a query and a fragment present', async () => {
+        await click('a#withBoth');
+        await expectExists('test-component');
         // The parameter comes from the path, not from the query beside it.
-        cy.get('#id').should('have.text', '7');
-        cy.get('#search').should('have.text', '?status=open');
-        cy.get('#hash').should('have.text', '#totals');
+        await expectText('#id', '7');
+        await expectText('#search', '?status=open');
+        await expectText('#hash', '#totals');
     });
 
-    it('routes a pushState carrying a query string', () => {
+    it('routes a pushState carrying a query string', async () => {
         // The patched history methods receive whatever URL the application
         // passed, which is where an unstripped query used to fall through to
         // the catch-all route.
-        cy.get('button#pushQuery').click();
-        cy.get('#orders').should('exist');
-        cy.get('#fallback').should('not.exist');
-        cy.get('#path').should('have.text', '/orders');
-        cy.get('#search').should('have.text', '?status=open');
+        await click('button#pushQuery');
+        await expectExists('#orders');
+        await expectMissing('#fallback');
+        await expectText('#path', '/orders');
+        await expectText('#search', '?status=open');
     });
 
-    it('reports the path alone in routeChange', () => {
-        cy.get('a#withBoth').click();
-        cy.get('#routeChange').should('have.text', '/orders/7');
+    it('reports the path alone in routeChange', async () => {
+        await click('a#withBoth');
+        await expectText('#routeChange', '/orders/7');
     });
 });
 
 describe('router query parameters', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         history.pushState(null, null, '/');
-        cy.mount('<test-query-application></test-query-application>');
+        await mount('<test-query-application></test-query-application>');
     });
 
-    it('sets a declared parameter as an attribute', () => {
-        cy.get('button#filtered').click();
-        cy.get('#qStatus').should('have.text', 'open');
-        cy.get('#qSort').should('have.text', 'date');
+    it('sets a declared parameter as an attribute', async () => {
+        await click('button#filtered');
+        await expectText('#qStatus', 'open');
+        await expectText('#qSort', 'date');
     });
 
-    it('ignores a parameter the route did not declare', () => {
-        cy.get('button#filtered').click();
-        cy.get('query-target').should('not.have.attr', 'other');
+    it('ignores a parameter the route did not declare', async () => {
+        await click('button#filtered');
+        await expectExists('query-target');
+        await expectAttr('query-target', 'other', null);
     });
 
-    it('camel case in the list becomes a dashed attribute', () => {
-        cy.get('button#filtered').click();
-        cy.get('query-target').should('have.attr', 'sort-order', 'date');
+    it('camel case in the list becomes a dashed attribute', async () => {
+        await click('button#filtered');
+        await expectAttr('query-target', 'sort-order', 'date');
     });
 
-    it('removes the attribute when the parameter goes away', () => {
-        cy.get('button#filtered').click();
-        cy.get('#qSort').should('have.text', 'date');
+    it('removes the attribute when the parameter goes away', async () => {
+        await click('button#filtered');
+        await expectText('#qSort', 'date');
 
         // Same route, fewer parameters. The element is reused, so a stale
         // attribute would otherwise linger.
-        cy.get('button#filteredFewer').click();
-        cy.get('#qStatus').should('have.text', 'closed');
-        cy.get('query-target').should('not.have.attr', 'sort-order');
+        await click('button#filteredFewer');
+        await expectText('#qStatus', 'closed');
+        await expectAttr('query-target', 'sort-order', null);
     });
 
-    it('takes the first value of a repeated parameter', () => {
+    it('takes the first value of a repeated parameter', async () => {
         // An attribute holds one string. URLSearchParams.get() answers with
         // the first, and anything needing every value reads location.search.
-        cy.get('button#filteredRepeated').click();
-        cy.get('#qTag').should('have.text', 'one');
+        await click('button#filteredRepeated');
+        await expectText('#qTag', 'one');
     });
 });

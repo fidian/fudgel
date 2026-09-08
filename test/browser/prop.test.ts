@@ -1,22 +1,17 @@
+import { describe, it } from 'vitest';
 import { Component, component, html, update } from '../../src/fudgel.js';
+import { click, expectText, expectValue, mount, $$ } from '../support/dom.js';
 
-@Component('show-prop', {
-    prop: ['prop'],
-    template: '{{prop}}',
-})
+@Component('show-prop', { prop: ['prop'], template: '{{prop}}' })
 class ShowProp {
     prop = 'not yet replaced';
 }
 
-component('test-string', {
-    template: '<show-prop .prop="\'some value\'"></show-prop>',
-});
+component('test-string', { template: '<show-prop .prop="\'some value\'"></show-prop>' });
 
 component(
     'test-async',
-    {
-        template: '<show-prop .prop="value"></show-prop>',
-    },
+    { template: '<show-prop .prop="value"></show-prop>' },
     class {
         value = 'before-update';
 
@@ -26,14 +21,9 @@ component(
     }
 );
 
-let trackInstance = 0;
-
-@Component('test-scope-item', {
-    prop: ['prop'],
-    template: 'Item: {{propName}}',
-})
+@Component('test-scope-item', { prop: ['prop'], template: 'Item: {{propName}}' })
 class TestScopeItem {
-    prop;
+    prop: { name: string } | undefined;
     propName = 'no prop set';
     onChange() {
         this.propName = this.prop ? this.prop.name : 'no prop set';
@@ -53,7 +43,7 @@ component(
             ><button id="updateAll" @click="updateAll()">updateAll</button>`,
     },
     class TestScope {
-        list = [];
+        list: { name: string }[] = [];
         name = 'test-scope';
 
         onInit() {
@@ -81,10 +71,7 @@ component(
     }
 );
 
-@Component('test-update-child', {
-    prop: ['childValue'],
-    template: '{{childValue}}',
-})
+@Component('test-update-child', { prop: ['childValue'], template: '{{childValue}}' })
 class TestUpdateChildComponent {
     childValue = 'initialValue';
 }
@@ -101,46 +88,43 @@ class TestUpdateParentComponent {
     }
 }
 
+// Every test-scope-item's text, joined, like Cypress's have.text on a set
+const items = () => $$('test-scope-item').map(e => e.textContent).join('');
+
 describe('prop', () => {
-    it('assigns a string property', () => {
-        cy.mount('<test-string></test-string>');
-        cy.get('show-prop').should('have.text', 'some value');
+    it('assigns a string property', async () => {
+        await mount('<test-string></test-string>');
+        await expectText('show-prop', 'some value');
     });
-    it('shows updates to a class property', () => {
-        cy.mount('<test-async></test-async>');
-        cy.get('show-prop').should('have.text', 'after-update');
+
+    it('shows updates to a class property', async () => {
+        await mount('<test-async></test-async>');
+        await expectText('show-prop', 'after-update');
     });
-    it('shows items from a list', () => {
-        cy.mount('<test-scope></test-scope>');
-        cy.get('test-scope-item').should('have.text', 'Item: after-update');
+
+    it('shows items from a list', async () => {
+        await mount('<test-scope></test-scope>');
+        await expectValue(items, 'Item: after-update');
 
         // Add a second item
-        cy.get('#updateList').click();
-        cy.get('test-scope-item').should(
-            'have.text',
-            'Item: after-updateItem: second-item'
-        );
+        await click('#updateList');
+        await expectValue(items, 'Item: after-updateItem: second-item');
 
         // Update the first item and manually redraw, but this does not update
         // the label.
-        cy.get('#updateName').click();
-        cy.get('test-scope-item').should(
-            'have.text',
-            'Item: after-updateItem: second-item'
-        );
+        await click('#updateName');
+        await expectValue(items, 'Item: after-updateItem: second-item');
 
         // Update everything in all components
-        cy.get('#updateAll').click();
-        cy.get('test-scope-item').should(
-            'have.text',
-            'Item: updatedNameItem: second-item'
-        );
+        await click('#updateAll');
+        await expectValue(items, 'Item: updatedNameItem: second-item');
     });
-    it('triggers onUpdate', () => {
-        cy.mount('<test-update-parent></test-update-parent>');
-        cy.get('test-update-child').should('have.text', 'fromParent');
-        cy.get('button').click();
-        cy.get('test-update-child').should('have.text', 'afterUpdate');
+
+    it('triggers onUpdate', async () => {
+        await mount('<test-update-parent></test-update-parent>');
+        await expectText('test-update-child', 'fromParent');
+        await click('button');
+        await expectText('test-update-child', 'afterUpdate');
     });
 });
 
@@ -184,10 +168,10 @@ class DelayedGrandparentComponent {
 }
 
 describe('delayed prop updates', () => {
-    it('updates a prop in a child component after the parent updates', () => {
-        cy.mount('<delayed-grandparent></delayed-grandparent>');
-        cy.get('delayed-child').should('have.text', 'initial');
-        cy.get('button').click();
-        cy.get('delayed-child').should('have.text', 'updated');
+    it('updates a prop in a child component after the parent updates', async () => {
+        await mount('<delayed-grandparent></delayed-grandparent>');
+        await expectText('delayed-child', 'initial');
+        await click('button');
+        await expectText('delayed-child', 'updated');
     });
 });

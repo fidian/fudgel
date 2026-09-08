@@ -31,8 +31,9 @@
         "reinstall": "rm -rf node_modules/ package-lock.json && npm install",
         "start": "light-server -s docs/ -p 8080",
         "test": "scripts/test",
-        "test:interactive": "start-server-and-test start http://localhost:8080 'cypress open'",
-        "typecheck": "tsc -p tsconfig.type-tests.json"
+        "typecheck": "tsc -p tsconfig.type-tests.json",
+        "test:watch": "vitest",
+        "test:interactive": "vitest --project browser --browser.headless=false"
     },
     "main": "dist/fudgel.js",
     "module": "dist/fudgel.mjs",
@@ -45,21 +46,17 @@
     "sideEffects": false,
     "devDependencies": {
         "@types/node": "^26.4.0",
+        "@vitest/browser-playwright": "^5.0.0",
         "agadoo": "^3.0.0",
-        "cypress": "^15.21.1",
-        "cypress-ct-custom-elements": "^1.0.0",
-        "cypress-vite": "^1.10.2",
         "light-server": "^2.9.1",
         "marked": "^18.0.11",
+        "playwright": "^1.62.1",
         "rollup": "^4.63.1",
-        "start-server-and-test": "^3.0.12",
         "terser": "^5.51.2",
         "typescript": "^7.0.2",
         "ultramatter": "^0.0.4",
         "ventojs": "^2.4.0",
-        "vite": "^8.2.2"
-    },
-    "allowScripts": {
-        "cypress@15.21.1": true
+        "vite": "^8.2.2",
+        "vitest": "^5.0.0"
     }
 }

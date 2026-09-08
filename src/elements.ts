@@ -1,11 +1,14 @@
 /**
  * Shorthands for creating elements. Using these is better for minification.
  *
- * Both `doc` and `win` have a fallback to an object to support unit testing of
- * some things in a non-browser environment, such as `di()`.
+ * `win` falls back to the global object so the library can be imported where
+ * there is no window, such as a Node test of a service that uses `di()` or
+ * of the expression parser. `doc` is then undefined, and every DOM path stays
+ * unreachable until a component is defined in a real browser.
  */
-export const doc = document;
-export const win = window;
+export const win = (typeof window != 'undefined' ? window : globalThis) as Window &
+    typeof globalThis;
+export const doc = win.document;
 
 export const cloneNode = (node: Node) => node.cloneNode(true) as HTMLElement;
 

@@ -1,20 +1,18 @@
+import { describe, it } from 'vitest';
 import { Component, metadata } from '../../src/fudgel.js';
+import { expectText, mount } from '../support/dom.js';
 
 const date = new Date();
 
-@Component('custom-element', {
-    template: '<span id="test">^{{output}}$</span>'
-})
+@Component('custom-element', { template: '<span id="test">^{{output}}$</span>' })
 class CustomElement {
-    array = [ 1, "test" ];
+    array = [1, 'test'];
     date = date;
     emptyString = '';
     false = false;
     null = null;
     number = 1;
-    object = {
-        testObject: true
-    };
+    object = { testObject: true };
     output: any = 'This was not changed during the constructor';
     string = 'a string';
     stringWithSpaces = ' space before and after ';
@@ -47,9 +45,9 @@ describe('stringification', () => {
     };
 
     for (const [property, expected] of Object.entries(scenarios)) {
-        it(`works with ${property}`, () => {
-            cy.mount(`<custom-element property="${property}"></custom-element>`);
-            cy.get('#test').should('have.text', expected);
+        it(`works with ${property}`, async () => {
+            await mount(`<custom-element property="${property}"></custom-element>`);
+            await expectText('#test', expected);
         });
     }
 });

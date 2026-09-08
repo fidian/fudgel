@@ -119,11 +119,13 @@
     /**
      * Shorthands for creating elements. Using these is better for minification.
      *
-     * Both `doc` and `win` have a fallback to an object to support unit testing of
-     * some things in a non-browser environment, such as `di()`.
+     * `win` falls back to the global object so the library can be imported where
+     * there is no window, such as a Node test of a service that uses `di()` or
+     * of the expression parser. `doc` is then undefined, and every DOM path stays
+     * unreachable until a component is defined in a real browser.
      */
-    const doc = document;
-    const win = window;
+    const win = (typeof window != 'undefined' ? window : globalThis);
+    const doc = win.document;
     const cloneNode = (node) => node.cloneNode(true);
     const createElement = (name) => doc.createElement(name);
     const createTextNode = (content) => doc.createTextNode(content);
@@ -1493,7 +1495,10 @@
         registered.set(Key, value);
     };
 
-    class RouterComponent extends HTMLElement {
+    // Extending a global that does not exist would throw while the module is
+    // still being evaluated, which is the one thing a Node import must survive.
+    const HTMLElementBase = (win.HTMLElement || Object);
+    class RouterComponent extends HTMLElementBase {
         constructor() {
             super();
             this._fragment = createDocumentFragment();

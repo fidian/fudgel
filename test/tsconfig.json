@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "useDefineForClassFields": true,
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "target": "esnext",
+        "strict": false,
+        "types": ["node"]
+    },
+    "include": ["**/*.ts"]
+}

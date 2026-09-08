@@ -24,7 +24,11 @@ interface MatchedRoute {
     q: string[];
 }
 
-export class RouterComponent extends HTMLElement {
+// Extending a global that does not exist would throw while the module is
+// still being evaluated, which is the one thing a Node import must survive.
+const HTMLElementBase = (win.HTMLElement || Object) as typeof HTMLElement;
+
+export class RouterComponent extends HTMLElementBase {
     private _fragment = createDocumentFragment();
     private _lastMatched: HTMLElement[] = [];
     private _routeElements: HTMLElement[] = [];

@@ -1,5 +1,5 @@
 [
-{ "name": "Everything (ESM)", "minified": 15786, "gzipped": 6864 },
-{ "name": "Everything (UMD)", "minified": 15953, "gzipped": 6927 },
-{ "name": "component()", "minified": 11669, "gzipped": 5233 }
+{ "name": "Everything (ESM)", "minified": 15842, "gzipped": 6899 },
+{ "name": "Everything (UMD)", "minified": 16009, "gzipped": 6951 },
+{ "name": "component()", "minified": 11709, "gzipped": 5253 }
 ]
