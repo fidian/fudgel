@@ -17,7 +17,7 @@ component('child-element', {
     useShadow: true
 }, class {
     clicked() {
-        // Get the actual DOM element (not rootElement)
+        // Get the custom element in the DOM (the host, not the root)
         const childElement = this[metadata].host;
 
         if (!childElement) {

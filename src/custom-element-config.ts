@@ -38,6 +38,7 @@ export interface CustomElementConfigInternal {
     cssClassName: string;
     prop: Set<string>;
     style: string;
+    tag: string;
     template: string;
     useShadow?: boolean;
 }

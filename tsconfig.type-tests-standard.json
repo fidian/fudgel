@@ -1,0 +1,8 @@
+{
+    "extends": "./tsconfig.type-tests.json",
+    "compilerOptions": {
+        "experimentalDecorators": false,
+        "useDefineForClassFields": true,
+        "target": "ES2022"
+    }
+}
