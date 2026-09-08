@@ -43,3 +43,27 @@ describe('text', () => {
         await expectText('#two', 'TWO');
     });
 });
+
+component(
+    'uses-globals',
+    {
+        template:
+            '<span id="max">{{ Math.max(1, 2) }}</span><span id="json">{{ JSON.stringify(obj) }}</span><span id="date">{{ formatted(Date.UTC(2020, 0, 1)) }}</span>',
+    },
+    class {
+        obj = { a: 1 };
+
+        formatted(ms: number) {
+            return new Date(ms).toISOString();
+        }
+    }
+);
+
+describe('a global in a binding', () => {
+    it('resolves to the global rather than to an undefined controller property', async () => {
+        await mount('<uses-globals></uses-globals>');
+        await expectText('#max', '2');
+        await expectText('#json', '{"a":1}');
+        await expectText('#date', '2020-01-01T00:00:00.000Z');
+    });
+});

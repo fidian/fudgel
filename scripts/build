@@ -32,6 +32,13 @@ status "Build UMD"
 rollup dist/fudgel.js --file dist/fudgel.umd.js --format umd --name Fudgel
 runTerser -o dist/fudgel.umd.min.js dist/fudgel.umd.js
 gzip -9 -c dist/fudgel.umd.min.js > dist/fudgel.umd.min.js.gz
+# A CommonJS entry; the .js files in dist are ES modules under "type": "module".
+cp dist/fudgel.umd.js dist/fudgel.cjs
+
+status "Build dev module"
+rollup --config rollup.dev.config.mjs
+runTerser --module -o dist/fudgel-dev.min.mjs dist/fudgel-dev.mjs
+gzip -9 -c dist/fudgel-dev.min.mjs > dist/fudgel-dev.min.mjs.gz
 
 for NAME in component; do
     status "Extracting just $NAME"
@@ -55,7 +62,8 @@ cp dist/fudgel.min.mjs docs/fudgel.min.js
     echo '['
     echo "$(sizeAsJson "Everything (ESM)" fudgel.min.mjs),"
     echo "$(sizeAsJson "Everything (UMD)" fudgel.umd.min.js),"
-    echo "$(sizeAsJson "component()" only-component.min.mjs)"
+    echo "$(sizeAsJson "component()" only-component.min.mjs),"
+    echo "$(sizeAsJson "fudgel/dev (development only)" fudgel-dev.min.mjs)"
     echo ']'
 ) > docs/fudgel-sizes.json
 git diff docs/fudgel-sizes.json

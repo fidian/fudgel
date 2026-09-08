@@ -27,6 +27,7 @@ for (const file of ['dist/fudgel.min.mjs', 'dist/fudgel.umd.min.js', 'dist/only-
 
 status "Importable without a DOM"
 node -e "import('./dist/fudgel.mjs').then(m => { if (typeof m.di != 'function') { throw new Error('fudgel did not load under Node'); } })"
+node -e "if (typeof require('./dist/fudgel.cjs').di != 'function') { throw new Error('the CommonJS build did not load'); }"
 
 status "Vitest (unit under Node, browser under Chromium)"
 vitest run

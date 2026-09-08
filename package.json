@@ -35,11 +35,26 @@
         "test:watch": "vitest",
         "test:interactive": "vitest --project browser --browser.headless=false"
     },
-    "main": "dist/fudgel.js",
+    "main": "dist/fudgel.cjs",
     "module": "dist/fudgel.mjs",
     "unpkg": "dist/fudgel.umd.min.js",
     "type": "module",
     "types": "dist/fudgel.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/fudgel.d.ts",
+            "import": "./dist/fudgel.mjs",
+            "require": "./dist/fudgel.cjs",
+            "default": "./dist/fudgel.mjs"
+        },
+        "./dev": {
+            "types": "./dist/dev.d.ts",
+            "import": "./dist/fudgel-dev.mjs",
+            "default": "./dist/fudgel-dev.mjs"
+        },
+        "./dist/*": "./dist/*",
+        "./package.json": "./package.json"
+    },
     "files": [
         "dist"
     ],

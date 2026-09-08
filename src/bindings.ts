@@ -1,6 +1,7 @@
 import { Controller } from './controller-types.js';
 import { Scope } from './scope.js';
 import { Obj, hasOwn } from './util.js';
+import { win } from './elements.js';
 import { patchSetter } from './setter.js';
 import { metadata } from './symbols.js';
 
@@ -38,6 +39,15 @@ export const addBindings = (
 ) => {
     for (const binding of bindingList) {
         const target = findBindingTarget(controller, scope, binding);
+
+        // A name that is neither in scope nor on the controller but is a
+        // global, such as Math or Date, means the global. Watching it on the
+        // controller would define it there and shadow the global with
+        // undefined.
+        if (!(binding in target) && binding in win) {
+            continue;
+        }
+
         const unpatch = patchSetter(target, binding, callback);
         const offUpdate = controller[metadata]?.events.on('update', callback);
         whenRemoved(controller, node, () => {

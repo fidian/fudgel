@@ -231,6 +231,13 @@ const addBindings = (controller, node, callback, bindingList, scope) => {
     var _a;
     for (const binding of bindingList) {
         const target = findBindingTarget(controller, scope, binding);
+        // A name that is neither in scope nor on the controller but is a
+        // global, such as Math or Date, means the global. Watching it on the
+        // controller would define it there and shadow the global with
+        // undefined.
+        if (!(binding in target) && binding in win) {
+            continue;
+        }
         const unpatch = patchSetter(target, binding, callback);
         const offUpdate = (_a = controller[metadata]) === null || _a === void 0 ? void 0 : _a.events.on('update', callback);
         whenRemoved(controller, node, () => {
@@ -1684,18 +1691,19 @@ class RouterComponent extends HTMLElementBase {
         super();
         this._fragment = createDocumentFragment();
         this._lastMatched = [];
-        this._routeElements = [];
+        // The elements that define the routes, in order. Public for tooling.
+        this.routes = [];
         let children = this.children;
         let firstChild = children[0];
         if (isTemplate(firstChild)) {
             // Use the children within the template
-            this._routeElements = Array.from(firstChild.content.children);
+            this.routes = Array.from(firstChild.content.children);
         }
         else {
             // Use direct children and move elements to a document fragment
             while (children.length > 0) {
                 const element = children[0];
-                this._routeElements.push(element);
+                this.routes.push(element);
                 this._fragment.append(element);
             }
         }
@@ -1748,7 +1756,7 @@ class RouterComponent extends HTMLElementBase {
     }
     _match(url) {
         var _a;
-        for (const routeElement of this._routeElements) {
+        for (const routeElement of this.routes) {
             const path = getAttribute(routeElement, 'path') || '**';
             const regexpAttr = getAttribute(routeElement, 'regexp');
             let regexpStr = path;
@@ -1958,4 +1966,4 @@ const defineSlotComponent = (name = 'slot-like') => {
 const css = (strings, ...values) => String.raw({ raw: strings }, ...values);
 const html = css;
 
-export { Component, Emitter, RouterComponent, addDirective, allComponents, component, css, defineRouterComponent, defineSlotComponent, di, diOverride, emit, events, getAttribute, getScope, html, lifecycle, link, linkNodes, metadata, parse, setAttribute, unlink, update };
+export { Component, Emitter, RouterComponent, addDirective, allComponents, camelToDash, component, css, dashToCamel, defineRouterComponent, defineSlotComponent, di, diOverride, emit, events, generalDirectives, getAttribute, getScope, html, lifecycle, link, linkNodes, metadata, parse, setAttribute, structuralDirectives, unlink, update };

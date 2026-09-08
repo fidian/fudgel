@@ -237,6 +237,13 @@
         var _a;
         for (const binding of bindingList) {
             const target = findBindingTarget(controller, scope, binding);
+            // A name that is neither in scope nor on the controller but is a
+            // global, such as Math or Date, means the global. Watching it on the
+            // controller would define it there and shadow the global with
+            // undefined.
+            if (!(binding in target) && binding in win) {
+                continue;
+            }
             const unpatch = patchSetter(target, binding, callback);
             const offUpdate = (_a = controller[metadata]) === null || _a === void 0 ? void 0 : _a.events.on('update', callback);
             whenRemoved(controller, node, () => {
@@ -1690,18 +1697,19 @@
             super();
             this._fragment = createDocumentFragment();
             this._lastMatched = [];
-            this._routeElements = [];
+            // The elements that define the routes, in order. Public for tooling.
+            this.routes = [];
             let children = this.children;
             let firstChild = children[0];
             if (isTemplate(firstChild)) {
                 // Use the children within the template
-                this._routeElements = Array.from(firstChild.content.children);
+                this.routes = Array.from(firstChild.content.children);
             }
             else {
                 // Use direct children and move elements to a document fragment
                 while (children.length > 0) {
                     const element = children[0];
-                    this._routeElements.push(element);
+                    this.routes.push(element);
                     this._fragment.append(element);
                 }
             }
@@ -1754,7 +1762,7 @@
         }
         _match(url) {
             var _a;
-            for (const routeElement of this._routeElements) {
+            for (const routeElement of this.routes) {
                 const path = getAttribute(routeElement, 'path') || '**';
                 const regexpAttr = getAttribute(routeElement, 'regexp');
                 let regexpStr = path;
@@ -1969,14 +1977,17 @@
     exports.RouterComponent = RouterComponent;
     exports.addDirective = addDirective;
     exports.allComponents = allComponents;
+    exports.camelToDash = camelToDash;
     exports.component = component;
     exports.css = css;
+    exports.dashToCamel = dashToCamel;
     exports.defineRouterComponent = defineRouterComponent;
     exports.defineSlotComponent = defineSlotComponent;
     exports.di = di;
     exports.diOverride = diOverride;
     exports.emit = emit;
     exports.events = events;
+    exports.generalDirectives = generalDirectives;
     exports.getAttribute = getAttribute;
     exports.getScope = getScope;
     exports.html = html;
@@ -1986,6 +1997,7 @@
     exports.metadata = metadata;
     exports.parse = parse;
     exports.setAttribute = setAttribute;
+    exports.structuralDirectives = structuralDirectives;
     exports.unlink = unlink;
     exports.update = update;
 

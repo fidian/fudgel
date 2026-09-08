@@ -100,7 +100,8 @@ const install = () => {
 export class RouterComponent extends HTMLElementBase {
     private _fragment = createDocumentFragment();
     private _lastMatched: HTMLElement[] = [];
-    private _routeElements: HTMLElement[] = [];
+    // The elements that define the routes, in order. Public for tooling.
+    routes: HTMLElement[] = [];
 
     constructor() {
         super();
@@ -109,14 +110,14 @@ export class RouterComponent extends HTMLElementBase {
 
         if (isTemplate(firstChild)) {
             // Use the children within the template
-            this._routeElements = Array.from(
+            this.routes = Array.from(
                 (firstChild as HTMLTemplateElement).content.children
             ) as HTMLElement[];
         } else {
             // Use direct children and move elements to a document fragment
             while (children.length > 0) {
                 const element = children[0];
-                this._routeElements.push(element as HTMLElement);
+                this.routes.push(element as HTMLElement);
                 this._fragment.append(element);
             }
         }
@@ -182,7 +183,7 @@ export class RouterComponent extends HTMLElementBase {
     }
 
     private _match(url: string): MatchedRoute | undefined {
-        for (const routeElement of this._routeElements) {
+        for (const routeElement of this.routes) {
             const path = getAttribute(routeElement, 'path') || '**';
             const regexpAttr = getAttribute(routeElement, 'regexp');
             let regexpStr = path;
