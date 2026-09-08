@@ -95,6 +95,7 @@
     const pascalToDash = (pascal) => camelToDash(pascal.replace(/^\p{Lu}/gu, match => match.toLowerCase()));
     const toString = (value) => `${value ?? ''}`;
     const isString = (x) => typeof x == 'string';
+    const isFunction = (x) => typeof x == 'function';
     const getAttribute = (node, name) => node.getAttribute(name);
     const hasOwn = (obj, prop) => Obj.prototype.hasOwnProperty.call(obj, prop);
     // In the future, we could use the newer method. As of right now, it's only
@@ -111,9 +112,13 @@
             node.removeAttribute(name);
         }
     };
-    // Return the entries of an Iterable or fall back on Object.entries for
-    // normal objects and arrays.
-    const entries = (iterable) => iterable.entries?.() ?? Obj.entries(iterable);
+    // Return [key, value] pairs for a Map, Set, array, other iterable, or plain
+    // object. Only a real iterable is trusted to have an entries() method; a
+    // plain object may carry any key, including one called "entries".
+    const entries = (x) => isFunction(x?.[Symbol.iterator])
+        ? // Map, Set, Array and NodeList have entries(); spread the rest.
+            (isFunction(x.entries) ? x : [...x]).entries()
+        : Obj.entries(x || {});
     const isTemplate = (node) => node.nodeName == 'TEMPLATE';
 
     /**
@@ -153,55 +158,82 @@
 
     const patchedSetters = shorthandWeakMap();
     const removeSetters = (obj) => {
-        for (const [_, callbacks] of entries(patchedSetters(obj) || {})) {
-            callbacks.length = 0;
+        for (const callbacks of Obj.values(patchedSetters(obj) || {})) {
+            callbacks.clear();
         }
     };
+    // Watch assignments to obj[property]. Returns a function that stops watching.
     const patchSetter = (obj, property, callback) => {
         const trackingObject = patchedSetters(obj) || patchedSetters(obj, {});
         let callbacks = trackingObject[property];
         if (!callbacks) {
-            let value = obj[property];
-            const desc = Obj.getOwnPropertyDescriptor(obj, property) || {};
-            callbacks = [];
-            trackingObject[property] = callbacks;
+            callbacks = trackingObject[property] = newSet();
+            // Find the property wherever it is defined so an accessor, on the
+            // instance or on the prototype, keeps being an accessor rather than
+            // a value copied once at bind time.
+            let proto = obj;
+            let desc;
+            while (proto &&
+                !(desc = Obj.getOwnPropertyDescriptor(proto, property))) {
+                proto = Obj.getPrototypeOf(proto);
+            }
+            const get = desc?.get;
+            const set = desc?.set;
+            let value = get ? undefined : obj[property];
+            const read = function () {
+                return get ? get.call(this) : value;
+            };
             Obj.defineProperty(obj, property, {
-                get: desc.get || (() => value),
-                set: function (newValue) {
-                    const oldValue = value;
+                configurable: true,
+                get: read,
+                set(newValue) {
+                    const oldValue = read.call(this);
                     // Distinguish between different NaN values or +0 and -0.
                     if (!Obj.is(newValue, oldValue)) {
-                        desc.set?.(newValue);
-                        value = newValue;
-                        for (const cb of callbacks) {
-                            cb(newValue, oldValue);
+                        set ? set.call(this, newValue) : get || (value = newValue);
+                        // Walk a copy: a callback may tear down content whose
+                        // callbacks are still ahead in the set (skip those) or
+                        // build content that adds callbacks (leave those for the
+                        // next change; they were just evaluated).
+                        for (const cb of [...callbacks]) {
+                            callbacks.has(cb) && cb(newValue, oldValue);
                         }
                     }
                 },
             });
         }
-        callbacks.push(callback);
+        callbacks.add(callback);
+        return () => callbacks.delete(callback);
     };
 
+    // Run `cleanup` once, when a directive removes `node` or the controller is
+    // destroyed, and drop the listeners that were waiting for that moment.
+    const whenRemoved = (controller, node, cleanup) => {
+        const events = controller[metadata]?.events;
+        const done = () => {
+            cleanup();
+            for (const remover of removers) {
+                remover?.();
+            }
+        };
+        const removers = [
+            events?.on('unlink', (removedNode) => {
+                if (removedNode.contains(node)) {
+                    done();
+                }
+            }),
+            events?.on('destroy', done),
+        ];
+    };
     const addBindings = (controller, node, callback, bindingList, scope) => {
         for (const binding of bindingList) {
             const target = findBindingTarget(controller, scope, binding);
-            patchSetter(target, binding, callback);
-            const onDestroy = () => {
-                for (const remover of removers) {
-                    remover?.();
-                }
-            };
-            const events = controller[metadata]?.events;
-            const removers = [
-                events?.on('update', callback),
-                events?.on('unlink', (removedNode) => {
-                    if (removedNode.contains(node)) {
-                        onDestroy();
-                    }
-                }),
-                events?.on('destroy', onDestroy)
-            ];
+            const unpatch = patchSetter(target, binding, callback);
+            const offUpdate = controller[metadata]?.events.on('update', callback);
+            whenRemoved(controller, node, () => {
+                unpatch();
+                offUpdate?.();
+            });
         }
     };
     const findBindingTarget = (controller, scope, binding) => hasOwn(scope, binding)
@@ -795,7 +827,7 @@
     const assembleCall = (splitResult) => splitResult
         ? [
             (...roots) => splitResult[0]
-                .map(x => toString(x?.call ? x(...roots) : x))
+                .map(x => toString(isFunction(x) ? x(...roots) : x))
                 .join(''),
             splitResult[1],
         ]
@@ -896,7 +928,7 @@
         if (checkModifier('document') || modifierSet.has('outside')) {
             eventTarget = doc;
         }
-        eventTarget.addEventListener(eventName, event => {
+        const listener = (event) => {
             if (![...modifierSet].some(modifier => (modifierGuards[modifier] ||
                 ((e) => pascalToDash(e.key) !==
                     (modifier.match(/^code-\d+$/)
@@ -904,7 +936,11 @@
                         : modifier)))(event, node, modifierSet))) {
                 fn(event);
             }
-        }, options);
+        };
+        eventTarget.addEventListener(eventName, listener, options);
+        // A listener on the window or document would otherwise outlive the
+        // element, and keep firing for it, forever.
+        whenRemoved(controller, node, () => eventTarget.removeEventListener(eventName, listener, options));
         setAttribute(node, attrName);
     };
 
@@ -1403,17 +1439,20 @@
             }
             disconnectedCallback() {
                 const controller = this[metadata];
-                lifecycle(controller, 'destroy');
-                // Remove the controller from the global list
-                allControllers.delete(controller);
-                // Remove setters on the element.
-                // It is not necessary to remove setters on the controller because
-                // all references will be lost.
-                removeSetters(this);
-                // Remove the controller's metadata
-                delete controller[metadata];
-                // Remove the link to the controller
-                delete this[metadata];
+                // Absent when the controller's constructor threw.
+                if (controller) {
+                    lifecycle(controller, 'destroy');
+                    // Remove the controller from the global list
+                    allControllers.delete(controller);
+                    // Remove setters on the element.
+                    // It is not necessary to remove setters on the controller because
+                    // all references will be lost.
+                    removeSetters(this);
+                    // Remove the controller's metadata
+                    delete controller[metadata];
+                    // Remove the link to the controller
+                    delete this[metadata];
+                }
             }
         }
         // iOS 15 Safari doesn't support static initialization blocks.
@@ -1480,16 +1519,22 @@
     const circular = [];
     const di = (Key) => {
         if (circular.includes(Key)) {
-            circular.push(Key);
-            throwError(`Circular dependency: ${circular
-            .map((Key) => `${Key.name}`)
-            .join(' -> ')}`);
+            const chain = [...circular, Key]
+                .map(Key => `${Key.name}`)
+                .join(' -> ');
+            circular.length = 0;
+            throwError(`Circular dependency: ${chain}`);
         }
         circular.push(Key);
-        const value = registered.get(Key) ||
-            registered.set(Key, new Key()).get(Key);
-        circular.pop();
-        return value;
+        // A constructor that throws must not leave its class on the stack, or
+        // every later request for it would look like a cycle.
+        try {
+            return (registered.get(Key) ||
+                registered.set(Key, new Key()).get(Key));
+        }
+        finally {
+            circular.pop();
+        }
     };
     const diOverride = (Key, value) => {
         registered.set(Key, value);

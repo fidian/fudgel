@@ -1,4 +1,4 @@
-import { toString } from './util.js';
+import { isFunction, toString } from './util.js';
 import { jsep, ValueProviderRoot } from './jsep.js';
 import { newSet } from './sets.js';
 
@@ -55,7 +55,7 @@ const assembleCall = (
         ? [
               (...roots: object[]) =>
                   splitResult[0]
-                      .map(x => toString(x?.call ? x(...roots) : x))
+                      .map(x => toString(isFunction(x) ? x(...roots) : x))
                       .join(''),
               splitResult[1],
           ]

@@ -19,6 +19,8 @@ export const toString = <T>(value: T) => `${value ?? ''}`;
 
 export const isString = (x: any) => typeof x == 'string';
 
+export const isFunction = (x: any) => typeof x == 'function';
+
 export const getAttribute = (node: Element | HTMLElement, name: string) =>
     node.getAttribute(name);
 
@@ -47,10 +49,14 @@ export const setAttribute = (
 export const appendChild = (parent: Node, child: Node) =>
     parent.appendChild(child);
 
-// Return the entries of an Iterable or fall back on Object.entries for
-// normal objects and arrays.
-export const entries = (iterable: any) =>
-    iterable.entries?.() ?? Obj.entries(iterable);
+// Return [key, value] pairs for a Map, Set, array, other iterable, or plain
+// object. Only a real iterable is trusted to have an entries() method; a
+// plain object may carry any key, including one called "entries".
+export const entries = (x: any) =>
+    isFunction(x?.[Symbol.iterator])
+        ? // Map, Set, Array and NodeList have entries(); spread the rest.
+          (isFunction(x.entries) ? x : [...x]).entries()
+        : Obj.entries(x || {});
 
 export const isTemplate = (node: Node): node is HTMLTemplateElement =>
     node.nodeName == 'TEMPLATE';

@@ -1,6 +1,6 @@
-import { describe, beforeEach, it } from 'vitest';
+import { describe, beforeEach, expect, it } from 'vitest';
 import { component, html } from '../../src/fudgel.js';
-import { $, click, expectContains, expectMissing, expectText, expectValue, mount } from '../support/dom.js';
+import { $, click, collectErrors, expectContains, expectMissing, expectText, expectValue, mount } from '../support/dom.js';
 
 component('custom-element', { template: html`Success` });
 
@@ -90,5 +90,25 @@ describe('interpolation', () => {
     it('displays the right message', async () => {
         await mount('<interpolation-test></interpolation-test>');
         await expectContains('interpolation-test', 'correct');
+    });
+});
+
+component(
+    'throws-in-constructor',
+    { template: 'never rendered' },
+    class {
+        constructor() {
+            throw new Error('constructor failed');
+        }
+    }
+);
+
+describe('a controller whose constructor throws', () => {
+    it('reports that error once and nothing more on removal', async () => {
+        const errors = await collectErrors(() => {
+            document.body.innerHTML = '<throws-in-constructor></throws-in-constructor>';
+            document.body.innerHTML = '';
+        });
+        expect(errors).toEqual(['Uncaught Error: constructor failed']);
     });
 });

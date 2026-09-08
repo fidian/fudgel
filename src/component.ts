@@ -213,22 +213,26 @@ export const component = (
         }
 
         disconnectedCallback() {
-            const controller = this[metadata]!;
-            lifecycle(controller, 'destroy');
+            const controller = this[metadata];
 
-            // Remove the controller from the global list
-            allControllers.delete(controller);
+            // Absent when the controller's constructor threw.
+            if (controller) {
+                lifecycle(controller, 'destroy');
 
-            // Remove setters on the element.
-            // It is not necessary to remove setters on the controller because
-            // all references will be lost.
-            removeSetters(this);
+                // Remove the controller from the global list
+                allControllers.delete(controller);
 
-            // Remove the controller's metadata
-            delete controller[metadata];
+                // Remove setters on the element.
+                // It is not necessary to remove setters on the controller because
+                // all references will be lost.
+                removeSetters(this);
 
-            // Remove the link to the controller
-            delete this[metadata];
+                // Remove the controller's metadata
+                delete controller[metadata];
+
+                // Remove the link to the controller
+                delete this[metadata];
+            }
         }
     }
     // iOS 15 Safari doesn't support static initialization blocks.

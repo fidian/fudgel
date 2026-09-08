@@ -5,6 +5,7 @@ import { GeneralDirective } from './types.js';
 import { getScope } from '../scope.js';
 import { parse } from '../parse.js';
 import { newSet } from '../sets.js';
+import { whenRemoved } from '../bindings.js';
 
 // The guards come from Vue.js, an excellent framework.
 type KeyedEvent = KeyboardEvent | MouseEvent | TouchEvent;
@@ -82,25 +83,29 @@ export const eventDirective: GeneralDirective = (
         eventTarget = doc;
     }
 
-    eventTarget.addEventListener(
-        eventName,
-        event => {
-            if (
-                ![...modifierSet].some(modifier =>
-                    (
-                        modifierGuards[modifier] ||
-                        ((e: Event) =>
-                            pascalToDash((e as KeyboardEvent).key) !==
-                            (modifier.match(/^code-\d+$/)
-                                ? String.fromCodePoint(+modifier.split('-')[1])
-                                : modifier))
-                    )(event, node, modifierSet)
-                )
-            ) {
-                fn(event);
-            }
-        },
-        options
+    const listener = (event: Event) => {
+        if (
+            ![...modifierSet].some(modifier =>
+                (
+                    modifierGuards[modifier] ||
+                    ((e: Event) =>
+                        pascalToDash((e as KeyboardEvent).key) !==
+                        (modifier.match(/^code-\d+$/)
+                            ? String.fromCodePoint(+modifier.split('-')[1])
+                            : modifier))
+                )(event, node, modifierSet)
+            )
+        ) {
+            fn(event);
+        }
+    };
+
+    eventTarget.addEventListener(eventName, listener, options);
+
+    // A listener on the window or document would otherwise outlive the
+    // element, and keep firing for it, forever.
+    whenRemoved(controller, node, () =>
+        eventTarget.removeEventListener(eventName, listener, options)
     );
     setAttribute(node, attrName);
 };

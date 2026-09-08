@@ -4,6 +4,31 @@ import { Obj, hasOwn } from './util.js';
 import { patchSetter } from './setter.js';
 import { metadata } from './symbols.js';
 
+// Run `cleanup` once, when a directive removes `node` or the controller is
+// destroyed, and drop the listeners that were waiting for that moment.
+export const whenRemoved = (
+    controller: Controller,
+    node: Node,
+    cleanup: VoidFunction
+) => {
+    const events = controller[metadata]?.events;
+    const done = () => {
+        cleanup();
+
+        for (const remover of removers) {
+            remover?.();
+        }
+    };
+    const removers = [
+        events?.on('unlink', (removedNode: Node) => {
+            if (removedNode.contains(node)) {
+                done();
+            }
+        }),
+        events?.on('destroy', done),
+    ];
+};
+
 export const addBindings = (
     controller: Controller,
     node: Node,
@@ -13,22 +38,12 @@ export const addBindings = (
 ) => {
     for (const binding of bindingList) {
         const target = findBindingTarget(controller, scope, binding);
-        patchSetter(target, binding, callback);
-        const onDestroy = () => {
-            for (const remover of removers) {
-                remover?.();
-            }
-        };
-        const events = controller[metadata]?.events;
-        const removers = [
-            events?.on('update', callback),
-            events?.on('unlink', (removedNode: Node) => {
-                if (removedNode.contains(node)) {
-                    onDestroy();
-                }
-            }),
-            events?.on('destroy', onDestroy)
-        ];
+        const unpatch = patchSetter(target, binding, callback);
+        const offUpdate = controller[metadata]?.events.on('update', callback);
+        whenRemoved(controller, node, () => {
+            unpatch();
+            offUpdate?.();
+        });
     }
 };
 

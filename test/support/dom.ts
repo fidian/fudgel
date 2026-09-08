@@ -53,3 +53,22 @@ export const expectCount = (selector: string, expected: number, root?: ParentNod
     poll(() => $$(selector, root).length).toBe(expected);
 
 export const expectValue = <T>(fn: () => T, expected: T) => poll(fn).toBe(expected);
+
+// Run `action` and collect the errors the browser reports to window during
+// it, such as one thrown inside a custom element reaction. The listener is
+// registered for the capture phase so it runs before the test runner's own
+// listener and can keep the error from being reported as unhandled.
+export const collectErrors = async (action: () => Promise<void> | void) => {
+    const errors: string[] = [];
+    const onError = (e: ErrorEvent) => {
+        errors.push(e.message);
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    };
+    window.addEventListener('error', onError, true);
+    await action();
+    await tick();
+    window.removeEventListener('error', onError, true);
+
+    return errors;
+};
